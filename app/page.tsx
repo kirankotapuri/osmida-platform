@@ -101,7 +101,7 @@ export default function HomePage() {
   return (
     <main
       id="top"
-      className="min-h-screen bg-[#F7F8FA] text-[#111111] selection:bg-[#1E6FFF] selection:text-white pt-14 sm:pt-16 lg:pt-20 pb-20 lg:pb-0"
+      className="min-h-screen bg-white text-[#111111] selection:bg-[#3B1277] selection:text-white pt-14 sm:pt-16 pb-24 lg:pb-0"
     >
       {/* Invisible Schema Script for Nellore Local SEO */}
       <script
@@ -112,213 +112,346 @@ export default function HomePage() {
       {/* 1. FIXED BLACK HEADER */}
       <Header lang={lang} onLanguageChange={setLang} />
 
-      {/* 2. TOP TRUST STRIP */}
-      <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] px-3 sm:px-4 py-1.5 sm:py-2 text-center text-[11px] sm:text-xs font-bold text-slate-800">
-        <span>
-          {lang === "te"
-            ? "⚡ నెల్లూరులో తొలిసారిగా • స్థానిక ప్రముఖ నిపుణులతో భాగస్వామ్యం • ₹0 అడ్వాన్స్ • 30 రోజుల వరకు వారంటీ (నిబంధనలు వర్తిస్తాయి)"
-            : "⚡ Launching 1st in Nellore • Partnered with Established Local Pros • ₹0 Advance • Up to 30-Day Warranty (Terms Apply)"}
-        </span>
-      </div>
-
-      {/* 3. URBAN COMPANY MOBILE SEARCH BAR (Screenshot 1) */}
-      <section className="bg-white px-3 sm:px-6 pt-3 pb-2">
-        <div className="mx-auto max-w-6xl">
+      {/* 2. URBAN COMPANY SIGNATURE PURPLE HERO STRIP & SEARCH BAR (Screenshot 1) */}
+      <section className="bg-gradient-to-b from-[#3B1277] via-[#44168B] to-[#4F1A9D] px-3 sm:px-6 pt-3 pb-5 text-white">
+        <div className="mx-auto max-w-xl space-y-3">
+          {/* White Pill Search Bar */}
           <button
             type="button"
             onClick={() => openCategoryModal("ac")}
-            className="w-full flex items-center gap-3 rounded-2xl border border-slate-200/90 bg-[#F8F9FA] hover:bg-white hover:border-slate-400 p-3 sm:p-3.5 shadow-2xs transition-all text-left group"
+            className="w-full flex items-center gap-3 rounded-2xl bg-white p-3 sm:p-3.5 shadow-lg transition-transform active:scale-98 text-left group"
             aria-label="Search services"
           >
-            <Search className="h-4.5 w-4.5 text-slate-500 group-hover:text-slate-900 shrink-0" />
+            <Search className="h-4.5 w-4.5 text-slate-400 group-hover:text-slate-900 shrink-0" />
             <span className="text-xs sm:text-sm text-slate-500 font-medium truncate">
               {lang === "te"
-                ? "శోధించండి: 'ఏసీ జెట్ వాష్', 'పురుగుల మందు', 'డీప్ క్లీనింగ్'..."
-                : "Search for 'AC Foam Jet', 'Pest Control', 'Deep Cleaning'..."}
+                ? "శోధించండి: 'ఏసీ సర్వీస్', 'పురుగుల మందు', 'డీప్ క్లీనింగ్'..."
+                : "Search for 'AC service', 'pest control', 'deep clean'..."}
             </span>
           </button>
+
+          {/* Value Prop Banner */}
+          <div className="flex items-center justify-between rounded-xl bg-white/10 backdrop-blur-md px-3 py-2 text-[11px] sm:text-xs font-bold text-purple-100 border border-white/10">
+            <span>
+              {lang === "te"
+                ? "⚡ నెల్లూరులో తొలిసారిగా • ప్రముఖ నిపుణులు • ₹0 అడ్వాన్స్"
+                : "⚡ 30-min Pro Dispatch in Nellore • Partnered with Local Pros • ₹0 Advance"}
+            </span>
+          </div>
         </div>
       </section>
 
-      {/* 4. THE ICONIC URBAN COMPANY 4-SQUIRCLE CATEGORY GRID (Screenshot 1) */}
-      <section className="bg-white px-3 sm:px-6 py-4 border-b border-slate-100">
-        <div className="mx-auto max-w-6xl">
-          <div className="grid grid-cols-4 gap-2 sm:gap-4 text-center">
-            {/* Squircle 1: AC Services */}
-            <button
-              type="button"
-              onClick={() => openCategoryModal("ac")}
-              className="group flex flex-col items-center focus:outline-none"
+      {/* 3. URBAN COMPANY 8-CATEGORY GRID (Screenshot 1: 4 columns x 2 rows) */}
+      <section className="bg-white px-3 sm:px-6 py-5 border-b border-slate-100">
+        <div className="mx-auto max-w-xl">
+          <div className="grid grid-cols-4 gap-3 text-center">
+            {/* Category 1: AC Services */}
+            <Link
+              href="/ac-services"
+              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95"
             >
-              <div className="relative h-18 w-18 sm:h-22 sm:w-22 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/60 flex items-center justify-center p-2.5 transition-all group-hover:scale-105 shadow-2xs">
-                <div className="relative h-12 w-12 sm:h-14 sm:w-14 rounded-xl overflow-hidden">
+              <div className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/70 flex items-center justify-center p-1 transition-all shadow-2xs">
+                <div className="relative h-full w-full rounded-xl overflow-hidden">
                   <Image
                     src="/images/service-ac-foamjet.jpg"
                     alt="AC Services"
                     fill
                     className="object-cover"
-                    sizes="64px"
+                    sizes="72px"
                   />
                 </div>
               </div>
-              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-black">
-                {lang === "te" ? "ఏసీ సర్వీస్" : "AC Services"}
+              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-purple-700">
+                {lang === "te" ? "ఏసీ సర్వీస్" : "AC Service"}
               </span>
-              <span className="text-[10px] font-extrabold text-slate-700 mt-0.5">
+              <span className="text-[9px] font-extrabold text-slate-500 mt-0.5">
                 From ₹599
               </span>
-            </button>
+            </Link>
 
-            {/* Squircle 2: Pest Control */}
-            <button
-              type="button"
-              onClick={() => openCategoryModal("pest")}
-              className="group flex flex-col items-center focus:outline-none"
+            {/* Category 2: Pest Control */}
+            <Link
+              href="/pest-control"
+              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95"
             >
-              <div className="relative h-18 w-18 sm:h-22 sm:w-22 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/60 flex items-center justify-center p-2.5 transition-all group-hover:scale-105 shadow-2xs">
-                <div className="relative h-12 w-12 sm:h-14 sm:w-14 rounded-xl overflow-hidden">
+              <div className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/70 flex items-center justify-center p-1 transition-all shadow-2xs">
+                <div className="relative h-full w-full rounded-xl overflow-hidden">
                   <Image
                     src="/images/service-pest-general.jpg"
                     alt="Pest Control"
                     fill
                     className="object-cover"
-                    sizes="64px"
+                    sizes="72px"
                   />
                 </div>
               </div>
-              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-black">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-purple-700">
                 {lang === "te" ? "పురుగుల నివారణ" : "Pest Control"}
               </span>
-              <span className="text-[10px] font-extrabold text-slate-700 mt-0.5">
+              <span className="text-[9px] font-extrabold text-slate-500 mt-0.5">
                 From ₹1,499
               </span>
-            </button>
+            </Link>
 
-            {/* Squircle 3: Home Cleaning */}
-            <button
-              type="button"
-              onClick={() => openCategoryModal("cleaning")}
-              className="group flex flex-col items-center focus:outline-none"
+            {/* Category 3: Home Deep Cleaning */}
+            <Link
+              href="/home-deep-cleaning"
+              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95"
             >
-              <div className="relative h-18 w-18 sm:h-22 sm:w-22 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/60 flex items-center justify-center p-2.5 transition-all group-hover:scale-105 shadow-2xs">
-                <div className="relative h-12 w-12 sm:h-14 sm:w-14 rounded-xl overflow-hidden">
+              <div className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/70 flex items-center justify-center p-1 transition-all shadow-2xs">
+                <div className="relative h-full w-full rounded-xl overflow-hidden">
                   <Image
                     src="/images/service-cleaning-home.jpg"
                     alt="Deep Cleaning"
                     fill
                     className="object-cover"
-                    sizes="64px"
+                    sizes="72px"
                   />
                 </div>
               </div>
-              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-black">
-                {lang === "te" ? "డీప్ క్లీనింగ్" : "Deep Cleaning"}
+              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-purple-700">
+                {lang === "te" ? "డీప్ క్లీనింగ్" : "Deep Clean"}
               </span>
-              <span className="text-[10px] font-extrabold text-slate-700 mt-0.5">
-                1 BHK ₹2,499
+              <span className="text-[9px] font-extrabold text-slate-500 mt-0.5">
+                From ₹2,499
+              </span>
+            </Link>
+
+            {/* Category 4: Bathroom & Kitchen Clean */}
+            <Link
+              href="/home-deep-cleaning"
+              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95"
+            >
+              <div className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/70 flex items-center justify-center p-1 transition-all shadow-2xs">
+                <div className="relative h-full w-full rounded-xl overflow-hidden">
+                  <Image
+                    src="/images/service-cleaning-bathroom.jpg"
+                    alt="Bathroom Cleaning"
+                    fill
+                    className="object-cover"
+                    sizes="72px"
+                  />
+                </div>
+              </div>
+              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-purple-700">
+                {lang === "te" ? "బాత్‌రూమ్" : "Bathroom"}
+              </span>
+              <span className="text-[9px] font-extrabold text-slate-500 mt-0.5">
+                From ₹499
+              </span>
+            </Link>
+
+            {/* Category 5: Electrician */}
+            <button
+              type="button"
+              onClick={() => openWhatsAppDirect("Electrician Services")}
+              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95"
+            >
+              <div className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/70 flex items-center justify-center p-1 transition-all shadow-2xs">
+                <div className="relative h-full w-full rounded-xl overflow-hidden">
+                  <Image
+                    src="/images/service-electrician.jpg"
+                    alt="Electrician"
+                    fill
+                    className="object-cover"
+                    sizes="72px"
+                  />
+                </div>
+              </div>
+              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-purple-700">
+                {lang === "te" ? "ఎలక్ట్రీషియన్" : "Electrician"}
+              </span>
+              <span className="text-[9px] font-extrabold text-slate-500 mt-0.5">
+                Starts ₹199
               </span>
             </button>
 
-            {/* Squircle 4: Video Guide */}
-            <a
-              href="#how-to-book-video"
-              className="group flex flex-col items-center focus:outline-none"
+            {/* Category 6: Plumber */}
+            <button
+              type="button"
+              onClick={() => openWhatsAppDirect("Plumber Services")}
+              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95"
             >
-              <div className="relative h-18 w-18 sm:h-22 sm:w-22 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/60 flex items-center justify-center p-2.5 transition-all group-hover:scale-105 shadow-2xs">
-                <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-xl bg-slate-900 text-white shadow-xs">
-                  <Play className="h-5 w-5 fill-white text-white ml-0.5" />
+              <div className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/70 flex items-center justify-center p-1 transition-all shadow-2xs">
+                <div className="relative h-full w-full rounded-xl overflow-hidden">
+                  <Image
+                    src="/images/service-plumber.jpg"
+                    alt="Plumber"
+                    fill
+                    className="object-cover"
+                    sizes="72px"
+                  />
                 </div>
               </div>
-              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-black">
-                {lang === "te" ? "వీడియో గైడ్" : "Video Guide"}
+              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-purple-700">
+                {lang === "te" ? "ప్లంబర్" : "Plumber"}
               </span>
-              <span className="text-[10px] font-extrabold text-slate-700 mt-0.5">
-                1 Min Telugu
+              <span className="text-[9px] font-extrabold text-slate-500 mt-0.5">
+                Starts ₹199
               </span>
-            </a>
+            </button>
+
+            {/* Category 7: Carpenter */}
+            <button
+              type="button"
+              onClick={() => openWhatsAppDirect("Carpenter Services")}
+              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95"
+            >
+              <div className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/70 flex items-center justify-center p-1 transition-all shadow-2xs">
+                <div className="relative h-full w-full rounded-xl overflow-hidden">
+                  <Image
+                    src="/images/service-carpenter.jpg"
+                    alt="Carpenter"
+                    fill
+                    className="object-cover"
+                    sizes="72px"
+                  />
+                </div>
+              </div>
+              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-purple-700">
+                {lang === "te" ? "కార్పెంటర్" : "Carpenter"}
+              </span>
+              <span className="text-[9px] font-extrabold text-slate-500 mt-0.5">
+                Starts ₹249
+              </span>
+            </button>
+
+            {/* Category 8: Sofa & Balcony */}
+            <Link
+              href="/home-deep-cleaning"
+              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95"
+            >
+              <div className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/70 flex items-center justify-center p-1 transition-all shadow-2xs">
+                <div className="relative h-full w-full rounded-xl overflow-hidden">
+                  <Image
+                    src="/images/service-sofa.jpg"
+                    alt="Sofa Cleaning"
+                    fill
+                    className="object-cover"
+                    sizes="72px"
+                  />
+                </div>
+              </div>
+              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-purple-700">
+                {lang === "te" ? "సోఫా క్లీనింగ్" : "Sofa Clean"}
+              </span>
+              <span className="text-[9px] font-extrabold text-slate-500 mt-0.5">
+                From ₹399
+              </span>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* 5. IN THE SPOTLIGHT HERO BANNER (Urban Company Screenshot 2 & 3) */}
-      <section className="bg-white px-3 sm:px-6 py-5 border-b border-slate-100">
-        <div className="mx-auto max-w-6xl">
+      {/* 4. "A CLEANER HOME, WITHOUT ANY HASSLE" PROMOTIONAL BANNER (Screenshot 1) */}
+      <section className="bg-white px-3 sm:px-6 py-4 border-b border-slate-100">
+        <div className="mx-auto max-w-xl">
+          <Link
+            href="/home-deep-cleaning"
+            className="block rounded-3xl bg-[#EDE7E1] p-5 sm:p-6 relative overflow-hidden shadow-sm border border-[#DFD5C8] group hover:shadow-md transition-all"
+          >
+            <div className="space-y-2 z-10 max-w-[65%] relative">
+              <h2 className="text-lg sm:text-xl font-black text-slate-900 leading-tight">
+                A cleaner home, without any hassle
+              </h2>
+              <p className="text-xs text-slate-700 font-medium">
+                {lang === "te"
+                  ? "పూర్తి ఇల్లు డీప్ క్లీనింగ్ ₹2,499 నుండి"
+                  : "Full home deep cleaning starts at ₹2,499"}
+              </p>
+              <div className="pt-2">
+                <span className="inline-block bg-white text-slate-900 font-black text-xs px-5 py-2 rounded-xl shadow-xs group-hover:bg-slate-900 group-hover:text-white transition-colors">
+                  {lang === "te" ? "ఇప్పుడే బుక్ చేయండి" : "Book now"}
+                </span>
+              </div>
+            </div>
+
+            <div className="absolute right-0 top-0 bottom-0 w-36 sm:w-44 overflow-hidden">
+              <Image
+                src="/images/home-cleaning-banner.jpg"
+                alt="A cleaner home"
+                fill
+                className="object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                sizes="176px"
+              />
+            </div>
+          </Link>
+        </div>
+      </section>
+
+      {/* 5. IN THE SPOTLIGHT HERO BANNER CARDS */}
+      <section className="bg-white px-3 sm:px-6 py-4 border-b border-slate-100">
+        <div className="mx-auto max-w-xl">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
+            <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
               {lang === "te" ? "నెల్లూరులో ప్రముఖమైనవి" : "In the spotlight"}
             </h2>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {/* Banner 1: AC Foam Jet */}
-            <div
-              onClick={() => openCategoryModal("ac")}
-              className="cursor-pointer group relative rounded-2xl bg-[#EDE7DE] border border-[#E3DCD1] p-4 sm:p-5 flex items-center justify-between gap-3 overflow-hidden shadow-2xs hover:shadow-md transition-all"
+            <Link
+              href="/ac-services"
+              className="group relative rounded-2xl bg-[#EDE7DE] border border-[#E3DCD1] p-4 flex items-center justify-between gap-3 overflow-hidden shadow-2xs hover:shadow-md transition-all"
             >
-              <div className="space-y-1.5 z-10 flex-1 min-w-0 pr-1">
-                <span className="inline-block bg-[#3E102F] text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
+              <div className="space-y-1 z-10 flex-1 min-w-0 pr-1">
+                <span className="inline-block bg-[#3E102F] text-white text-[9px] font-bold px-2 py-0.5 rounded-sm">
                   {lang === "te" ? "కొత్త ప్రారంభం" : "New launch"}
                 </span>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
+                <h3 className="text-sm font-bold text-slate-900 leading-tight">
                   {lang === "te" ? "గోడలు మురికి కాకుండా ఏసీ జెట్ వాష్" : "Water jacket AC foam jet wash"}
                 </h3>
-                <p className="text-xs text-slate-600 font-medium">
+                <p className="text-[11px] text-slate-600 font-semibold">
                   {lang === "te" ? "ప్రారంభ ధర ₹599 • ₹0 అడ్వాన్స్" : "Starting ₹599 • ₹0 Advance"}
                 </p>
                 <div className="pt-1">
-                  <button
-                    type="button"
-                    className="inline-block bg-white hover:bg-slate-50 text-slate-900 text-xs font-bold px-4 py-1.5 rounded-xl shadow-xs border border-slate-200 transition-transform active:scale-95"
-                  >
-                    {lang === "te" ? "ఇప్పుడే బుక్ చేయండి" : "Book now"}
-                  </button>
+                  <span className="inline-block bg-white text-slate-900 text-xs font-bold px-3.5 py-1 rounded-lg shadow-xs border border-slate-200">
+                    {lang === "te" ? "బుక్ చేయండి" : "Book now"}
+                  </span>
                 </div>
               </div>
-              <div className="relative h-24 w-28 sm:h-28 sm:w-36 rounded-xl overflow-hidden shadow-2xs shrink-0">
+              <div className="relative h-20 w-22 rounded-xl overflow-hidden shadow-2xs shrink-0">
                 <Image
                   src="/images/service-ac-foamjet.jpg"
                   alt="AC Foam Jet"
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  sizes="140px"
+                  sizes="88px"
                 />
               </div>
-            </div>
+            </Link>
 
-            {/* Banner 2: Full Home Deep Clean */}
-            <div
-              onClick={() => openCategoryModal("cleaning")}
-              className="cursor-pointer group relative rounded-2xl bg-[#F4F4F6] border border-slate-200 p-4 sm:p-5 flex items-center justify-between gap-3 overflow-hidden shadow-2xs hover:shadow-md transition-all"
+            {/* Banner 2: Odorless Pest Control */}
+            <Link
+              href="/pest-control"
+              className="group relative rounded-2xl bg-[#E8F5E9] border border-[#C8E6C9] p-4 flex items-center justify-between gap-3 overflow-hidden shadow-2xs hover:shadow-md transition-all"
             >
-              <div className="space-y-1.5 z-10 flex-1 min-w-0 pr-1">
-                <span className="inline-block bg-[#166534] text-white text-[10px] font-bold px-2 py-0.5 rounded-md">
-                  {lang === "te" ? "పండుగ క్లీన్" : "Trending"}
+              <div className="space-y-1 z-10 flex-1 min-w-0 pr-1">
+                <span className="inline-block bg-[#166534] text-white text-[9px] font-bold px-2 py-0.5 rounded-sm">
+                  {lang === "te" ? "30 రోజుల వారంటీ" : "30-Day Warranty"}
                 </span>
-                <h3 className="text-base sm:text-lg font-bold text-slate-900 leading-tight">
-                  {lang === "te" ? "శ్రమ లేకుండా మీ ఇల్లు మెరిసిపోయేలా" : "A cleaner home, without any hassle"}
+                <h3 className="text-sm font-bold text-slate-900 leading-tight">
+                  {lang === "te" ? "వాసన లేని హెర్బల్ జెల్ చికిత్స" : "Odorless herbal Bayer gel"}
                 </h3>
-                <p className="text-xs text-slate-600 font-medium">
-                  {lang === "te" ? "హోమ్ డీప్ క్లీన్ 1 BHK ₹2,499 నుండి" : "Full home clean starting from ₹2,499"}
+                <p className="text-[11px] text-slate-600 font-semibold">
+                  {lang === "te" ? "1 BHK ₹1,499 నుండి" : "1 BHK from ₹1,499"}
                 </p>
                 <div className="pt-1">
-                  <button
-                    type="button"
-                    className="inline-block bg-white hover:bg-slate-50 text-slate-900 text-xs font-bold px-4 py-1.5 rounded-xl shadow-xs border border-slate-200 transition-transform active:scale-95"
-                  >
-                    {lang === "te" ? "ఇప్పుడే బుక్ చేయండి" : "Book now"}
-                  </button>
+                  <span className="inline-block bg-white text-slate-900 text-xs font-bold px-3.5 py-1 rounded-lg shadow-xs border border-slate-200">
+                    {lang === "te" ? "బుక్ చేయండి" : "Book now"}
+                  </span>
                 </div>
               </div>
-              <div className="relative h-24 w-28 sm:h-28 sm:w-36 rounded-xl overflow-hidden shadow-2xs shrink-0">
+              <div className="relative h-20 w-22 rounded-xl overflow-hidden shadow-2xs shrink-0">
                 <Image
-                  src="/images/service-cleaning-home.jpg"
-                  alt="Full Home Cleaning"
+                  src="/images/service-pest-general.jpg"
+                  alt="Pest Control"
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  sizes="140px"
+                  sizes="88px"
                 />
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </section>

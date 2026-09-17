@@ -15,7 +15,7 @@ interface HeaderProps {
 
 export function Header({ lang, onLanguageChange }: HeaderProps) {
   const pathname = usePathname();
-  const [selectedLocality, setSelectedLocality] = useState<string>("Trunk Road");
+  const [selectedLocality, setSelectedLocality] = useState<string>("Pogathota");
   const [isLocalityModalOpen, setIsLocalityModalOpen] = useState(false);
 
   const navLinks = [
@@ -51,11 +51,9 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
 
   return (
     <>
+      {/* Signature Urban Company Deep Purple Header (Screenshot 1 & 2) */}
       <header
-        className="fixed top-0 left-0 right-0 z-[1000] w-full bg-white/95 backdrop-blur-md border-b border-[#E5E7EB] transition-all duration-200"
-        style={{
-          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
-        }}
+        className="fixed top-0 left-0 right-0 z-[1000] w-full bg-[#3B1277] text-white border-b border-[#4E1C9C] transition-all duration-200 shadow-md"
       >
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-3 sm:px-4 lg:px-6 h-14 sm:h-16">
           {/* Left: Location & Logo (Urban Company Screenshot 1 Layout) */}
@@ -66,7 +64,7 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
               className="group flex items-center gap-2 focus:outline-none rounded-xl"
               aria-label="Osmida Home Page"
             >
-              <div className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-xl overflow-hidden border border-slate-200 bg-black transition-transform group-hover:scale-105 shrink-0">
+              <div className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-xl overflow-hidden border border-white/20 bg-black transition-transform group-hover:scale-105 shrink-0 shadow-xs">
                 <Image
                   src="/osmida.jpg"
                   alt="Osmida Logo"
@@ -77,10 +75,10 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
                 />
               </div>
               <div className="hidden sm:flex flex-col">
-                <span className="text-sm sm:text-base font-black tracking-wider text-slate-900">
+                <span className="text-sm sm:text-base font-black tracking-wider text-white">
                   OSMIDA
                 </span>
-                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 -mt-0.5">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-purple-200 -mt-0.5">
                   {lang === "te" ? "నెల్లూరు" : "Nellore"}
                 </span>
               </div>
@@ -90,18 +88,18 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
             <button
               type="button"
               onClick={() => setIsLocalityModalOpen(true)}
-              className="flex items-center gap-1.5 rounded-xl hover:bg-slate-100/80 px-2 py-1 text-left transition-colors focus:outline-none"
+              className="flex items-center gap-1.5 rounded-xl hover:bg-white/10 px-2 py-1 text-left transition-colors focus:outline-none"
               aria-label="Select locality in Nellore"
             >
-              <MapPin className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-slate-900 shrink-0" />
+              <MapPin className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-white shrink-0" />
               <div className="flex flex-col text-left">
                 <div className="flex items-center gap-1">
-                  <span className="text-xs sm:text-sm font-extrabold text-slate-900 truncate max-w-[120px] sm:max-w-[180px]">
+                  <span className="text-xs sm:text-sm font-black text-white truncate max-w-[120px] sm:max-w-[180px]">
                     {selectedLocality}
                   </span>
-                  <ChevronDown className="h-3 w-3 text-slate-600 shrink-0 stroke-[2.5]" />
+                  <ChevronDown className="h-3 w-3 text-purple-200 shrink-0 stroke-[2.5]" />
                 </div>
-                <span className="text-[10px] text-slate-500 truncate max-w-[120px] sm:max-w-[200px] leading-tight">
+                <span className="text-[10px] text-purple-200 truncate max-w-[120px] sm:max-w-[200px] leading-tight font-medium">
                   {lang === "te" ? "నెల్లూరు • ప్రముఖ నిపుణులు" : "Nellore, AP • Verified Pros"}
                 </span>
               </div>
@@ -119,13 +117,13 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className={`group relative flex items-center h-10 px-2 text-sm font-semibold transition-colors duration-200 focus:outline-none rounded-md ${
-                    isActive ? "text-slate-900" : "text-slate-600 hover:text-slate-900"
+                  className={`group relative flex items-center h-10 px-2 text-sm font-bold transition-colors duration-200 focus:outline-none rounded-md ${
+                    isActive ? "text-white font-black" : "text-purple-200 hover:text-white"
                   }`}
                 >
                   <span>{lang === "te" ? link.labelTe : link.labelEn}</span>
                   <span
-                    className={`absolute bottom-0 left-0 h-[2px] w-full bg-slate-900 transition-all duration-200 origin-center ${
+                    className={`absolute bottom-0 left-0 h-[2px] w-full bg-white transition-all duration-200 origin-center ${
                       isActive
                         ? "scale-x-100 opacity-100"
                         : "scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-100"
@@ -136,20 +134,20 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
             })}
           </nav>
 
-          {/* Right: Language Toggle & Quick Call */}
+          {/* Right: Language Toggle */}
           <div className="flex items-center gap-2 shrink-0">
             <div
-              className="flex items-center gap-1 text-xs font-semibold bg-slate-100 rounded-full p-1 border border-slate-200"
+              className="flex items-center gap-1 text-xs font-bold bg-black/20 rounded-full p-1 border border-white/15"
               role="group"
               aria-label="Language selection"
             >
               <button
                 type="button"
                 onClick={() => onLanguageChange("en")}
-                className={`transition-colors duration-200 rounded-full px-2 py-0.5 ${
+                className={`transition-colors duration-200 rounded-full px-2.5 py-0.5 ${
                   lang === "en"
-                    ? "font-extrabold text-slate-900 bg-white shadow-2xs"
-                    : "text-slate-500 hover:text-slate-900"
+                    ? "font-black text-[#3B1277] bg-white shadow-xs"
+                    : "text-purple-200 hover:text-white"
                 }`}
                 aria-label="Switch language to English"
                 aria-pressed={lang === "en"}
@@ -160,10 +158,10 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
               <button
                 type="button"
                 onClick={() => onLanguageChange("te")}
-                className={`transition-colors duration-200 rounded-full px-2 py-0.5 ${
+                className={`transition-colors duration-200 rounded-full px-2.5 py-0.5 ${
                   lang === "te"
-                    ? "font-extrabold text-slate-900 bg-white shadow-2xs"
-                    : "text-slate-500 hover:text-slate-900"
+                    ? "font-black text-[#3B1277] bg-white shadow-xs"
+                    : "text-purple-200 hover:text-white"
                 }`}
                 aria-label="భాషను తెలుగుకి మార్చండి"
                 aria-pressed={lang === "te"}
@@ -221,19 +219,19 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
                     }}
                     className={`w-full flex items-center justify-between py-3 px-2 text-left rounded-xl transition-colors ${
                       isSelected
-                        ? "bg-blue-50 text-[#1E6FFF] font-bold"
+                        ? "bg-purple-50 text-purple-700 font-bold"
                         : "hover:bg-slate-50 text-slate-700 font-medium"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
                       <MapPin
                         className={`h-4 w-4 ${
-                          isSelected ? "text-[#1E6FFF]" : "text-slate-400"
+                          isSelected ? "text-purple-700" : "text-slate-400"
                         }`}
                       />
                       <span className="text-sm">{loc}, Nellore</span>
                     </div>
-                    {isSelected && <Check className="h-4 w-4 text-[#1E6FFF]" />}
+                    {isSelected && <Check className="h-4 w-4 text-purple-700" />}
                   </button>
                 );
               })}

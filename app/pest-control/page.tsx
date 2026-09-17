@@ -2,23 +2,23 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Header } from "@/components/Header";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Language } from "@/lib/translations";
-import { CategorySelectorModal } from "@/components/CategorySelectorModal";
 import { UCServiceCard, UCServiceItemData } from "@/components/UCServiceCard";
 import { UCFloatingCartBar } from "@/components/UCFloatingCartBar";
 import { UCCartDrawer } from "@/components/UCCartDrawer";
 import { UCServiceDetailModal } from "@/components/UCServiceDetailModal";
-import { PEST_SUBCATEGORIES, PEST_SERVICE_ITEMS } from "@/lib/ucServiceData";
+import { UCSubcategoryTabs, SubcategoryTabItem } from "@/components/UCSubcategoryTabs";
+import { UCSubcategoryMenuModal, MenuSubcategory } from "@/components/UCSubcategoryMenuModal";
+import { PEST_SERVICE_ITEMS } from "@/lib/ucServiceData";
 import {
   Star,
   ShieldCheck,
-  ChevronDown,
+  ChevronRight,
   ArrowLeft,
-  RotateCcw,
-  BadgePercent,
-  Sparkles,
+  Search,
+  Share2,
 } from "lucide-react";
 
 export default function PestControlPage() {
@@ -26,8 +26,6 @@ export default function PestControlPage() {
   const [activeTab, setActiveTab] = useState<string>("cockroach-ants");
   const [selectedDetailItem, setSelectedDetailItem] = useState<UCServiceItemData | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-  const [isCatalogModalOpen, setIsCatalogModalOpen] = useState(false);
-  const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
 
   const handleOpenDetail = (item: UCServiceItemData) => {
     setSelectedDetailItem(item);
@@ -38,278 +36,294 @@ export default function PestControlPage() {
     setActiveTab(subId);
     const element = document.getElementById(subId);
     if (element) {
-      const yOffset = -120;
+      const yOffset = -130;
       const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
       window.scrollTo({ top: y, behavior: "smooth" });
     }
   };
 
-  // Local SEO Schema
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Service",
-    "name": "Pest Control & Cockroach Bedbug Termite Treatment in Nellore",
-    "provider": {
-      "@type": "LocalBusiness",
-      "name": "Osmida Pest Control Nellore",
-      "telephone": "+917676358162",
-      "address": {
-        "@type": "PostalAddress",
-        "addressLocality": "Nellore",
-        "addressRegion": "Andhra Pradesh",
-        "postalCode": "524003",
-        "addressCountry": "IN",
-      },
-    },
-    "areaServed": "Nellore",
-    "offers": {
-      "@type": "AggregateOffer",
-      "lowPrice": "699",
-      "highPrice": "2499",
-      "priceCurrency": "INR",
-    },
-  };
-
-  const faqs = [
+  const subcategoryTabs: SubcategoryTabItem[] = [
     {
-      qEn: "Are the pest control chemicals safe for kids and elderly parents?",
-      qTe: "పురుగుల మందులు పిల్లలు మరియు పెద్దలకు సురక్షితమేనా?",
-      aEn: "Yes. We use low-odor, government-approved certified gels and synthetic pyrethroids. Unlike harsh unorganized sprays, our gel baiting requires zero kitchen emptying and is safe when basic 2-hour ventilation protocols are followed.",
-      aTe: "అవును. మేము ప్రభుత్వ ఆమోదం పొందిన, తక్కువ వాసన గల సర్టిఫైడ్ జెల్స్ ఉపయోగిస్తాము. వంటగది సామాన్లు మొత్తం బయట పెట్టాల్సిన అవసరం లేదు. పిల్లలు, వృద్ధులు & పెంపుడు జంతువులకు సురక్షితం.",
+      id: "cockroach-ants",
+      nameEn: "Cockroach & Ants",
+      nameTe: "బొద్దింకలు & చీమలు",
+      image: "/images/service-pest-general.jpg",
+      badge: "30-Day Warranty",
     },
     {
-      qEn: "What are the terms of the 30-day rework warranty?",
-      qTe: "30 రోజుల రీవిజిట్ వారంటీ నిబంధనలు ఏమిటి?",
-      aEn: "If you observe persistent cockroaches or target pests in the treated rooms within 30 days, our technician will re-inspect and apply a booster treatment completely FREE of cost.",
-      aTe: "ట్రీట్ చేసిన గదుల్లో 30 రోజుల్లోగా మళ్లీ పురుగులు కనిపిస్తే, మా టెక్నీషియన్ వచ్చి పూర్తిగా ఉచితంగా రీ-ట్రీట్మెంట్ చేస్తారు.",
+      id: "bedbugs",
+      nameEn: "Bedbugs",
+      nameTe: "నల్లులు",
+      image: "/images/service-pest-bedbug.jpg",
     },
     {
-      qEn: "Do I need to pay any advance before service?",
-      qTe: "ముందస్తుగా అడ్వాన్స్ ఏమైనా చెల్లించాలా?",
-      aEn: "No advance is required (₹0 Advance). You only pay after our uniformed technician finishes the full treatment and provides the warranty card.",
-      aTe: "ముందస్తు అడ్వాన్స్ ఏమీ లేదు (₹0 అడ్వాన్స్). టెక్నీషియన్ పని పూర్తి చేసి వారంటీ కార్డు ఇచ్చిన తర్వాతే మీరు చెల్లించాలి.",
+      id: "termites",
+      nameEn: "Termite Control",
+      nameTe: "చెదలు నివారణ",
+      image: "/images/service-pest-termite.jpg",
+    },
+    {
+      id: "mosquito-rodents",
+      nameEn: "Mosquito & Rodent",
+      nameTe: "దోమలు & ఎలుకలు",
+      image: "/images/service-pest-v2.jpg",
     },
   ];
 
-  return (
-    <main className="min-h-screen bg-[#F8F9FA] text-slate-900 pt-14 sm:pt-16 pb-24 sm:pb-16">
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
+  const menuCategories: MenuSubcategory[] = [
+    { id: "cockroach-ants", nameEn: "Cockroach & Ants", nameTe: "బొద్దింకలు & చీమలు", itemCount: 4 },
+    { id: "bedbugs", nameEn: "Bedbugs", nameTe: "నల్లులు", itemCount: 2 },
+    { id: "termites", nameEn: "Termite Control", nameTe: "చెదలు నివారణ", itemCount: 1 },
+    { id: "mosquito-rodents", nameEn: "Mosquito & Rodent", nameTe: "దోమలు & ఎలుకలు", itemCount: 1 },
+  ];
 
-      {/* 1. APP HEADER */}
+  const cockroachItems = PEST_SERVICE_ITEMS.filter((i) => i.subcategory === "cockroach-ants");
+  const bedbugItems = PEST_SERVICE_ITEMS.filter((i) => i.subcategory === "bedbugs");
+  const termiteItems = PEST_SERVICE_ITEMS.filter((i) => i.subcategory === "termites");
+  const mosquitoItems = PEST_SERVICE_ITEMS.filter((i) => i.subcategory === "mosquito-rodents");
+
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: "Osmida Pest Control Nellore",
+        text: "Book Odorless Cockroach & Pest Control in Nellore with 30-Day Warranty!",
+        url: window.location.href,
+      });
+    } else {
+      navigator.clipboard.writeText(window.location.href);
+      alert("Link copied to clipboard!");
+    }
+  };
+
+  return (
+    <main className="min-h-screen bg-white text-slate-900 pb-28">
+      {/* 1. TOP APP HEADER */}
       <Header lang={lang} onLanguageChange={setLang} />
 
-      {/* 2. CATEGORY HERO HEADER */}
-      <div className="bg-white border-b border-slate-200 px-3 sm:px-6 pt-4 pb-4">
-        <div className="mx-auto max-w-3xl space-y-2">
-          {/* Breadcrumb / Back Link */}
+      {/* 2. CATEGORY TOP BAR */}
+      <div className="pt-14 sm:pt-16 bg-gradient-to-b from-purple-50/50 to-white">
+        <div className="mx-auto max-w-xl px-4 py-3 flex items-center justify-between">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-xs border border-slate-200/80 hover:bg-slate-50 transition-colors"
+            aria-label="Back to home"
           >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{lang === "te" ? "హోమ్ పేజీకి తిరిగి వెళ్లండి" : "Back to All Services"}</span>
+            <ArrowLeft className="h-4.5 w-4.5 text-slate-800" />
           </Link>
 
-          <div className="flex items-start justify-between gap-3">
-            <div>
-              <h1 className="text-xl sm:text-3xl font-black text-slate-900 tracking-tight leading-tight">
-                {lang === "te" ? "పురుగుల నివారణ సేవలు నెల్లూరు" : "Pest Control Services in Nellore"}
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => scrollToSubcategory("cockroach-ants")}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-xs border border-slate-200/80 hover:bg-slate-50 transition-colors"
+              aria-label="Search services"
+            >
+              <Search className="h-4 w-4 text-slate-700" />
+            </button>
+            <button
+              type="button"
+              onClick={handleShare}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-xs border border-slate-200/80 hover:bg-slate-50 transition-colors"
+              aria-label="Share service"
+            >
+              <Share2 className="h-4 w-4 text-slate-700" />
+            </button>
+          </div>
+        </div>
+
+        {/* 3. HERO CARD */}
+        <div className="mx-auto max-w-xl px-4 pb-4">
+          <div className="flex items-center justify-between gap-3">
+            <div className="space-y-1">
+              <span className="inline-block bg-[#007F5F] text-white text-[10px] font-black px-2 py-0.5 rounded-xs tracking-wider uppercase">
+                ★ INSTANT
+              </span>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+                {lang === "te" ? "పురుగుల నివారణ 60 నిమిషాల్లో" : "Pest control in\nNellore in 60 mins"}
               </h1>
-              <p className="text-xs sm:text-sm text-slate-600 mt-1">
-                {lang === "te"
-                  ? "బొద్దింకలు, నల్లులు, చెదపురుగుల నివారణ • సర్టిఫైడ్ స్వల్ప వాసన రసాయనాలు • 30 రోజుల వారంటీ"
-                  : "Cockroaches, bedbugs, termites & ants eradication • Low-odor certified chemicals • 30-day warranty"}
+              <p className="text-xs font-semibold text-slate-500">
+                {lang === "te" ? "ప్రారంభ ధర ₹699 • వాసన లేని మందులు" : "Starts at ₹699 • 100% Odorless Gel"}
               </p>
             </div>
 
-            {/* Rating pill */}
-            <div className="flex flex-col items-end shrink-0 pt-1">
-              <div className="flex items-center gap-1 rounded-xl bg-slate-100 border border-slate-200 px-2.5 py-1 text-xs font-bold text-slate-900">
-                <Star className="h-3.5 w-3.5 fill-slate-900 text-slate-900" />
-                <span>4.89</span>
-              </div>
-              <span className="text-[10px] text-slate-500 mt-0.5 font-medium">1.8k bookings</span>
+            <div className="relative h-28 w-32 sm:h-32 sm:w-36 rounded-2xl overflow-hidden shadow-sm shrink-0 border border-slate-100">
+              <Image
+                src="/images/service-pest-general.jpg"
+                alt="Pest Control Pro"
+                fill
+                className="object-cover"
+                priority
+                sizes="144px"
+              />
             </div>
           </div>
 
-          {/* Trust Value Badges */}
-          <div className="flex flex-wrap items-center gap-2 pt-1 text-[11px] font-bold">
-            <span className="inline-flex items-center gap-1 text-[#166534] bg-[#F0FDF4] border border-[#BBF7D0] px-2.5 py-0.5 rounded-full">
-              <ShieldCheck className="h-3 w-3" />
-              <span>{lang === "te" ? "₹0 ముందస్తు అడ్వాన్స్" : "₹0 Advance Booking"}</span>
-            </span>
-            <span className="inline-flex items-center gap-1 text-slate-700 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-full">
-              <RotateCcw className="h-3 w-3" />
-              <span>{lang === "te" ? "30 రోజుల వారంటీ" : "30-Day Revisit Warranty"}</span>
-            </span>
-            <span className="inline-flex items-center gap-1 text-slate-700 bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-full">
-              <Sparkles className="h-3 w-3 text-amber-600" />
-              <span>{lang === "te" ? "స్వల్ప వాసన రసాయనాలు" : "Low-Odor Certified"}</span>
-            </span>
+          {/* 4. RATING & OSMIDA COVER GUARANTEE STRIP */}
+          <div className="mt-4 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-2xs space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-base font-black text-slate-900">Pest Control</span>
+                <div className="flex items-center gap-1 text-xs text-slate-700">
+                  <Star className="h-3.5 w-3.5 fill-slate-900 text-slate-900" />
+                  <span className="font-black">4.89</span>
+                  <span className="text-slate-500">(890 reviews)</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-1 bg-[#E8F5E9] text-[#007F5F] px-2 py-0.5 rounded-md text-[11px] font-bold">
+                <ShieldCheck className="h-3.5 w-3.5 text-[#007F5F]" />
+                <span>{lang === "te" ? "ధృవీకరించిన నిపుణులు" : "Verified Pros"}</span>
+              </div>
+            </div>
+
+            <div className="flex items-center justify-between rounded-xl bg-[#F8F9FA] px-3 py-2 text-xs border border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                <span className="font-extrabold text-slate-900">OSMIDA COVER</span>
+                <span className="text-slate-500 text-[11px]">
+                  {lang === "te"
+                    ? "30 రోజుల ఉచిత రీ-విజిట్ వారంటీ"
+                    : "30-day free revisit warranty"}
+                </span>
+              </div>
+              <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* 3. STICKY SUBCATEGORY PILL TABS (Urban Company Signature) */}
-      <div className="sticky top-14 sm:top-16 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 sm:px-6 py-2.5 shadow-2xs">
-        <div className="mx-auto max-w-3xl flex items-center gap-2 overflow-x-auto no-scrollbar">
-          {PEST_SUBCATEGORIES.map((sub) => {
-            const isActive = activeTab === sub.id;
-            return (
-              <button
-                key={sub.id}
-                type="button"
-                onClick={() => scrollToSubcategory(sub.id)}
-                className={`flex-shrink-0 px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all ${
-                  isActive
-                    ? "bg-slate-950 text-white shadow-xs"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/60"
-                }`}
-              >
-                {lang === "te" ? sub.labelTe : sub.labelEn}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* 4. MAIN SERVICE PACKAGES CONTAINER */}
-      <div className="mx-auto max-w-3xl px-3 sm:px-6 py-4 space-y-6">
-        {PEST_SUBCATEGORIES.map((sub) => {
-          const subItems = PEST_SERVICE_ITEMS.filter((item) => item.subcategory === sub.id);
-          if (subItems.length === 0) return null;
-
-          return (
-            <section
-              key={sub.id}
-              id={sub.id}
-              className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-6 shadow-xs scroll-mt-28"
-            >
-              {/* Subcategory Section Header */}
-              <div className="pb-2 mb-2 border-b border-slate-100">
-                <h2 className="text-base sm:text-lg font-black text-slate-900">
-                  {lang === "te" ? sub.labelTe : sub.labelEn}
-                </h2>
-                <p className="text-[11px] text-slate-500 font-medium">
-                  {sub.id === "cockroach-ants" &&
-                    (lang === "te"
-                      ? "కిచెన్ కేబినెట్లు, ఫ్రిజ్ & వాష్‌రూమ్‌లలో జెల్ బెయిటింగ్ మరియు స్ప్రే (30 రోజుల వారంటీ)"
-                      : "Gel baiting & perimeter spray in kitchens & washrooms with 30-day warranty")}
-                  {sub.id === "bedbug-control" &&
-                    (lang === "te"
-                      ? "మంచాలు, మ్యాట్రెస్ & కర్టెన్లలో నల్లుల సమూల నివారణకు మిస్టింగ్ ట్రీట్మెంట్"
-                      : "Targeted misting treatment eliminating live bedbugs & eggs from mattresses & seams")}
-                  {sub.id === "termite-control" &&
-                    (lang === "te"
-                      ? "గోడల మూలల్లో ప్రత్యేక డ్రిల్లింగ్ & కెమికల్ ప్రెజర్ ఇంజెక్షన్ (చ.అ.కు ₹8)"
-                      : "Chemical barrier injection along skirting walls with multi-year warranty")}
-                  {sub.id === "mosquito-rodents" &&
-                    (lang === "te"
-                      ? "డ్రెయిన్ శానిటైజేషన్ & సురక్షిత ఎలుకల నివారణ బోర్డులు"
-                      : "Safe glue board runways & non-toxic drain repellent granules")}
-                </p>
-              </div>
-
-              {/* Items in this subcategory */}
-              <div className="divide-y divide-slate-100">
-                {subItems.map((item) => (
-                  <UCServiceCard
-                    key={item.id}
-                    item={item}
-                    lang={lang}
-                    onViewDetails={handleOpenDetail}
-                  />
-                ))}
-              </div>
-            </section>
-          );
-        })}
-
-        {/* 5. URBAN COMPANY 4-POINT TRUST PROMISE */}
-        <section className="rounded-2xl sm:rounded-3xl bg-[#FEF3C7]/40 border border-[#FDE68A] p-4 sm:p-6 space-y-3">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="h-5 w-5 text-[#92400E]" />
-            <h3 className="text-sm sm:text-base font-black text-[#92400E]">
-              {lang === "te" ? "ఓస్మిడా పెస్ట్ కంట్రోల్ రక్షణ" : "The Osmida Pest Control Promise"}
-            </h3>
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs font-semibold text-slate-800">
-            <div className="rounded-xl bg-white/80 p-2.5 border border-amber-200">
-              <span className="block text-amber-900 font-black">₹0 Advance</span>
-              <span className="text-[11px] text-slate-600">Pay after completion</span>
-            </div>
-            <div className="rounded-xl bg-white/80 p-2.5 border border-amber-200">
-              <span className="block text-amber-900 font-black">30-Day Warranty</span>
-              <span className="text-[11px] text-slate-600">Free rework if pests return</span>
-            </div>
-            <div className="rounded-xl bg-white/80 p-2.5 border border-amber-200">
-              <span className="block text-amber-900 font-black">Low-Odor Gel</span>
-              <span className="text-[11px] text-slate-600">No kitchen emptying</span>
-            </div>
-            <div className="rounded-xl bg-white/80 p-2.5 border border-amber-200">
-              <span className="block text-amber-900 font-black">Black Uniform</span>
-              <span className="text-[11px] text-slate-600">ID checked experts</span>
-            </div>
-          </div>
-        </section>
-
-        {/* 6. FAQS ACCORDION */}
-        <section className="bg-white rounded-2xl sm:rounded-3xl border border-slate-200/80 p-4 sm:p-6 space-y-3">
-          <h3 className="text-base font-black text-slate-900">
-            {lang === "te" ? "తరచుగా అడిగే ప్రశ్నలు" : "Frequently Asked Questions"}
-          </h3>
-          <div className="divide-y divide-slate-100">
-            {faqs.map((faq, idx) => (
-              <div key={idx} className="py-2.5">
-                <button
-                  type="button"
-                  onClick={() => setOpenFaqIndex(openFaqIndex === idx ? null : idx)}
-                  className="w-full flex items-center justify-between text-left text-xs sm:text-sm font-bold text-slate-900 py-1"
-                >
-                  <span>{lang === "te" ? faq.qTe : faq.qEn}</span>
-                  <ChevronDown
-                    className={`h-4 w-4 text-slate-500 transition-transform ${
-                      openFaqIndex === idx ? "rotate-180" : ""
-                    }`}
-                  />
-                </button>
-                {openFaqIndex === idx && (
-                  <p className="text-xs text-slate-600 pt-1.5 leading-relaxed">
-                    {lang === "te" ? faq.aTe : faq.aEn}
-                  </p>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      </div>
-
-      {/* 7. FLOATING CART DOCK (Urban Company Signature) */}
-      <UCFloatingCartBar lang={lang} />
-
-      {/* 8. SLIDE-UP CART DRAWER */}
-      <UCCartDrawer lang={lang} />
-
-      {/* 9. SERVICE DETAIL MODAL */}
-      <UCServiceDetailModal
-        item={selectedDetailItem}
-        isOpen={isDetailModalOpen}
-        onClose={() => setIsDetailModalOpen(false)}
+      {/* 5. STICKY SUBCATEGORY ICON TABS */}
+      <UCSubcategoryTabs
+        items={subcategoryTabs}
+        activeId={activeTab}
+        onSelect={scrollToSubcategory}
         lang={lang}
       />
 
-      {/* 10. MOBILE BOTTOM NAV */}
-      <MobileBottomNav lang={lang} onOpenServices={() => setIsCatalogModalOpen(true)} />
+      {/* 6. CONTENT SECTIONS */}
+      <div className="mx-auto max-w-xl px-4 divide-y divide-slate-100">
+        {/* SECTION A: COCKROACH & ANTS */}
+        <section id="cockroach-ants" className="pt-6 pb-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+              {lang === "te" ? "బొద్దింకలు & చీమల నివారణ" : "Cockroach & Ants Control"}
+            </h2>
+          </div>
 
-      {/* 11. CATALOG MODAL */}
-      <CategorySelectorModal
-        isOpen={isCatalogModalOpen}
-        onClose={() => setIsCatalogModalOpen(false)}
+          {/* UC Hero Banner Card */}
+          <div className="mb-4 rounded-2xl bg-[#F8F9FA] border border-slate-200/80 p-4 relative overflow-hidden shadow-2xs">
+            <div className="inline-block bg-[#007F5F] text-white text-[9px] font-black px-2 py-0.5 rounded-xs uppercase mb-1.5">
+              Odorless Gel + Spray
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-black text-slate-900 leading-tight">
+                  Herbal Bayer Gel Treatment
+                </h3>
+                <p className="text-xs text-slate-600 mt-1">
+                  {lang === "te"
+                    ? "వంటగది సామాన్లు తీయక్కర్లేదు • వాసన లేని సురక్షిత మందులు"
+                    : "No need to empty kitchen cabinets • Child & pet safe"}
+                </p>
+              </div>
+
+              <div className="relative h-20 w-24 rounded-xl overflow-hidden shrink-0 border border-slate-200">
+                <Image
+                  src="/images/service-pest-general.jpg"
+                  alt="Gel Treatment"
+                  fill
+                  className="object-cover"
+                  sizes="96px"
+                />
+              </div>
+            </div>
+          </div>
+
+          {cockroachItems.map((item) => (
+            <UCServiceCard
+              key={item.id}
+              item={item}
+              lang={lang}
+              onViewDetails={handleOpenDetail}
+            />
+          ))}
+        </section>
+
+        {/* SECTION B: BEDBUGS */}
+        <section id="bedbugs" className="pt-6 pb-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+              {lang === "te" ? "నల్లుల నిర్మూలన" : "Bedbug Eradication"}
+            </h2>
+          </div>
+
+          {bedbugItems.map((item) => (
+            <UCServiceCard
+              key={item.id}
+              item={item}
+              lang={lang}
+              onViewDetails={handleOpenDetail}
+            />
+          ))}
+        </section>
+
+        {/* SECTION C: TERMITES */}
+        <section id="termites" className="pt-6 pb-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+              {lang === "te" ? "చెదలు నివారణ" : "Termite Control"}
+            </h2>
+          </div>
+
+          {termiteItems.map((item) => (
+            <UCServiceCard
+              key={item.id}
+              item={item}
+              lang={lang}
+              onViewDetails={handleOpenDetail}
+            />
+          ))}
+        </section>
+
+        {/* SECTION D: MOSQUITO & RODENTS */}
+        <section id="mosquito-rodents" className="pt-6 pb-4">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+              {lang === "te" ? "దోమలు & ఎలుకలు" : "Mosquito & Rodents"}
+            </h2>
+          </div>
+
+          {mosquitoItems.map((item) => (
+            <UCServiceCard
+              key={item.id}
+              item={item}
+              lang={lang}
+              onViewDetails={handleOpenDetail}
+            />
+          ))}
+        </section>
+      </div>
+
+      {/* 7. FLOATING ≡ MENU MODAL */}
+      <UCSubcategoryMenuModal
+        categories={menuCategories}
+        activeId={activeTab}
+        onSelect={scrollToSubcategory}
         lang={lang}
-        initialTab="pest"
+      />
+
+      {/* 8. FLOATING CART DOCK */}
+      <UCFloatingCartBar lang={lang} />
+
+      {/* 9. SLIDE-UP BOTTOM CART CHECKOUT DRAWER */}
+      <UCCartDrawer lang={lang} />
+
+      {/* 10. SERVICE DETAIL BOTTOM SHEET MODAL */}
+      <UCServiceDetailModal
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        item={selectedDetailItem}
+        lang={lang}
       />
     </main>
   );

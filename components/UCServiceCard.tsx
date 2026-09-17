@@ -23,6 +23,8 @@ export interface UCServiceItemData {
   imageSrc: string;
   category: "ac" | "pest" | "cleaning";
   subcategory: string;
+  badge?: string;
+  optionsCount?: string;
 }
 
 interface UCServiceCardProps {
@@ -40,18 +42,18 @@ export function UCServiceCard({ item, lang, onViewDetails }: UCServiceCardProps)
     : null;
 
   return (
-    <div className="flex items-start justify-between gap-4 py-5 border-b border-slate-100 last:border-b-0">
-      {/* Left: Info, Pricing, Bullets, View Details */}
-      <div className="flex-1 min-w-0 pr-1 space-y-2">
+    <div className="flex items-start justify-between gap-3.5 py-4 border-b border-slate-100 last:border-b-0">
+      {/* Left Column: Title, Rating, Price, Bullets, View Details */}
+      <div className="flex-1 min-w-0 pr-1 space-y-1.5">
         {/* Title */}
         <h3 className="text-sm sm:text-base font-bold text-slate-900 leading-snug">
           {lang === "te" ? item.titleTe : item.titleEn}
         </h3>
 
-        {/* Rating & Duration */}
+        {/* Rating & Review Count */}
         <div className="flex items-center gap-1.5 text-xs text-slate-700">
           <div className="flex items-center gap-1 font-bold">
-            <Star className="h-3.5 w-3.5 fill-slate-900 text-slate-900" />
+            <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
             <span>{item.rating}</span>
           </div>
           <span className="text-slate-500">({item.reviews})</span>
@@ -63,16 +65,16 @@ export function UCServiceCard({ item, lang, onViewDetails }: UCServiceCardProps)
 
         {/* Pricing */}
         <div className="flex items-center gap-2 pt-0.5">
-          <span className="text-base font-black text-slate-900">
+          <span className="text-sm sm:text-base font-extrabold text-slate-900">
             ₹{item.price.toLocaleString("en-IN")}
           </span>
           {item.originalPrice && (
             <>
-              <span className="text-xs text-slate-500 line-through">
+              <span className="text-xs text-slate-400 line-through">
                 ₹{item.originalPrice.toLocaleString("en-IN")}
               </span>
               {discountPercent && discountPercent > 0 && (
-                <span className="text-[10px] font-bold text-[#166534] bg-[#F0FDF4] border border-[#BBF7D0] px-1.5 py-0.2 rounded-md">
+                <span className="text-[10px] font-bold text-[#15803D] bg-[#F0FDF4] border border-[#DCFCE7] px-1.5 py-0.2 rounded-md">
                   {discountPercent}% off
                 </span>
               )}
@@ -80,33 +82,38 @@ export function UCServiceCard({ item, lang, onViewDetails }: UCServiceCardProps)
           )}
         </div>
 
-        {/* Inclusion Bullets (UC Signature) */}
+        {/* Inclusions (Urban Company Bullet Format) */}
         <ul className="space-y-1 pt-1 text-xs text-slate-600">
           {(lang === "te" ? item.inclusionsTe : item.inclusionsEn)
             .slice(0, 3)
             .map((bullet, idx) => (
               <li key={idx} className="flex items-start gap-1.5 leading-tight">
-                <Check className="h-3.5 w-3.5 text-slate-700 shrink-0 mt-0.5" />
+                <span className="text-slate-400 font-bold">•</span>
                 <span className="line-clamp-2">{bullet}</span>
               </li>
             ))}
         </ul>
 
-        {/* View Details Link */}
+        {/* View details */}
         {onViewDetails && (
           <button
             type="button"
             onClick={() => onViewDetails(item)}
-            className="inline-block text-xs font-bold text-slate-900 hover:text-black hover:underline pt-1 transition-colors"
+            className="inline-block text-xs font-bold text-purple-700 hover:text-purple-900 pt-1 transition-colors"
           >
             {lang === "te" ? "పూర్తి వివరాలు చూడండి" : "View details"}
           </button>
         )}
       </div>
 
-      {/* Right: Square Thumbnail & Overlapping + ADD Button */}
+      {/* Right Column: Square Thumbnail with Badge + Add Pill Button */}
       <div className="relative flex flex-col items-center shrink-0">
         <div className="relative h-24 w-24 sm:h-28 sm:w-28 rounded-2xl overflow-hidden bg-slate-100 shadow-2xs border border-slate-100">
+          {item.badge && (
+            <div className="absolute top-0 left-0 right-0 z-10 bg-[#007F5F] text-white text-[8px] font-bold py-0.5 text-center leading-tight uppercase tracking-tight">
+              {item.badge}
+            </div>
+          )}
           <Image
             src={item.imageSrc}
             alt={item.titleEn}
@@ -116,8 +123,8 @@ export function UCServiceCard({ item, lang, onViewDetails }: UCServiceCardProps)
           />
         </div>
 
-        {/* Urban Company Signature + ADD / Counter Button (Overlapping Bottom Edge) */}
-        <div className="-mt-3.5 z-10">
+        {/* Add Pill Button & Options Subtitle */}
+        <div className="-mt-3 z-10 flex flex-col items-center">
           {quantity === 0 ? (
             <button
               type="button"
@@ -134,13 +141,12 @@ export function UCServiceCard({ item, lang, onViewDetails }: UCServiceCardProps)
                   duration: item.durationEn,
                 })
               }
-              className="flex items-center justify-center gap-1 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 px-5 py-1 text-xs font-bold text-slate-900 shadow-sm transition-all active:scale-95"
+              className="flex items-center justify-center gap-1 rounded-lg border border-purple-600 bg-white hover:bg-purple-50 px-5 py-1 text-xs font-bold text-purple-700 shadow-xs transition-all active:scale-95"
             >
-              <Plus className="h-3 w-3 stroke-[3]" />
-              <span>ADD</span>
+              <span>Add</span>
             </button>
           ) : (
-            <div className="flex items-center justify-between gap-2.5 rounded-lg bg-slate-950 px-2 py-1 text-xs font-black text-white shadow-md">
+            <div className="flex items-center justify-between gap-2.5 rounded-lg bg-slate-950 px-2.5 py-1 text-xs font-black text-white shadow-md">
               <button
                 type="button"
                 onClick={() => updateQuantity(item.id, -1)}
@@ -161,6 +167,12 @@ export function UCServiceCard({ item, lang, onViewDetails }: UCServiceCardProps)
                 <Plus className="h-3 w-3 stroke-[3]" />
               </button>
             </div>
+          )}
+
+          {item.optionsCount && quantity === 0 && (
+            <span className="text-[10px] text-slate-400 mt-0.5 font-medium">
+              {item.optionsCount}
+            </span>
           )}
         </div>
       </div>
