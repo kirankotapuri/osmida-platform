@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+:root {
+  --background: #F7F8FA;
+  --foreground: #111111;
+  --brand-black: #0B0B0F;
+  --brand-blue: #1E6FFF;
+  --brand-blue-hover: #0F4BD6;
+  --brand-green: #25D366;
+  --brand-green-hover: #1FA851;
+  --pest-accent: #FF5A3C;
+  --ac-accent: #3BA3FF;
+  --clean-accent: #2FBF9B;
+}
+
+body {
+  background-color: #F7F8FA;
+  color: #111111;
+  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Custom smooth subtle transitions under 250ms */
+button, a {
+  transition: all 0.2s ease-in-out;
+}
