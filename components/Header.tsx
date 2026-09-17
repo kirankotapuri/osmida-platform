@@ -52,52 +52,58 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
   return (
     <>
       <header
-        className="fixed top-0 left-0 right-0 z-[1000] w-full bg-[#0B0B0F] transition-all duration-200"
+        className="fixed top-0 left-0 right-0 z-[1000] w-full bg-white/95 backdrop-blur-md border-b border-[#E5E7EB] transition-all duration-200"
         style={{
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)",
+          boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04)",
         }}
       >
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-2.5 sm:px-4 lg:px-6 h-14 sm:h-16 lg:h-20">
-          {/* Left: Logo (Osmida) */}
-          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-3 sm:px-4 lg:px-6 h-14 sm:h-16">
+          {/* Left: Location & Logo (Urban Company Screenshot 1 Layout) */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Logo */}
             <Link
               href="/"
-              className="group flex items-center gap-1.5 sm:gap-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1E6FFF] rounded-xl py-1"
+              className="group flex items-center gap-2 focus:outline-none rounded-xl"
               aria-label="Osmida Home Page"
             >
-              <div className="relative h-7 w-7 sm:h-9 sm:w-9 lg:h-10 lg:w-10 overflow-hidden rounded-xl border border-white/20 bg-black transition-transform duration-200 group-hover:scale-105">
+              <div className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-xl overflow-hidden border border-slate-200 bg-black transition-transform group-hover:scale-105 shrink-0">
                 <Image
                   src="/osmida.jpg"
                   alt="Osmida Logo"
                   fill
                   className="object-cover"
                   priority
-                  sizes="(max-width: 1024px) 36px, 40px"
+                  sizes="36px"
                 />
               </div>
-              <div className="flex flex-col">
-                <span className="text-xs sm:text-base lg:text-lg font-black tracking-wider sm:tracking-widest text-white transition-colors duration-200 group-hover:text-[#CCCCCC]">
+              <div className="hidden sm:flex flex-col">
+                <span className="text-sm sm:text-base font-black tracking-wider text-slate-900">
                   OSMIDA
                 </span>
-                <span className="text-[7px] sm:text-[9px] font-bold uppercase tracking-wider text-[#9AA0A6] -mt-0.5">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-500 -mt-0.5">
                   {lang === "te" ? "నెల్లూరు" : "Nellore"}
                 </span>
               </div>
             </Link>
 
-            {/* Urban Company-Style Locality Selector Pill */}
+            {/* Urban Company-Style Exact Location Selector (Screenshot 1) */}
             <button
               type="button"
               onClick={() => setIsLocalityModalOpen(true)}
-              className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 px-2 sm:px-3 py-1 text-left transition-colors focus:outline-none"
+              className="flex items-center gap-1.5 rounded-xl hover:bg-slate-100/80 px-2 py-1 text-left transition-colors focus:outline-none"
               aria-label="Select locality in Nellore"
             >
-              <MapPin className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-[#38BDF8] shrink-0" />
-              <div className="flex items-center gap-1 max-w-[88px] sm:max-w-[160px] truncate">
-                <span className="text-[10px] sm:text-xs font-semibold text-white truncate">
-                  {selectedLocality}
+              <MapPin className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-slate-900 shrink-0" />
+              <div className="flex flex-col text-left">
+                <div className="flex items-center gap-1">
+                  <span className="text-xs sm:text-sm font-extrabold text-slate-900 truncate max-w-[120px] sm:max-w-[180px]">
+                    {selectedLocality}
+                  </span>
+                  <ChevronDown className="h-3 w-3 text-slate-600 shrink-0 stroke-[2.5]" />
+                </div>
+                <span className="text-[10px] text-slate-500 truncate max-w-[120px] sm:max-w-[200px] leading-tight">
+                  {lang === "te" ? "నెల్లూరు • ప్రముఖ నిపుణులు" : "Nellore, AP • Verified Pros"}
                 </span>
-                <ChevronDown className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-slate-400 shrink-0" />
               </div>
             </button>
           </div>
@@ -113,11 +119,13 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
                 <Link
                   key={link.href}
                   href={link.href}
-                  className="group relative flex items-center h-11 px-2 text-[15px] font-medium text-white transition-colors duration-200 hover:text-[#CCCCCC] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1E6FFF] rounded-md"
+                  className={`group relative flex items-center h-10 px-2 text-sm font-semibold transition-colors duration-200 focus:outline-none rounded-md ${
+                    isActive ? "text-slate-900" : "text-slate-600 hover:text-slate-900"
+                  }`}
                 >
                   <span>{lang === "te" ? link.labelTe : link.labelEn}</span>
                   <span
-                    className={`absolute bottom-1 left-0 h-[2px] w-full bg-[#1E6FFF] transition-all duration-200 origin-center ${
+                    className={`absolute bottom-0 left-0 h-[2px] w-full bg-slate-900 transition-all duration-200 origin-center ${
                       isActive
                         ? "scale-x-100 opacity-100"
                         : "scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-100"
@@ -128,20 +136,20 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
             })}
           </nav>
 
-          {/* Right: Language Toggle */}
-          <div className="flex items-center justify-end shrink-0">
+          {/* Right: Language Toggle & Quick Call */}
+          <div className="flex items-center gap-2 shrink-0">
             <div
-              className="flex items-center gap-1 sm:gap-1.5 text-xs sm:text-sm font-medium bg-white/10 rounded-full px-2 py-0.5 border border-white/15"
+              className="flex items-center gap-1 text-xs font-semibold bg-slate-100 rounded-full p-1 border border-slate-200"
               role="group"
               aria-label="Language selection"
             >
               <button
                 type="button"
                 onClick={() => onLanguageChange("en")}
-                className={`transition-colors duration-200 rounded px-1.5 py-0.5 ${
+                className={`transition-colors duration-200 rounded-full px-2 py-0.5 ${
                   lang === "en"
-                    ? "font-bold text-[#1E6FFF] bg-white/20"
-                    : "text-slate-300 hover:text-white"
+                    ? "font-extrabold text-slate-900 bg-white shadow-2xs"
+                    : "text-slate-500 hover:text-slate-900"
                 }`}
                 aria-label="Switch language to English"
                 aria-pressed={lang === "en"}
@@ -149,18 +157,13 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
                 EN
               </button>
 
-              <span
-                className="inline-block w-[1px] h-3 bg-white/30"
-                aria-hidden="true"
-              />
-
               <button
                 type="button"
                 onClick={() => onLanguageChange("te")}
-                className={`transition-colors duration-200 rounded px-1.5 py-0.5 ${
+                className={`transition-colors duration-200 rounded-full px-2 py-0.5 ${
                   lang === "te"
-                    ? "font-bold text-[#1E6FFF] bg-white/20"
-                    : "text-slate-300 hover:text-white"
+                    ? "font-extrabold text-slate-900 bg-white shadow-2xs"
+                    : "text-slate-500 hover:text-slate-900"
                 }`}
                 aria-label="భాషను తెలుగుకి మార్చండి"
                 aria-pressed={lang === "te"}
