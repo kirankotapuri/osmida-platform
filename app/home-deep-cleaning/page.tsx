@@ -19,13 +19,18 @@ import {
   ArrowLeft,
   Search,
   Share2,
+  Play,
+  Clock,
+  Sparkles,
+  Check,
 } from "lucide-react";
 
 export default function HomeDeepCleaningPage() {
   const [lang, setLang] = useState<Language>("en");
-  const [activeTab, setActiveTab] = useState<string>("full-home");
+  const [activeTab, setActiveTab] = useState<string>("value-deals");
   const [selectedDetailItem, setSelectedDetailItem] = useState<UCServiceItemData | null>(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isAreasModalOpen, setIsAreasModalOpen] = useState(false);
 
   const handleOpenDetail = (item: UCServiceItemData) => {
     setSelectedDetailItem(item);
@@ -42,51 +47,57 @@ export default function HomeDeepCleaningPage() {
     }
   };
 
+  // Subcategory tabs matching Urban Company screenshot 1
   const subcategoryTabs: SubcategoryTabItem[] = [
     {
-      id: "full-home",
-      nameEn: "Full Home",
-      nameTe: "పూర్తి ఇల్లు",
-      image: "/images/service-cleaning-home.jpg",
-      badge: "Machine Scrub",
+      id: "value-deals",
+      nameEn: "Value deals",
+      nameTe: "కాంబో డీల్స్",
+      image: "/images/bathroom-scrub-banner.jpg",
+      badge: "COMBO DEALS",
     },
     {
-      id: "bathroom",
-      nameEn: "Bathroom Scrub",
-      nameTe: "బాత్‌రూమ్ స్క్రబ్",
+      id: "one-time",
+      nameEn: "One time deep clean",
+      nameTe: "డీప్ క్లీనింగ్",
       image: "/images/service-cleaning-bathroom.jpg",
     },
     {
-      id: "kitchen",
-      nameEn: "Kitchen Degrease",
-      nameTe: "వంటగది క్లీనింగ్",
+      id: "mini-services",
+      nameEn: "Mini services",
+      nameTe: "మినీ సర్వీసులు",
       image: "/images/service-cleaning-kitchen.jpg",
-    },
-    {
-      id: "balcony-sofa",
-      nameEn: "Balcony & Sofa",
-      nameTe: "బాల్కనీ & సోఫా",
-      image: "/images/service-sofa.jpg",
     },
   ];
 
   const menuCategories: MenuSubcategory[] = [
-    { id: "full-home", nameEn: "Full Home", nameTe: "పూర్తి ఇల్లు", itemCount: 4 },
-    { id: "bathroom", nameEn: "Bathroom Scrub", nameTe: "బాత్‌రూమ్ స్క్రబ్", itemCount: 2 },
-    { id: "kitchen", nameEn: "Kitchen Degreasing", nameTe: "వంటగది క్లీనింగ్", itemCount: 1 },
-    { id: "balcony-sofa", nameEn: "Balcony & Sofa", nameTe: "బాల్కనీ & సోఫా", itemCount: 1 },
+    { id: "value-deals", nameEn: "Value deals", nameTe: "కాంబో డీల్స్", itemCount: 4 },
+    { id: "one-time", nameEn: "One time deep clean", nameTe: "డీప్ క్లీనింగ్", itemCount: 3 },
+    { id: "mini-services", nameEn: "Mini services", nameTe: "మినీ సర్వీసులు", itemCount: 6 },
   ];
 
-  const fullHomeItems = CLEANING_SERVICE_ITEMS.filter((i) => i.subcategory === "full-home");
-  const bathroomItems = CLEANING_SERVICE_ITEMS.filter((i) => i.subcategory === "bathroom");
-  const kitchenItems = CLEANING_SERVICE_ITEMS.filter((i) => i.subcategory === "kitchen");
-  const balconySofaItems = CLEANING_SERVICE_ITEMS.filter((i) => i.subcategory === "balcony-sofa");
+  const valueDealItems = CLEANING_SERVICE_ITEMS.filter((i) => i.subcategory === "value-deals");
+  const oneTimeItems = CLEANING_SERVICE_ITEMS.filter((i) => i.subcategory === "one-time");
+  const miniItems = CLEANING_SERVICE_ITEMS.filter((i) => i.subcategory === "mini-services");
+
+  // Areas & surfaces included items (Screenshot 1 modal)
+  const areasIncluded = [
+    { name: "Floor scrubbing machine", desc: "Rotary deep scrub", img: "/images/bathroom-scrub-banner.jpg" },
+    { name: "Toilet seat inside & out", desc: "Descaled & sanitized", img: "/images/service-cleaning-bathroom.jpg" },
+    { name: "Washbasin", desc: "Stain removal & shine", img: "/images/service-plumber.jpg" },
+    { name: "Mirror & glass partition", desc: "Streak-free buff", img: "/images/service-cleaning-bathroom.jpg" },
+    { name: "Fixtures & chrome taps", desc: "Scale & acid-free polish", img: "/images/service-plumber.jpg" },
+    { name: "Windows", desc: "Grill & pane dusting", img: "/images/home-cleaning-banner.jpg" },
+    { name: "Exhaust & ceiling fan", desc: "Grease & dust wiped", img: "/images/service-electrician.jpg" },
+    { name: "Doors", desc: "Front & back wipe", img: "/images/service-carpenter.jpg" },
+    { name: "Ceiling & wall dusting", desc: "Cobweb removal", img: "/images/service-cleaning-home.jpg" },
+  ];
 
   const handleShare = () => {
     if (navigator.share) {
       navigator.share({
-        title: "Osmida Home Deep Cleaning Nellore",
-        text: "Book Machine Floor Scrubbing & Home Cleaning in Nellore with ₹0 advance!",
+        title: "Osmida Bathroom & Deep Cleaning Nellore",
+        text: "Book Machine Floor Scrubbing & Bathroom Deep Cleaning in Nellore with ₹0 advance!",
         url: window.location.href,
       });
     } else {
@@ -101,11 +112,11 @@ export default function HomeDeepCleaningPage() {
       <Header lang={lang} onLanguageChange={setLang} />
 
       {/* 2. CATEGORY TOP BAR */}
-      <div className="pt-14 sm:pt-16 bg-gradient-to-b from-purple-50/50 to-white">
+      <div className="pt-14 sm:pt-16 bg-white">
         <div className="mx-auto max-w-xl px-4 py-3 flex items-center justify-between">
           <Link
             href="/"
-            className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-xs border border-slate-200/80 hover:bg-slate-50 transition-colors"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-xs border border-slate-200 hover:bg-slate-50 transition-colors"
             aria-label="Back to home"
           >
             <ArrowLeft className="h-4.5 w-4.5 text-slate-800" />
@@ -114,8 +125,8 @@ export default function HomeDeepCleaningPage() {
           <div className="flex items-center gap-2">
             <button
               type="button"
-              onClick={() => scrollToSubcategory("full-home")}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-xs border border-slate-200/80 hover:bg-slate-50 transition-colors"
+              onClick={() => scrollToSubcategory("value-deals")}
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-xs border border-slate-200 hover:bg-slate-50 transition-colors"
               aria-label="Search services"
             >
               <Search className="h-4 w-4 text-slate-700" />
@@ -123,7 +134,7 @@ export default function HomeDeepCleaningPage() {
             <button
               type="button"
               onClick={handleShare}
-              className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-xs border border-slate-200/80 hover:bg-slate-50 transition-colors"
+              className="flex h-9 w-9 items-center justify-center rounded-full bg-white shadow-xs border border-slate-200 hover:bg-slate-50 transition-colors"
               aria-label="Share service"
             >
               <Share2 className="h-4 w-4 text-slate-700" />
@@ -131,63 +142,85 @@ export default function HomeDeepCleaningPage() {
           </div>
         </div>
 
-        {/* 3. HERO CARD */}
-        <div className="mx-auto max-w-xl px-4 pb-4">
-          <div className="flex items-center justify-between gap-3">
-            <div className="space-y-1">
-              <span className="inline-block bg-[#007F5F] text-white text-[10px] font-black px-2 py-0.5 rounded-xs tracking-wider uppercase">
-                ★ INSTANT
-              </span>
-              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
-                {lang === "te" ? "డీప్ క్లీనింగ్ & స్క్రబ్బింగ్" : "Home cleaning &\nscrubbing in 60 mins"}
-              </h1>
-              <p className="text-xs font-semibold text-slate-500">
-                {lang === "te" ? "ప్రారంభ ధర ₹499 • సింగిల్-డిస్క్ మెషిన్" : "Starts at ₹499 • Single-Disc Scrubbing"}
-              </p>
-            </div>
-
-            <div className="relative h-28 w-32 sm:h-32 sm:w-36 rounded-2xl overflow-hidden shadow-sm shrink-0 border border-slate-100">
-              <Image
-                src="/images/service-cleaning-home.jpg"
-                alt="Cleaning Pro"
-                fill
-                className="object-cover"
-                priority
-                sizes="144px"
-              />
-            </div>
-          </div>
-
-          {/* 4. RATING & OSMIDA COVER GUARANTEE STRIP */}
-          <div className="mt-4 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-2xs space-y-2.5">
-            <div className="flex items-center justify-between">
+        {/* 3. HERO VIDEO BANNER (Screenshot 1: We got you) */}
+        <div className="mx-auto max-w-xl px-4">
+          <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden shadow-sm border border-slate-100 bg-slate-900 group">
+            <Image
+              src="/images/bathroom-scrub-banner.jpg"
+              alt="Bathroom Scrubbing Machine"
+              fill
+              className="object-cover opacity-90 group-hover:scale-102 transition-transform duration-300"
+              priority
+              sizes="(max-width: 640px) 100vw, 576px"
+            />
+            {/* Dark overlay & Play Button */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30 flex flex-col justify-between p-4 text-white">
               <div className="flex items-center gap-2">
-                <span className="text-base font-black text-slate-900">Deep Cleaning</span>
-                <div className="flex items-center gap-1 text-xs text-slate-700">
-                  <Star className="h-3.5 w-3.5 fill-slate-900 text-slate-900" />
-                  <span className="font-black">4.88</span>
-                  <span className="text-slate-500">(1.2k reviews)</span>
+                <span className="bg-[#3B1277] text-white text-[9px] font-black px-2 py-0.5 rounded-sm uppercase tracking-wider">
+                  OSMIDA CLEAN
+                </span>
+              </div>
+
+              <div className="flex items-center justify-center">
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/30 backdrop-blur-md border border-white/60 text-white shadow-xl transition-transform group-hover:scale-110">
+                  <Play className="h-5 w-5 fill-white text-white ml-0.5" />
                 </div>
               </div>
 
-              <div className="flex items-center gap-1 bg-[#E8F5E9] text-[#007F5F] px-2 py-0.5 rounded-md text-[11px] font-bold">
-                <ShieldCheck className="h-3.5 w-3.5 text-[#007F5F]" />
-                <span>{lang === "te" ? "ధృవీకరించిన నిపుణులు" : "Verified Pros"}</span>
+              <div>
+                <h2 className="text-sm sm:text-base font-black text-white">
+                  We got you covered
+                </h2>
+                <p className="text-[11px] text-slate-200">
+                  Rotary machine scrubbing • Hard water descaling • No harsh acids
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. TITLE & GUARANTEE STRIP (Screenshot 1) */}
+          <div className="mt-3.5 space-y-2">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+                  {lang === "te" ? "బాత్‌రూమ్ & డీప్ క్లీనింగ్" : "Bathroom Cleaning"}
+                </h1>
+                <div className="flex items-center gap-1.5 text-xs text-slate-600 mt-1">
+                  <Star className="h-3.5 w-3.5 fill-slate-900 text-slate-900" />
+                  <span className="font-bold text-slate-900">4.83</span>
+                  <span className="text-slate-500">(5.4 M bookings)</span>
+                </div>
+              </div>
+
+              {/* Earliest Slot Badge */}
+              <div className="rounded-lg bg-[#E8F5E9] border border-[#C8E6C9] px-2.5 py-1 text-right shrink-0">
+                <div className="flex items-center gap-1 text-[11px] font-bold text-[#166534]">
+                  <Clock className="h-3 w-3 text-[#166534]" />
+                  <span>Earliest</span>
+                </div>
+                <div className="text-[10px] font-extrabold text-[#166534]">
+                  Today, 8:00 AM
+                </div>
               </div>
             </div>
 
-            <div className="flex items-center justify-between rounded-xl bg-[#F8F9FA] px-3 py-2 text-xs border border-slate-100">
+            {/* Areas & Surfaces Included Trigger Button (Screenshot 1 Sheet) */}
+            <button
+              type="button"
+              onClick={() => setIsAreasModalOpen(true)}
+              className="w-full flex items-center justify-between rounded-xl bg-[#F8F9FA] px-3.5 py-2 text-xs border border-slate-200/80 shadow-2xs text-left hover:bg-slate-100 transition-colors"
+            >
               <div className="flex items-center gap-2">
-                <span className="h-2 w-2 rounded-full bg-emerald-500" />
-                <span className="font-extrabold text-slate-900">OSMIDA COVER</span>
-                <span className="text-slate-500 text-[11px]">
-                  {lang === "te"
-                    ? "పూర్తి సంతృప్తి లేదా ఉచిత రీ-క్లీన్"
-                    : "Complete satisfaction or free re-clean"}
+                <Sparkles className="h-4 w-4 text-purple-700" />
+                <span className="font-bold text-slate-900">
+                  {lang === "te" ? "ఏయే భాగాలు క్లీన్ చేస్తాం? చూడండి" : "Areas & surfaces included"}
+                </span>
+                <span className="text-[11px] text-slate-500">
+                  (9 surfaces)
                 </span>
               </div>
               <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
-            </div>
+            </button>
           </div>
         </div>
       </div>
@@ -202,106 +235,143 @@ export default function HomeDeepCleaningPage() {
 
       {/* 6. CONTENT SECTIONS */}
       <div className="mx-auto max-w-xl px-4 divide-y divide-slate-100">
-        {/* SECTION A: FULL HOME */}
-        <section id="full-home" className="pt-6 pb-4">
-          <div className="flex items-center justify-between mb-3">
+        {/* SECTION A: VALUE DEALS */}
+        <section id="value-deals" className="pt-6 pb-4 space-y-3">
+          <div>
             <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-              {lang === "te" ? "పూర్తి ఇల్లు డీప్ క్లీనింగ్" : "Full Home Deep Clean"}
+              {lang === "te" ? "కాంబో డీల్స్ (Value deals)" : "Value deals"}
             </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Multi-bathroom scrubbing packs with up to 25% discount
+            </p>
           </div>
 
-          {/* UC Lifestyle Banner Card */}
-          <div className="mb-4 rounded-2xl bg-[#EDE7E1] p-4 relative overflow-hidden shadow-2xs border border-[#E0D7CE]">
-            <div className="flex items-center justify-between gap-3">
-              <div className="space-y-1 z-10 max-w-[65%]">
-                <h3 className="text-base font-black text-slate-900 leading-tight">
-                  A cleaner home, without any hassle
-                </h3>
-                <p className="text-[11px] text-slate-700">
-                  {lang === "te"
-                    ? "సింగిల్-డిస్క్ మెషిన్ స్క్రబ్బింగ్ & వాక్యూమింగ్"
-                    : "Single-disc machine buffing & deep suction"}
-                </p>
-              </div>
-
-              <div className="relative h-20 w-24 rounded-xl overflow-hidden shrink-0 border border-white/60">
-                <Image
-                  src="/images/home-cleaning-banner.jpg"
-                  alt="A cleaner home"
-                  fill
-                  className="object-cover"
-                  sizes="96px"
-                />
-              </div>
-            </div>
+          <div className="space-y-1">
+            {valueDealItems.map((item) => (
+              <UCServiceCard
+                key={item.id}
+                item={item}
+                lang={lang}
+                onViewDetails={handleOpenDetail}
+              />
+            ))}
           </div>
-
-          {fullHomeItems.map((item) => (
-            <UCServiceCard
-              key={item.id}
-              item={item}
-              lang={lang}
-              onViewDetails={handleOpenDetail}
-            />
-          ))}
         </section>
 
-        {/* SECTION B: BATHROOM */}
-        <section id="bathroom" className="pt-6 pb-4">
-          <div className="flex items-center justify-between mb-3">
+        {/* SECTION B: ONE TIME DEEP CLEAN */}
+        <section id="one-time" className="pt-6 pb-4 space-y-3">
+          <div>
             <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-              {lang === "te" ? "బాత్‌రూమ్ డీప్ స్క్రబ్" : "Bathroom Deep Scrub"}
+              {lang === "te" ? "వన్ టైమ్ డీప్ క్లీనింగ్" : "One time deep clean"}
             </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Floor & tile rotary machine scrubbing for tough stains
+            </p>
           </div>
 
-          {bathroomItems.map((item) => (
-            <UCServiceCard
-              key={item.id}
-              item={item}
-              lang={lang}
-              onViewDetails={handleOpenDetail}
-            />
-          ))}
+          <div className="space-y-1">
+            {oneTimeItems.map((item) => (
+              <UCServiceCard
+                key={item.id}
+                item={item}
+                lang={lang}
+                onViewDetails={handleOpenDetail}
+              />
+            ))}
+          </div>
         </section>
 
-        {/* SECTION C: KITCHEN */}
-        <section id="kitchen" className="pt-6 pb-4">
-          <div className="flex items-center justify-between mb-3">
+        {/* SECTION C: MINI SERVICES (Add-ons from Screenshot 1) */}
+        <section id="mini-services" className="pt-6 pb-4 space-y-3">
+          <div>
             <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-              {lang === "te" ? "వంటగది క్లీనింగ్" : "Kitchen Degreasing"}
+              {lang === "te" ? "మినీ సర్వీసులు (యాడ్-ఆన్స్)" : "Mini services"}
             </h2>
+            <p className="text-xs text-slate-500 mt-0.5">
+              Add individual fixtures, fans, or doors to your service
+            </p>
           </div>
 
-          {kitchenItems.map((item) => (
-            <UCServiceCard
-              key={item.id}
-              item={item}
-              lang={lang}
-              onViewDetails={handleOpenDetail}
-            />
-          ))}
-        </section>
-
-        {/* SECTION D: BALCONY & SOFA */}
-        <section id="balcony-sofa" className="pt-6 pb-4">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-              {lang === "te" ? "బాల్కనీ & సోఫా" : "Balcony & Sofa"}
-            </h2>
+          <div className="space-y-1">
+            {miniItems.map((item) => (
+              <UCServiceCard
+                key={item.id}
+                item={item}
+                lang={lang}
+                onViewDetails={handleOpenDetail}
+              />
+            ))}
           </div>
-
-          {balconySofaItems.map((item) => (
-            <UCServiceCard
-              key={item.id}
-              item={item}
-              lang={lang}
-              onViewDetails={handleOpenDetail}
-            />
-          ))}
         </section>
       </div>
 
-      {/* 7. FLOATING ≡ MENU MODAL */}
+      {/* 7. AREAS & SURFACES INCLUDED BOTTOM SHEET (Screenshot 1 Bottom Sheet) */}
+      {isAreasModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-200">
+          <div
+            className="absolute inset-0"
+            onClick={() => setIsAreasModalOpen(false)}
+          />
+
+          <div
+            className="relative w-full max-w-md bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl p-5 z-10 max-h-[85vh] flex flex-col animate-in slide-in-from-bottom-6 duration-200"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Drag Handle Bar */}
+            <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-3" />
+
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <h3 className="text-base font-black text-slate-900">
+                Areas & surfaces included
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsAreasModalOpen(false)}
+                className="rounded-full p-1 text-slate-400 hover:bg-slate-100"
+              >
+                ✕
+              </button>
+            </div>
+
+            <div className="overflow-y-auto py-3 grid grid-cols-3 gap-2.5 text-center">
+              {areasIncluded.map((area, idx) => (
+                <div
+                  key={idx}
+                  className="flex flex-col items-center rounded-xl bg-[#F8F9FA] p-2 border border-slate-100 space-y-1"
+                >
+                  <div className="relative h-14 w-14 rounded-lg overflow-hidden border border-slate-200">
+                    <Image
+                      src={area.img}
+                      alt={area.name}
+                      fill
+                      className="object-cover"
+                      sizes="56px"
+                    />
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-900 leading-tight">
+                    {area.name}
+                  </span>
+                  <span className="text-[8px] text-slate-500 leading-tight">
+                    {area.desc}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            <div className="pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setIsAreasModalOpen(false)}
+                className="w-full rounded-xl bg-slate-950 py-2.5 text-xs font-bold text-white shadow-sm"
+              >
+                Got it
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* 8. FLOATING ≡ MENU MODAL */}
       <UCSubcategoryMenuModal
         categories={menuCategories}
         activeId={activeTab}
@@ -309,13 +379,13 @@ export default function HomeDeepCleaningPage() {
         lang={lang}
       />
 
-      {/* 8. FLOATING CART DOCK */}
+      {/* 9. FLOATING CART DOCK */}
       <UCFloatingCartBar lang={lang} />
 
-      {/* 9. SLIDE-UP BOTTOM CART CHECKOUT DRAWER */}
+      {/* 10. SLIDE-UP BOTTOM CART CHECKOUT DRAWER */}
       <UCCartDrawer lang={lang} />
 
-      {/* 10. SERVICE DETAIL BOTTOM SHEET MODAL */}
+      {/* 11. SERVICE DETAIL BOTTOM SHEET MODAL */}
       <UCServiceDetailModal
         isOpen={isDetailModalOpen}
         onClose={() => setIsDetailModalOpen(false)}
