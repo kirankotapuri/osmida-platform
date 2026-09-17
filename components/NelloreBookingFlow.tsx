@@ -343,8 +343,8 @@ export function NelloreBookingFlow({
                 <p>{lang === "te" ? "స్థానిక నిపుణులు" : "Local Partners"}</p>
               </div>
               <div className="p-2 rounded-xl bg-[#F7F8FA] border border-[#E5E7EB]">
-                <p className="font-bold text-[#111111]">🛡️ 30-Day</p>
-                <p>Guarantee</p>
+                <p className="font-bold text-[#111111]">🛡️ Warranty</p>
+                <p>{lang === "te" ? "సర్వీస్ రక్షణ" : "Terms Apply"}</p>
               </div>
               <div className="p-2 rounded-xl bg-[#F7F8FA] border border-[#E5E7EB]">
                 <p className="font-bold text-[#111111]">💰 ₹0 Advance</p>

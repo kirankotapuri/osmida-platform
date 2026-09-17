@@ -342,7 +342,7 @@ export default function PestControlPage() {
             <div className="w-full lg:w-[58%] text-left space-y-4">
               <div className="inline-flex items-center gap-2 rounded-full border border-[#FF5A3C]/30 bg-[#FF5A3C]/10 px-3 py-1 text-xs font-bold text-[#FF5A3C]">
                 <span>🛡️</span>
-                <span>{lang === "te" ? "30 రోజుల రీవిజిట్ వారంటీ" : "30-Day Free Revisit Warranty"}</span>
+                <span>{lang === "te" ? "30 రోజుల రీవిజిట్ వారంటీ (నిబంధనలు వర్తిస్తాయి)" : "30-Day Revisit Warranty (Terms Apply)"}</span>
               </div>
 
               {/* H1 Title */}

@@ -75,12 +75,12 @@ export default function TermsPage() {
             <section className="space-y-2">
               <h2 className="text-base font-black text-[#111111] flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-[#1E6FFF]" />
-                <span>3. {lang === "te" ? "30 రోజుల ఉచిత రీ-సర్వీస్ వారంటీ" : "30-Day Service Guarantee & Warranty"}</span>
+                <span>3. {lang === "te" ? "సర్వీస్ వారంటీ & రీ-విజిట్ నిబంధనలు" : "Service Warranty & Rework Terms"}</span>
               </h2>
               <p>
                 {lang === "te"
-                  ? "సాధారణ పెస్ట్ కంట్రోల్ మరియు ఏసీ సర్వీస్‌లకు 30 రోజుల ఉచిత వారంటీ వర్తిస్తుంది. వారంటీ వ్యవధిలో సమస్య మళ్లీ కనిపిస్తే, ఉచితంగా పునర్దర్శన (Touch-up visit) కల్పించబడుతుంది."
-                  : "Standard pest control and AC cleaning services include a 30-day service warranty from the date of completion. If pest activity recurs within the treated areas or water leaks persist after AC service, one free corrective visit will be arranged without labour charges."}
+                  ? "పురుగుల నివారణ సేవలకు 30 రోజుల ఉచిత రీవిజిట్ వారంటీ ఉంటుంది (ట్రీట్ చేసిన గదుల్లో అదే రకమైన పురుగుల సమస్యకు వర్తిస్తుంది). ఏసీ ఫోమ్ జెట్ సర్వీస్‌పై 15 రోజుల కూలింగ్ మరియు లీక్ వారంటీ ఉంటుంది; భర్తీ చేసిన కొత్త స్పేర్ పార్ట్సుపై 30 రోజుల వారంటీ ఉంటుంది. హోమ్ డీప్ క్లీనింగ్ పూర్తయ్యాక 24 గంటల లోపు తనిఖీ నిర్వహించబడుతుంది."
+                  : "General pest control includes a 30-day rework warranty covering the same pest type within treated premises. AC Foam Jet servicing carries a 15-day cooling & water leakage warranty, with a 30-day warranty on newly replaced genuine spare parts. Home deep cleaning includes a 24-hour customer sign-off & corrective touch-up window. Warranty does not apply if treated premises suffer subsequent water flooding, structural construction alterations, or cross-contamination from untreated external zones."}
               </p>
             </section>
 

@@ -82,6 +82,10 @@ export default function HomePage() {
       { "@type": "Place", "name": "Vedayapalem, Nellore" },
       { "@type": "Place", "name": "Haranathapuram, Nellore" },
       { "@type": "Place", "name": "VRC Centre, Nellore" },
+      { "@type": "Place", "name": "Stonehousepet, Nellore" },
+      { "@type": "Place", "name": "Nawabpet, Nellore" },
+      { "@type": "Place", "name": "Fathekhanpet, Nellore" },
+      { "@type": "Place", "name": "Nearby Areas, Nellore" },
     ],
     "address": {
       "@type": "PostalAddress",
@@ -110,8 +114,8 @@ export default function HomePage() {
       <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] px-3 sm:px-4 py-1.5 sm:py-2 text-center text-[11px] sm:text-xs font-bold text-slate-800">
         <span>
           {lang === "te"
-            ? "⚡ నెల్లూరులో తొలిసారిగా • స్థానిక ప్రముఖ నిపుణులతో భాగస్వామ్యం • ₹0 అడ్వాన్స్ • 30 రోజుల వారంటీ"
-            : "⚡ Launching 1st in Nellore • Partnered with Established Local Pros • ₹0 Advance • 30-Day Guarantee"}
+            ? "⚡ నెల్లూరులో తొలిసారిగా • స్థానిక ప్రముఖ నిపుణులతో భాగస్వామ్యం • ₹0 అడ్వాన్స్ • 30 రోజుల వరకు వారంటీ (నిబంధనలు వర్తిస్తాయి)"
+            : "⚡ Launching 1st in Nellore • Partnered with Established Local Pros • ₹0 Advance • Up to 30-Day Warranty (Terms Apply)"}
         </span>
       </div>
 
@@ -159,8 +163,8 @@ export default function HomePage() {
               {/* Subheading */}
               <p className="text-[13px] sm:text-base lg:text-[17px] text-slate-600 leading-relaxed max-w-xl">
                 {lang === "te"
-                  ? "నెల్లూరులో తొలిసారిగా ప్రారంభమైన ఆధునిక ప్లాట్‌ఫామ్ — నగరంలోని ప్రముఖ, అనుభవజ్ఞులైన స్థానిక నిపుణులతో భాగస్వామ్యం. అధికారిక బ్లాక్ యూనిఫాం, నిర్ణీత ధరలు, ₹0 అడ్వాన్స్ & 30 రోజుల వారంటీ."
-                  : "Launching first in Nellore — collaborating with trusted, established local service technicians. Official black uniform, fixed prices, ₹0 advance & 30-day rework warranty."}
+                  ? "నెల్లూరులో తొలిసారిగా ప్రారంభమైన ఆధునిక ప్లాట్‌ఫామ్ — నగరంలోని ప్రముఖ, అనుభవజ్ఞులైన స్థానిక నిపుణులతో భాగస్వామ్యం. అధికారిక బ్లాక్ యూనిఫాం, నిర్ణీత ధరలు, ₹0 అడ్వాన్స్ & 30 రోజుల వరకు సర్వీస్ వారంటీ (నిబంధనలు వర్తిస్తాయి)."
+                  : "Launching first in Nellore — collaborating with trusted, established local service technicians. Official black uniform, fixed prices, ₹0 advance & up to 30-day service warranty (terms apply)."}
               </p>
 
               {/* Urban Company Search & Quick Category Discovery Bar */}
@@ -202,7 +206,7 @@ export default function HomePage() {
                     />
                   </div>
                   <div className="mt-1 inline-flex items-center rounded bg-slate-100 border border-slate-200 px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold text-slate-800">
-                    45 mins
+                    From ₹599
                   </div>
                   <span className="mt-1 text-[11px] sm:text-xs font-bold text-slate-900 group-hover:text-black transition-colors leading-tight">
                     {lang === "te" ? "ఏసీ సర్వీస్" : "AC Services"}
@@ -225,7 +229,7 @@ export default function HomePage() {
                     />
                   </div>
                   <div className="mt-1 inline-flex items-center rounded bg-[#FEF3C7] border border-[#FDE68A] px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold text-[#92400E]">
-                    30-Day
+                    From ₹1,499
                   </div>
                   <span className="mt-1 text-[11px] sm:text-xs font-bold text-slate-900 group-hover:text-black transition-colors leading-tight">
                     {lang === "te" ? "పురుగుల నివారణ" : "Pest Control"}
@@ -248,7 +252,7 @@ export default function HomePage() {
                     />
                   </div>
                   <div className="mt-1 inline-flex items-center rounded bg-[#F0FDF4] border border-[#BBF7D0] px-1.5 py-0.5 text-[9px] sm:text-[10px] font-bold text-[#166534]">
-                    Safe Chem
+                    From ₹2,499
                   </div>
                   <span className="mt-1 text-[11px] sm:text-xs font-bold text-slate-900 group-hover:text-black transition-colors leading-tight">
                     {lang === "te" ? "హోమ్ డీప్ క్లీన్" : "Home Cleaning"}
@@ -268,7 +272,7 @@ export default function HomePage() {
                 </span>
                 <span className="flex items-center gap-1.5">
                   <Award className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-[#92400E]" />
-                  <span>{lang === "te" ? "30 రోజుల వారంటీ" : "30-Day Warranty"}</span>
+                  <span>{lang === "te" ? "వారంటీ రక్షణ (నిబంధనలు వర్తిస్తాయి)" : "Warranty Protection (Terms Apply)"}</span>
                 </span>
               </div>
 
@@ -331,7 +335,7 @@ export default function HomePage() {
                   </div>
                   <span className="text-[10px] sm:text-[11px] font-bold text-[#166534] bg-[#F0FDF4] px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full border border-[#BBF7D0] flex items-center gap-1 shrink-0">
                     <span className="w-1.5 h-1.5 rounded-full bg-[#166534] animate-pulse" />
-                    Nellore #1
+                    {lang === "te" ? "నెల్లూరులో ప్రారంభం" : "New in Nellore"}
                   </span>
                 </div>
               </div>
@@ -351,7 +355,7 @@ export default function HomePage() {
             >
               <div className="space-y-1.5 sm:space-y-2 z-10 flex-1 min-w-0 pr-1">
                 <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider bg-white/10 text-slate-200 border border-white/20 px-2 sm:px-2.5 py-0.5 rounded-full">
-                  {lang === "te" ? "ప్రత్యేక ఆఫర్" : "In The Spotlight"}
+                  {lang === "te" ? "ప్రముఖ సర్వీస్" : "Popular in Nellore"}
                 </span>
                 <h3 className="text-sm sm:text-lg font-bold leading-snug text-white">
                   {lang === "te"
@@ -540,7 +544,7 @@ export default function HomePage() {
                     {lang === "te" ? "పురుగుల నియంత్రణ" : "Pest Control"}
                   </h3>
                   <p className="text-[10px] sm:text-[11px] font-bold text-[#92400E] bg-[#FEF3C7] border border-[#FDE68A] inline-block px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                    {lang === "te" ? "30 రోజుల ఉచిత వారంటీ" : "30-Day Free Warranty"}
+                    {lang === "te" ? "30 రోజుల ఉచిత రీవిజిట్ వారంటీ (నిబంధనలు వర్తిస్తాయి)" : "30-Day Revisit Warranty (Terms Apply)"}
                   </p>
                 </div>
 
@@ -621,7 +625,7 @@ export default function HomePage() {
                     {lang === "te" ? "ఏసీ సర్వీస్" : "AC Services"}
                   </h3>
                   <p className="text-[10px] sm:text-[11px] font-bold text-slate-800 bg-slate-100 border border-slate-200 inline-block px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                    {lang === "te" ? "15 రోజుల లీక్ వారంటీ" : "15-Day Leak Warranty"}
+                    {lang === "te" ? "15 రోజుల కూలింగ్ & లీక్ వారంటీ" : "15-Day Cooling & Leak Warranty"}
                   </p>
                 </div>
 
@@ -648,7 +652,7 @@ export default function HomePage() {
                 {/* Price Line */}
                 <div className="pt-1">
                   <span className="text-base sm:text-lg font-black text-[#0F172A]">
-                    {lang === "te" ? "₹499 నుండి" : "From ₹499"}
+                    {lang === "te" ? "₹599 నుండి" : "From ₹599"}
                   </span>
                 </div>
               </div>
@@ -702,7 +706,7 @@ export default function HomePage() {
                     {lang === "te" ? "ఇంటి డీప్ క్లీనింగ్" : "Home Deep Cleaning"}
                   </h3>
                   <p className="text-[10px] sm:text-[11px] font-bold text-[#166534] bg-[#F0FDF4] border border-[#BBF7D0] inline-block px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                    {lang === "te" ? "24-గంటల క్వాలిటీ హామీ" : "24-Hr Quality Assurance"}
+                    {lang === "te" ? "24-గంటల క్వాలిటీ చెక్" : "24-Hr Quality Check"}
                   </p>
                 </div>
 
@@ -726,7 +730,7 @@ export default function HomePage() {
                 {/* Price Line */}
                 <div className="pt-1">
                   <span className="text-base sm:text-lg font-black text-[#0F172A]">
-                    {lang === "te" ? "₹999 నుండి" : "From ₹999"}
+                    {lang === "te" ? "1 BHK ₹2,499 నుండి" : "1 BHK From ₹2,499"}
                   </span>
                 </div>
               </div>

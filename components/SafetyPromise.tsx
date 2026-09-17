@@ -41,6 +41,26 @@ export function SafetyPromise({ lang }: { lang: Language }) {
             </div>
           ))}
         </div>
+
+        <p className="text-center text-[11px] text-slate-400">
+          {lang === "te" ? (
+            <>
+              * సర్వీస్ వారంటీ నిబంధనలు ట్రీట్ చేసిన గదులు & పరిధికి వర్తిస్తాయి.{" "}
+              <a href="/terms" className="underline hover:text-slate-700">
+                పూర్తి నిబంధనలు చదవండి
+              </a>
+              .
+            </>
+          ) : (
+            <>
+              * Service warranties apply to treated areas and confirmed scopes.{" "}
+              <a href="/terms" className="underline hover:text-slate-700">
+                View warranty & rework terms
+              </a>
+              .
+            </>
+          )}
+        </p>
       </div>
     </section>
   );

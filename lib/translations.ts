@@ -44,21 +44,21 @@ export const SERVICES_DATA: ServiceDefinition[] = [
     titleTe: "పురుగుల నివారణ",
     subEn: "Cockroaches, Bedbugs (Nallulu), Termites (Chedalu)",
     subTe: "బొద్దింకలు, మంచం నల్లులు, చెదపురుగులు",
-    priceEn: "Starting from ₹799",
-    priceTe: "₹799 నుండి ప్రారంభం",
-    badgeEn: "🛡️ 30-Day Free Revisit Guarantee",
-    badgeTe: "🛡️ 30 రోజుల ఉచిత రీవిజిట్ గ్యారెంటీ",
+    priceEn: "From ₹1,499",
+    priceTe: "₹1,499 నుండి",
+    badgeEn: "🛡️ 30-Day Warranty (Terms Apply)",
+    badgeTe: "🛡️ 30 రోజుల వారంటీ (నిబంధనలు వర్తిస్తాయి)",
     includedEn: [
-      "100% Odorless, govt-approved certified chemicals",
+      "Low-odor, government-approved certified chemicals",
       "Deep spray behind fridge, kitchen cabinets, drain corners & switchboards",
-      "Safe for children, elderly parents, pregnancy & household pets",
-      "30-day warranty: If pests return, we re-treat your home completely FREE"
+      "Safe for children, elderly parents & household pets when applied as per protocol",
+      "30-day rework warranty: covers same pest type in treated rooms (terms apply)"
     ],
     includedTe: [
-      "100% వాసన లేని, ప్రభుత్వ ఆమోదం పొందిన సురక్షితమైన మందులు",
+      "ప్రభుత్వ ఆమోదం పొందిన సురక్షితమైన, స్వల్ప వాసన గల రసాయనాలు",
       "కిచెన్ కేబినెట్స్, డ్రెయిన్స్, ఫ్రిజ్ వెనుక, స్విచ్‌బోర్డుల వద్ద లోతైన ట్రీట్మెంట్",
-      "పిల్లలు, వృద్ధులు మరియు పెంపుడు జంతువులకు పూర్తి రక్షణ",
-      "30 రోజుల గ్యారెంటీ: పురుగులు మళ్లీ కనిపిస్తే ఉచితంగా మళ్లీ చేస్తాము"
+      "పిల్లలు, వృద్ధులు మరియు పెంపుడు జంతువులకు సురక్షితమైన వినియోగ పద్ధతులు",
+      "30 రోజుల రీవిజిట్ వారంటీ: ట్రీట్ చేసిన గదుల్లో పురుగులు కనిపిస్తే రీ-సర్వీస్ (నిబంధనలు వర్తిస్తాయి)"
     ],
     excludedEn: [
       "Plumbing pipe replacement or major wall hole sealing",
@@ -71,45 +71,45 @@ export const SERVICES_DATA: ServiceDefinition[] = [
     subtypes: [
       {
         id: "cockroach",
-        labelEn: "Cockroaches & Ants",
-        labelTe: "బొద్దింకలు & చీమలు",
+        labelEn: "General Pest (1 BHK)",
+        labelTe: "సాధారణ పురుగుల నివారణ (1 BHK)",
         icon: "🪳",
-        startingPriceEn: "₹799",
-        startingPriceTe: "₹799",
+        startingPriceEn: "From ₹1,499",
+        startingPriceTe: "₹1,499 నుండి",
         popular: true,
-        descEn: "Kitchen & drain gel + spray with 30-day warranty",
-        descTe: "కిచెన్ & డ్రెయిన్లలో వాసన లేని జెల్ మరియు స్ప్రే"
+        descEn: "Kitchen & drain gel + spray with 30-day warranty (terms apply)",
+        descTe: "కిచెన్ & డ్రెయిన్లలో జెల్ మరియు స్ప్రే (30 రోజుల వారంటీ)"
       },
       {
         id: "bedbug",
-        labelEn: "Bedbugs (Nallulu)",
-        labelTe: "మంచం నల్లులు (2 విడతలు)",
+        labelEn: "Bedbugs (Per Room)",
+        labelTe: "మంచం నల్లులు (ప్రతి గదికి)",
         icon: "🛏️",
-        startingPriceEn: "₹1,199",
-        startingPriceTe: "₹1,199",
+        startingPriceEn: "From ₹999/room",
+        startingPriceTe: "గదికి ₹999 నుండి",
         popular: true,
-        descEn: "2-visit deep steaming & spray to kill eggs",
-        descTe: "గుడ్లను కూడా నాశనం చేసే 2 విడతల ట్రీట్మెంట్"
+        descEn: "Targeted seam misting & egg eradication protocol",
+        descTe: "నల్లులు మరియు గుడ్లను నాశనం చేసే ప్రత్యేక ట్రీట్మెంట్"
       },
       {
         id: "termite",
-        labelEn: "Termites (Chedalu)",
-        labelTe: "చెదపురుగులు (చెదలు)",
+        labelEn: "Termite Barrier Treatment",
+        labelTe: "చెదపురుగుల నివారణ (చ.అ.కు)",
         icon: "🪵",
-        startingPriceEn: "Free Inspection",
-        startingPriceTe: "ఉచిత తనిఖీ",
-        descEn: "Wood injection & floor drilling protection",
-        descTe: "చెక్క సామాగ్రికి ఇంజెక్షన్ మరియు నేల డ్రిల్లింగ్"
+        startingPriceEn: "From ₹8/sqft",
+        startingPriceTe: "చ.అ.కు ₹8 నుండి",
+        descEn: "Wood injection & floor drilling chemical barrier",
+        descTe: "చెక్క సామాగ్రికి ఇంజెక్షన్ మరియు నేల డ్రిల్లింగ్ రక్షణ"
       },
       {
         id: "general",
-        labelEn: "Other / Rodents / Mosquitoes",
-        labelTe: "ఇతర / ఎలుకలు / దోమలు",
-        icon: "🦟",
-        startingPriceEn: "₹699",
-        startingPriceTe: "₹699",
-        descEn: "Custom inspection and site-specific treatment",
-        descTe: "పరిశీలన అనంతరం కచ్చితమైన పరిష్కారం"
+        labelEn: "Kitchen Gel Treatment (Add-on)",
+        labelTe: "కిచెన్ డీప్ ట్రీట్మెంట్",
+        icon: "🍳",
+        startingPriceEn: "From ₹699",
+        startingPriceTe: "₹699 నుండి",
+        descEn: "Focused kitchen cabinet gel baiting and drain spray",
+        descTe: "కిచెన్ ప్రాంతాల్లో ఫోకస్డ్ జెల్ బెయిటింగ్ మరియు స్ప్రే"
       }
     ]
   },
@@ -121,23 +121,23 @@ export const SERVICES_DATA: ServiceDefinition[] = [
     badgeBg: "bg-[#3BA3FF]/10 text-[#0066CC] border-[#3BA3FF]/20",
     titleEn: "AC Services",
     titleTe: "ఏసీ సర్వీస్ & రిపేర్",
-    subEn: "Jet Pump Wash, Water Leakage, Gas Refill, Installation",
-    subTe: "జెట్ వాష్, వాటర్ లీక్, గ్యాస్ లీక్, ఇన్‌స్టాలేషన్",
-    priceEn: "Starting from ₹499",
-    priceTe: "₹499 నుండి ప్రారంభం",
-    badgeEn: "⚡ Same-Day Service in Nellore",
-    badgeTe: "⚡ నెల్లూరులో అదే రోజు సర్వీస్",
+    subEn: "Water Jacket Foam Jet, Leak Fix, Installation, Gas Refill",
+    subTe: "వాటర్ జాకెట్ ఫోమ్ జెట్, లీక్ ఫిక్స్, ఇన్‌స్టాలేషన్, గ్యాస్",
+    priceEn: "From ₹599",
+    priceTe: "₹599 నుండి",
+    badgeEn: "⚡ 15-Day Cooling Warranty",
+    badgeTe: "⚡ 15 రోజుల కూలింగ్ వారంటీ",
     includedEn: [
-      "High-pressure jet pump wash for indoor filters and outdoor condenser",
-      "Gas pressure & cooling temperature check with digital gauges",
-      "Drain pipe unclogging to stop water dripping inside room",
-      "Written diagnosis and exact estimate before any replacement"
+      "High-pressure foam jet wash with water jacket (zero wall mess)",
+      "Gas pressure & cooling temperature drop check with gauges",
+      "Indoor unit drain tray flush to stop indoor water dripping",
+      "15-day cooling & leak warranty on foam jet service"
     ],
     includedTe: [
-      "హై-ప్రెజర్ జెట్ పంప్‌తో ఇండోర్ ఫిల్టర్లు & ఔట్‌డోర్ కాయిల్స్ క్లీనింగ్",
-      "డిజిటల్ మీటర్లతో గ్యాస్ ప్రెజర్ మరియు కూలింగ్ తనిఖీ",
-      "రూమ్‌లో నీళ్లు కారకుండా డ్రెయిన్ పైపు క్లీన్ చేయడం",
-      "ఏదైనా స్పేర్ పార్ట్ మార్చే ముందే స్పష్టమైన రేటు చెప్పడం"
+      "వాటర్ జాకెట్‌తో గోడలపై మరకలు లేకుండా హై-ప్రెజర్ ఫోమ్ జెట్ వాష్",
+      "డిజిటల్ గేజ్‌లతో గ్యాస్ ప్రెజర్ మరియు కూలింగ్ టెస్టింగ్",
+      "రూమ్‌లో నీళ్లు కారకుండా డ్రెయిన్ ట్రే శుభ్రం చేయడం",
+      "ఫోమ్ జెట్ సర్వీస్‌పై 15 రోజుల కూలింగ్ మరియు లీక్ వారంటీ"
     ],
     excludedEn: [
       "New copper pipes or scaffolding exceeding standard reach (quoted on site)",
@@ -150,44 +150,44 @@ export const SERVICES_DATA: ServiceDefinition[] = [
     subtypes: [
       {
         id: "ac-service",
-        labelEn: "Jet Pump Master Service",
-        labelTe: "జెట్ పంప్ వాష్ సర్వీస్",
+        labelEn: "Split AC Foam Jet Wash",
+        labelTe: "స్ప్లిట్ ఏసీ ఫోమ్ జెట్ వాష్",
         icon: "🚿",
-        startingPriceEn: "₹499",
-        startingPriceTe: "₹499",
+        startingPriceEn: "From ₹599",
+        startingPriceTe: "₹599 నుండి",
         popular: true,
-        descEn: "2x cooling speed boost & filter deep clean",
-        descTe: "కూలింగ్ వేగం పెంచే లోతైన జెట్ వాష్"
+        descEn: "Deep coil clean with water jacket (15-day cooling warranty)",
+        descTe: "గోడలపై మరకలు లేకుండా డీప్ వాష్ (15 రోజుల వారంటీ)"
       },
       {
         id: "ac-cooling",
-        labelEn: "Low Cooling / Gas Leak Check",
-        labelTe: "కూలింగ్ సమస్య / గ్యాస్ లీక్",
+        labelEn: "Inspection & Diagnosis",
+        labelTe: "కూలింగ్ సమస్య / తనిఖీ",
         icon: "❄️",
-        startingPriceEn: "₹399 (Diagnosis)",
-        startingPriceTe: "₹399 (తనిఖీ)",
-        descEn: "Pressure test + gas refill estimate",
-        descTe: "ప్రెజర్ టెస్ట్ మరియు గ్యాస్ రీఫిల్ అంచనా"
+        startingPriceEn: "From ₹299",
+        startingPriceTe: "₹299 నుండి",
+        descEn: "Complete diagnosis (fee adjusted against repair bill)",
+        descTe: "సమస్య సమగ్ర పరిశీలన (రిపేర్ చేయిస్తే ఫీజు మినహాయింపు)"
       },
       {
         id: "ac-install",
-        labelEn: "Installation / Shifting",
-        labelTe: "ఇన్‌స్టాలేషన్ / విప్పడం",
+        labelEn: "Split AC Installation",
+        labelTe: "స్ప్లిట్ ఏసీ ఇన్‌స్టాలేషన్",
         icon: "🔧",
-        startingPriceEn: "From ₹799",
-        startingPriceTe: "₹799 నుండి",
-        descEn: "Split & window AC safe mounting & vacuuming",
-        descTe: "గోడకు భద్రంగా బిగించడం మరియు వ్యాక్యూమింగ్"
+        startingPriceEn: "From ₹899",
+        startingPriceTe: "₹899 నుండి",
+        descEn: "Level bracket mounting & pipe leak check",
+        descTe: "పర్ఫెక్ట్ లెవల్ ఫిట్టింగ్ & లీక్ చెక్"
       },
       {
         id: "ac-repair",
-        labelEn: "Water Leak / PCB / Sound",
-        labelTe: "వాటర్ లీక్ / సౌండ్ / బోర్డు రిపేర్",
+        labelEn: "Gas Leak Fix & Refill",
+        labelTe: "గ్యాస్ లీక్ చెక్ & రీఫిల్",
         icon: "⚙️",
-        startingPriceEn: "Inspection first",
-        startingPriceTe: "ముందుగా తనిఖీ",
-        descEn: "Drain unclogging or electrical diagnosis",
-        descTe: "నీరు కారే సమస్య లేదా బోర్డు ఫాల్ట్ పరిష్కారం"
+        startingPriceEn: "From ₹1,999",
+        startingPriceTe: "₹1,999 నుండి",
+        descEn: "Nitrogen pressure testing & exact refrigerant charging",
+        descTe: "ప్రెజర్ టెస్టింగ్ మరియు నాణ్యమైన గ్యాస్ రీఫిల్"
       }
     ]
   },
@@ -199,23 +199,23 @@ export const SERVICES_DATA: ServiceDefinition[] = [
     badgeBg: "bg-[#2FBF9B]/10 text-[#0E8A6B] border-[#2FBF9B]/20",
     titleEn: "Home Deep Cleaning",
     titleTe: "ఇంటి డీప్ క్లీనింగ్",
-    subEn: "Kitchen Degrease, Washroom Descaling, Full Home",
-    subTe: "కిచెన్ జిడ్డు, బాత్‌రూమ్ ఉప్పు మరకలు, పూర్తి ఇల్లు",
-    priceEn: "Starting from ₹999",
-    priceTe: "₹999 నుండి ప్రారంభం",
-    badgeEn: "✨ 100% Supervised Quality",
-    badgeTe: "✨ పూర్తి పర్యవేక్షణ & నమ్మకం",
+    subEn: "1 BHK, 2 BHK, 3 BHK Full Home & Kitchen Degrease",
+    subTe: "1 BHK, 2 BHK, 3 BHK పూర్తి ఇల్లు & కిచెన్ డీగ్రీస్",
+    priceEn: "1 BHK From ₹2,499",
+    priceTe: "1 BHK ₹2,499 నుండి",
+    badgeEn: "✨ Supervised Quality (24-Hr Check)",
+    badgeTe: "✨ నాణ్యతా పర్యవేక్షణ (24 గంటల చెక్)",
     includedEn: [
-      "Heavy oil, carbon & grease removal from kitchen tiles, chimney & counters",
-      "Hard-water white/yellow scaling removal from bathroom tiles & toilet seats",
-      "Trained staff with industrial scrubbers & premium safe cleaning agents",
-      "Digital completion report with before & after photos"
+      "Single-disc machine floor scrubbing & dry vacuuming",
+      "Heavy oil, carbon & grease removal from kitchen tiles & slabs",
+      "Bathroom acid-free descaling of taps, showerheads & wall tiles",
+      "Ceiling fans, switchboards, doors, and reachable balcony washing"
     ],
     includedTe: [
-      "కిచెన్ టైల్స్, చిమ్నీ, గ్యాస్ బండలపై మొండి జిడ్డు పూర్తిగా తొలగింపు",
-      "బాత్‌రూమ్ టైల్స్, కమోడ్లపై మొండి ఉప్పునీటి పసుపు మరకలు క్లీన్ చేయడం",
-      "ప్రొఫెషనల్ మెషీన్లు మరియు నాణ్యమైన క్లీనింగ్ లిక్విడ్లతో సిబ్బంది",
-      "పని ముగిశాక ఫోటోలు తీసి నాణ్యత చూపించే డిజిటల్ రిపోర్ట్"
+      "సింగిల్-డిస్క్ మెషిన్ ఫ్లోర్ స్క్రబ్బింగ్ మరియు వాక్యూమింగ్",
+      "కిచెన్ టైల్స్, గ్యాస్ బండలపై మొండి నూనె జిడ్డు తొలగింపు",
+      "బాత్‌రూమ్ టైల్స్, పంపులపై ఉప్పు మరకల డీస్కేలింగ్ & టాయిలెట్ శానిటైజ్",
+      "సీలింగ్ ఫ్యాన్లు, స్విచ్‌బోర్డులు, తలుపులు మరియు బాల్కనీ వాష్"
     ],
     excludedEn: [
       "Painting, wall seepage repair, or broken tile fixes",
@@ -227,36 +227,46 @@ export const SERVICES_DATA: ServiceDefinition[] = [
     ],
     subtypes: [
       {
-        id: "kitchen-deep",
-        labelEn: "Kitchen Degrease Reset",
-        labelTe: "కిచెన్ డీప్ క్లీన్ (జిడ్డు తొలగింపు)",
-        icon: "🍳",
-        startingPriceEn: "₹1,499",
-        startingPriceTe: "₹1,499",
+        id: "full-home-1bhk",
+        labelEn: "1 BHK Full Home Clean",
+        labelTe: "1 BHK ఇల్లు డీప్ క్లీన్",
+        icon: "🏡",
+        startingPriceEn: "From ₹2,499",
+        startingPriceTe: "₹2,499 నుండి",
         popular: true,
-        descEn: "Counters, tiles, hood exterior & burners scrub",
-        descTe: "టైల్స్, కౌంటర్లు, గ్యాస్ బండల డీప్ స్క్రబ్బింగ్"
+        descEn: "Living room, 1 bedroom, kitchen & washroom scrub",
+        descTe: "హాల్, 1 బెడ్రూమ్, కిచెన్ & బాత్‌రూమ్ డీప్ క్లీన్"
       },
       {
-        id: "bathroom-deep",
-        labelEn: "Washroom Descaling (2 Units)",
-        labelTe: "బాత్‌రూమ్ ఉప్పు మరకల క్లీనింగ్ (2)",
-        icon: "🚽",
-        startingPriceEn: "₹999",
-        startingPriceTe: "₹999",
-        popular: true,
-        descEn: "Tough hard-water scaling & mirror stain removal",
-        descTe: "మొండి ఉప్పు మరకలు & అద్దాల మురికి తొలగింపు"
-      },
-      {
-        id: "full-home",
-        labelEn: "Complete House Reset",
-        labelTe: "పూర్తి ఇల్లు డీప్ క్లీనింగ్",
+        id: "full-home-2bhk",
+        labelEn: "2 BHK Full Home Clean",
+        labelTe: "2 BHK ఇల్లు డీప్ క్లీన్",
         icon: "🏡",
         startingPriceEn: "From ₹3,499",
         startingPriceTe: "₹3,499 నుండి",
-        descEn: "Rooms, balconies, fans, doors, kitchen & washrooms",
-        descTe: "గదులు, బాల్కనీలు, ఫ్యాన్లు, తలుపులు, కిచెన్ & బాత్‌రూమ్‌లు"
+        popular: true,
+        descEn: "Complete home scrub with 2 washrooms & balconies",
+        descTe: "పూర్తి ఇల్లు, 2 బాత్‌రూమ్‌లు మరియు బాల్కనీలు"
+      },
+      {
+        id: "kitchen-deep",
+        labelEn: "Kitchen Degreasing (Add-on)",
+        labelTe: "కిచెన్ డీగ్రీసింగ్ (ప్రత్యేక విభాగం)",
+        icon: "🍳",
+        startingPriceEn: "From ₹699",
+        startingPriceTe: "₹699 నుండి",
+        descEn: "Counters, tiles, hood exterior & burners degreased",
+        descTe: "టైల్స్, కౌంటర్లు, గ్యాస్ బండల నూనె జిడ్డు తొలగింపు"
+      },
+      {
+        id: "bathroom-deep",
+        labelEn: "Bathroom Scrub (Add-on)",
+        labelTe: "బాత్‌రూమ్ డీస్కేలింగ్ (ప్రత్యేక విభాగం)",
+        icon: "🚽",
+        startingPriceEn: "From ₹499",
+        startingPriceTe: "₹499 నుండి",
+        descEn: "Acid-free hard-water tile descaling & mirror polishing",
+        descTe: "ఉప్పు మరకలు, టైల్స్ క్లీనింగ్ & శానిటైజేషన్"
       }
     ]
   }
@@ -277,11 +287,12 @@ export const NELLORE_AREAS = [
   { en: "Muthukur Road", te: "ముత్తుకూరు రోడ్" },
   { en: "Santhi Nagar", te: "శాంతి నగర్" },
   { en: "Fathekhanpet", te: "ఫతేఖాన్ పేట" },
+  { en: "Nawabpet", te: "నవాబ్‌పేట" },
   { en: "Other Area in Nellore", te: "నెల్లూరులోని ఇతర ప్రాంతం" }
 ];
 
 export const PROPERTY_SIZES = [
-  { id: "1bhk", labelEn: "1 BHK / 1 Room", labelTe: "1 BHK / 1 గది" },
+  { id: "1bhk", labelEn: "1 BHK", labelTe: "1 BHK" },
   { id: "2bhk", labelEn: "2 BHK", labelTe: "2 BHK" },
   { id: "3bhk", labelEn: "3 BHK / House", labelTe: "3 BHK / సొంత ఇల్లు" },
   { id: "villa", labelEn: "Villa / Independent House", labelTe: "విల్లా / స్వతంత్ర ఇల్లు" }
@@ -317,10 +328,10 @@ export const TRUST_PROMISES = [
   },
   {
     icon: "🔄",
-    titleEn: "30-Day Free Revisit Guarantee",
-    titleTe: "30 రోజుల ఉచిత రీవిజిట్ గ్యారెంటీ",
-    descEn: "If pests return or AC leaks within 30 days, we re-serve completely free.",
-    descTe: "30 రోజుల్లో సమస్య మళ్లీ వస్తే ఉచితంగా రీ-ట్రీట్మెంట్ చేస్తాము."
+    titleEn: "Up to 30-Day Service Warranty",
+    titleTe: "30 రోజుల వరకు సర్వీస్ వారంటీ",
+    descEn: "30-day rework warranty on pest control; 15-day warranty on AC cooling (terms apply).",
+    descTe: "పురుగుల నివారణపై 30 రోజుల వారంటీ; ఏసీపై 15 రోజుల వారంటీ (నిబంధనలు వర్తిస్తాయి)."
   }
 ];
 
@@ -334,14 +345,14 @@ export const FAQ_LIST = [
   {
     qEn: "Are pest control chemicals safe for my children and elderly parents?",
     qTe: "పురుగుల మందులు పిల్లలు, పెద్దలకు సురక్షితమేనా?",
-    aEn: "Yes. We use certified, odorless chemicals approved by the government. You do not need to leave the house, except during bedbug heavy misting.",
-    aTe: "ఖచ్చితంగా సురక్షితం. మేము ప్రభుత్వ ఆమోదం పొందిన వాసన లేని మందులను మాత్రమే ఉపయోగిస్తాము. ఇల్లు ఖాళీ చేయాల్సిన అవసరం లేదు."
+    aEn: "Yes. We use certified, low-odor chemicals approved by the government. When applied according to standard safety guidelines, they are safe for homes with children and elders.",
+    aTe: "ఖచ్చితంగా సురక్షితం. మేము ప్రభుత్వ ఆమోదం పొందిన, స్వల్ప వాసన గల నాణ్యమైన మందులను మాత్రమే ఉపయోగిస్తాము. నిబంధనల ప్రకారం వాడినప్పుడు పిల్లలు, పెద్దలకు సురక్షితం."
   },
   {
     qEn: "What if pests come back after treatment?",
     qTe: "ట్రీట్మెంట్ తర్వాత మళ్లీ పురుగులు వస్తే ఏమిటి?",
-    aEn: "We provide a 30-day warranty. Just call us or send a WhatsApp message, and our technician will come back for a free re-treatment.",
-    aTe: "మా ప్రతి సాధారణ పెస్ట్ కంట్రోల్‌కు 30 రోజుల వారంటీ ఉంటుంది. సమస్య కనిపిస్తే వాట్సాప్ లేదా కాల్ చేయండి, ఉచితంగా మళ్లీ చేస్తాము."
+    aEn: "We provide a 30-day rework warranty on general pest control (terms apply: covers the same pest type in treated rooms). Simply message or call us, and our technician will re-treat the area.",
+    aTe: "సాధారణ పెస్ట్ కంట్రోల్‌కు 30 రోజుల రీవిజిట్ వారంటీ ఉంటుంది (నిబంధనలు వర్తిస్తాయి: ట్రీట్ చేసిన గదుల్లో అదే సమస్య ఉంటే వర్తిస్తుంది). వాట్సాప్ లేదా కాల్ చేస్తే మళ్లీ సర్వీస్ చేస్తాము."
   },
   {
     qEn: "Can I book for my parents living in Nellore while I am in another city/overseas?",

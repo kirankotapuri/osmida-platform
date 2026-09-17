@@ -32,30 +32,30 @@ export const NELLORE_LOCALITIES = [
 ] as const;
 
 export const SERVICE_AREA_DESCRIPTION =
-  "Serving residential neighborhoods across Nellore, including Haranathapuram, Magunta Layout, Pogathota, Fathekhanpet, Ramalingapuram, VRC Centre, Santhi Nagar, Dargamitta, Vedayapalem, Stonehousepet, Podalakur Road, and nearby localities.";
+  "Serving residential neighborhoods across Nellore, including Haranathapuram, Magunta Layout, Pogathota, Fathekhanpet, Ramalingapuram, VRC Centre, Santhi Nagar, Dargamitta, Vedayapalem, Stonehousepet, Podalakur Road, Nawabpet, and nearby localities.";
 
 export const MASTER_SERVICES: ServiceItem[] = [
   {
     id: "pest-control",
     title: "Pest Control Services",
     status: "active",
-    badge: "30-Day Guarantee",
-    tagline: "Certified odorless treatments for cockroaches, bedbugs, termites, and mosquitoes in Nellore homes. Safe for children, elders, and pets.",
-    startingPrice: "From ₹799",
+    badge: "30-Day Warranty",
+    tagline: "Certified low-odor treatments for cockroaches, bedbugs, termites, and mosquitoes in Nellore homes. Safe for children, elders, and pets (terms apply).",
+    startingPrice: "From ₹1,499",
     subcategories: [
       {
         id: "PEST_GENERAL_1BHK",
         title: "General Pest Control – 1 BHK",
-        price: "₹799",
+        price: "₹1,499",
         unit: "per apartment",
         turnaround: "45 Mins",
-        scope: "Odorless herbal gel baiting in kitchen & bathrooms, perimeter spray along skirting boards, drain disinfectant.",
+        scope: "Low-odor gel baiting in kitchen & bathrooms, perimeter spray along skirting boards, drain disinfectant, 30-day warranty.",
         popular: true
       },
       {
         id: "PEST_GENERAL_2BHK",
         title: "General Pest Control – 2 BHK",
-        price: "₹1,099",
+        price: "₹1,999",
         unit: "per apartment",
         turnaround: "60 Mins",
         scope: "Complete coverage for 2 BHK: kitchen cabinets, washroom drains, behind appliances, balcony perimeter, 30-day warranty.",
@@ -63,19 +63,19 @@ export const MASTER_SERVICES: ServiceItem[] = [
       },
       {
         id: "PEST_BEDBUG",
-        title: "Bedbug Treatment (2-Visit Protocol)",
-        price: "₹1,199",
+        title: "Bedbug Treatment (Per Room)",
+        price: "From ₹999",
         unit: "per bedroom",
         turnaround: "2 Visits",
-        scope: "Intensive seam misting, crack steaming, and mandatory second visit after 15 days to break insect lifecycle.",
+        scope: "Intensive seam misting, crack steaming, and mandatory follow-up visit to break insect lifecycle.",
         popular: true
       },
       {
         id: "PEST_TERMITE",
         title: "Termite Control & Wood Injection",
-        price: "Free Inspection",
+        price: "From ₹8/sqft",
         unit: "per sq ft",
-        turnaround: "After inspection",
+        turnaround: "Free Inspection First",
         scope: "Floor drilling barrier, doorframe wood pressure injection, certified non-repellent termiticide barrier."
       }
     ]
@@ -84,43 +84,43 @@ export const MASTER_SERVICES: ServiceItem[] = [
     id: "ac-services",
     title: "AC Services & Repair",
     status: "active",
-    badge: "Same-Day Service",
+    badge: "15-Day Warranty",
     tagline: "Professional split & window AC jet pump cleaning, cooling diagnosis, gas refills, and precision installation by established Nellore technicians.",
-    startingPrice: "From ₹499",
+    startingPrice: "From ₹599",
     subcategories: [
       {
         id: "AC_FOAM_JET",
-        title: "Foam Jet Deep Service",
-        price: "₹499",
+        title: "Split AC Foam Jet Deep Service",
+        price: "₹599",
         unit: "per split AC",
         turnaround: "45 Mins",
-        scope: "Waterproof jacket setup, high-pressure foam jet wash for cooling coils, blower wheel scrub, and drain tray flush.",
+        scope: "Waterproof jacket setup, high-pressure foam jet wash for cooling coils, blower wheel scrub, and drain tray flush. 15-day cooling warranty.",
         popular: true
       },
       {
         id: "AC_REPAIR_DIAGNOSIS",
         title: "AC Repair & Low Cooling Diagnosis",
-        price: "₹399 (Diagnosis)",
+        price: "₹299 (Inspection)",
         unit: "per unit",
-        turnaround: "60 Mins",
-        scope: "Digital manifold pressure test, PCB & capacitor diagnosis, water leakage resolution, transparent quote before repair.",
+        turnaround: "30-60 Mins",
+        scope: "Digital manifold pressure test, PCB & capacitor diagnosis, water leakage check. Fee adjusted if repair is approved.",
         popular: true
       },
       {
         id: "AC_INSTALLATION",
-        title: "Split AC Safe Installation / Shifting",
-        price: "From ₹799",
+        title: "Split AC Safe Installation",
+        price: "From ₹899",
         unit: "per unit",
         turnaround: "90 Mins",
         scope: "Spirit level bracket mounting, copper flare vacuuming, leak check, electrical testing, and airflow calibration."
       },
       {
         id: "AC_GAS_REFILL",
-        title: "Gas Top-Up & Complete Refill",
-        price: "Quote on site",
+        title: "Gas Leak Check & Top-Up",
+        price: "From ₹1,999",
         unit: "per unit",
         turnaround: "60 Mins",
-        scope: "Nitrogen leak detection, system vacuuming to 500 microns, exact gram-weight R32/R410A refrigerant recharge."
+        scope: "Nitrogen leak detection, system vacuuming, exact gram-weight refrigerant recharge."
       }
     ]
   },
@@ -130,32 +130,41 @@ export const MASTER_SERVICES: ServiceItem[] = [
     status: "active",
     badge: "Supervised Quality",
     tagline: "Intensive residential cleaning using mechanized single-disc floor scrubbers, tile descaling chemicals, and degreasing compounds.",
-    startingPrice: "From ₹999",
+    startingPrice: "1 BHK From ₹2,499",
     subcategories: [
       {
-        id: "CLEAN_FULL_HOME",
-        title: "Full Home Deep Clean",
+        id: "CLEAN_1BHK",
+        title: "1 BHK Full Home Deep Clean",
+        price: "From ₹2,499",
+        unit: "per apartment",
+        turnaround: "3-4 Hours",
+        scope: "Living room, 1 bedroom, kitchen degreasing, bathroom acid-free descaling, floor single-disc buffing.",
+        popular: true
+      },
+      {
+        id: "CLEAN_2BHK",
+        title: "2 BHK Full Home Deep Clean",
         price: "From ₹3,499",
         unit: "per home",
-        turnaround: "4-6 Hours",
-        scope: "Complete floor buffing, window panes, balcony wash, ceiling fan dust removal, kitchen degreasing & washroom descaling.",
+        turnaround: "4-5 Hours",
+        scope: "Complete floor buffing, window panes, balcony wash, ceiling fan dust removal, kitchen degreasing & 2 washrooms descaling.",
         popular: true
       },
       {
         id: "CLEAN_KITCHEN",
-        title: "Kitchen Degrease Reset",
-        price: "₹1,499",
+        title: "Kitchen Deep Degreasing (Add-on)",
+        price: "From ₹699",
         unit: "per kitchen",
-        turnaround: "2 Hours",
+        turnaround: "90 Mins",
         scope: "Heavy grease removal from tiles, chimney exterior, gas stove, sink, and kitchen countertop descaling.",
         popular: true
       },
       {
         id: "CLEAN_BATHROOM",
-        title: "Bathroom Hard-Water Descaling",
-        price: "₹999 (2 Units)",
-        unit: "2 washrooms",
-        turnaround: "1.5 Hours",
+        title: "Bathroom Acid-Free Scrub (Add-on)",
+        price: "From ₹499",
+        unit: "per washroom",
+        turnaround: "60 Mins",
         scope: "Acid-free descaling of taps, showerheads, floor & wall tiles, commode sanitization, and mirror spot removal.",
         popular: true
       }
