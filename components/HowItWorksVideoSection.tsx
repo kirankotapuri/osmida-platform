@@ -164,7 +164,7 @@ export function HowItWorksVideoSection({
     } else {
       return {
         te: "అధికారిక బ్లాక్ యూనిఫామ్‌తో టెక్నీషియన్ వచ్చి పని చేస్తారు. ₹0 అడ్వాన్స్ • పని చూశాకే చెల్లించండి!",
-        en: "Verified technician arrives in official black uniform. ₹0 advance • Pay only after inspecting work!",
+        en: "Established local technician arrives in official black uniform. ₹0 advance • Pay only after inspecting work!",
       };
     }
   };
@@ -346,7 +346,7 @@ export function HowItWorksVideoSection({
                           ? "దశ 1: సర్వీస్ ఎంపిక"
                           : activeChapter === 2
                           ? "దశ 2: వివరాల నమోదు"
-                          : "దశ 3: ధృవీకరణ & చెల్లింపు"}
+                          : "దశ 3: బుకింగ్ ఖరారు & సర్వీస్"}
                       </span>
                     </div>
 

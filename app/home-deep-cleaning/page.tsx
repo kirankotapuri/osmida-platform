@@ -287,10 +287,10 @@ export default function HomeDeepCleaningPage() {
   const trustBullets = [
     {
       icon: <ShieldCheck className="h-6 w-6 text-[#1E6FFF]" />,
-      titleEn: "Verified partners",
-      titleTe: "ధృవీకరించబడిన భాగస్వాములు",
-      descEn: "Background-checked, trained technicians.",
-      descTe: "నేపథ్య పరిశీలన, శిక్షణ పొందిన టెక్నీషియన్లు.",
+      titleEn: "Established local partners",
+      titleTe: "స్థానిక ప్రముఖ భాగస్వాములు",
+      descEn: "Trusted local specialists in official black uniform.",
+      descTe: "అధికారిక బ్లాక్ యూనిఫాంతో నెల్లూరు స్థానిక నిపుణులు.",
     },
     {
       icon: <Eye className="h-6 w-6 text-[#1E6FFF]" />,
@@ -755,7 +755,7 @@ export default function HomeDeepCleaningPage() {
             <p className="mt-2 text-sm text-[#555555]">
               {lang === "te"
                 ? "విశ్వసనీయత, నాణ్యమైన పర్యవేక్షణ మరియు పారదర్శక సేవలు"
-                : "Trust, verified quality monitoring & transparent service"}
+                : "Trust, supervised quality monitoring & transparent service"}
             </p>
           </div>
 
@@ -881,7 +881,7 @@ export default function HomeDeepCleaningPage() {
             <p className="text-xs text-[#888888] leading-relaxed">
               {lang === "te"
                 ? "నెల్లూరులో పురుగుల నివారణ, ఏసీ సర్వీసింగ్ మరియు డీప్ క్లీనింగ్ నమ్మకమైన సేవలు."
-                : "Professional & verified doorstep home services across Nellore, Andhra Pradesh."}
+                : "Professional doorstep home services across Nellore, partnered with established local technicians."}
             </p>
             <p className="text-xs text-[#666666]">
               Trunk Road, Fathekhanpet, Nellore - 524003

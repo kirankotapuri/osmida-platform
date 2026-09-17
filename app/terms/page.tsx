@@ -54,7 +54,7 @@ export default function TermsPage() {
               <p>
                 {lang === "te"
                   ? "ఆస్మిడా (ఫింక్‌ఫోల్డ్ సంస్థ ఆధ్వర్యంలో) నెల్లూరు నగరంలో పెస్ట్ కంట్రోల్ (బొద్దింకలు, నల్లులు, చెదలు), ఏసీ సర్వీస్ (జెట్ పంప్ వాష్, లీకేజ్ రిపేర్), మరియు హోమ్ డీప్ క్లీనింగ్ సేవలను నిర్వహిస్తుంది. ప్రతి సర్వీస్ ప్రారంభానికి ముందు స్పష్టమైన స్కోప్ వివరించబడుతుంది."
-                  : "Osmida Facility Services (operated by Finkfold) manages verified pest control, air conditioning servicing, and residential/commercial deep cleaning across designated localities in Nellore, Andhra Pradesh. Service scopes are confirmed before commencement."}
+                  : "Osmida Facility Services (operated by Finkfold) manages professional pest control, air conditioning servicing, and residential/commercial deep cleaning across designated localities in Nellore, Andhra Pradesh. Service scopes are confirmed before commencement."}
               </p>
             </section>
 
@@ -67,7 +67,7 @@ export default function TermsPage() {
               <p>
                 {lang === "te"
                   ? "మా దగ్గర ఎలాంటి ముందస్తు బుకింగ్ ఫీజు ఉండదు. మా టెక్నీషియన్ మీ ఇంటికి వచ్చి పని పూర్తయిన తర్వాత, మీ సంతృప్తి చూసుకున్న తర్వాత మాత్రమే మీరు UPI లేదా నగదు రూపంలో చెల్లించాలి. ఎలాంటి దాచిన ఛార్జీలు ఉండవు."
-                  : "Osmida charges ₹0 advance fee for inspection visits and standard home service bookings. Final payment is due only upon completion of service and customer sign-off. Accepted payment methods include UPI (Google Pay, PhonePe, Paytm) and cash directly to the verified coordinator."}
+                  : "Osmida charges ₹0 advance fee for inspection visits and standard home service bookings. Final payment is due only upon completion of service and customer sign-off. Accepted payment methods include UPI (Google Pay, PhonePe, Paytm) and cash directly to the service coordinator."}
               </p>
             </section>
 

@@ -68,7 +68,7 @@ export default function PrivacyPage() {
               <p>
                 {lang === "te"
                   ? "మీ వివరాలు కేవలం మీ అపాయింట్‌మెంట్ నిర్ధారణ, టెక్నీషియన్ రాక, మరియు డిజిటల్ బిల్లింగ్/వారంటీ కార్డు అందించడానికి మాత్రమే ఉపయోగించబడతాయి. మీ ఫోన్ నంబర్‌ను మేము ఏ విధమైన మార్కెటింగ్ లేదా ప్రకటనల బ్రోకర్లకు అమ్మము."
-                  : "We strictly use your details to schedule site audits, dispatch verified technicians, share service reports via WhatsApp, and honor warranty service calls. We do NOT sell or license customer databases to third-party telemarketers or advertisers."}
+                  : "We strictly use your details to schedule site audits, dispatch assigned technicians, share service reports via WhatsApp, and honor warranty service calls. We do NOT sell or license customer databases to third-party telemarketers or advertisers."}
               </p>
             </section>
 

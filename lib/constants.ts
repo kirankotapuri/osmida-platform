@@ -85,7 +85,7 @@ export const MASTER_SERVICES: ServiceItem[] = [
     title: "AC Services & Repair",
     status: "active",
     badge: "Same-Day Service",
-    tagline: "Professional split & window AC jet pump cleaning, cooling diagnosis, gas refills, and precision installation by verified Nellore technicians.",
+    tagline: "Professional split & window AC jet pump cleaning, cooling diagnosis, gas refills, and precision installation by established Nellore technicians.",
     startingPrice: "From ₹499",
     subcategories: [
       {

@@ -232,10 +232,10 @@ export default function PestControlPage() {
     {
       number: "3",
       icon: <ShieldCheck className="h-7 w-7 text-[#1E6FFF]" />,
-      titleEn: "Treatment by verified partners",
-      titleTe: "ధృవీకరించబడిన భాగస్వాముల ద్వారా చికిత్స",
-      descEn: "Trained technicians use safe chemicals. Warranty included.",
-      descTe: "శిక్షణ పొందిన టెక్నీషియన్లు సురక్షితమైన రసాయనాలు వాడతారు. వారంటీ చేర్చబడింది.",
+      titleEn: "Treatment by established local partners",
+      titleTe: "స్థానిక ప్రముఖ భాగస్వాముల ద్వారా చికిత్స",
+      descEn: "Experienced technicians use safe chemicals. Warranty included.",
+      descTe: "అనుభవజ్ఞులైన నిపుణులు సురక్షితమైన రసాయనాలు వాడతారు. వారంటీ చేర్చబడింది.",
     },
   ];
 
@@ -243,10 +243,10 @@ export default function PestControlPage() {
   const trustBullets = [
     {
       icon: <ShieldCheck className="h-6 w-6 text-[#1E6FFF]" />,
-      titleEn: "Verified partners",
-      titleTe: "ధృవీకరించబడిన భాగస్వాములు",
-      descEn: "Background-checked, trained technicians.",
-      descTe: "నేపథ్య పరిశీలన, శిక్షణ పొందిన టెక్నీషియన్లు.",
+      titleEn: "Established local partners",
+      titleTe: "స్థానిక ప్రముఖ భాగస్వాములు",
+      descEn: "Trusted local experts with official uniform and ID.",
+      descTe: "అధికారిక యూనిఫాం మరియు ఐడీ కలిగిన నెల్లూరు నిపుణులు.",
     },
     {
       icon: <Eye className="h-6 w-6 text-[#1E6FFF]" />,
@@ -367,7 +367,7 @@ export default function PestControlPage() {
                 </div>
                 <div className="flex items-center gap-1.5">
                   <CheckCircle2 className="h-4 w-4 text-[#25D366]" />
-                  <span>{lang === "te" ? "శిక్షణ పొందిన టెక్నీషియన్లు" : "Verified Osmida Technicians"}</span>
+                  <span>{lang === "te" ? "స్థానిక అనుభవజ్ఞులు" : "Established Nellore Technicians"}</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <CheckCircle2 className="h-4 w-4 text-[#25D366]" />
@@ -633,7 +633,7 @@ export default function PestControlPage() {
             <p className="mt-2 text-sm text-[#555555]">
               {lang === "te"
                 ? "విశ్వసనీయత, నాణ్యమైన పర్యవేక్షణ మరియు పారదర్శక సేవలు"
-                : "Trust, verified quality monitoring & transparent service"}
+                : "Trust, supervised quality monitoring & transparent service"}
             </p>
           </div>
 
@@ -759,7 +759,7 @@ export default function PestControlPage() {
             <p className="text-xs text-[#888888] leading-relaxed">
               {lang === "te"
                 ? "నెల్లూరులో పురుగుల నివారణ, ఏసీ సర్వీసింగ్ మరియు డీప్ క్లీనింగ్ నమ్మకమైన సేవలు."
-                : "Professional & verified doorstep home services across Nellore, Andhra Pradesh."}
+                : "Professional doorstep home services across Nellore, partnered with established local technicians."}
             </p>
             <p className="text-xs text-[#666666]">
               Trunk Road, Fathekhanpet, Nellore - 524003

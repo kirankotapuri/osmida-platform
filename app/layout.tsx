@@ -18,7 +18,7 @@ export const metadata: Metadata = {
     template: '%s | Osmida Nellore',
     default: 'Pest Control, AC Service & Home Deep Cleaning in Nellore | Osmida',
   },
-  description: "Book verified pest control (cockroaches, bedbugs, termites), AC service & repair, and home deep cleaning in Nellore. 30-day guarantee, ₹0 advance, pay after service.",
+  description: "Launching 1st in Nellore! Book pest control (cockroaches, bedbugs, termites), AC service & repair, and home deep cleaning with established local technicians. 30-day guarantee, ₹0 advance, pay after service.",
   icons: {
     icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
     apple: [{ url: "/apple-icon.svg", type: "image/svg+xml" }],
@@ -34,7 +34,7 @@ export const metadata: Metadata = {
   ],
   openGraph: {
     title: 'Osmida | Pest Control, AC Services & Home Cleaning in Nellore',
-    description: 'Book verified pest control, AC servicing, and home deep cleaning in Nellore with 30-day warranty, verified local experts, and 30-minute call confirmation.',
+    description: 'Launching 1st in Nellore! Partnered with established local technicians for pest control, AC servicing, and home deep cleaning with 30-day warranty and ₹0 advance.',
     url: 'https://osmida.com',
     siteName: 'Osmida Nellore',
     locale: 'en_IN',

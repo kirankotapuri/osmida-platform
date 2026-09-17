@@ -256,7 +256,7 @@ export function NelloreBookingFlow({
               </h2>
               <p className="text-xs text-[#555555] mt-1">
                 {lang === "te"
-                  ? "నెల్లూరులో ధృవీకరించబడిన నిపుణులు • పారదర్శక ధరలు • 60 సెకన్లలో బుకింగ్"
+                  ? "నెల్లూరు స్థానిక ప్రముఖ నిపుణులు • పారదర్శక ధరలు • 60 సెకన్లలో బుకింగ్"
                   : "Pick a service below to see exact inclusions & book in 60 seconds."}
               </p>
             </div>
@@ -339,8 +339,8 @@ export function NelloreBookingFlow({
             {/* Trust points */}
             <div className="grid grid-cols-3 gap-2 pt-2 text-center text-[10px] text-[#555555]">
               <div className="p-2 rounded-xl bg-[#F7F8FA] border border-[#E5E7EB]">
-                <p className="font-bold text-[#111111]">✓ Verified</p>
-                <p>Nellore Staff</p>
+                <p className="font-bold text-[#111111]">🤝 Established</p>
+                <p>{lang === "te" ? "స్థానిక నిపుణులు" : "Local Partners"}</p>
               </div>
               <div className="p-2 rounded-xl bg-[#F7F8FA] border border-[#E5E7EB]">
                 <p className="font-bold text-[#111111]">🛡️ 30-Day</p>

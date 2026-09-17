@@ -53,7 +53,7 @@ export default function AboutPage() {
               {
                 titleEn: "Partnered with Established Local Pros",
                 titleTe: "స్థానిక ప్రముఖ నిపుణులతో భాగస్వామ్యం",
-                descEn: "We collaborate with Nellore's trusted local technicians, verified with official uniform, ID cards, and quality supervision.",
+                descEn: "We collaborate with Nellore's trusted local technicians, onboarded with official uniform, photo ID cards, and quality supervision.",
                 descTe: "నెల్లూరులో ఇప్పటికే గుర్తింపు పొందిన అనుభవజ్ఞులైన స్థానిక నిపుణులతో భాగస్వామ్యం. అధికారిక యూనిఫాం, ఐడీ కార్డ్ మరియు పర్యవేక్షణ నాణ్యత."
               },
               {

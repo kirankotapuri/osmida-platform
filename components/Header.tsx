@@ -57,15 +57,15 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
           boxShadow: "0 2px 8px rgba(0, 0, 0, 0.25)",
         }}
       >
-        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-3 sm:px-4 lg:px-6 h-16 lg:h-20">
+        <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-2.5 sm:px-4 lg:px-6 h-14 sm:h-16 lg:h-20">
           {/* Left: Logo (Osmida) */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-1.5 sm:gap-3 shrink-0">
             <Link
               href="/"
-              className="group flex items-center gap-2 sm:gap-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1E6FFF] rounded-xl py-1"
+              className="group flex items-center gap-1.5 sm:gap-2.5 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1E6FFF] rounded-xl py-1"
               aria-label="Osmida Home Page"
             >
-              <div className="relative h-8 w-8 sm:h-9 sm:w-9 lg:h-10 lg:w-10 overflow-hidden rounded-xl border border-white/20 bg-black transition-transform duration-200 group-hover:scale-105">
+              <div className="relative h-7 w-7 sm:h-9 sm:w-9 lg:h-10 lg:w-10 overflow-hidden rounded-xl border border-white/20 bg-black transition-transform duration-200 group-hover:scale-105">
                 <Image
                   src="/osmida.jpg"
                   alt="Osmida Logo"
@@ -76,10 +76,10 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
                 />
               </div>
               <div className="flex flex-col">
-                <span className="text-sm sm:text-base lg:text-lg font-black tracking-widest text-white transition-colors duration-200 group-hover:text-[#CCCCCC]">
+                <span className="text-xs sm:text-base lg:text-lg font-black tracking-wider sm:tracking-widest text-white transition-colors duration-200 group-hover:text-[#CCCCCC]">
                   OSMIDA
                 </span>
-                <span className="text-[8px] sm:text-[9px] font-bold uppercase tracking-wider text-[#9AA0A6] -mt-0.5">
+                <span className="text-[7px] sm:text-[9px] font-bold uppercase tracking-wider text-[#9AA0A6] -mt-0.5">
                   {lang === "te" ? "నెల్లూరు" : "Nellore"}
                 </span>
               </div>
@@ -89,15 +89,15 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
             <button
               type="button"
               onClick={() => setIsLocalityModalOpen(true)}
-              className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 px-2.5 sm:px-3 py-1 text-left transition-colors focus:outline-none"
+              className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-white/10 hover:bg-white/15 border border-white/15 px-2 sm:px-3 py-1 text-left transition-colors focus:outline-none"
               aria-label="Select locality in Nellore"
             >
-              <MapPin className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-[#1E6FFF] shrink-0" />
-              <div className="flex items-center gap-1 max-w-[110px] sm:max-w-[160px] truncate">
-                <span className="text-[11px] sm:text-xs font-semibold text-white truncate">
+              <MapPin className="h-3 sm:h-3.5 w-3 sm:w-3.5 text-[#38BDF8] shrink-0" />
+              <div className="flex items-center gap-1 max-w-[88px] sm:max-w-[160px] truncate">
+                <span className="text-[10px] sm:text-xs font-semibold text-white truncate">
                   {selectedLocality}
                 </span>
-                <ChevronDown className="h-3 w-3 text-slate-400 shrink-0" />
+                <ChevronDown className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-slate-400 shrink-0" />
               </div>
             </button>
           </div>

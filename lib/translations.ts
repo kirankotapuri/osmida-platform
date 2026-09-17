@@ -298,7 +298,7 @@ export const TRUST_PROMISES = [
     icon: "🤝",
     titleEn: "Partnered with Established Local Experts",
     titleTe: "స్థానిక ప్రముఖ నిపుణులతో భాగస్వామ్యం",
-    descEn: "We collaborate with Nellore's already-established, top-rated technicians — onboarding them under Osmida's supervised standards, official black uniform, and verified ID.",
+    descEn: "We collaborate with Nellore's already-established, top-rated technicians — onboarding them under Osmida's supervised standards, official black uniform, and official photo ID card.",
     descTe: "నెల్లూరులో ఇప్పటికే గుర్తింపు పొందిన అనుభవజ్ఞులైన స్థానిక నిపుణులతో భాగస్వామ్యం. వారి నైపుణ్యానికి ఓస్మిడా పర్యవేక్షణ, అధికారిక యూనిఫాం మరియు నాణ్యతా రక్షణ తోడవుతాయి."
   },
   {
@@ -359,7 +359,7 @@ export const UI_TEXT = {
     callNow: "Call Now",
     whatsappUs: "WhatsApp Us",
     heroTitle: "What do you need help with today?",
-    heroSub: "Nellore's new managed platform partnering with established local experts • ₹0 advance • 30-day warranty",
+    heroSub: "Launching 1st in Nellore — collaborating with established local technicians • ₹0 advance • 30-day warranty",
     chooseService: "Choose Service",
     selectPestOrIssue: "Select specific requirement:",
     selectSize: "Select house / space size:",
@@ -411,7 +411,7 @@ export const UI_TEXT = {
     callNow: "కాల్ చేయండి",
     whatsappUs: "వాట్సాప్‌లో మాట్లాడండి",
     heroTitle: "ఈ రోజు మీ ఇంటికి ఏ సేవ కావాలి?",
-    heroSub: "నెల్లూరులో సరికొత్త ప్లాట్‌ఫామ్ — స్థానిక ప్రముఖ నిపుణులతో భాగస్వామ్యం • ₹0 అడ్వాన్స్ • 30 రోజుల వారంటీ",
+    heroSub: "నెల్లూరులో తొలిసారిగా ప్రారంభం — స్థానిక ప్రముఖ నిపుణులతో భాగస్వామ్యం • ₹0 అడ్వాన్స్ • 30 రోజుల వారంటీ",
     chooseService: "సేవను ఎంచుకోండి",
     selectPestOrIssue: "మీ సమస్య లేదా అవసరాన్ని ఎంచుకోండి:",
     selectSize: "ఇంటి లేదా స్పేస్ సైజు ఎంచుకోండి:",

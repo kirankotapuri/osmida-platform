@@ -194,7 +194,7 @@ export function HeroIllustration({ className = "w-full max-w-md h-auto", imageSr
       <div className={`relative aspect-[16/9] sm:aspect-[4/3] ${className} overflow-hidden rounded-3xl border border-[#E5E7EB] shadow-lg`}>
         <Image
           src={imageSrc}
-          alt="Osmida Verified Home Services in Nellore"
+          alt="Osmida Home Services in Nellore"
           fill
           className="object-cover"
           onError={() => setImgError(true)}
@@ -231,7 +231,7 @@ export function HeroIllustration({ className = "w-full max-w-md h-auto", imageSr
       <path d="M112 210C100 215 95 225 105 230C115 225 110 215 112 210Z" fill="#2FBF9B" />
       <path d="M112 210C124 215 129 225 119 230C109 225 114 215 112 210Z" fill="#25D366" />
 
-      {/* Verified Professional Technician in Uniform */}
+      {/* Established Professional Technician in Official Uniform */}
       {/* Body & Osmida Black T-shirt */}
       <path d="M210 300V240C210 220 230 205 255 205C280 205 300 220 300 240V300H210Z" fill="#0B0B0F" />
       {/* White 'OSMIDA' wordmark on shirt */}
