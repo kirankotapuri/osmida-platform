@@ -2,16 +2,11 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Header } from "@/components/Header";
 import { FloatingContactBar } from "@/components/FloatingContactBar";
 import { Language } from "@/lib/translations";
-import {
-  AcHeroIllustration,
-  AcFoamJetIllustration,
-  AcRepairIllustration,
-  AcGasRefillIllustration,
-  AcInstallationIllustration,
-} from "@/components/ServiceIllustrations";
+import { CategorySelectorModal } from "@/components/CategorySelectorModal";
 import {
   Phone,
   MessageSquare,
@@ -26,11 +21,13 @@ import {
   ArrowRight,
   CheckCircle2,
   Snowflake,
+  SlidersHorizontal,
 } from "lucide-react";
 
 export default function AcServicesPage() {
   const [lang, setLang] = useState<Language>("en");
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const toggleFaq = (index: number) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
@@ -45,83 +42,251 @@ export default function AcServicesPage() {
     window.open(`https://wa.me/917676358162?text=${text}`, "_blank");
   };
 
-  // Section 4: 4 Core AC Cards Data
+  // Urban Company Style AC Visual Category Groups (100% AC Services Only)
+  const visualCategoryGroups = [
+    {
+      groupTitleEn: "AC Servicing & Deep Foam Jet Cleaning",
+      groupTitleTe: "ఏసీ సర్వీసింగ్ & డీప్ ఫోమ్ జెట్ క్లీనింగ్",
+      items: [
+        {
+          id: "foam-jet",
+          titleEn: "Split AC Foam Jet Service",
+          titleTe: "స్ప్లిట్ ఏసీ ఫోమ్ జెట్",
+          imageSrc: "/images/service-ac-foamjet.jpg",
+          badgeEn: "45 mins",
+          badgeTe: "45 నిమిషాలు",
+          priceEn: "From ₹599",
+          priceTe: "₹599 నుండి",
+          bookParam: "foam-jet",
+        },
+        {
+          id: "window-ac",
+          titleEn: "Window AC Jet Wash",
+          titleTe: "విండో ఏసీ జెట్ వాష్",
+          imageSrc: "/images/service-ac-foamjet.jpg",
+          badgeEn: "45 mins",
+          badgeTe: "45 నిమిషాలు",
+          priceEn: "From ₹499",
+          priceTe: "₹499 నుండి",
+          bookParam: "foam-jet",
+        },
+        {
+          id: "coil-coating",
+          titleEn: "Anti-Rust Coil Coating",
+          titleTe: "కాయిల్ రక్షణ కోటింగ్",
+          imageSrc: "/images/service-ac-repair.jpg",
+          badgeEn: "30 mins",
+          badgeTe: "30 నిమిషాలు",
+          priceEn: "From ₹399",
+          priceTe: "₹399 నుండి",
+          bookParam: "foam-jet",
+        },
+      ],
+    },
+    {
+      groupTitleEn: "AC Repair & Cooling Diagnostics",
+      groupTitleTe: "రిపేర్ & కూలింగ్ సమస్యల పరిష్కారం",
+      items: [
+        {
+          id: "repair-diagnosis",
+          titleEn: "AC Not Cooling / Diagnosis",
+          titleTe: "ఏసీ రిపేర్ & డైగ్నాసిస్",
+          imageSrc: "/images/service-ac-repair.jpg",
+          badgeEn: "30-min call",
+          badgeTe: "30 నిమిషాల్లో కాల్",
+          priceEn: "From ₹299",
+          priceTe: "₹299 నుండి",
+          bookParam: "repair-diagnosis",
+        },
+        {
+          id: "gas-refill",
+          titleEn: "Gas Leak Check & Refill",
+          titleTe: "గ్యాస్ టాప్-అప్ / రీఫిల్",
+          imageSrc: "/images/service-ac-repair.jpg",
+          badgeEn: "60 mins",
+          badgeTe: "60 నిమిషాలు",
+          priceEn: "From ₹1,999",
+          priceTe: "₹1,999 నుండి",
+          bookParam: "gas-refill",
+        },
+        {
+          id: "water-leak",
+          titleEn: "Water Leakage Fix",
+          titleTe: "వాటర్ లీకేజ్ రిపేర్",
+          imageSrc: "/images/service-ac-repair.jpg",
+          badgeEn: "30 mins",
+          badgeTe: "30 నిమిషాలు",
+          priceEn: "From ₹349",
+          priceTe: "₹349 నుండి",
+          bookParam: "repair-diagnosis",
+        },
+      ],
+    },
+    {
+      groupTitleEn: "Installation, Uninstallation & Shifting",
+      groupTitleTe: "ఇన్స్టాలేషన్, అన్ఇన్స్టాల్ & షిఫ్టింగ్",
+      items: [
+        {
+          id: "ac-installation",
+          titleEn: "AC Installation",
+          titleTe: "కొత్త ఏసీ ఇన్స్టాలేషన్",
+          imageSrc: "/images/service-ac-install.jpg",
+          badgeEn: "Same Day",
+          badgeTe: "అదే రోజు",
+          priceEn: "From ₹899",
+          priceTe: "₹899 నుండి",
+          bookParam: "ac-installation",
+        },
+        {
+          id: "ac-uninstallation",
+          titleEn: "AC Uninstallation",
+          titleTe: "ఏసీ అన్ఇన్స్టాల్",
+          imageSrc: "/images/service-ac-foamjet.jpg",
+          badgeEn: "30 mins",
+          badgeTe: "30 నిమిషాలు",
+          priceEn: "From ₹499",
+          priceTe: "₹499 నుండి",
+          bookParam: "ac-installation",
+        },
+        {
+          id: "ac-shifting",
+          titleEn: "Complete AC Shifting",
+          titleTe: "ఏసీ పూర్తి షిఫ్టింగ్",
+          imageSrc: "/images/service-ac-install.jpg",
+          badgeEn: "Relocation",
+          badgeTe: "సురక్షిత రవాణా",
+          priceEn: "From ₹1,299",
+          priceTe: "₹1,299 నుండి",
+          bookParam: "ac-installation",
+        },
+      ],
+    },
+  ];
+
+  // Section 4: Core Detailed Plans
   const planCards = [
     {
       id: "ac-foam-jet",
-      icon: <AcFoamJetIllustration className="h-16 w-16" />,
+      imageSrc: "/images/service-ac-foamjet.jpg",
       titleEn: "AC Foam Jet Service",
       titleTe: "ఏసీ ఫోమ్ జెట్ సర్వీస్",
       scopeEn: [
-        "Deep cleaning of indoor unit (filters, coils, blower)",
-        "Improves cooling & reduces electricity bill",
-        "Suitable for split & window AC",
+        "Deep cleaning of indoor cooling coils, filters & cross-flow blower",
+        "High-pressure water jacket wash (no dirty water on your walls)",
+        "Outdoor unit condenser coil high-pressure dust wash",
+        "Temperature drop & electrical current check for maximum cooling",
+        "15-day cooling & leakage warranty included",
       ],
       scopeTe: [
-        "ఇండోర్ యూనిట్ లోతైన శుభ్రత (ఫిల్టర్లు, కాయిల్స్, బ్లోయర్)",
-        "కూలింగ్ పెరుగుతుంది & కరెంట్ బిల్లు తగ్గుతుంది",
-        "స్ప్లిట్ మరియు విండో ఏసీలకు అనుకూలం",
+        "ఇండోర్ కూలింగ్ కాయిల్స్, ఫిల్టర్లు మరియు బ్లోయర్ లోతైన ఫోమ్ జెట్ వాష్",
+        "వాటర్ కలెక్షన్ జాకెట్‌తో గోడలపై మరకలు లేకుండా శుభ్రం",
+        "అవుట్‌డోర్ కండెన్సర్ యూనిట్‌కు హై-ప్రెజర్ వాటర్ వాష్",
+        "గరిష్ట కూలింగ్ కోసం ఉష్ణోగ్రత మరియు విద్యుత్ వినియోగ పరీక్ష",
+        "15 రోజుల కూలింగ్ మరియు లీకేజ్ వారంటీ చేర్చబడింది",
       ],
       priceEn: "From ₹599",
       priceTe: "₹599 నుండి",
-      bookParam: "ac-foam-jet",
+      bookParam: "foam-jet",
     },
     {
       id: "ac-repair",
-      icon: <AcRepairIllustration className="h-16 w-16" />,
+      imageSrc: "/images/service-ac-repair.jpg",
       titleEn: "AC Repair & Diagnosis",
       titleTe: "ఏసీ రిపేర్ మరియు డైగ్నాసిస్",
       scopeEn: [
-        "Not cooling, water leakage, noise, gas leak check",
-        "₹299 inspection charge (adjusted if you proceed with repair)",
-        "Transparent estimate before work",
+        "Diagnosis for not cooling, water leakage, strange noise, or foul smell",
+        "₹299 inspection visit charge (fully adjusted if you proceed with repair)",
+        "Transparent quotation with genuine OEM replacement spare parts",
+        "Capacitor, sensor, fan motor & PCB circuit testing",
+        "30-day warranty on replaced spare parts",
       ],
       scopeTe: [
-        "కూలింగ్ రాకపోవడం, వాటర్ లీకేజ్, శబ్దం, గ్యాస్ లీక్ తనిఖీ",
-        "₹299 తనిఖీ ఛార్జ్ (రిపేర్ చేయిస్తే ఈ ఛార్జ్ మినహాయింపు)",
-        "పనికి ముందే స్పష్టమైన ఎస్టిమేట్",
+        "కూలింగ్ రాకపోవడం, వాటర్ లీకేజ్, శబ్దం లేదా వాసనపై సమగ్ర తనిఖీ",
+        "₹299 తనిఖీ ఛార్జ్ (రిపేర్ చేయిస్తే బిల్లులో ఈ ఛార్జ్ మినహాయింపు)",
+        "ఒరిజినల్ స్పేర్ పార్ట్సుతో పనికి ముందే స్పష్టమైన కొటేషన్",
+        "కెపాసిటర్, సెన్సార్, ఫ్యాన్ మోటార్ & PCB సర్క్యూట్ పరీక్ష",
+        "భర్తీ చేసిన విడిభాగాలపై 30 రోజుల వారంటీ",
       ],
       priceEn: "From ₹299",
       priceTe: "₹299 నుండి",
-      bookParam: "ac-repair",
+      bookParam: "repair-diagnosis",
     },
     {
       id: "ac-gas",
-      icon: <AcGasRefillIllustration className="h-16 w-16" />,
+      imageSrc: "/images/service-ac-repair.jpg",
       titleEn: "Gas Top-Up / Refill",
       titleTe: "గ్యాస్ టాప్-అప్ / రీఫిల్",
       scopeEn: [
-        "R-32 / R-410A gas top-up",
-        "Leak check and vacuuming before refill",
-        "Charged per AC",
+        "Nitrogen & soap bubble pressure leak testing to find joint leaks",
+        "Complete vacuuming and moisture removal before gas charging",
+        "100% pure virgin refrigerant (R-32 / R-410A / R-22) filled with manifold gauge",
+        "Post-gas charging air vent temperature test (ice-chill guaranteed)",
+        "15-day gas leak warranty",
       ],
       scopeTe: [
-        "R-32 / R-410A గ్యాస్ టాప్-అప్",
-        "రీఫిల్‌కు ముందు లీక్ తనిఖీ మరియు వాక్యూమింగ్",
-        "ప్రతి ఏసీకి నిర్దిష్ట రేటు",
+        "లీక్‌లను గుర్తించడానికి నైట్రోజన్ మరియు సోప్ బబుల్ ప్రెజర్ పరీక్ష",
+        "గ్యాస్ నింపే ముందు పూర్తి వాక్యూమింగ్ మరియు తేమ తొలగింపు",
+        "డిజిటల్ మీటర్‌తో 100% అసలైన స్వచ్ఛమైన గ్యాస్ (R-32 / R-410A)",
+        "గ్యాస్ నింపిన తర్వాత చల్లని గాలి ఉష్ణోగ్రత నిర్ధారణ",
+        "గ్యాస్ లీక్‌పై 15 రోజుల వారంటీ",
       ],
       priceEn: "From ₹1,999",
       priceTe: "₹1,999 నుండి",
-      bookParam: "ac-gas",
+      bookParam: "gas-refill",
     },
     {
       id: "ac-install",
-      icon: <AcInstallationIllustration className="h-16 w-16" />,
-      titleEn: "AC Installation",
-      titleTe: "ఏసీ ఇన్స్టాల్",
+      imageSrc: "/images/service-ac-install.jpg",
+      titleEn: "AC Installation & Shifting",
+      titleTe: "ఏసీ ఇన్స్టాలేషన్ & షిఫ్టింగ్",
       scopeEn: [
-        "New split or window AC installation",
-        "Includes basic mounting, piping (up to 3 m), testing",
-        "Extra piping & drilling charged extra",
+        "Indoor unit precision level mounting & wall core drilling",
+        "Heavy-duty outdoor bracket wall mounting with vibration dampeners",
+        "Copper piping connection, electrical wiring & insulation wrapping",
+        "Safe gas pumpdown lock during uninstallation or shifting",
+        "Leak testing and complete cooling performance trial",
       ],
       scopeTe: [
-        "కొత్త స్ప్లిట్ లేదా విండో ఏసీ ఇన్స్టాలేషన్",
-        "బేసిక్ మౌంటింగ్, 3 మీటర్ల పైపింగ్, టెస్టింగ్ కలిగి ఉంటుంది",
-        "అదనపు పైపింగ్ మరియు డ్రిల్లింగ్‌కు ప్రత్యేక ఛార్జ్",
+        "ఇండోర్ యూనిట్ బ్రాకెట్ మౌంటింగ్ మరియు పైపింగ్ డ్రిల్లింగ్",
+        "అవుట్‌డోర్ యూనిట్ హెవీ-డ్యూటీ వాల్ స్టాండ్ బిగింపు",
+        "కాపర్ పైపింగ్ కనెక్షన్, వైరింగ్ మరియు ఇన్సులేషన్ టేపింగ్",
+        "షిఫ్టింగ్ సమయంలో గ్యాస్ లాక్ మరియు సురక్షితమైన అన్‌మౌంటింగ్",
+        "లీక్ చెక్ మరియు కూలింగ్ ట్రయల్ రన్ పూర్తి చేయడం",
       ],
       priceEn: "From ₹899",
       priceTe: "₹899 నుండి",
-      bookParam: "ac-install",
+      bookParam: "ac-installation",
+    },
+  ];
+
+  // Section 4B: Add-Ons Data
+  const addOnCards = [
+    {
+      id: "extra-pipe",
+      titleEn: "Extra Copper Piping (per foot)",
+      titleTe: "అదనపు కాపర్ పైపింగ్ (అడుగుకు)",
+      scopeEn: "Includes high-grade copper tube, twin wire & thermal insulation.",
+      scopeTe: "హై-గ్రేడ్ కాపర్ పైప్, వైరింగ్ మరియు థర్మల్ ఇన్సులేషన్ కలిగి ఉంటుంది.",
+      priceEn: "₹299 / ft",
+      priceTe: "₹299 / అడుగుకు",
+    },
+    {
+      id: "outdoor-stand",
+      titleEn: "Heavy-Duty Outdoor Stand",
+      titleTe: "హెవీ-డ్యూటీ అవుట్‌డోర్ వాల్ స్టాండ్",
+      scopeEn: "Rust-proof powder-coated metal bracket with vibration rubber pads.",
+      scopeTe: "రస్ట్-ప్రూఫ్ పౌడర్ కోటెడ్ స్టాండ్ మరియు వైబ్రేషన్ రబ్బర్ ప్యాడ్స్.",
+      priceEn: "₹699",
+      priceTe: "₹699",
+    },
+    {
+      id: "drain-pipe",
+      titleEn: "Drain Pipe Replacement",
+      titleTe: "డ్రైన్ పైప్ రీప్లేస్‌మెంట్ (3 మీటర్లు)",
+      scopeEn: "High-flexibility UV-resistant water drain pipe with leak sealing.",
+      scopeTe: "వాటర్ లీకేజ్ నివారణకు నాణ్యమైన UV-రెసిస్టెంట్ డ్రైన్ పైప్.",
+      priceEn: "₹199",
+      priceTe: "₹199",
     },
   ];
 
@@ -233,9 +398,23 @@ export default function AcServicesPage() {
           </div>
 
           <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-8 lg:gap-12">
-            {/* Mobile Illustration on Top (<1024px) */}
+            {/* Mobile Photo on Top (<1024px) */}
             <div className="lg:hidden w-full flex justify-center py-2">
-              <AcHeroIllustration className="w-full max-w-[360px] h-[210px]" imageSrc="/images/service-ac-v2.jpg" />
+              <div className="relative w-full max-w-[360px] h-[210px] rounded-2xl overflow-hidden shadow-lg border border-gray-100">
+                <Image
+                  src="/images/service-ac-v2.jpg"
+                  alt="Osmida AC Service Specialist in Official Uniform"
+                  fill
+                  className="object-cover object-top"
+                  sizes="360px"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-2.5 left-3 bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-full text-[11px] font-bold text-gray-900 shadow-xs flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                  Official Osmida Technician
+                </div>
+              </div>
             </div>
 
             {/* Left Content (≈60% width) */}
@@ -294,26 +473,128 @@ export default function AcServicesPage() {
               </div>
             </div>
 
-            {/* Desktop Illustration (≈42% width) */}
+            {/* Desktop Photo (≈42% width) */}
             <div className="hidden lg:flex lg:w-[42%] justify-end">
-              <AcHeroIllustration className="w-full max-w-[450px] h-[300px]" imageSrc="/images/service-ac-v2.jpg" />
+              <div className="relative w-full max-w-[450px] h-[300px] rounded-2xl overflow-hidden shadow-xl border border-gray-100">
+                <Image
+                  src="/images/service-ac-v2.jpg"
+                  alt="Osmida AC Service Specialist in Official Uniform"
+                  fill
+                  className="object-cover object-top"
+                  sizes="450px"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-3 left-4 bg-white/95 backdrop-blur-xs px-3 py-1 rounded-full text-xs font-bold text-gray-900 shadow-md flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                  Official Osmida Uniform & Certified HVAC Tech
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* 4. SERVICE OPTIONS (Cards Grid) */}
-      <section id="service-plans" className="bg-white py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
+      {/* 4A. URBAN COMPANY STYLE VISUAL SUB-CATEGORY SELECTOR (Image 2) */}
+      <section id="service-plans" className="bg-[#FFFFFF] py-10 lg:py-14 px-4 sm:px-6 lg:px-8 border-b border-[#E5E7EB]">
+        <div className="mx-auto max-w-[1200px]">
+          {/* Section Header */}
+          <div className="text-center mb-8 lg:mb-12">
+            <span className="text-[11px] font-bold text-[#1E6FFF] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full uppercase tracking-wider">
+              {lang === "te" ? "త్వరిత ఎంపిక" : "Quick Selection"}
+            </span>
+            <h2 className="text-[22px] lg:text-[26px] font-bold text-[#111111] mt-2.5">
+              {lang === "te" ? "మీ ఏసీ అవసరాన్ని ఎంచుకోండి" : "Select Your AC Service"}
+            </h2>
+            <p className="mt-1 text-sm text-[#555555]">
+              {lang === "te"
+                ? "మీకు అవసరమైన సర్వీస్ కేటగిరీపై క్లిక్ చేసి నేరుగా బుక్ చేయండి లేదా వివరాలు చూడండి."
+                : "Tap your required service to book instantly or explore complete scope."}
+            </p>
+
+            {/* Urban Company-Style Interactive Drawer Trigger */}
+            <div className="mt-4 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="inline-flex items-center gap-2 rounded-2xl border border-blue-200 bg-blue-50/80 hover:bg-blue-100 px-5 py-2.5 text-xs font-bold text-[#1E6FFF] shadow-2xs transition-all active:scale-[0.98]"
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                <span>
+                  {lang === "te"
+                    ? "⚡ అన్ని సర్వీస్ కేటగిరీలు చూడండి (ఏసీ, పురుగుల నివారణ, డీప్ క్లీనింగ్)"
+                    : "⚡ Explore All Service Categories (AC, Pest Control, Deep Cleaning)"}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Grouped Visual Tiles */}
+          <div className="space-y-10">
+            {visualCategoryGroups.map((group, gIdx) => (
+              <div key={gIdx} className="space-y-3.5">
+                {/* Group Heading */}
+                <div className="flex items-center gap-2 border-b border-[#F0F2F5] pb-2">
+                  <h3 className="text-[16px] lg:text-[18px] font-bold text-[#111111]">
+                    {lang === "te" ? group.groupTitleTe : group.groupTitleEn}
+                  </h3>
+                  <span className="text-xs text-[#888888] font-normal">
+                    ({group.items.length} {lang === "te" ? "సేవలు" : "options"})
+                  </span>
+                </div>
+
+                {/* Visual Tiles Grid (3 Columns on Desktop, 3 Columns on Tablet, 2 on Mobile) */}
+                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-3 gap-3.5 sm:gap-5">
+                  {group.items.map((item) => (
+                    <Link
+                      key={item.id}
+                      href={`/book?service=ac-services&plan=${item.bookParam}`}
+                      className="group relative rounded-2xl bg-[#F8FAFC] hover:bg-white border border-[#E2E8F0] hover:border-[#1E6FFF] p-3 sm:p-4 text-center transition-all duration-200 hover:shadow-lg hover:-translate-y-1 flex flex-col items-center justify-between"
+                    >
+                      {/* Real Photography with Osmida Uniform */}
+                      <div className="relative h-28 sm:h-32 w-full rounded-xl overflow-hidden mb-2.5 bg-slate-100">
+                        <Image
+                          src={item.imageSrc}
+                          alt={item.titleEn}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          sizes="(max-width: 768px) 160px, 240px"
+                        />
+                        <div className="absolute top-2 left-2 inline-flex items-center rounded-full bg-white/95 backdrop-blur-xs border border-slate-200/80 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-slate-800 shadow-xs">
+                          <span>{lang === "te" ? item.badgeTe : item.badgeEn}</span>
+                        </div>
+                      </div>
+
+                      {/* Title */}
+                      <h4 className="text-[13px] sm:text-[15px] font-bold text-[#111111] group-hover:text-[#1E6FFF] transition-colors leading-snug line-clamp-2">
+                        {lang === "te" ? item.titleTe : item.titleEn}
+                      </h4>
+
+                      {/* Price Line */}
+                      <div className="mt-2 text-[12px] sm:text-[14px] font-semibold text-[#1E6FFF]">
+                        {lang === "te" ? item.priceTe : item.priceEn}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* 4. DETAILED SERVICE PLANS (What's Included) */}
+      <section className="bg-[#F7F8FA] py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-[1200px]">
           {/* Section Heading */}
           <div className="text-center mb-8 lg:mb-10">
             <h2 className="text-[22px] lg:text-[24px] font-bold text-[#111111]">
-              {lang === "te" ? "మీ ఏసీ సర్వీస్ ఎంచుకోండి" : "Choose Your AC Service"}
+              {lang === "te" ? "పూర్తి ప్లాన్ వివరాలు & ప్రయోజనాలు" : "Detailed Plan Scope & Pricing"}
             </h2>
             <p className="mt-2 text-sm text-[#555555]">
               {lang === "te"
-                ? "సరసమైన ధరలు, సర్టిఫైడ్ టెక్నీషియన్లు మరియు గ్యారెంటీ సర్వీస్"
-                : "Transparent rates, certified technicians & guaranteed cooling"}
+                ? "పారదర్శక ధరలు, 5-పాయింట్ చెక్‌లిస్ట్ మరియు 15-30 రోజుల వారంటీ"
+                : "Transparent rates, 5-point service checklist & official warranty"}
             </p>
           </div>
 
@@ -331,9 +612,15 @@ export default function AcServicesPage() {
                   className="rounded-[16px] bg-[#FFFFFF] border border-[#E5E7EB] p-6 shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between"
                 >
                   <div>
-                    {/* Centered Icon (~64-80px) */}
-                    <div className="flex justify-center mb-4">
-                      {card.icon}
+                    {/* Real Photography Header */}
+                    <div className="relative h-44 sm:h-52 w-full rounded-2xl overflow-hidden mb-4 bg-slate-100 shadow-xs">
+                      <Image
+                        src={card.imageSrc}
+                        alt={title}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
                     </div>
 
                     {/* Card Title (EN / TEL stacked) */}
@@ -346,14 +633,19 @@ export default function AcServicesPage() {
                       </p>
                     </div>
 
-                    {/* Scope (2-3 bullet points) */}
-                    <div className="mt-5 pt-4 border-t border-[#F0F2F5] space-y-2.5">
-                      {scopeItems.map((bullet, idx) => (
-                        <div key={idx} className="flex items-start gap-2.5 text-[14px] lg:text-[15px] font-normal text-[#555555]">
-                          <span className="text-[#1E6FFF] font-bold mt-0.5">-</span>
-                          <span className="leading-snug">{bullet}</span>
-                        </div>
-                      ))}
+                    {/* What's Included Section Header & Bullets */}
+                    <div className="mt-5 pt-4 border-t border-[#F0F2F5]">
+                      <p className="text-[13px] lg:text-[14px] font-semibold text-[#555555] mb-2.5">
+                        {lang === "te" ? "ఇది ఏమి కలిగి ఉంది" : "What’s included"}
+                      </p>
+                      <div className="space-y-2">
+                        {scopeItems.map((bullet, idx) => (
+                          <div key={idx} className="flex items-start gap-2 text-[14px] lg:text-[15px] font-normal text-[#555555]">
+                            <span className="text-[#1E6FFF] font-bold mt-0.5">-</span>
+                            <span className="leading-snug">{bullet}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
@@ -379,6 +671,54 @@ export default function AcServicesPage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* 4B. ADD-ONS (OPTIONAL) SECTION */}
+      <section className="bg-white py-12 lg:py-16 px-4 sm:px-6 lg:px-8 border-t border-[#E5E7EB]">
+        <div className="mx-auto max-w-[1200px]">
+          {/* Section Heading & Subtext */}
+          <div className="text-center mb-8 lg:mb-10">
+            <h2 className="text-[20px] lg:text-[22px] font-bold text-[#111111]">
+              {lang === "te" ? "ఆప్షనల్ యాడ్‑ఆన్లు" : "Add‑Ons (Optional)"}
+            </h2>
+            <p className="mt-2 text-sm text-[#555555]">
+              {lang === "te"
+                ? "మీ ఏసీ సర్వీస్‌కు అవసరమైన అదనపు స్పేర్ పార్ట్‌లు మరియు మౌంటింగ్ సామాగ్రి."
+                : "Common add-on spares and accessories for your AC servicing and installation."}
+            </p>
+          </div>
+
+          {/* Add-Ons Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
+            {addOnCards.map((addon) => (
+              <div
+                key={addon.id}
+                className="rounded-[14px] bg-[#FFFFFF] border border-[#E5E7EB] p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between"
+              >
+                <div>
+                  <h3 className="text-[16px] lg:text-[17px] font-bold text-[#111111] leading-snug">
+                    {lang === "te" ? addon.titleTe : addon.titleEn}
+                  </h3>
+                  <p className="text-xs font-semibold text-[#888888] mt-0.5">
+                    {lang === "te" ? addon.titleEn : addon.titleTe}
+                  </p>
+                  <p className="text-[14px] text-[#555555] mt-2.5 leading-relaxed">
+                    {lang === "te" ? addon.scopeTe : addon.scopeEn}
+                  </p>
+                </div>
+
+                <div className="mt-5 pt-3.5 border-t border-[#F0F2F5] flex items-center justify-between">
+                  <span className="text-xs font-medium text-[#777777]">
+                    {lang === "te" ? "ధర" : "Price"}
+                  </span>
+                  <span className="text-[15px] lg:text-[16px] font-semibold text-[#1E6FFF]">
+                    {lang === "te" ? addon.priceTe : addon.priceEn}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -660,6 +1000,14 @@ export default function AcServicesPage() {
 
       {/* MOBILE STICKY CONTACT BAR */}
       <FloatingContactBar lang={lang} selectedServiceName="AC Services" />
+
+      {/* URBAN COMPANY IMAGE 2 CATEGORY SELECTOR MODAL */}
+      <CategorySelectorModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        lang={lang}
+        initialTab="ac"
+      />
     </main>
   );
 }

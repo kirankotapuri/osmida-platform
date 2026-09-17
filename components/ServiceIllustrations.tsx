@@ -495,6 +495,80 @@ export function TermiteIllustration({ className = "h-16 w-16" }: { className?: s
 }
 
 /**
+ * 9B. Plan Card: 3 BHK General Pest Icon
+ */
+export function Pest3BhkIllustration({ className = "h-16 w-16" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="80" height="80" rx="16" fill="#FFF5F3" />
+      {/* 3-Room Home Outline */}
+      <path d="M12 44L30 26L48 44V64H12V44Z" fill="#FFFFFF" stroke="#FF5A3C" strokeWidth="2.2" strokeLinejoin="round" />
+      <path d="M34 32L52 16L70 32V64H48" fill="#FFFFFF" stroke="#FF5A3C" strokeWidth="2.2" strokeLinejoin="round" />
+      <path d="M22 50H38M54 50H64" stroke="#E5E7EB" strokeWidth="1.5" />
+      <rect x="24" y="52" width="10" height="12" rx="1.5" fill="#111111" />
+      {/* Bugs + Protective Shield */}
+      <circle cx="60" cy="38" r="10" fill="#FF5A3C" />
+      <text x="55" y="43" fontSize="9">🪳</text>
+      <circle cx="18" cy="28" r="8" fill="#FF5A3C" />
+      <text x="13" y="32" fontSize="7">🐜</text>
+      <circle cx="40" cy="62" r="9" fill="#1E6FFF" stroke="#FFFFFF" strokeWidth="1.5" />
+      <path d="M37 62L39 64L43 60" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/**
+ * Add-on 1: Extra Room Pest Icon
+ */
+export function ExtraRoomIllustration({ className = "h-12 w-12" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="60" height="60" rx="12" fill="#FFF5F3" />
+      <rect x="14" y="18" width="32" height="28" rx="4" fill="#FFFFFF" stroke="#FF5A3C" strokeWidth="2" />
+      <rect x="24" y="30" width="12" height="16" rx="2" fill="#111111" />
+      <circle cx="44" cy="18" r="8" fill="#1E6FFF" stroke="#FFFFFF" strokeWidth="1.5" />
+      <path d="M44 14V22M40 18H48" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" />
+      <circle cx="16" cy="24" r="6" fill="#FF5A3C" />
+      <text x="13" y="27" fontSize="7">🐜</text>
+    </svg>
+  );
+}
+
+/**
+ * Add-on 2: Kitchen Deep Treatment Icon
+ */
+export function KitchenDeepIllustration({ className = "h-12 w-12" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="60" height="60" rx="12" fill="#FFF5F3" />
+      <rect x="12" y="24" width="36" height="24" rx="4" fill="#FFFFFF" stroke="#FF5A3C" strokeWidth="2" />
+      <circle cx="22" cy="32" r="4" stroke="#111111" strokeWidth="1.5" />
+      <circle cx="38" cy="32" r="4" stroke="#111111" strokeWidth="1.5" />
+      <rect x="20" y="40" width="20" height="4" rx="1" fill="#E5E7EB" />
+      <circle cx="44" cy="16" r="8" fill="#FF5A3C" stroke="#FFFFFF" strokeWidth="1.5" />
+      <text x="40" y="20" fontSize="8">🪳</text>
+      <path d="M38 12L46 20M46 12L38 20" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/**
+ * Add-on 3: Washroom Sanitisation Icon
+ */
+export function WashroomSanitisationIllustration({ className = "h-12 w-12" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect width="60" height="60" rx="12" fill="#F0F8FF" />
+      <path d="M18 20C18 16 42 16 42 20V32C42 38 36 42 30 42C24 42 18 38 18 32V20Z" fill="#FFFFFF" stroke="#1E6FFF" strokeWidth="2" />
+      <rect x="26" y="42" width="8" height="6" fill="#E5E7EB" stroke="#1E6FFF" strokeWidth="1" />
+      <circle cx="44" cy="18" r="8" fill="#25D366" stroke="#FFFFFF" strokeWidth="1.5" />
+      <path d="M41 18L43 20L47 16" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M16 36C16 34 19 31 19 31C19 31 22 34 22 36C22 38 20.6 39 19 39C17.4 39 16 38 16 36Z" fill="#3BA3FF" />
+    </svg>
+  );
+}
+
+/**
  * 10. Dedicated AC Services Hero Illustration
  * Spec: Split AC indoor unit on wall, outdoor unit, Osmida technician checking pressure with gauge,
  * tool kit nearby, snowflake (cooling), wrench, gas cylinder, drill.
@@ -679,6 +753,208 @@ export function AcInstallationIllustration({ className = "h-16 w-16" }: { classN
 }
 
 /**
+ * Urban Company Style Realistic Appliance Visuals for AC Sub-Categories
+ */
+
+// 1. Realistic Split AC Visual (matches Image 2 AC tile)
+export function RealisticSplitAcVisual({ className = "h-20 w-32" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 140 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="splitAcBody" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#FFFFFF" />
+          <stop offset="60%" stopColor="#F8FAFC" />
+          <stop offset="100%" stopColor="#E2E8F0" />
+        </linearGradient>
+        <filter id="acShadow" x="-10%" y="-10%" width="120%" height="130%">
+          <feDropShadow dx="0" dy="4" stdDeviation="4" floodOpacity="0.08" />
+        </filter>
+      </defs>
+      {/* AC Unit Body */}
+      <rect x="10" y="16" width="120" height="42" rx="6" fill="url(#splitAcBody)" stroke="#CBD5E1" strokeWidth="1.2" filter="url(#acShadow)" />
+      {/* Top subtle air intake grille slit */}
+      <line x1="20" y1="20" x2="120" y2="20" stroke="#E2E8F0" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="24" y1="24" x2="116" y2="24" stroke="#F1F5F9" strokeWidth="1" strokeLinecap="round" />
+      {/* Bottom louver / air deflector flap */}
+      <path d="M14 48H126C126 53 124 55 120 55H20C16 55 14 53 14 48Z" fill="#F1F5F9" stroke="#CBD5E1" strokeWidth="1" />
+      <line x1="16" y1="48" x2="124" y2="48" stroke="#94A3B8" strokeWidth="1.2" strokeLinecap="round" />
+      {/* Digital LED Display (24°C in cyan) */}
+      <rect x="94" y="27" width="22" height="11" rx="2.5" fill="#0B0B0F" />
+      <text x="98" y="36" fill="#38BDF8" fontSize="8" fontWeight="bold" fontFamily="monospace">24°</text>
+      <circle cx="111" cy="32" r="1" fill="#22C55E" />
+      {/* Clean Brand Dot */}
+      <circle cx="20" cy="33" r="1.5" fill="#94A3B8" />
+      {/* Soft Cool Air Mist Droplets */}
+      <circle cx="36" cy="66" r="2.5" fill="#38BDF8" fillOpacity="0.4" />
+      <circle cx="70" cy="68" r="3" fill="#38BDF8" fillOpacity="0.5" />
+      <circle cx="104" cy="65" r="2" fill="#38BDF8" fillOpacity="0.4" />
+    </svg>
+  );
+}
+
+// 2. Realistic Window AC Visual
+export function RealisticWindowAcVisual({ className = "h-20 w-28" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 110 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="winShadow" x="-10%" y="-10%" width="120%" height="130%">
+          <feDropShadow dx="0" dy="4" stdDeviation="4" floodOpacity="0.08" />
+        </filter>
+      </defs>
+      {/* Main Square Outer Casing */}
+      <rect x="12" y="14" width="86" height="54" rx="6" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.2" filter="url(#winShadow)" />
+      {/* Front Air Grille Slots */}
+      <rect x="18" y="20" width="48" height="42" rx="3" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="1" />
+      <line x1="22" y1="28" x2="62" y2="28" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="22" y1="35" x2="62" y2="35" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="22" y1="42" x2="62" y2="42" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="22" y1="49" x2="62" y2="49" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="22" y1="56" x2="62" y2="56" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" />
+      {/* Control Knob Panel */}
+      <rect x="72" y="20" width="20" height="42" rx="3" fill="#0F172A" />
+      <circle cx="82" cy="28" r="4" fill="#334155" stroke="#38BDF8" strokeWidth="1" />
+      <circle cx="82" cy="40" r="4" fill="#334155" stroke="#94A3B8" strokeWidth="1" />
+      <rect x="76" y="50" width="12" height="6" rx="1.5" fill="#22C55E" fillOpacity="0.8" />
+    </svg>
+  );
+}
+
+// 3. Realistic Anti-Rust Coil Visual
+export function RealisticCoilVisual({ className = "h-20 w-28" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 110 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="14" y="16" width="82" height="50" rx="6" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.2" />
+      {/* Copper Tube Loops */}
+      <path d="M22 24H88C91 24 91 32 88 32H22C19 32 19 40 22 40H88C91 40 91 48 88 48H22C19 48 19 56 22 56H88" stroke="#D97706" strokeWidth="3" strokeLinecap="round" />
+      {/* Cooling Fins (Blue protective coating) */}
+      <path d="M30 20V62M42 20V62M54 20V62M66 20V62M78 20V62" stroke="#0284C7" strokeWidth="1.5" strokeOpacity="0.7" />
+      {/* Shield Badge */}
+      <circle cx="78" cy="52" r="12" fill="#0284C7" stroke="#FFFFFF" strokeWidth="2" />
+      <path d="M74 52L77 55L83 49" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// 4. Realistic AC Diagnosis & Repair Visual
+export function RealisticRepairVisual({ className = "h-20 w-28" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 110 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Background AC unit silhouette */}
+      <rect x="12" y="14" width="70" height="26" rx="4" fill="#F1F5F9" stroke="#CBD5E1" strokeWidth="1" />
+      <line x1="16" y1="34" x2="78" y2="34" stroke="#94A3B8" strokeWidth="1" />
+      {/* Multimeter / Diagnostic Tool */}
+      <rect x="46" y="24" width="48" height="44" rx="6" fill="#0F172A" stroke="#38BDF8" strokeWidth="1.5" />
+      {/* Display */}
+      <rect x="52" y="30" width="36" height="14" rx="2" fill="#0284C7" fillOpacity="0.2" />
+      <text x="56" y="41" fill="#38BDF8" fontSize="8" fontWeight="bold" fontFamily="monospace">OK • 100%</text>
+      {/* Knob */}
+      <circle cx="70" cy="54" r="6" fill="#334155" stroke="#94A3B8" strokeWidth="1.2" />
+      <line x1="70" y1="50" x2="70" y2="54" stroke="#F59E0B" strokeWidth="1.5" strokeLinecap="round" />
+      {/* Test Probes (Red & Black cables) */}
+      <path d="M52 64C46 72 34 56 30 50" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" fill="none" />
+      <path d="M88 64C94 72 102 54 96 46" stroke="#000000" strokeWidth="2" strokeLinecap="round" fill="none" />
+    </svg>
+  );
+}
+
+// 5. Realistic Gas Cylinder Visual
+export function RealisticGasCylinderVisual({ className = "h-20 w-24" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 90 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="gasGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#059669" />
+          <stop offset="35%" stopColor="#10B981" />
+          <stop offset="70%" stopColor="#34D399" />
+          <stop offset="100%" stopColor="#047857" />
+        </linearGradient>
+      </defs>
+      {/* Protective Top Collar / Handle */}
+      <path d="M33 16C33 12 57 12 57 16V22H33V16Z" fill="#1E293B" />
+      <rect x="41" y="14" width="8" height="5" rx="2" fill="#FFFFFF" />
+      {/* Brass Valve */}
+      <rect x="42" y="8" width="6" height="6" fill="#D97706" />
+      <circle cx="45" cy="7" r="3" fill="#B45309" />
+      {/* Cylinder Body */}
+      <rect x="25" y="22" width="40" height="46" rx="10" fill="url(#gasGradient)" stroke="#065F46" strokeWidth="1.2" />
+      {/* Center Label Band */}
+      <rect x="25" y="34" width="40" height="15" fill="#FFFFFF" fillOpacity="0.9" />
+      <text x="29" y="45" fill="#065F46" fontSize="9" fontWeight="900" letterSpacing="0.5">R32</text>
+      {/* Bottom Foot Ring */}
+      <path d="M28 66H62V71C62 72 60 73 58 73H32C30 73 28 72 28 71V66Z" fill="#1E293B" />
+      {/* Pressure Meter Badge */}
+      <circle cx="68" cy="24" r="11" fill="#FFFFFF" stroke="#0284C7" strokeWidth="2" />
+      <path d="M68 24L72 20" stroke="#EF4444" strokeWidth="1.5" strokeLinecap="round" />
+      <circle cx="68" cy="24" r="2" fill="#0F172A" />
+    </svg>
+  );
+}
+
+// 6. Realistic Water Leak Fix Visual
+export function RealisticWaterLeakVisual({ className = "h-20 w-28" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 110 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* AC Unit Body */}
+      <rect x="14" y="14" width="82" height="34" rx="5" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.2" />
+      <line x1="18" y1="40" x2="92" y2="40" stroke="#94A3B8" strokeWidth="1" />
+      {/* Drain Pipe leading down */}
+      <path d="M84 44V56C84 64 74 66 64 66H30" stroke="#0284C7" strokeWidth="3" strokeLinecap="round" fill="none" />
+      {/* Water Droplet Shielded (Leak Fixed) */}
+      <circle cx="48" cy="54" r="13" fill="#22C55E" stroke="#FFFFFF" strokeWidth="2" />
+      <path d="M43 54L46 57L53 50" stroke="#FFFFFF" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+      {/* Droplet */}
+      <path d="M84 56C84 56 81 60 81 62C81 63.6 82.3 65 84 65C85.7 65 87 63.6 87 62C87 60 84 56 84 56Z" fill="#38BDF8" />
+    </svg>
+  );
+}
+
+// 7. Realistic AC Installation & Shifting Visual
+export function RealisticAcInstallVisual({ className = "h-20 w-32" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 130 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Indoor Unit on top left */}
+      <rect x="10" y="14" width="65" height="24" rx="4" fill="#FFFFFF" stroke="#0284C7" strokeWidth="1.5" />
+      <rect x="62" y="20" width="8" height="4" fill="#0284C7" />
+      <line x1="14" y1="32" x2="71" y2="32" stroke="#94A3B8" strokeWidth="1" />
+      {/* Wall Bracket lines */}
+      <path d="M8 20H10M8 30H10" stroke="#64748B" strokeWidth="2" strokeLinecap="round" />
+      {/* Outdoor Unit on bottom right */}
+      <rect x="70" y="32" width="50" height="40" rx="5" fill="#F8FAFC" stroke="#64748B" strokeWidth="1.5" />
+      <circle cx="95" cy="52" r="14" fill="#E2E8F0" stroke="#94A3B8" strokeWidth="1.2" />
+      <path d="M95 40V64M83 52H107" stroke="#475569" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="95" cy="52" r="3" fill="#0284C7" />
+      {/* Copper Connecting Pipes */}
+      <path d="M45 38V48C45 52 50 54 56 54H70" stroke="#D97706" strokeWidth="2.5" strokeLinecap="round" fill="none" />
+      {/* Done Check Badge */}
+      <circle cx="48" cy="20" r="8" fill="#22C55E" stroke="#FFFFFF" strokeWidth="1.5" />
+      <path d="M45 20L47 22L51 18" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+// 8. Realistic AC Complete Shifting Visual
+export function RealisticAcShiftingVisual({ className = "h-20 w-32" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 130 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      {/* Moving Truck / Shifting Box */}
+      <rect x="14" y="24" width="70" height="40" rx="4" fill="#0F172A" />
+      <path d="M84 38L98 38L108 50V64H84V38Z" fill="#1E293B" stroke="#0F172A" strokeWidth="1.5" />
+      <rect x="88" y="42" width="12" height="9" rx="1.5" fill="#38BDF8" fillOpacity="0.7" />
+      {/* Truck Wheels */}
+      <circle cx="36" cy="66" r="7" fill="#334155" stroke="#FFFFFF" strokeWidth="2" />
+      <circle cx="94" cy="66" r="7" fill="#334155" stroke="#FFFFFF" strokeWidth="2" />
+      {/* AC Unit Packed Safely on top */}
+      <rect x="22" y="10" width="54" height="18" rx="3" fill="#FFFFFF" stroke="#0284C7" strokeWidth="1.2" />
+      <line x1="25" y1="24" x2="73" y2="24" stroke="#94A3B8" strokeWidth="1" />
+      {/* Location Pin */}
+      <circle cx="112" cy="22" r="9" fill="#EF4444" stroke="#FFFFFF" strokeWidth="1.5" />
+      <path d="M112 28L112 34" stroke="#EF4444" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="112" cy="22" r="3" fill="#FFFFFF" />
+    </svg>
+  );
+}
+
+/**
  * 15. Dedicated Home Deep Cleaning Hero Illustration
  * Spec: Nellore home interior (living room + kitchen visible), Osmida cleaner in black uniform with white logo,
  * mop, bucket, floor scrubber, sparkles/shine lines, badges: "Safe Chemicals", "Supervised Quality".
@@ -856,6 +1132,242 @@ export function CleanKitchenBathIllustration({ className = "h-16 w-16" }: { clas
       {/* Soap Bubbles / Sparkle */}
       <circle cx="58" cy="22" r="11" fill="#2FBF9B" stroke="#FFFFFF" strokeWidth="1.5" />
       <text x="53" y="27" fill="#FFFFFF" fontSize="10">🧼</text>
+    </svg>
+  );
+}
+
+/**
+ * Urban Company Image 2-Style Realistic Appliance Illustrations
+ */
+
+// Realistic Washing Machine Visual
+export function RealisticWashingMachineVisual({ className = "h-16 w-20" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 100 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="wmShadow" x="-10%" y="-10%" width="120%" height="130%">
+          <feDropShadow dx="0" dy="4" stdDeviation="3" floodOpacity="0.1" />
+        </filter>
+        <linearGradient id="drumGlass" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#38BDF8" stopOpacity="0.4" />
+          <stop offset="100%" stopColor="#0284C7" stopOpacity="0.8" />
+        </linearGradient>
+      </defs>
+      {/* Outer Metal Body */}
+      <rect x="20" y="8" width="60" height="74" rx="7" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.5" filter="url(#wmShadow)" />
+      {/* Top Control Panel */}
+      <rect x="22" y="10" width="56" height="18" rx="4" fill="#F1F5F9" />
+      {/* Detergent Drawer */}
+      <rect x="26" y="14" width="16" height="10" rx="2" fill="#E2E8F0" stroke="#CBD5E1" strokeWidth="1" />
+      {/* Rotary Dial */}
+      <circle cx="50" cy="19" r="6" fill="#334155" stroke="#94A3B8" strokeWidth="1" />
+      <line x1="50" y1="15" x2="50" y2="19" stroke="#38BDF8" strokeWidth="1.5" strokeLinecap="round" />
+      {/* Digital LED display */}
+      <rect x="62" y="14" width="12" height="8" rx="2" fill="#0F172A" />
+      <text x="64" y="20" fill="#38BDF8" fontSize="6" fontWeight="bold" fontFamily="monospace">49</text>
+      {/* Front Loading Drum Rim */}
+      <circle cx="50" cy="52" r="22" fill="#E2E8F0" stroke="#94A3B8" strokeWidth="1.5" />
+      <circle cx="50" cy="52" r="18" fill="url(#drumGlass)" stroke="#334155" strokeWidth="2" />
+      {/* Reflection highlight */}
+      <path d="M42 42C48 38 56 40 60 46" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeOpacity="0.8" />
+      {/* Bottom Service Filter Flap */}
+      <rect x="62" y="74" width="12" height="6" rx="1.5" fill="#E2E8F0" />
+    </svg>
+  );
+}
+
+// Realistic Refrigerator Visual
+export function RealisticRefrigeratorVisual({ className = "h-16 w-16" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 90 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="fridgeShadow" x="-10%" y="-10%" width="120%" height="130%">
+          <feDropShadow dx="0" dy="4" stdDeviation="3" floodOpacity="0.1" />
+        </filter>
+        <linearGradient id="fridgeBody" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#E2E8F0" />
+          <stop offset="50%" stopColor="#F8FAFC" />
+          <stop offset="100%" stopColor="#CBD5E1" />
+        </linearGradient>
+      </defs>
+      {/* Main Body */}
+      <rect x="22" y="6" width="46" height="86" rx="6" fill="url(#fridgeBody)" stroke="#94A3B8" strokeWidth="1.5" filter="url(#fridgeShadow)" />
+      {/* Top Freezer Door */}
+      <rect x="24" y="8" width="42" height="30" rx="4" fill="#FFFFFF" fillOpacity="0.7" stroke="#CBD5E1" strokeWidth="1" />
+      {/* Freezer Handle */}
+      <rect x="28" y="24" width="3" height="12" rx="1.5" fill="#475569" />
+      {/* Bottom Main Fridge Door */}
+      <rect x="24" y="41" width="42" height="49" rx="4" fill="#FFFFFF" fillOpacity="0.7" stroke="#CBD5E1" strokeWidth="1" />
+      {/* Main Handle */}
+      <rect x="28" y="45" width="3" height="18" rx="1.5" fill="#475569" />
+      {/* Water / Ice dispenser slot */}
+      <rect x="48" y="47" width="12" height="16" rx="2" fill="#334155" />
+      <path d="M54 55L54 59" stroke="#38BDF8" strokeWidth="1.5" strokeLinecap="round" />
+      {/* Feet */}
+      <rect x="26" y="92" width="6" height="3" rx="1" fill="#1E293B" />
+      <rect x="58" y="92" width="6" height="3" rx="1" fill="#1E293B" />
+    </svg>
+  );
+}
+
+// Realistic Television Visual
+export function RealisticTelevisionVisual({ className = "h-16 w-20" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="tvShadow" x="-10%" y="-10%" width="120%" height="130%">
+          <feDropShadow dx="0" dy="4" stdDeviation="3" floodOpacity="0.1" />
+        </filter>
+        <linearGradient id="tvScreen" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#1E293B" />
+          <stop offset="60%" stopColor="#0F172A" />
+          <stop offset="100%" stopColor="#020617" />
+        </linearGradient>
+      </defs>
+      {/* Screen Frame */}
+      <rect x="10" y="10" width="80" height="50" rx="4" fill="url(#tvScreen)" stroke="#475569" strokeWidth="1.5" filter="url(#tvShadow)" />
+      {/* Screen Gloss Reflection */}
+      <path d="M14 14L45 14L20 56L14 56Z" fill="#FFFFFF" fillOpacity="0.06" />
+      {/* Stand Neck & Feet */}
+      <rect x="47" y="60" width="6" height="8" fill="#334155" />
+      <path d="M35 68H65" stroke="#475569" strokeWidth="3" strokeLinecap="round" />
+      {/* Power LED Indicator */}
+      <circle cx="50" cy="58" r="1.5" fill="#38BDF8" />
+    </svg>
+  );
+}
+
+// Realistic Geyser / Water Heater Visual
+export function RealisticGeyserVisual({ className = "h-16 w-16" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="geyserShadow" x="-10%" y="-10%" width="120%" height="130%">
+          <feDropShadow dx="0" dy="3" stdDeviation="3" floodOpacity="0.1" />
+        </filter>
+      </defs>
+      {/* Geyser Cylindrical Body */}
+      <rect x="24" y="10" width="42" height="58" rx="14" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.5" filter="url(#geyserShadow)" />
+      {/* Front Feature Panel */}
+      <rect x="34" y="24" width="22" height="30" rx="6" fill="#F8FAFC" stroke="#E2E8F0" strokeWidth="1" />
+      {/* Temperature Display Indicator */}
+      <circle cx="45" cy="34" r="5" fill="#EF4444" fillOpacity="0.2" stroke="#EF4444" strokeWidth="1" />
+      <circle cx="45" cy="34" r="2.5" fill="#EF4444" />
+      {/* Heat Control Knob */}
+      <circle cx="45" cy="46" r="3.5" fill="#334155" />
+      {/* Inlet / Outlet Metal Pipes */}
+      <rect x="32" y="68" width="6" height="12" rx="1" fill="#38BDF8" stroke="#0284C7" strokeWidth="1" />
+      <rect x="52" y="68" width="6" height="12" rx="1" fill="#F87171" stroke="#DC2626" strokeWidth="1" />
+    </svg>
+  );
+}
+
+// Realistic RO Water Purifier Visual
+export function RealisticRoPurifierVisual({ className = "h-16 w-16" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="roShadow" x="-10%" y="-10%" width="120%" height="130%">
+          <feDropShadow dx="0" dy="4" stdDeviation="3" floodOpacity="0.1" />
+        </filter>
+      </defs>
+      {/* Main Body */}
+      <rect x="22" y="8" width="46" height="66" rx="6" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.5" filter="url(#roShadow)" />
+      {/* Transparent Water Tank */}
+      <rect x="26" y="26" width="38" height="34" rx="4" fill="#E0F2FE" stroke="#BAE6FD" strokeWidth="1" />
+      {/* Water Level Wave */}
+      <path d="M26 42C32 40 38 44 44 42C50 40 58 44 64 42V60H26V42Z" fill="#38BDF8" fillOpacity="0.35" />
+      {/* Tap at Bottom */}
+      <rect x="42" y="60" width="6" height="8" rx="1" fill="#64748B" />
+      <circle cx="45" cy="72" r="2" fill="#38BDF8" />
+      {/* Brand & Filter Indicators */}
+      <circle cx="36" cy="18" r="2" fill="#22C55E" />
+      <circle cx="44" cy="18" r="2" fill="#38BDF8" />
+      <circle cx="52" cy="18" r="2" fill="#94A3B8" />
+    </svg>
+  );
+}
+
+// Realistic Microwave Visual
+export function RealisticMicrowaveVisual({ className = "h-16 w-20" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="microShadow" x="-10%" y="-10%" width="120%" height="130%">
+          <feDropShadow dx="0" dy="3" stdDeviation="3" floodOpacity="0.1" />
+        </filter>
+      </defs>
+      {/* Microwave Outer Body */}
+      <rect x="12" y="14" width="76" height="52" rx="6" fill="#F8FAFC" stroke="#CBD5E1" strokeWidth="1.5" filter="url(#microShadow)" />
+      {/* Glass Door with Mesh */}
+      <rect x="18" y="20" width="44" height="40" rx="3" fill="#0F172A" stroke="#475569" strokeWidth="1" />
+      <rect x="22" y="24" width="36" height="32" rx="2" fill="#1E293B" stroke="#334155" strokeWidth="0.8" strokeDasharray="2 2" />
+      {/* Door Handle */}
+      <rect x="64" y="24" width="3" height="32" rx="1.5" fill="#94A3B8" />
+      {/* Control Panel */}
+      <rect x="70" y="20" width="14" height="40" rx="2" fill="#E2E8F0" />
+      {/* Digital Display */}
+      <rect x="72" y="22" width="10" height="8" rx="1.5" fill="#0F172A" />
+      <text x="73" y="28" fill="#22C55E" fontSize="5" fontWeight="bold" fontFamily="monospace">01:30</text>
+      {/* Rotary Dial */}
+      <circle cx="77" cy="38" r="4" fill="#334155" />
+      {/* Touch Buttons */}
+      <rect x="73" y="46" width="8" height="3" rx="1" fill="#94A3B8" />
+      <rect x="73" y="51" width="8" height="3" rx="1" fill="#EF4444" />
+    </svg>
+  );
+}
+
+// Realistic Air Cooler Visual
+export function RealisticAirCoolerVisual({ className = "h-16 w-16" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 90 90" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="coolerShadow" x="-10%" y="-10%" width="120%" height="130%">
+          <feDropShadow dx="0" dy="3" stdDeviation="3" floodOpacity="0.1" />
+        </filter>
+      </defs>
+      {/* Cooler Main Body */}
+      <rect x="22" y="10" width="46" height="68" rx="6" fill="#FFFFFF" stroke="#CBD5E1" strokeWidth="1.5" filter="url(#coolerShadow)" />
+      {/* Top Control Knobs */}
+      <circle cx="34" cy="18" r="3" fill="#334155" />
+      <circle cx="45" cy="18" r="3" fill="#334155" />
+      <circle cx="56" cy="18" r="3" fill="#334155" />
+      {/* Front Louvers / Air Grill */}
+      <rect x="28" y="26" width="34" height="32" rx="3" fill="#F1F5F9" stroke="#E2E8F0" strokeWidth="1" />
+      <line x1="32" y1="32" x2="58" y2="32" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="32" y1="38" x2="58" y2="38" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="32" y1="44" x2="58" y2="44" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" />
+      <line x1="32" y1="50" x2="58" y2="50" stroke="#94A3B8" strokeWidth="1.5" strokeLinecap="round" />
+      {/* Water Level Window */}
+      <rect x="42" y="62" width="6" height="12" rx="2" fill="#E0F2FE" stroke="#38BDF8" strokeWidth="1" />
+      {/* Wheels */}
+      <circle cx="30" cy="80" r="3" fill="#1E293B" />
+      <circle cx="60" cy="80" r="3" fill="#1E293B" />
+    </svg>
+  );
+}
+
+// Realistic Kitchen Chimney Visual
+export function RealisticChimneyVisual({ className = "h-16 w-20" }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 100 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <filter id="chimneyShadow" x="-10%" y="-10%" width="120%" height="130%">
+          <feDropShadow dx="0" dy="4" stdDeviation="3" floodOpacity="0.1" />
+        </filter>
+      </defs>
+      {/* Duct / Pipe Casing */}
+      <rect x="40" y="10" width="20" height="26" fill="#E2E8F0" stroke="#CBD5E1" strokeWidth="1" />
+      {/* Main Pyramid Hood */}
+      <path d="M40 36L14 54V62H86V54L60 36H40Z" fill="#FFFFFF" stroke="#94A3B8" strokeWidth="1.5" filter="url(#chimneyShadow)" />
+      {/* Front Touch Control Strip */}
+      <rect x="18" y="56" width="64" height="4" rx="1" fill="#0F172A" />
+      <circle cx="46" cy="58" r="1" fill="#38BDF8" />
+      <circle cx="50" cy="58" r="1" fill="#22C55E" />
+      <circle cx="54" cy="58" r="1" fill="#EF4444" />
+      {/* Bottom Baffle Filter Slits */}
+      <line x1="28" y1="65" x2="72" y2="65" stroke="#64748B" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }

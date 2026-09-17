@@ -257,16 +257,6 @@ export const SERVICES_DATA: ServiceDefinition[] = [
         startingPriceTe: "₹3,499 నుండి",
         descEn: "Rooms, balconies, fans, doors, kitchen & washrooms",
         descTe: "గదులు, బాల్కనీలు, ఫ్యాన్లు, తలుపులు, కిచెన్ & బాత్‌రూమ్‌లు"
-      },
-      {
-        id: "commercial-clean",
-        labelEn: "Shop / Clinic / Restaurant",
-        labelTe: "షాప్ / క్లినిక్ / రెస్టారెంట్",
-        icon: "🏬",
-        startingPriceEn: "Custom Quote",
-        startingPriceTe: "పరిశీలన అనంతరం",
-        descEn: "Commercial hygiene reset & digital report",
-        descTe: "వ్యాపార సంస్థలకు ప్రత్యేక హైజీన్ రీసెట్"
       }
     ]
   }
@@ -294,7 +284,7 @@ export const PROPERTY_SIZES = [
   { id: "1bhk", labelEn: "1 BHK / 1 Room", labelTe: "1 BHK / 1 గది" },
   { id: "2bhk", labelEn: "2 BHK", labelTe: "2 BHK" },
   { id: "3bhk", labelEn: "3 BHK / House", labelTe: "3 BHK / సొంత ఇల్లు" },
-  { id: "commercial", labelEn: "Shop / Office", labelTe: "షాప్ / ఆఫీస్" }
+  { id: "villa", labelEn: "Villa / Independent House", labelTe: "విల్లా / స్వతంత్ర ఇల్లు" }
 ];
 
 export const TIME_SLOTS = [

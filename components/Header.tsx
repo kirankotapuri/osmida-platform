@@ -26,6 +26,12 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
         p.startsWith("/home-deep-cleaning"),
     },
     {
+      href: "/#how-to-book-video",
+      labelEn: "How to Book (Video)",
+      labelTe: "వీడియో గైడ్",
+      activeMatch: () => false,
+    },
+    {
       href: "/about",
       labelEn: "About",
       labelTe: "మా గురించి",

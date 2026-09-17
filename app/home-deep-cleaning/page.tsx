@@ -2,16 +2,11 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Header } from "@/components/Header";
 import { FloatingContactBar } from "@/components/FloatingContactBar";
 import { Language } from "@/lib/translations";
-import {
-  CleaningHeroIllustration,
-  Clean1BhkIllustration,
-  Clean2BhkIllustration,
-  Clean3BhkIllustration,
-  CleanKitchenBathIllustration,
-} from "@/components/ServiceIllustrations";
+import { CategorySelectorModal } from "@/components/CategorySelectorModal";
 import {
   Phone,
   MessageSquare,
@@ -25,11 +20,13 @@ import {
   ChevronDown,
   ArrowRight,
   CheckCircle2,
+  SlidersHorizontal,
 } from "lucide-react";
 
 export default function HomeDeepCleaningPage() {
   const [lang, setLang] = useState<Language>("en");
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const toggleFaq = (index: number) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
@@ -44,23 +41,109 @@ export default function HomeDeepCleaningPage() {
     window.open(`https://wa.me/917676358162?text=${text}`, "_blank");
   };
 
-  // Section 4: 4 Cleaning Cards Data (3 Core + 1 Add-On)
+  // Urban Company Style Visual Category Groups for Cleaning
+  const visualCategoryGroups = [
+    {
+      groupTitleEn: "Full Home Deep Cleaning",
+      groupTitleTe: "పూర్తి ఇంటి డీప్ క్లీనింగ్",
+      items: [
+        {
+          id: "clean-1bhk-tile",
+          titleEn: "1 BHK Deep Clean",
+          titleTe: "1 BHK డీప్ క్లీన్",
+          imageSrc: "/images/service-cleaning-home.jpg",
+          badgeEn: "3-4 hrs",
+          badgeTe: "3-4 గంటలు",
+          priceEn: "From ₹2,499",
+          priceTe: "₹2,499 నుండి",
+          bookParam: "1bhk",
+        },
+        {
+          id: "clean-2bhk-tile",
+          titleEn: "2 BHK Deep Clean",
+          titleTe: "2 BHK డీప్ క్లీన్",
+          imageSrc: "/images/service-cleaning-home.jpg",
+          badgeEn: "4-5 hrs",
+          badgeTe: "4-5 గంటలు",
+          priceEn: "From ₹3,499",
+          priceTe: "₹3,499 నుండి",
+          bookParam: "2bhk",
+        },
+        {
+          id: "clean-3bhk-tile",
+          titleEn: "3 BHK Deep Clean",
+          titleTe: "3 BHK డీప్ క్లీన్",
+          imageSrc: "/images/service-cleaning-home.jpg",
+          badgeEn: "5-6 hrs",
+          badgeTe: "5-6 గంటలు",
+          priceEn: "From ₹4,499",
+          priceTe: "₹4,499 నుండి",
+          bookParam: "3bhk",
+        },
+        {
+          id: "villa-tile",
+          titleEn: "Gruhapravesam / Villa",
+          titleTe: "గృహప్రవేశం / విల్లా క్లీన్",
+          imageSrc: "/images/service-cleaning-home.jpg",
+          badgeEn: "Full Day",
+          badgeTe: "పూర్తి రోజు",
+          priceEn: "From ₹5,999",
+          priceTe: "₹5,999 నుండి",
+          bookParam: "3bhk",
+        },
+      ],
+    },
+    {
+      groupTitleEn: "Specialized Room Scrubbing",
+      groupTitleTe: "ప్రత్యేక విభాగాల డీప్ వాష్",
+      items: [
+        {
+          id: "kitchen-tile",
+          titleEn: "Kitchen Deep Degreasing",
+          titleTe: "కిచెన్ డీగ్రీసింగ్ వాష్",
+          imageSrc: "/images/service-cleaning-kitchen.jpg",
+          badgeEn: "90 mins",
+          badgeTe: "90 నిమిషాలు",
+          priceEn: "From ₹699",
+          priceTe: "₹699 నుండి",
+          bookParam: "kitchen-bathroom",
+        },
+        {
+          id: "bathroom-tile",
+          titleEn: "Bathroom Acid-Free Scrub",
+          titleTe: "బాత్‌రూమ్ డీస్కేలింగ్ & స్క్రబ్",
+          imageSrc: "/images/service-cleaning-bathroom.jpg",
+          badgeEn: "60 mins",
+          badgeTe: "60 నిమిషాలు",
+          priceEn: "From ₹499",
+          priceTe: "₹499 నుండి",
+          bookParam: "kitchen-bathroom",
+        },
+      ],
+    },
+  ];
+
+  // Section 4: 4 Detailed Cleaning Plans with 5-point Checklist
   const planCards = [
     {
       id: "clean-1bhk",
       isAddon: false,
-      icon: <Clean1BhkIllustration className="h-16 w-16" />,
+      imageSrc: "/images/service-cleaning-home.jpg",
       titleEn: "1 BHK Deep Clean",
       titleTe: "1 BHK డీప్ క్లీన్",
       scopeEn: [
-        "Living room + 1 bedroom + kitchen + washroom(s)",
-        "Floors, walls (reachable), doors, switches, fans (reachable)",
-        "Internal glass, mirrors, kitchen counters & sinks",
+        "Living room + 1 bedroom + kitchen + washroom deep scrub",
+        "Single-disc machine floor scrubbing & dry vacuuming",
+        "Kitchen slabs, tiles degreasing & sink chrome polishing",
+        "Bathroom wall tiles acid-free descaling & toilet sanitization",
+        "Ceiling fans, switchboards, reachable window glass & mesh clean",
       ],
       scopeTe: [
-        "హాల్ + 1 బెడ్రూమ్ + కిచెన్ + వాష్రూమ్(లు)",
-        "ఫ్లోర్లు, గోడలు (చేరుకోగలిగే), డోర్లు, స్విచ్లు, ఫ్యాన్లు (చేరుకోగలిగే)",
-        "ఇంటర్నల్ గ్లాస్, అద్దాలు, కిచెన్ కౌంటర్లు మరియు సింక్లు",
+        "హాల్ + 1 బెడ్రూమ్ + కిచెన్ + వాష్రూమ్ లోతైన స్క్రబ్బింగ్",
+        "సింగిల్-డిస్క్ మెషిన్ ఫ్లోర్ స్క్రబ్బింగ్ & వాక్యూమింగ్",
+        "కిచెన్ స్లాబ్‌లు, టైల్స్ నుండి నూనె జిడ్డు తొలగింపు & సింక్ పాలిష్",
+        "బాత్‌రూమ్ టైల్స్ డీస్కేలింగ్ & టాయిలెట్ క్రిమిసంహారక",
+        "సీలింగ్ ఫ్యాన్లు, స్విచ్‌బోర్డులు, కిటికీ గ్లాస్ & నెట్ క్లీనింగ్",
       ],
       priceEn: "From ₹2,499",
       priceTe: "₹2,499 నుండి",
@@ -69,18 +152,22 @@ export default function HomeDeepCleaningPage() {
     {
       id: "clean-2bhk",
       isAddon: false,
-      icon: <Clean2BhkIllustration className="h-16 w-16" />,
+      imageSrc: "/images/service-cleaning-home.jpg",
       titleEn: "2 BHK Deep Clean",
       titleTe: "2 BHK డీప్ క్లీన్",
       scopeEn: [
-        "Living room + 2 bedrooms + kitchen + washrooms",
-        "Floors, walls (reachable), doors, switches, fans (reachable)",
-        "Internal glass, mirrors, kitchen counters & sinks",
+        "Living room + 2 bedrooms + kitchen + 2 washrooms deep scrub",
+        "Heavy-duty floor scrubbing & grout cleaning with safe chemicals",
+        "Kitchen exhaust, cabinets (exterior) & stainless steel sink scrub",
+        "2 Bathrooms hard water stain removal, taps & sanitary disinfection",
+        "Doors, switchboards, balcony wash & glass mirror polishing",
       ],
       scopeTe: [
-        "హాల్ + 2 బెడ్రూమ్‌లు + కిచెన్ + వాష్రూమ్‌లు",
-        "ఫ్లోర్లు, గోడలు (చేరుకోగలిగే), డోర్లు, స్విచ్లు, ఫ్యాన్లు (చేరుకోగలిగే)",
-        "ఇంటర్నల్ గ్లాస్, అద్దాలు, కిచెన్ కౌంటర్లు మరియు సింక్లు",
+        "హాల్ + 2 బెడ్రూమ్‌లు + కిచెన్ + 2 వాష్రూమ్‌లు పూర్తి వాష్",
+        "హెవీ-డ్యూటీ ఫ్లోర్ స్క్రబ్బింగ్ మరియు సేఫ్ కెమికల్స్‌తో క్లీనింగ్",
+        "కిచెన్ ఎగ్జాస్ట్, క్యాబినెట్ ఎక్స్‌టీరియర్ & సింక్ స్క్రబ్బింగ్",
+        "2 బాత్‌రూమ్‌లలో గార మరకలు, పంపులు & శానిటరీ క్రిమిసంహారక",
+        "డోర్లు, స్విచ్‌బోర్డులు, బాల్కనీ వాష్ & అద్దాల పాలిషింగ్",
       ],
       priceEn: "From ₹3,499",
       priceTe: "₹3,499 నుండి",
@@ -89,18 +176,22 @@ export default function HomeDeepCleaningPage() {
     {
       id: "clean-3bhk",
       isAddon: false,
-      icon: <Clean3BhkIllustration className="h-16 w-16" />,
+      imageSrc: "/images/service-cleaning-home.jpg",
       titleEn: "3 BHK Deep Clean",
       titleTe: "3 BHK డీప్ క్లీన్",
       scopeEn: [
-        "Living room + 3 bedrooms + kitchen + washrooms",
-        "Floors, walls (reachable), doors, switches, fans (reachable)",
-        "Internal glass, mirrors, kitchen counters & sinks",
+        "Living room + 3 bedrooms + kitchen + all washrooms deep clean",
+        "High-speed floor scrubbing across marble, vitrified tiles or granite",
+        "Kitchen oil grease removal, chimney exterior & counter disinfection",
+        "Complete bathroom descaling, mirrors, fixtures & drain flush",
+        "Cobweb removal, doors, fans, balconies & window tracks vacuuming",
       ],
       scopeTe: [
-        "హాల్ + 3 బెడ్రూమ్‌లు + కిచెన్ + వాష్రూమ్‌లు",
-        "ఫ్లోర్లు, గోడలు (చేరుకోగలిగే), డోర్లు, స్విచ్లు, ఫ్యాన్లు (చేరుకోగలిగే)",
-        "ఇంటర్నల్ గ్లాస్, అద్దాలు, కిచెన్ కౌంటర్లు మరియు సింక్లు",
+        "హాల్ + 3 బెడ్రూమ్‌లు + కిచెన్ + అన్ని వాష్రూమ్‌ల సమగ్ర క్లీన్",
+        "మార్బుల్, విట్రిఫైడ్ టైల్స్ లేదా గ్రానైట్ ఫ్లోర్ హై-స్పీడ్ స్క్రబ్బింగ్",
+        "కిచెన్ ఆయిల్ మరకలు, చిమ్నీ ఎక్స్‌టీరియర్ & కౌంటర్ శానిటైజేషన్",
+        "బాత్‌రూమ్ డీస్కేలింగ్, అద్దాలు, ఫిట్టింగ్స్ & డ్రైన్ లైన్ వాష్",
+        "బూజు తొలగింపు, డోర్లు, ఫ్యాన్లు, బాల్కనీలు & కిటికీ ట్రాక్స్ క్లీన్",
       ],
       priceEn: "From ₹4,499",
       priceTe: "₹4,499 నుండి",
@@ -109,22 +200,57 @@ export default function HomeDeepCleaningPage() {
     {
       id: "clean-kitchen-bath",
       isAddon: true,
-      icon: <CleanKitchenBathIllustration className="h-16 w-16" />,
-      titleEn: "Kitchen / Bathroom Deep Clean",
-      titleTe: "కిచెన్ / బాత్రూమ్ డీప్ క్లీన్",
+      imageSrc: "/images/service-cleaning-kitchen.jpg",
+      titleEn: "Kitchen & Bathroom Intensive Scrub",
+      titleTe: "కిచెన్ & బాత్‌రూమ్ ఇంటెన్సివ్ స్క్రబ్",
       scopeEn: [
-        "Deep degreasing of kitchen counters, sinks, floors",
-        "Deep scrub & disinfection of toilets, basins, floors",
-        "Safe chemicals, odour control",
+        "Deep degreasing of grease-laden kitchen tiles, platform & sink",
+        "Heavy acid-free descaling of bathroom yellow stains & limescale",
+        "High-touch fixture disinfection (taps, flush handles, knobs)",
+        "Odour neutralization & eco-friendly safe germ-shield protection",
+        "24-hour satisfaction warranty included",
       ],
       scopeTe: [
-        "కిచెన్ కౌంటర్లు, సింక్‌లు, ఫ్లోర్ల నుండి నూనె జిడ్డు తొలగింపు",
-        "టాయిలెట్లు, బేసిన్‌లు, ఫ్లోర్ల లోతైన స్క్రబ్బింగ్ & క్రిమిసంహారక",
-        "సురక్షిత రసాయనాలు, వాసన నియంత్రణ",
+        "నూనె జిడ్డు నిండిన కిచెన్ టైల్స్, ప్లాట్‌ఫామ్ & సింక్ డీప్ డీగ్రీసింగ్",
+        "బాత్‌రూమ్ పసుపు మరకలు, గార & లైమ్‌స్కేల్ యాసిడ్-రహిత తొలగింపు",
+        "పంపులు, ఫ్లష్ హ్యాండిల్స్, నాబ్‌ల పూర్తి క్రిమిసంహారక",
+        "దుర్వాసన నివారణ & సురక్షితమైన జెర్మ్-షీల్డ్ రక్షణ",
+        "24 గంటల నాణ్యత వారంటీ చేర్చబడింది",
       ],
       priceEn: "From ₹699",
       priceTe: "₹699 నుండి",
       bookParam: "addon",
+    },
+  ];
+
+  // Section 4B: Add-Ons Data
+  const addOnCards = [
+    {
+      id: "balcony-wash",
+      titleEn: "Extra Balcony Jet Wash",
+      titleTe: "అదనపు బాల్కనీ జెట్ వాష్",
+      scopeEn: "Deep machine scrub of floor tiles, railing wipe & bird droppings removal.",
+      scopeTe: "బాల్కనీ ఫ్లోర్ మెషిన్ స్క్రబ్, రైలింగ్ క్లీనింగ్ మరియు పిట్టల వ్యర్థాల తొలగింపు.",
+      priceEn: "₹299",
+      priceTe: "₹299",
+    },
+    {
+      id: "appliance-degrease",
+      titleEn: "Microwave & Oven Steam Clean",
+      titleTe: "మైక్రోవేవ్ & ఓవెన్ స్టీమ్ క్లీన్",
+      scopeEn: "Non-toxic food-safe steam degreasing of inner cavity, turntable & tray.",
+      scopeTe: "ఫుడ్-సేఫ్ నాన్-టాక్సిక్ స్టీమ్‌తో లోపలి భాగం మరియు ట్రే డీగ్రీసింగ్.",
+      priceEn: "₹299",
+      priceTe: "₹299",
+    },
+    {
+      id: "extra-bath",
+      titleEn: "Additional Bathroom Descaling",
+      titleTe: "అదనపు బాత్‌రూమ్ డీస్కేలింగ్",
+      scopeEn: "Complete tiles, commode, wash basin & chrome taps scrub.",
+      scopeTe: "పూర్తి వాల్ టైల్స్, కమోడ్, వాష్ బేసిన్ మరియు పంపుల స్క్రబ్బింగ్.",
+      priceEn: "₹499",
+      priceTe: "₹499",
     },
   ];
 
@@ -236,9 +362,23 @@ export default function HomeDeepCleaningPage() {
           </div>
 
           <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-8 lg:gap-12">
-            {/* Mobile Illustration on Top (<1024px) */}
+            {/* Mobile Photo on Top (<1024px) */}
             <div className="lg:hidden w-full flex justify-center py-2">
-              <CleaningHeroIllustration className="w-full max-w-[360px] h-[210px]" imageSrc="/images/service-cleaning-v2.jpg" />
+              <div className="relative w-full max-w-[360px] h-[210px] rounded-2xl overflow-hidden shadow-lg border border-gray-100">
+                <Image
+                  src="/images/service-cleaning-v2.jpg"
+                  alt="Osmida Cleaning Professional in Official Uniform"
+                  fill
+                  className="object-cover object-top"
+                  sizes="360px"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-2.5 left-3 bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-full text-[11px] font-bold text-gray-900 shadow-xs flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+                  Official Osmida Cleaning Specialist
+                </div>
+              </div>
             </div>
 
             {/* Left Content (≈58–60% width) */}
@@ -297,26 +437,128 @@ export default function HomeDeepCleaningPage() {
               </div>
             </div>
 
-            {/* Desktop Illustration (≈42% width) */}
+            {/* Desktop Photo (≈42% width) */}
             <div className="hidden lg:flex lg:w-[42%] justify-end">
-              <CleaningHeroIllustration className="w-full max-w-[450px] h-[300px]" imageSrc="/images/service-cleaning-v2.jpg" />
+              <div className="relative w-full max-w-[450px] h-[300px] rounded-2xl overflow-hidden shadow-xl border border-gray-100">
+                <Image
+                  src="/images/service-cleaning-v2.jpg"
+                  alt="Osmida Cleaning Professional in Official Uniform"
+                  fill
+                  className="object-cover object-top"
+                  sizes="450px"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-3 left-4 bg-white/95 backdrop-blur-xs px-3 py-1 rounded-full text-xs font-bold text-gray-900 shadow-md flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse" />
+                  Official Osmida Uniform & Supervised Quality
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
+      {/* 4A. URBAN COMPANY STYLE VISUAL SUB-CATEGORY SELECTOR (Image 2) */}
+      <section id="service-plans" className="bg-[#FFFFFF] py-10 lg:py-14 px-4 sm:px-6 lg:px-8 border-b border-[#E5E7EB]">
+        <div className="mx-auto max-w-[1200px]">
+          {/* Section Header */}
+          <div className="text-center mb-8 lg:mb-12">
+            <span className="text-[11px] font-bold text-[#1E6FFF] bg-blue-50 border border-blue-200 px-3 py-1 rounded-full uppercase tracking-wider">
+              {lang === "te" ? "త్వరిత ఎంపిక" : "Quick Selection"}
+            </span>
+            <h2 className="text-[22px] lg:text-[26px] font-bold text-[#111111] mt-2.5">
+              {lang === "te" ? "మీ క్లీనింగ్ అవసరాన్ని ఎంచుకోండి" : "Select Your Cleaning Category"}
+            </h2>
+            <p className="mt-1 text-sm text-[#555555]">
+              {lang === "te"
+                ? "మీకు అవసరమైన సర్వీస్ కేటగిరీపై క్లిక్ చేసి నేరుగా బుక్ చేయండి లేదా వివరాలు చూడండి."
+                : "Tap your required service to book instantly or explore complete scope."}
+            </p>
+
+            {/* Urban Company Image 2-Style Interactive Drawer Trigger */}
+            <div className="mt-4 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="inline-flex items-center gap-2 rounded-2xl border border-blue-200 bg-blue-50/80 hover:bg-blue-100 px-5 py-2.5 text-xs font-bold text-[#1E6FFF] shadow-2xs transition-all active:scale-[0.98]"
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                <span>
+                  {lang === "te"
+                    ? "⚡ అన్ని సర్వీస్ కేటగిరీలు చూడండి (ఏసీ, పురుగుల నివారణ, డీప్ క్లీనింగ్)"
+                    : "⚡ Explore All Service Categories (AC, Pest Control, Deep Cleaning)"}
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* Grouped Visual Tiles */}
+          <div className="space-y-10">
+            {visualCategoryGroups.map((group, gIdx) => (
+              <div key={gIdx} className="space-y-3.5">
+                {/* Group Heading */}
+                <div className="flex items-center gap-2 border-b border-[#F0F2F5] pb-2">
+                  <h3 className="text-[16px] lg:text-[18px] font-bold text-[#111111]">
+                    {lang === "te" ? group.groupTitleTe : group.groupTitleEn}
+                  </h3>
+                  <span className="text-xs text-[#888888] font-normal">
+                    ({group.items.length} {lang === "te" ? "సేవలు" : "options"})
+                  </span>
+                </div>
+
+                {/* Visual Tiles Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5 sm:gap-5">
+                  {group.items.map((item) => (
+                    <Link
+                      key={item.id}
+                      href={`/book?service=home-deep-cleaning&plan=${item.bookParam}`}
+                      className="group relative rounded-2xl bg-[#F8FAFC] hover:bg-white border border-[#E2E8F0] hover:border-[#2FBF9B] p-3 sm:p-4 text-center transition-all duration-200 hover:shadow-lg hover:-translate-y-1 flex flex-col items-center justify-between"
+                    >
+                      {/* Real Photographic Thumbnail */}
+                      <div className="relative h-28 sm:h-32 w-full rounded-xl overflow-hidden mb-2.5 bg-slate-100">
+                        <Image
+                          src={item.imageSrc}
+                          alt={item.titleEn}
+                          fill
+                          className="object-cover transition-transform duration-300 group-hover:scale-105"
+                          sizes="(max-width: 768px) 160px, 240px"
+                        />
+                        <div className="absolute top-2 left-2 inline-flex items-center rounded-full bg-white/95 backdrop-blur-xs border border-slate-200/80 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-slate-800 shadow-xs">
+                          <span>{lang === "te" ? item.badgeTe : item.badgeEn}</span>
+                        </div>
+                      </div>
+
+                      {/* Title */}
+                      <h4 className="text-[13px] sm:text-[15px] font-bold text-[#111111] group-hover:text-[#0E8A6B] transition-colors leading-snug line-clamp-2">
+                        {lang === "te" ? item.titleTe : item.titleEn}
+                      </h4>
+
+                      {/* Price Line */}
+                      <div className="mt-2 text-[12px] sm:text-[14px] font-semibold text-[#1E6FFF]">
+                        {lang === "te" ? item.priceTe : item.priceEn}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* 4. SERVICE OPTIONS (Cards Grid) */}
-      <section id="service-plans" className="bg-white py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
+      <section className="bg-[#F7F8FA] py-12 lg:py-16 px-4 sm:px-6 lg:px-8">
         <div className="mx-auto max-w-[1200px]">
           {/* Section Heading */}
           <div className="text-center mb-8 lg:mb-10">
             <h2 className="text-[22px] lg:text-[24px] font-bold text-[#111111]">
-              {lang === "te" ? "మీ డీప్ క్లీనింగ్ ప్లాన్ ఎంచుకోండి" : "Choose Your Deep Cleaning Plan"}
+              {lang === "te" ? "పూర్తి ప్లాన్ వివరాలు & ప్రయోజనాలు" : "Detailed Plan Scope & Pricing"}
             </h2>
             <p className="mt-2 text-sm text-[#555555]">
               {lang === "te"
-                ? "పూర్తి ఇల్లు, కిచెన్ మరియు వాష్రూమ్‌ల కోసం సమగ్ర డీప్ క్లీనింగ్"
-                : "Comprehensive deep cleaning packages for apartments, villas & kitchens"}
+                ? "పూర్తి ఇల్లు, కిచెన్ మరియు వాష్రూమ్‌ల కోసం సమగ్ర 5-పాయింట్ చెక్‌లిస్ట్"
+                : "Comprehensive deep cleaning packages with 5-point checklist & official warranty"}
             </p>
           </div>
 
@@ -343,9 +585,15 @@ export default function HomeDeepCleaningPage() {
                       </div>
                     )}
 
-                    {/* Centered Icon (~64-80px) */}
-                    <div className="flex justify-center mb-4">
-                      {card.icon}
+                    {/* Real Photography Header */}
+                    <div className="relative h-44 sm:h-52 w-full rounded-2xl overflow-hidden mb-4 bg-slate-100 shadow-xs">
+                      <Image
+                        src={card.imageSrc}
+                        alt={title}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, 50vw"
+                      />
                     </div>
 
                     {/* Card Title (EN / TEL stacked) */}
@@ -391,6 +639,61 @@ export default function HomeDeepCleaningPage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* 4B. ADD-ONS (OPTIONAL EXTRAS) */}
+      <section className="bg-white py-10 lg:py-14 px-4 sm:px-6 lg:px-8 border-t border-b border-[#E5E7EB]">
+        <div className="mx-auto max-w-[1200px]">
+          <div className="text-center mb-8">
+            <span className="text-[11px] font-bold text-[#2FBF9B] bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full uppercase tracking-wider">
+              {lang === "te" ? "ఐచ్ఛిక అదనపు సేవలు" : "Optional Add-Ons"}
+            </span>
+            <h2 className="text-[20px] lg:text-[22px] font-bold text-[#111111] mt-2">
+              {lang === "te" ? "మీ ప్లాన్‌కు అదనపు సేవలను జోడించండి" : "Customize With Cleaning Add-Ons"}
+            </h2>
+            <p className="mt-1 text-xs text-[#555555]">
+              {lang === "te"
+                ? "మీ బుకింగ్ సమయంలో లేదా టెక్నీషియన్ వచ్చినప్పుడు ఈ సేవలను సులభంగా జోడించుకోవచ్చు."
+                : "Add these extras to your booking or request them during service visit."}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+            {addOnCards.map((addon) => (
+              <div
+                key={addon.id}
+                className="rounded-2xl border border-[#E5E7EB] bg-[#F8FAFC] p-5 flex flex-col justify-between hover:border-[#2FBF9B]/50 transition-all duration-200 shadow-2xs"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2 mb-2">
+                    <h3 className="text-[15px] font-bold text-[#111111] leading-snug">
+                      {lang === "te" ? addon.titleTe : addon.titleEn}
+                    </h3>
+                    <span className="shrink-0 text-[14px] font-bold text-[#0E8A6B]">
+                      {lang === "te" ? addon.priceTe : addon.priceEn}
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#555555] leading-relaxed">
+                    {lang === "te" ? addon.scopeTe : addon.scopeEn}
+                  </p>
+                </div>
+
+                <div className="mt-4 pt-3 border-t border-[#E2E8F0] flex items-center justify-between">
+                  <span className="text-[11px] text-[#888888]">
+                    {lang === "te" ? "బుకింగ్‌లో పేర్కొనవచ్చు" : "Mention in notes"}
+                  </span>
+                  <Link
+                    href="/book?service=home-cleaning"
+                    className="inline-flex items-center gap-1 text-xs font-bold text-[#1E6FFF] hover:underline"
+                  >
+                    <span>{lang === "te" ? "బుక్ చేయండి" : "Book"}</span>
+                    <ArrowRight className="h-3 w-3" />
+                  </Link>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -672,6 +975,14 @@ export default function HomeDeepCleaningPage() {
 
       {/* MOBILE STICKY CONTACT BAR */}
       <FloatingContactBar lang={lang} selectedServiceName="Home Deep Cleaning" />
+
+      {/* URBAN COMPANY IMAGE 2 CATEGORY SELECTOR MODAL */}
+      <CategorySelectorModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        lang={lang}
+        initialTab="cleaning"
+      />
     </main>
   );
 }

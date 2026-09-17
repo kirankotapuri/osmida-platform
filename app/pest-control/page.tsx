@@ -2,16 +2,10 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Header } from "@/components/Header";
 import { FloatingContactBar } from "@/components/FloatingContactBar";
 import { Language } from "@/lib/translations";
-import {
-  PestHeroIllustration,
-  Pest1BhkIllustration,
-  Pest2BhkIllustration,
-  BedbugIllustration,
-  TermiteIllustration,
-} from "@/components/ServiceIllustrations";
 import {
   Phone,
   MessageSquare,
@@ -27,11 +21,16 @@ import {
   ArrowRight,
   Shield,
   CheckCircle2,
+  SlidersHorizontal,
+  Home,
+  Droplets,
 } from "lucide-react";
+import { CategorySelectorModal } from "@/components/CategorySelectorModal";
 
 export default function PestControlPage() {
   const [lang, setLang] = useState<Language>("en");
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const toggleFaq = (index: number) => {
     setOpenFaqIndex(openFaqIndex === index ? null : index);
@@ -46,83 +45,168 @@ export default function PestControlPage() {
     window.open(`https://wa.me/917676358162?text=${text}`, "_blank");
   };
 
-  // Section 4: 4 Core Cards Data
+  // Section 4: 5 Core Cards Data with Real Photography
   const planCards = [
     {
       id: "general-1bhk",
-      icon: <Pest1BhkIllustration className="h-16 w-16" />,
+      imageSrc: "/images/service-pest-general.jpg",
       titleEn: "General Pest – 1 BHK",
       titleTe: "సాధారణ పురుగులు – 1 BHK",
       scopeEn: [
-        "Living room + 1 bedroom + kitchen + washroom",
-        "Cockroaches, ants, mosquitoes, etc.",
-        "30-day warranty",
+        "Living room + 1 bedroom + kitchen + washroom(s)",
+        "Treatment for cockroaches, ants, mosquitoes, and common pests",
+        "Safe, government‑approved chemicals",
+        "30‑day warranty on treatment",
+        "Trained technicians, minimal disruption",
       ],
       scopeTe: [
-        "హాల్ + 1 బెడ్రూమ్ + కిచెన్ + వాష్రూమ్",
-        "పురుగులు, చీమలు, దోమలు మొదలైనవి",
-        "30 రోజుల వారంటీ",
+        "హాల్ + 1 బెడ్రూమ్ + కిచెన్ + వాష్రూమ్(లు)",
+        "బొద్దింకలు, చీమలు, దోమలు మరియు సాధారణ పురుగుల నివారణ",
+        "సురక్షితమైన, ప్రభుత్వ ఆమోదం పొందిన రసాయనాలు",
+        "చికిత్సపై 30 రోజుల వారంటీ",
+        "శిక్షణ పొందిన టెక్నీషియన్లు, సురక్షిత సేవ",
       ],
       priceEn: "From ₹1,499",
       priceTe: "₹1,499 నుండి",
-      bookParam: "pest-general-1bhk",
+      bookParam: "general-1bhk",
     },
     {
       id: "general-2bhk",
-      icon: <Pest2BhkIllustration className="h-16 w-16" />,
+      imageSrc: "/images/service-pest-general.jpg",
       titleEn: "General Pest – 2 BHK",
       titleTe: "సాధారణ పురుగులు – 2 BHK",
       scopeEn: [
-        "Living room + 2 bedrooms + kitchen + washrooms",
-        "Cockroaches, ants, mosquitoes, etc.",
-        "30-day warranty",
+        "Living room + 2 bedrooms + kitchen + washroom(s)",
+        "Treatment for cockroaches, ants, mosquitoes, and common pests",
+        "Safe, government‑approved chemicals",
+        "30‑day warranty on treatment",
+        "Trained technicians, minimal disruption",
       ],
       scopeTe: [
-        "హాల్ + 2 బెడ్రూమ్‌లు + కిచెన్ + వాష్రూమ్‌లు",
-        "పురుగులు, చీమలు, దోమలు మొదలైనవి",
-        "30 రోజుల వారంటీ",
+        "హాల్ + 2 బెడ్రూమ్‌లు + కిచెన్ + వాష్రూమ్(లు)",
+        "బొద్దింకలు, చీమలు, దోమలు మరియు సాధారణ పురుగుల నివారణ",
+        "సురక్షితమైన, ప్రభుత్వ ఆమోదం పొందిన రసాయనాలు",
+        "చికిత్సపై 30 రోజుల వారంటీ",
+        "శిక్షణ పొందిన టెక్నీషియన్లు, సురక్షిత సేవ",
       ],
       priceEn: "From ₹1,999",
       priceTe: "₹1,999 నుండి",
-      bookParam: "pest-general-2bhk",
+      bookParam: "general-2bhk",
+    },
+    {
+      id: "general-3bhk",
+      imageSrc: "/images/service-pest-general.jpg",
+      titleEn: "General Pest – 3 BHK",
+      titleTe: "సాధారణ పురుగులు – 3 BHK",
+      scopeEn: [
+        "Living room + 3 bedrooms + kitchen + washroom(s)",
+        "Treatment for cockroaches, ants, mosquitoes, and common pests",
+        "Safe, government‑approved chemicals",
+        "30‑day warranty on treatment",
+        "Trained technicians, minimal disruption",
+      ],
+      scopeTe: [
+        "హాల్ + 3 బెడ్రూమ్‌లు + కిచెన్ + వాష్రూమ్(లు)",
+        "బొద్దింకలు, చీమలు, దోమలు మరియు సాధారణ పురుగుల నివారణ",
+        "సురక్షితమైన, ప్రభుత్వ ఆమోదం పొందిన రసాయనాలు",
+        "చికిత్సపై 30 రోజుల వారంటీ",
+        "శిక్షణ పొందిన టెక్నీషియన్లు, సురక్షిత సేవ",
+      ],
+      priceEn: "From ₹2,499",
+      priceTe: "₹2,499 నుండి",
+      bookParam: "general-3bhk",
     },
     {
       id: "bedbug-room",
-      icon: <BedbugIllustration className="h-16 w-16" />,
+      imageSrc: "/images/service-pest-bedbug.jpg",
       titleEn: "Bedbug Treatment – Per Room",
       titleTe: "నిద్రపురుగుల చికిత్స – ప్రతి గది",
       scopeEn: [
-        "Mattress, bed frame, nearby walls",
-        "Safe chemicals, strong action",
-        "15–30 day warranty (based on severity)",
+        "Mattress, bed frame, and nearby walls treated",
+        "Targeted action against bedbugs and eggs",
+        "Safe chemicals, instructions for preparation provided",
+        "15–30 day warranty based on severity",
+        "Trained technicians, discreet service",
       ],
       scopeTe: [
-        "మ్యాట్రెస్, మంచం ఫ్రేమ్, సమీప గోడలు",
-        "సురక్షిత రసాయనాలు, శక్తివంతమైన ప్రభావం",
-        "15–30 రోజుల వారంటీ (తీవ్రతను బట్టి)",
+        "మ్యాట్రెస్, మంచం ఫ్రేమ్ మరియు సమీప గోడల చికిత్స",
+        "నిద్రపురుగులు మరియు వాటి గుడ్లపై ప్రభావవంతమైన చర్య",
+        "సురక్షిత రసాయనాలు, సన్నాహక సూచనలు అందించబడతాయి",
+        "తీవ్రతను బట్టి 15–30 రోజుల వారంటీ",
+        "శిక్షణ పొందిన నిపుణులు, నమ్మకమైన సేవ",
       ],
       priceEn: "From ₹999 per room",
-      priceTe: "గదికి ₹999 నుండి",
-      bookParam: "pest-bedbug",
+      priceTe: "₹999 నుండి ప్రతి గదికి",
+      bookParam: "bedbug",
     },
     {
       id: "termite-sqft",
-      icon: <TermiteIllustration className="h-16 w-16" />,
+      imageSrc: "/images/service-pest-termite.jpg",
       titleEn: "Termite Control – Per Sq. Ft.",
       titleTe: "తెల్లచీమల నియంత్రణ – ప్రతి చ.అ.కు",
       scopeEn: [
-        "Pre-construction & post-construction treatment",
-        "Drilling & injection where needed",
-        "Long-term warranty options",
+        "Pre‑construction and post‑construction treatment",
+        "Drilling and injection where required",
+        "Anti‑termite chemicals as per standard practice",
+        "Long‑term warranty options available",
+        "Experienced technicians, minimal damage",
       ],
       scopeTe: [
-        "నిర్మాణానికి ముందు & తర్వాత చికిత్స",
-        "అవసరమైన చోట డ్రిల్లింగ్ & ఇంజెక్షన్",
-        "దీర్ఘకాలిక వారంటీ ఎంపికలు",
+        "నిర్మాణానికి ముందు & తర్వాత పూర్తి చికిత్స",
+        "అవసరమైన చోట డ్రిల్లింగ్ & రసాయన ఇంజెక్షన్",
+        "ప్రామాణిక నాణ్యత కలిగిన యాంటీ-టెర్మటైట్ రసాయనాలు",
+        "దీర్ఘకాలిక వారంటీ ఎంపికలు అందుబాటులో ఉన్నాయి",
+        "అనుభవజ్ఞులైన టెక్నీషియన్లు, గోడలకు నష్టం లేకుండా సేవ",
       ],
       priceEn: "From ₹8 per sq. ft.",
-      priceTe: "చ.అ.కు ₹8 నుండి",
-      bookParam: "pest-termite",
+      priceTe: "₹8 నుండి ప్రతి చ.అ.కు",
+      bookParam: "termite",
+    },
+  ];
+
+  // Section 4B: Add-Ons Data
+  const addOnCards = [
+    {
+      id: "extra-room",
+      icon: (
+        <div className="h-12 w-12 rounded-xl bg-orange-50 text-[#FF5A3C] flex items-center justify-center">
+          <Home className="h-6 w-6" />
+        </div>
+      ),
+      titleEn: "Extra Room – General Pest",
+      titleTe: "అదనపు గది – సాధారణ పురుగులు",
+      scopeEn: "Add one more room to your general pest treatment.",
+      scopeTe: "మీ సాధారణ పురుగుల చికిత్సకు ఒక అదనపు గదిని చేర్చండి.",
+      priceEn: "From ₹499",
+      priceTe: "₹499 నుండి",
+    },
+    {
+      id: "kitchen-deep",
+      icon: (
+        <div className="h-12 w-12 rounded-xl bg-orange-50 text-[#FF5A3C] flex items-center justify-center">
+          <Sparkles className="h-6 w-6" />
+        </div>
+      ),
+      titleEn: "Kitchen Deep Treatment",
+      titleTe: "కిచెన్ డీప్ ట్రీట్మెంట్",
+      scopeEn: "Focused gel baiting and spray in kitchen areas.",
+      scopeTe: "కిచెన్ ప్రాంతాల్లో ఫోకస్డ్ జెల్ బెయిటింగ్ మరియు స్ప్రే.",
+      priceEn: "From ₹699",
+      priceTe: "₹699 నుండి",
+    },
+    {
+      id: "washroom-sanitisation",
+      icon: (
+        <div className="h-12 w-12 rounded-xl bg-orange-50 text-[#FF5A3C] flex items-center justify-center">
+          <Droplets className="h-6 w-6" />
+        </div>
+      ),
+      titleEn: "Washroom Sanitisation",
+      titleTe: "వాష్రూమ్ శానిటైజేషన్",
+      scopeEn: "Extra disinfection and odour control in washrooms.",
+      scopeTe: "వాష్రూమ్లలో అదనపు డిస్ఇన్ఫెక్షన్ మరియు వాసన నియంత్రణ.",
+      priceEn: "From ₹399 per washroom",
+      priceTe: "₹399 నుండి ప్రతి వాష్రూమ్కు",
     },
   ];
 
@@ -234,9 +318,23 @@ export default function PestControlPage() {
           </div>
 
           <div className="flex flex-col lg:flex-row items-center lg:items-center justify-between gap-8 lg:gap-12">
-            {/* Mobile Illustration on Top (<1024px) */}
+            {/* Mobile Photo on Top (<1024px) */}
             <div className="lg:hidden w-full flex justify-center py-2">
-              <PestHeroIllustration className="w-full max-w-[360px] h-[210px]" imageSrc="/images/service-pest-v2.jpg" />
+              <div className="relative w-full max-w-[360px] h-[210px] rounded-2xl overflow-hidden shadow-lg border border-gray-100">
+                <Image
+                  src="/images/service-pest-v2.jpg"
+                  alt="Osmida Pest Specialist in Official Uniform"
+                  fill
+                  className="object-cover object-top"
+                  sizes="360px"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-2.5 left-3 bg-white/95 backdrop-blur-xs px-2.5 py-1 rounded-full text-[11px] font-bold text-gray-900 shadow-xs flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Official Osmida Pest Specialist
+                </div>
+              </div>
             </div>
 
             {/* Left Content (≈60% width) */}
@@ -295,9 +393,23 @@ export default function PestControlPage() {
               </div>
             </div>
 
-            {/* Desktop Illustration (≈42% width) */}
+            {/* Desktop Photo (≈42% width) */}
             <div className="hidden lg:flex lg:w-[42%] justify-end">
-              <PestHeroIllustration className="w-full max-w-[450px] h-[300px]" imageSrc="/images/service-pest-v2.jpg" />
+              <div className="relative w-full max-w-[450px] h-[300px] rounded-2xl overflow-hidden shadow-xl border border-gray-100">
+                <Image
+                  src="/images/service-pest-v2.jpg"
+                  alt="Osmida Pest Specialist in Official Uniform"
+                  fill
+                  className="object-cover object-top"
+                  sizes="450px"
+                  priority
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+                <div className="absolute bottom-3 left-4 bg-white/95 backdrop-blur-xs px-3 py-1 rounded-full text-xs font-bold text-gray-900 shadow-md flex items-center gap-1.5">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  Official Osmida Uniform & Certified Pest Tech
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -318,10 +430,26 @@ export default function PestControlPage() {
                 ? "సులభమైన బుకింగ్, పారదర్శక ధరలు మరియు 30 రోజుల వారంటీ"
                 : "Simple booking, transparent prices & 30-day warranty"}
             </p>
+
+            {/* Urban Company Image 2-Style Interactive Drawer Trigger */}
+            <div className="mt-4 flex justify-center">
+              <button
+                type="button"
+                onClick={() => setIsModalOpen(true)}
+                className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50/80 hover:bg-rose-100 px-5 py-2.5 text-xs font-bold text-rose-700 shadow-2xs transition-all active:scale-[0.98]"
+              >
+                <SlidersHorizontal className="h-4 w-4" />
+                <span>
+                  {lang === "te"
+                    ? "⚡ పాప్-అప్ డ్రాయర్‌లో అన్ని ప్యాకేజీలు చూడండి (Urban Company శైలి)"
+                    : "⚡ Open Interactive Pest Drawer (Urban Company Style)"}
+                </span>
+              </button>
+            </div>
           </div>
 
-          {/* Grid: 2 Columns on Desktop, 1 Column on Mobile */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-6">
+          {/* Grid: 3 Columns on Desktop, 2 on Tablet, 1 Column on Mobile */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {planCards.map((card) => {
               const scopeItems = lang === "te" ? card.scopeTe : card.scopeEn;
               const title = lang === "te" ? card.titleTe : card.titleEn;
@@ -334,9 +462,15 @@ export default function PestControlPage() {
                   className="rounded-[16px] bg-[#FFFFFF] border border-[#E5E7EB] p-6 shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:shadow-xl hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between"
                 >
                   <div>
-                    {/* Centered Icon (~64-80px) */}
-                    <div className="flex justify-center mb-4">
-                      {card.icon}
+                    {/* Real Photography Header */}
+                    <div className="relative h-44 sm:h-48 w-full rounded-2xl overflow-hidden mb-4 bg-slate-100 shadow-xs">
+                      <Image
+                        src={card.imageSrc}
+                        alt={title}
+                        fill
+                        className="object-cover transition-transform duration-300 group-hover:scale-105"
+                        sizes="(max-width: 768px) 100vw, 33vw"
+                      />
                     </div>
 
                     {/* Card Title (EN / TEL stacked) */}
@@ -349,14 +483,19 @@ export default function PestControlPage() {
                       </p>
                     </div>
 
-                    {/* Scope (2-3 bullet points) */}
-                    <div className="mt-5 pt-4 border-t border-[#F0F2F5] space-y-2.5">
-                      {scopeItems.map((bullet, idx) => (
-                        <div key={idx} className="flex items-start gap-2.5 text-[14px] lg:text-[15px] font-normal text-[#555555]">
-                          <span className="text-[#1E6FFF] font-bold mt-0.5">-</span>
-                          <span className="leading-snug">{bullet}</span>
-                        </div>
-                      ))}
+                    {/* What's Included Section Header & Bullets */}
+                    <div className="mt-5 pt-4 border-t border-[#F0F2F5]">
+                      <p className="text-[13px] lg:text-[14px] font-semibold text-[#555555] mb-2.5">
+                        {lang === "te" ? "ఇది ఏమి కలిగి ఉంది" : "What’s included"}
+                      </p>
+                      <div className="space-y-2">
+                        {scopeItems.map((bullet, idx) => (
+                          <div key={idx} className="flex items-start gap-2 text-[14px] lg:text-[15px] font-normal text-[#555555]">
+                            <span className="text-[#FF5A3C] font-bold mt-0.5">-</span>
+                            <span className="leading-snug">{bullet}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
 
@@ -382,6 +521,57 @@ export default function PestControlPage() {
                 </div>
               );
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* 4B. ADD-ONS (OPTIONAL) SECTION */}
+      <section className="bg-white py-12 lg:py-16 px-4 sm:px-6 lg:px-8 border-t border-[#E5E7EB]">
+        <div className="mx-auto max-w-[1200px]">
+          {/* Section Heading & Subtext */}
+          <div className="text-center mb-8 lg:mb-10">
+            <h2 className="text-[20px] lg:text-[22px] font-bold text-[#111111]">
+              {lang === "te" ? "ఆప్షనల్ యాడ్‑ఆన్లు" : "Add‑Ons (Optional)"}
+            </h2>
+            <p className="mt-2 text-sm text-[#555555]">
+              {lang === "te"
+                ? "మీ పురుగుల నియంత్రణ చికిత్సను ఈ ఆప్షనల్ సర్వీస్లతో మెరుగుపరచుకోండి."
+                : "Enhance your pest control treatment with these optional services."}
+            </p>
+          </div>
+
+          {/* Add-Ons Grid (3 Columns on Desktop, 1 on Mobile) */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-6">
+            {addOnCards.map((addon) => (
+              <div
+                key={addon.id}
+                className="rounded-[14px] bg-[#FFFFFF] border border-[#E5E7EB] p-5 sm:p-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] hover:shadow-md hover:-translate-y-1 transition-all duration-200 flex flex-col justify-between"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="shrink-0">{addon.icon}</div>
+                  <div>
+                    <h3 className="text-[16px] lg:text-[17px] font-bold text-[#111111] leading-snug">
+                      {lang === "te" ? addon.titleTe : addon.titleEn}
+                    </h3>
+                    <p className="text-xs font-semibold text-[#888888] mt-0.5">
+                      {lang === "te" ? addon.titleEn : addon.titleTe}
+                    </p>
+                    <p className="text-[14px] text-[#555555] mt-2.5 leading-relaxed">
+                      {lang === "te" ? addon.scopeTe : addon.scopeEn}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="mt-5 pt-3.5 border-t border-[#F0F2F5] flex items-center justify-between">
+                  <span className="text-xs font-medium text-[#777777]">
+                    {lang === "te" ? "ధర" : "Price"}
+                  </span>
+                  <span className="text-[15px] lg:text-[16px] font-semibold text-[#1E6FFF]">
+                    {lang === "te" ? addon.priceTe : addon.priceEn}
+                  </span>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -663,6 +853,14 @@ export default function PestControlPage() {
 
       {/* MOBILE STICKY CONTACT BAR */}
       <FloatingContactBar lang={lang} selectedServiceName="Pest Control" />
+
+      {/* URBAN COMPANY IMAGE 2 CATEGORY SELECTOR MODAL */}
+      <CategorySelectorModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        lang={lang}
+        initialTab="pest"
+      />
     </main>
   );
 }
