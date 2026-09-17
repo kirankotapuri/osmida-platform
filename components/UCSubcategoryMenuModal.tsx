@@ -85,7 +85,7 @@ export function UCSubcategoryMenuModal({
                     onClick={() => handleSelect(cat.id)}
                     className={`w-full flex items-center justify-between py-3.5 px-3 text-left rounded-xl transition-colors ${
                       isSelected
-                        ? "bg-purple-50 text-purple-700 font-bold"
+                        ? "bg-slate-100 text-slate-950 font-bold"
                         : "hover:bg-slate-50 text-slate-800 font-medium"
                     }`}
                   >

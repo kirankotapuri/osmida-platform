@@ -52,7 +52,7 @@ export function CategorySelectorModal({
 
   if (!isOpen) return null;
 
-  // 1. AC Services Sub-Categories ONLY
+  // 1. AC Services Sub-Categories ONLY -> Routes to /ac-services
   const acServiceItems: ServiceSubItem[] = [
     {
       id: "ac-foam-jet",
@@ -61,7 +61,7 @@ export function CategorySelectorModal({
       badgeEn: "45 mins",
       badgeTe: "45 నిమిషాలు",
       imageSrc: "/images/service-ac-foamjet.jpg",
-      href: "/book?service=ac-services&plan=foam-jet",
+      href: "/ac-services",
       priceEn: "₹599",
       priceTe: "₹599",
     },
@@ -72,7 +72,7 @@ export function CategorySelectorModal({
       badgeEn: "45 mins",
       badgeTe: "45 నిమిషాలు",
       imageSrc: "/images/service-ac-foamjet.jpg",
-      href: "/book?service=ac-services&plan=foam-jet",
+      href: "/ac-services",
       priceEn: "₹499",
       priceTe: "₹499",
     },
@@ -83,7 +83,7 @@ export function CategorySelectorModal({
       badgeEn: "30-min call",
       badgeTe: "30 నిమి కాల్",
       imageSrc: "/images/service-ac-repair.jpg",
-      href: "/book?service=ac-services&plan=repair-diagnosis",
+      href: "/ac-services",
       priceEn: "₹299",
       priceTe: "₹299",
     },
@@ -94,7 +94,7 @@ export function CategorySelectorModal({
       badgeEn: "30 mins",
       badgeTe: "30 నిమిషాలు",
       imageSrc: "/images/service-ac-repair.jpg",
-      href: "/book?service=ac-services&plan=repair-diagnosis",
+      href: "/ac-services",
       priceEn: "₹349",
       priceTe: "₹349",
     },
@@ -105,7 +105,7 @@ export function CategorySelectorModal({
       badgeEn: "Standard Gas",
       badgeTe: "స్టాండర్డ్ గ్యాస్",
       imageSrc: "/images/service-ac-repair.jpg",
-      href: "/book?service=ac-services&plan=repair-diagnosis",
+      href: "/ac-services",
       priceEn: "₹1,999",
       priceTe: "₹1,999",
     },
@@ -116,7 +116,7 @@ export function CategorySelectorModal({
       badgeEn: "Level Rigged",
       badgeTe: "పర్ఫెక్ట్ ఫిట్టింగ్",
       imageSrc: "/images/service-ac-install.jpg",
-      href: "/book?service=ac-services&plan=installation-uninstallation",
+      href: "/ac-services",
       priceEn: "₹899",
       priceTe: "₹899",
     },
@@ -127,7 +127,7 @@ export function CategorySelectorModal({
       badgeEn: "Zero Gas Loss",
       badgeTe: "గ్యాస్ వేస్ట్ కాదు",
       imageSrc: "/images/service-ac-install.jpg",
-      href: "/book?service=ac-services&plan=installation-uninstallation",
+      href: "/ac-services",
       priceEn: "₹499",
       priceTe: "₹499",
     },
@@ -138,13 +138,13 @@ export function CategorySelectorModal({
       badgeEn: "Doorstep Care",
       badgeTe: "ఇంటి వద్దకే",
       imageSrc: "/images/service-ac-install.jpg",
-      href: "/book?service=ac-services&plan=installation-uninstallation",
+      href: "/ac-services",
       priceEn: "₹1,299",
       priceTe: "₹1,299",
     },
   ];
 
-  // 2. Pest Control Sub-Categories ONLY
+  // 2. Pest Control Sub-Categories ONLY -> Routes to /pest-control
   const pestServiceItems: ServiceSubItem[] = [
     {
       id: "pest-1bhk",
@@ -153,7 +153,7 @@ export function CategorySelectorModal({
       badgeEn: "30-Day Warranty",
       badgeTe: "30 రోజుల వారంటీ",
       imageSrc: "/images/service-pest-general.jpg",
-      href: "/book?service=pest-control&plan=1bhk",
+      href: "/pest-control",
       priceEn: "₹1,499",
       priceTe: "₹1,499",
     },
@@ -164,7 +164,7 @@ export function CategorySelectorModal({
       badgeEn: "30-Day Warranty",
       badgeTe: "30 రోజుల వారంటీ",
       imageSrc: "/images/service-pest-general.jpg",
-      href: "/book?service=pest-control&plan=2bhk",
+      href: "/pest-control",
       priceEn: "₹1,999",
       priceTe: "₹1,999",
     },
@@ -175,7 +175,7 @@ export function CategorySelectorModal({
       badgeEn: "30-Day Warranty",
       badgeTe: "30 రోజుల వారంటీ",
       imageSrc: "/images/service-pest-general.jpg",
-      href: "/book?service=pest-control&plan=3bhk",
+      href: "/pest-control",
       priceEn: "₹2,499",
       priceTe: "₹2,499",
     },
@@ -186,7 +186,7 @@ export function CategorySelectorModal({
       badgeEn: "Targeted Care",
       badgeTe: "ప్రత్యేక చికిత్స",
       imageSrc: "/images/service-pest-bedbug.jpg",
-      href: "/book?service=pest-control&plan=bedbug",
+      href: "/pest-control",
       priceEn: "₹999/room",
       priceTe: "గదికి ₹999",
     },
@@ -197,18 +197,18 @@ export function CategorySelectorModal({
       badgeEn: "2 Visits Incl.",
       badgeTe: "2 సార్లు తనిఖీ",
       imageSrc: "/images/service-pest-bedbug.jpg",
-      href: "/book?service=pest-control&plan=bedbug",
+      href: "/pest-control",
       priceEn: "₹2,199",
       priceTe: "₹2,199",
     },
     {
       id: "pest-termite-spot",
-      titleEn: "Termite Barrier Treatment",
+      titleEn: "Termite Drill-Fill-Seal Treatment",
       titleTe: "చెదపురుగుల డ్రిల్లింగ్ రక్షణ",
       badgeEn: "Per Sq. Ft.",
       badgeTe: "చదరపు అడుగుకి",
-      imageSrc: "/images/service-pest-termite.jpg",
-      href: "/book?service=pest-control&plan=termite",
+      imageSrc: "/images/termite-banner.jpg",
+      href: "/pest-control",
       priceEn: "₹8/sqft",
       priceTe: "చ.అ.కు ₹8",
     },
@@ -219,13 +219,13 @@ export function CategorySelectorModal({
       badgeEn: "Odorless Gel",
       badgeTe: "వాసన లేని జెల్",
       imageSrc: "/images/service-pest-general.jpg",
-      href: "/book?service=pest-control&plan=1bhk",
+      href: "/pest-control",
       priceEn: "₹699",
       priceTe: "₹699",
     },
   ];
 
-  // 3. Home Deep Cleaning Sub-Categories ONLY
+  // 3. Home & Bathroom Deep Cleaning ONLY (NO Sofa Cleaning) -> Routes to /home-deep-cleaning
   const cleaningServiceItems: ServiceSubItem[] = [
     {
       id: "clean-1bhk",
@@ -233,8 +233,8 @@ export function CategorySelectorModal({
       titleTe: "1 BHK ఇల్లు డీప్ క్లీన్",
       badgeEn: "3-4 hrs",
       badgeTe: "3-4 గంటలు",
-      imageSrc: "/images/service-cleaning-home.jpg",
-      href: "/book?service=home-deep-cleaning&plan=1bhk",
+      imageSrc: "/images/home-cleaning-banner.jpg",
+      href: "/home-deep-cleaning",
       priceEn: "₹2,499",
       priceTe: "₹2,499",
     },
@@ -244,8 +244,8 @@ export function CategorySelectorModal({
       titleTe: "2 BHK డీప్ క్లీన్",
       badgeEn: "4-5 hrs",
       badgeTe: "4-5 గంటలు",
-      imageSrc: "/images/service-cleaning-home.jpg",
-      href: "/book?service=home-deep-cleaning&plan=2bhk",
+      imageSrc: "/images/home-cleaning-banner.jpg",
+      href: "/home-deep-cleaning",
       priceEn: "₹3,499",
       priceTe: "₹3,499",
     },
@@ -255,8 +255,8 @@ export function CategorySelectorModal({
       titleTe: "3 BHK డీప్ క్లీన్",
       badgeEn: "5-6 hrs",
       badgeTe: "5-6 గంటలు",
-      imageSrc: "/images/service-cleaning-home.jpg",
-      href: "/book?service=home-deep-cleaning&plan=3bhk",
+      imageSrc: "/images/home-cleaning-banner.jpg",
+      href: "/home-deep-cleaning",
       priceEn: "₹4,499",
       priceTe: "₹4,499",
     },
@@ -266,32 +266,43 @@ export function CategorySelectorModal({
       titleTe: "గృహప్రవేశం / విల్లా డీప్ క్లీన్",
       badgeEn: "Full Day Care",
       badgeTe: "పూర్తి రోజు సేవ",
-      imageSrc: "/images/service-cleaning-home.jpg",
-      href: "/book?service=home-deep-cleaning&plan=3bhk",
+      imageSrc: "/images/home-cleaning-banner.jpg",
+      href: "/home-deep-cleaning",
       priceEn: "₹5,999",
       priceTe: "₹5,999",
     },
     {
-      id: "clean-kitchen",
-      titleEn: "Kitchen Deep Degreasing",
-      titleTe: "కిచెన్ డీగ్రీసింగ్ & టైల్స్ వాష్",
-      badgeEn: "90 mins",
-      badgeTe: "90 నిమిషాలు",
-      imageSrc: "/images/service-cleaning-kitchen.jpg",
-      href: "/book?service=home-deep-cleaning&plan=kitchen-bathroom",
-      priceEn: "₹699",
-      priceTe: "₹699",
-    },
-    {
       id: "clean-bathroom",
-      titleEn: "Bathroom Acid-Free Descale",
-      titleTe: "బాత్‌రూమ్ డీస్కేలింగ్ & శానిటైజ్",
-      badgeEn: "60 mins",
-      badgeTe: "60 నిమిషాలు",
-      imageSrc: "/images/service-cleaning-bathroom.jpg",
-      href: "/book?service=home-deep-cleaning&plan=kitchen-bathroom",
+      titleEn: "Bathroom Intense Rotary Scrub",
+      titleTe: "బాత్‌రూమ్ మెషిన్ స్క్రబ్ & శానిటైజ్",
+      badgeEn: "50 mins",
+      badgeTe: "50 నిమిషాలు",
+      imageSrc: "/images/bathroom-scrub-banner.jpg",
+      href: "/home-deep-cleaning",
       priceEn: "₹499",
       priceTe: "₹499",
+    },
+    {
+      id: "clean-bathroom-2pack",
+      titleEn: "2 Bathrooms Intense Scrub Pack",
+      titleTe: "2 బాత్‌రూమ్‌ల మెషిన్ స్క్రబ్ ప్యాక్",
+      badgeEn: "Best Value",
+      badgeTe: "బెస్ట్ వాల్యూ",
+      imageSrc: "/images/bathroom-scrub-banner.jpg",
+      href: "/home-deep-cleaning",
+      priceEn: "₹1,099",
+      priceTe: "₹1,099",
+    },
+    {
+      id: "clean-bathroom-4pack",
+      titleEn: "4 Bathrooms Intense Scrub Pack",
+      titleTe: "4 బాత్‌రూమ్‌ల మెషిన్ స్క్రబ్ ప్యాక్",
+      badgeEn: "Combo Deal",
+      badgeTe: "కాంబో డీల్",
+      imageSrc: "/images/bathroom-scrub-banner.jpg",
+      href: "/home-deep-cleaning",
+      priceEn: "₹1,999",
+      priceTe: "₹1,999",
     },
   ];
 
@@ -319,43 +330,39 @@ export function CategorySelectorModal({
         className="relative w-full max-w-2xl bg-white rounded-t-3xl sm:rounded-3xl shadow-2xl overflow-hidden max-h-[88vh] flex flex-col z-10 border border-slate-200 animate-in fade-in slide-in-from-bottom-6 duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Mobile Swipe Drag Handle */}
-        <div className="w-12 h-1.5 bg-slate-300 rounded-full mx-auto mt-2.5 mb-1 sm:hidden" />
+        {/* Drag handle for mobile */}
+        <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mt-3 sm:hidden" />
 
-        {/* Top Header Bar */}
-        <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 bg-white sticky top-0 z-20">
-          <div>
-            <h3 className="text-sm sm:text-base font-black text-[#0F172A] flex items-center gap-2">
-              <span>
+        {/* Modal Header */}
+        <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
+          <div className="flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-950 text-white shadow-xs font-black text-xs">
+              O
+            </div>
+            <div>
+              <h3 className="text-sm sm:text-base font-black text-slate-900 leading-tight">
+                {lang === "te" ? "సర్వీస్ ఎంచుకోండి" : "Select Service Category"}
+              </h3>
+              <p className="text-[10px] sm:text-xs text-slate-500 font-medium">
                 {lang === "te"
-                  ? "మీకు అవసరమైన సర్వీస్ ఎంచుకోండి"
-                  : "Select Your Service Category"}
-              </span>
-            </h3>
-            <div className="flex items-center gap-2 mt-1">
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#166534] bg-[#F0FDF4] border border-[#BBF7D0] px-2 py-0.5 rounded-full">
-                <CheckCircle2 className="h-3 w-3 text-[#166534]" />
-                <span>{lang === "te" ? "₹0 అడ్వాన్స్" : "₹0 Advance"}</span>
-              </span>
-              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0F172A] bg-[#F1F5F9] border border-[#E2E8F0] px-2 py-0.5 rounded-full">
-                <Clock className="h-3 w-3 text-slate-600" />
-                <span>{lang === "te" ? "30 నిమిషాల్లో కాల్" : "30-Min Call"}</span>
-              </span>
+                  ? "నెల్లూరులో 30 నిమిషాల్లో ప్రొఫెషనల్స్ రాక • ₹0 అడ్వాన్స్"
+                  : "Verified Pros in Nellore • ₹0 Advance Booking"}
+              </p>
             </div>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors focus:outline-none"
-            aria-label="Close dialog"
+            className="rounded-full p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors focus:outline-none"
+            aria-label="Close modal"
           >
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* 3 Strict Category Tabs: AC / Pest / Cleaning (Urban Company Pills) */}
-        <div className="grid grid-cols-3 gap-2 px-3 sm:px-6 py-2.5 bg-slate-50 border-b border-slate-200">
+        {/* Category Selector Tabs (3 Categories ONLY) */}
+        <div className="grid grid-cols-3 gap-1.5 p-2.5 sm:p-3 bg-slate-50 border-b border-slate-200/80 shrink-0">
           <button
             type="button"
             onClick={() => setActiveTab("ac")}
@@ -402,7 +409,7 @@ export function CategorySelectorModal({
             <h4 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">
               {activeTab === "ac" && (lang === "te" ? "ఏసీ సర్వీసులు & రిపేర్" : "AC Servicing, Repair & Shifting")}
               {activeTab === "pest" && (lang === "te" ? "పురుగుల నియంత్రణ ప్యాకేజీలు" : "Residential Pest Control Packages")}
-              {activeTab === "cleaning" && (lang === "te" ? "హోమ్ డీప్ క్లీనింగ్ ప్యాకేజీలు" : "Home Deep Cleaning Packages")}
+              {activeTab === "cleaning" && (lang === "te" ? "హోమ్ & బాత్‌రూమ్ డీప్ క్లీనింగ్" : "Home & Bathroom Deep Cleaning")}
             </h4>
             <span className="text-[10px] sm:text-xs text-slate-500 font-medium">
               {currentItems.length} {lang === "te" ? "ఎంపికలు" : "options"}
@@ -443,41 +450,35 @@ export function CategorySelectorModal({
                   </div>
                 </div>
 
-                {/* Instant Book CTA Pill (Urban Company Black Pill) */}
+                {/* Direct Page Link CTA */}
                 <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between">
-                  <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 group-hover:text-slate-900">
-                    {lang === "te" ? "బుక్ చేయండి" : "Book"}
+                  <span className="text-[10px] sm:text-[11px] font-bold text-slate-600 group-hover:text-slate-900">
+                    {lang === "te" ? "చూడండి" : "View"}
                   </span>
-                  <span className="inline-flex items-center justify-center h-5 px-2 rounded-md bg-[#0F172A] text-white text-[9px] sm:text-[10px] font-bold group-hover:bg-black transition-colors">
-                    <span>{lang === "te" ? "ఎంపిక" : "Select"}</span>
-                    <ArrowRight className="h-2.5 w-2.5 ml-1 group-hover:translate-x-0.5 transition-transform" />
-                  </span>
+                  <ArrowRight className="h-3 w-3 text-slate-400 group-hover:text-slate-900 group-hover:translate-x-0.5 transition-all" />
                 </div>
               </Link>
             ))}
           </div>
         </div>
 
-        {/* Modal Bottom Bar */}
-        <div className="px-4 sm:px-6 py-3 bg-white border-t border-slate-200 flex items-center justify-between text-xs">
+        {/* Modal Sticky Bottom Bar */}
+        <div className="p-3 sm:p-4 bg-white border-t border-slate-200 flex items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-emerald-500" />
+            <span className="text-xs font-bold text-slate-700">
+              {lang === "te" ? "₹0 అడ్వాన్స్ • పని అయ్యాకే చెల్లించండి" : "₹0 Advance • Pay after service"}
+            </span>
+          </div>
+
           <Link
             href={currentCategoryPage}
             onClick={onClose}
-            className="font-bold text-[#0F172A] hover:underline inline-flex items-center gap-1 text-[11px] sm:text-xs"
+            className="flex items-center gap-1.5 rounded-xl bg-[#0F172A] hover:bg-black px-4 py-2 text-xs font-bold text-white shadow-sm transition-transform active:scale-95"
           >
-            <span>
-              {lang === "te" ? "పూర్తి వివరాలు చూడండి" : "View complete scope"}
-            </span>
-            <ArrowRight className="h-3 w-3" />
+            <span>{lang === "te" ? "పూర్తి పేజీని చూడండి" : "Explore All Packages"}</span>
+            <ArrowRight className="h-3.5 w-3.5" />
           </Link>
-
-          <a
-            href="tel:+917676358162"
-            className="inline-flex items-center gap-1.5 font-bold text-slate-900 hover:text-black text-[11px] sm:text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-full transition-colors"
-          >
-            <Phone className="h-3 w-3 text-slate-700" />
-            <span>{lang === "te" ? "76763 58162" : "76763 58162"}</span>
-          </a>
         </div>
       </div>
     </div>

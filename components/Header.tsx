@@ -20,7 +20,7 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
 
   const navLinks = [
     {
-      href: "/#booking-section",
+      href: "/#services-section",
       labelEn: "Services",
       labelTe: "సేవలు",
       activeMatch: (p: string) =>
@@ -51,9 +51,9 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
 
   return (
     <>
-      {/* Signature Urban Company Deep Purple Header (Screenshot 1 & 2) */}
+      {/* Osmida Executive Midnight Header (Human Color Psychology: Authority & Trust) */}
       <header
-        className="fixed top-0 left-0 right-0 z-[1000] w-full bg-[#3B1277] text-white border-b border-[#4E1C9C] transition-all duration-200 shadow-md"
+        className="fixed top-0 left-0 right-0 z-[1000] w-full bg-[#0F172A] text-white border-b border-slate-800 transition-all duration-200 shadow-md"
       >
         <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-3 sm:px-4 lg:px-6 h-14 sm:h-16">
           {/* Left: Location & Logo (Urban Company Screenshot 1 Layout) */}
@@ -78,7 +78,7 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
                 <span className="text-sm sm:text-base font-black tracking-wider text-white">
                   OSMIDA
                 </span>
-                <span className="text-[9px] font-bold uppercase tracking-wider text-purple-200 -mt-0.5">
+                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-300 -mt-0.5">
                   {lang === "te" ? "నెల్లూరు" : "Nellore"}
                 </span>
               </div>
@@ -97,9 +97,9 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
                   <span className="text-xs sm:text-sm font-black text-white truncate max-w-[120px] sm:max-w-[180px]">
                     {selectedLocality}
                   </span>
-                  <ChevronDown className="h-3 w-3 text-purple-200 shrink-0 stroke-[2.5]" />
+                  <ChevronDown className="h-3 w-3 text-slate-300 shrink-0 stroke-[2.5]" />
                 </div>
-                <span className="text-[10px] text-purple-200 truncate max-w-[120px] sm:max-w-[200px] leading-tight font-medium">
+                <span className="text-[10px] text-slate-300 truncate max-w-[120px] sm:max-w-[200px] leading-tight font-medium">
                   {lang === "te" ? "నెల్లూరు • ప్రముఖ నిపుణులు" : "Nellore, AP • Verified Pros"}
                 </span>
               </div>
@@ -118,7 +118,7 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
                   key={link.href}
                   href={link.href}
                   className={`group relative flex items-center h-10 px-2 text-sm font-bold transition-colors duration-200 focus:outline-none rounded-md ${
-                    isActive ? "text-white font-black" : "text-purple-200 hover:text-white"
+                    isActive ? "text-white font-black" : "text-slate-300 hover:text-white"
                   }`}
                 >
                   <span>{lang === "te" ? link.labelTe : link.labelEn}</span>
@@ -137,7 +137,7 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
           {/* Right: Language Toggle */}
           <div className="flex items-center gap-2 shrink-0">
             <div
-              className="flex items-center gap-1 text-xs font-bold bg-black/20 rounded-full p-1 border border-white/15"
+              className="flex items-center gap-1 text-xs font-bold bg-white/10 rounded-full p-1 border border-white/15"
               role="group"
               aria-label="Language selection"
             >
@@ -146,8 +146,8 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
                 onClick={() => onLanguageChange("en")}
                 className={`transition-colors duration-200 rounded-full px-2.5 py-0.5 ${
                   lang === "en"
-                    ? "font-black text-[#3B1277] bg-white shadow-xs"
-                    : "text-purple-200 hover:text-white"
+                    ? "font-black text-slate-950 bg-white shadow-xs"
+                    : "text-slate-300 hover:text-white"
                 }`}
                 aria-label="Switch language to English"
                 aria-pressed={lang === "en"}
@@ -160,8 +160,8 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
                 onClick={() => onLanguageChange("te")}
                 className={`transition-colors duration-200 rounded-full px-2.5 py-0.5 ${
                   lang === "te"
-                    ? "font-black text-[#3B1277] bg-white shadow-xs"
-                    : "text-purple-200 hover:text-white"
+                    ? "font-black text-slate-950 bg-white shadow-xs"
+                    : "text-slate-300 hover:text-white"
                 }`}
                 aria-label="భాషను తెలుగుకి మార్చండి"
                 aria-pressed={lang === "te"}
@@ -219,19 +219,19 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
                     }}
                     className={`w-full flex items-center justify-between py-3 px-2 text-left rounded-xl transition-colors ${
                       isSelected
-                        ? "bg-purple-50 text-purple-700 font-bold"
+                        ? "bg-slate-100 text-slate-950 font-bold"
                         : "hover:bg-slate-50 text-slate-700 font-medium"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
                       <MapPin
                         className={`h-4 w-4 ${
-                          isSelected ? "text-purple-700" : "text-slate-400"
+                          isSelected ? "text-slate-950" : "text-slate-400"
                         }`}
                       />
                       <span className="text-sm">{loc}, Nellore</span>
                     </div>
-                    {isSelected && <Check className="h-4 w-4 text-purple-700" />}
+                    {isSelected && <Check className="h-4 w-4 text-slate-950" />}
                   </button>
                 );
               })}

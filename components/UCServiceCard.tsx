@@ -99,7 +99,7 @@ export function UCServiceCard({ item, lang, onViewDetails }: UCServiceCardProps)
           <button
             type="button"
             onClick={() => onViewDetails(item)}
-            className="inline-block text-xs font-bold text-purple-700 hover:text-purple-900 pt-1 transition-colors"
+            className="inline-block text-xs font-bold text-blue-600 hover:text-blue-800 pt-1 transition-colors"
           >
             {lang === "te" ? "పూర్తి వివరాలు చూడండి" : "View details"}
           </button>
@@ -141,7 +141,7 @@ export function UCServiceCard({ item, lang, onViewDetails }: UCServiceCardProps)
                   duration: item.durationEn,
                 })
               }
-              className="flex items-center justify-center gap-1 rounded-lg border border-purple-600 bg-white hover:bg-purple-50 px-5 py-1 text-xs font-bold text-purple-700 shadow-xs transition-all active:scale-95"
+              className="flex items-center justify-center gap-1 rounded-lg border-2 border-slate-900 bg-white hover:bg-slate-50 px-5 py-1 text-xs font-extrabold text-slate-950 shadow-xs transition-all active:scale-95"
             >
               <span>Add</span>
             </button>

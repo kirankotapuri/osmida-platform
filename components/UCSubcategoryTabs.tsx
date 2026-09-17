@@ -42,7 +42,7 @@ export function UCSubcategoryTabs({
                 <div
                   className={`relative h-15 w-15 sm:h-17 sm:w-17 rounded-2xl overflow-hidden p-0.5 transition-all ${
                     isSelected
-                      ? "ring-2 ring-purple-600 bg-purple-50 shadow-xs"
+                      ? "ring-2 ring-slate-950 bg-slate-100 shadow-xs"
                       : "bg-[#F5F5F7] hover:bg-[#EAEAEA] border border-slate-200/70"
                   }`}
                 >
@@ -65,7 +65,7 @@ export function UCSubcategoryTabs({
                 {/* Label */}
                 <span
                   className={`text-[11px] sm:text-xs font-bold mt-1.5 leading-tight text-center line-clamp-2 ${
-                    isSelected ? "text-purple-700 font-extrabold" : "text-slate-700"
+                    isSelected ? "text-slate-950 font-black" : "text-slate-700"
                   }`}
                 >
                   {lang === "te" ? item.nameTe : item.nameEn}

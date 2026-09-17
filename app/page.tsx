@@ -101,7 +101,7 @@ export default function HomePage() {
   return (
     <main
       id="top"
-      className="min-h-screen bg-white text-[#111111] selection:bg-[#3B1277] selection:text-white pt-14 sm:pt-16 pb-24 lg:pb-0"
+      className="min-h-screen bg-white text-[#111111] selection:bg-[#0F172A] selection:text-white pt-14 sm:pt-16 pb-24 lg:pb-0"
     >
       {/* Invisible Schema Script for Nellore Local SEO */}
       <script
@@ -112,8 +112,8 @@ export default function HomePage() {
       {/* 1. FIXED BLACK HEADER */}
       <Header lang={lang} onLanguageChange={setLang} />
 
-      {/* 2. URBAN COMPANY SIGNATURE PURPLE HERO STRIP & SEARCH BAR (Screenshot 1) */}
-      <section className="bg-gradient-to-b from-[#3B1277] via-[#44168B] to-[#4F1A9D] px-3 sm:px-6 pt-3 pb-5 text-white">
+      {/* 2. EXECUTIVE MIDNIGHT HERO STRIP & SEARCH BAR (Color Psychology: Authority & Verified Trust) */}
+      <section className="bg-gradient-to-b from-[#0F172A] via-[#1E293B] to-[#0F172A] px-3 sm:px-6 pt-3 pb-5 text-white">
         <div className="mx-auto max-w-xl space-y-3">
           {/* White Pill Search Bar */}
           <button
@@ -131,214 +131,143 @@ export default function HomePage() {
           </button>
 
           {/* Value Prop Banner */}
-          <div className="flex items-center justify-between rounded-xl bg-white/10 backdrop-blur-md px-3 py-2 text-[11px] sm:text-xs font-bold text-purple-100 border border-white/10">
+          <div className="flex items-center justify-between rounded-xl bg-white/10 backdrop-blur-md px-3 py-2 text-[11px] sm:text-xs font-semibold text-slate-200 border border-white/15">
             <span>
               {lang === "te"
-                ? "⚡ నెల్లూరులో తొలిసారిగా • ప్రముఖ నిపుణులు • ₹0 అడ్వాన్స్"
-                : "⚡ 30-min Pro Dispatch in Nellore • Partnered with Local Pros • ₹0 Advance"}
+                ? "⚡ నెల్లూరులో తొలిసారిగా • ప్రముఖ నిపుణులు • "
+                : "⚡ 30-min Pro Dispatch in Nellore • Partnered with Local Pros • "}
+              <strong className="text-emerald-400 font-black">
+                {lang === "te" ? "₹0 అడ్వాన్స్" : "₹0 Advance"}
+              </strong>
             </span>
           </div>
         </div>
       </section>
 
-      {/* 3. URBAN COMPANY 8-CATEGORY GRID (Screenshot 1: 4 columns x 2 rows) */}
-      <section className="bg-white px-3 sm:px-6 py-5 border-b border-slate-100">
+      {/* 3. STRICT 3 CORE SERVICES SHOWCASE (AC, Pest Control, Deep Cleaning - No Extras) */}
+      <section id="services-section" className="bg-white px-3 sm:px-6 py-5 border-b border-slate-100">
         <div className="mx-auto max-w-xl">
-          <div className="grid grid-cols-4 gap-3 text-center">
-            {/* Category 1: AC Services */}
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <span className="text-[10px] font-black uppercase tracking-wider text-[#059669] bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                {lang === "te" ? "అధికారిక సేవలు" : "Verified Services"}
+              </span>
+              <h2 className="text-base sm:text-lg font-black text-slate-900 mt-1">
+                {lang === "te" ? "మా 3 ముఖ్యమైన సేవలు" : "Select Your Service"}
+              </h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => openCategoryModal("ac")}
+              className="text-xs font-bold text-slate-700 hover:text-black flex items-center gap-0.5"
+            >
+              <span>{lang === "te" ? "అన్నీ చూడండి" : "View all"}</span>
+              <ChevronRight className="h-3.5 w-3.5" />
+            </button>
+          </div>
+
+          <div className="grid grid-cols-3 gap-2.5 sm:gap-3 text-center">
+            {/* Core Service 1: AC Services */}
             <Link
               href="/ac-services"
-              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95"
+              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95 bg-slate-50/80 hover:bg-slate-100/80 border border-slate-200/80 rounded-2xl p-2 sm:p-2.5 shadow-2xs"
             >
-              <div className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/70 flex items-center justify-center p-1 transition-all shadow-2xs">
-                <div className="relative h-full w-full rounded-xl overflow-hidden">
-                  <Image
-                    src="/images/service-ac-foamjet.jpg"
-                    alt="AC Services"
-                    fill
-                    className="object-cover"
-                    sizes="72px"
-                  />
-                </div>
+              <div className="relative h-18 w-18 sm:h-20 sm:w-20 rounded-xl overflow-hidden border border-slate-200/90 shadow-xs">
+                <Image
+                  src="/images/service-ac-foamjet.jpg"
+                  alt="AC Services"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-200"
+                  sizes="80px"
+                />
+                <span className="absolute top-1 right-1 bg-[#0F172A] text-white text-[8px] font-black px-1.5 py-0.2 rounded-sm shadow-xs">
+                  WARNTY
+                </span>
               </div>
-              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-purple-700">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-blue-600">
                 {lang === "te" ? "ఏసీ సర్వీస్" : "AC Service"}
               </span>
-              <span className="text-[9px] font-extrabold text-slate-500 mt-0.5">
+              <span className="text-[10px] font-extrabold text-[#059669] mt-0.5">
                 From ₹599
               </span>
             </Link>
 
-            {/* Category 2: Pest Control */}
+            {/* Core Service 2: Pest Control */}
             <Link
               href="/pest-control"
-              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95"
+              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95 bg-slate-50/80 hover:bg-slate-100/80 border border-slate-200/80 rounded-2xl p-2 sm:p-2.5 shadow-2xs"
             >
-              <div className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/70 flex items-center justify-center p-1 transition-all shadow-2xs">
-                <div className="relative h-full w-full rounded-xl overflow-hidden">
-                  <Image
-                    src="/images/service-pest-general.jpg"
-                    alt="Pest Control"
-                    fill
-                    className="object-cover"
-                    sizes="72px"
-                  />
-                </div>
+              <div className="relative h-18 w-18 sm:h-20 sm:w-20 rounded-xl overflow-hidden border border-slate-200/90 shadow-xs">
+                <Image
+                  src="/images/service-pest-general.jpg"
+                  alt="Pest Control"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-200"
+                  sizes="80px"
+                />
+                <span className="absolute top-1 right-1 bg-[#059669] text-white text-[8px] font-black px-1.5 py-0.2 rounded-sm shadow-xs">
+                  30-DAY
+                </span>
               </div>
-              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-purple-700">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-blue-600">
                 {lang === "te" ? "పురుగుల నివారణ" : "Pest Control"}
               </span>
-              <span className="text-[9px] font-extrabold text-slate-500 mt-0.5">
+              <span className="text-[10px] font-extrabold text-[#059669] mt-0.5">
                 From ₹1,499
               </span>
             </Link>
 
-            {/* Category 3: Home Deep Cleaning */}
+            {/* Core Service 3: Home & Bathroom Deep Cleaning */}
             <Link
               href="/home-deep-cleaning"
-              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95"
+              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95 bg-slate-50/80 hover:bg-slate-100/80 border border-slate-200/80 rounded-2xl p-2 sm:p-2.5 shadow-2xs"
             >
-              <div className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/70 flex items-center justify-center p-1 transition-all shadow-2xs">
-                <div className="relative h-full w-full rounded-xl overflow-hidden">
-                  <Image
-                    src="/images/service-cleaning-home.jpg"
-                    alt="Deep Cleaning"
-                    fill
-                    className="object-cover"
-                    sizes="72px"
-                  />
-                </div>
+              <div className="relative h-18 w-18 sm:h-20 sm:w-20 rounded-xl overflow-hidden border border-slate-200/90 shadow-xs">
+                <Image
+                  src="/images/bathroom-scrub-banner.jpg"
+                  alt="Deep Cleaning"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-200"
+                  sizes="80px"
+                />
+                <span className="absolute top-1 right-1 bg-[#2563EB] text-white text-[8px] font-black px-1.5 py-0.2 rounded-sm shadow-xs">
+                  ROTARY
+                </span>
               </div>
-              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-purple-700">
+              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-blue-600">
                 {lang === "te" ? "డీప్ క్లీనింగ్" : "Deep Clean"}
               </span>
-              <span className="text-[9px] font-extrabold text-slate-500 mt-0.5">
-                From ₹2,499
-              </span>
-            </Link>
-
-            {/* Category 4: Bathroom & Kitchen Clean */}
-            <Link
-              href="/home-deep-cleaning"
-              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95"
-            >
-              <div className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/70 flex items-center justify-center p-1 transition-all shadow-2xs">
-                <div className="relative h-full w-full rounded-xl overflow-hidden">
-                  <Image
-                    src="/images/service-cleaning-bathroom.jpg"
-                    alt="Bathroom Cleaning"
-                    fill
-                    className="object-cover"
-                    sizes="72px"
-                  />
-                </div>
-              </div>
-              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-purple-700">
-                {lang === "te" ? "బాత్‌రూమ్" : "Bathroom"}
-              </span>
-              <span className="text-[9px] font-extrabold text-slate-500 mt-0.5">
+              <span className="text-[10px] font-extrabold text-[#059669] mt-0.5">
                 From ₹499
               </span>
             </Link>
+          </div>
 
-            {/* Category 5: Electrician */}
+          {/* Quick Telugu Video Explainer Pill */}
+          <div className="mt-3">
             <button
               type="button"
-              onClick={() => openWhatsAppDirect("Electrician Services")}
-              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95"
+              onClick={() => {
+                const el = document.getElementById("how-to-book-video");
+                el?.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="w-full flex items-center justify-between rounded-xl bg-slate-100/90 hover:bg-slate-200/70 border border-slate-200 px-3 py-2 text-left transition-colors group"
             >
-              <div className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/70 flex items-center justify-center p-1 transition-all shadow-2xs">
-                <div className="relative h-full w-full rounded-xl overflow-hidden">
-                  <Image
-                    src="/images/service-electrician.jpg"
-                    alt="Electrician"
-                    fill
-                    className="object-cover"
-                    sizes="72px"
-                  />
+              <div className="flex items-center gap-2 min-w-0">
+                <div className="h-6 w-6 rounded-full bg-[#0F172A] text-white flex items-center justify-center shrink-0">
+                  <Play className="h-3 w-3 fill-white ml-0.5" />
+                </div>
+                <div className="truncate">
+                  <span className="text-xs font-bold text-slate-900">
+                    {lang === "te" ? "1-నిమిషం తెలుగు వీడియో చూడండి" : "Watch 1-Minute Telugu Video Guide"}
+                  </span>
+                  <p className="text-[10px] text-slate-500 truncate">
+                    {lang === "te" ? "ఎలా బుక్ చేయాలి • ₹0 అడ్వాన్స్ • వారంటీ వివరాలు" : "How to book • Zero advance • Local pro warranty"}
+                  </p>
                 </div>
               </div>
-              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-purple-700">
-                {lang === "te" ? "ఎలక్ట్రీషియన్" : "Electrician"}
-              </span>
-              <span className="text-[9px] font-extrabold text-slate-500 mt-0.5">
-                Starts ₹199
-              </span>
+              <ChevronRight className="h-4 w-4 text-slate-400 group-hover:text-slate-900 shrink-0" />
             </button>
-
-            {/* Category 6: Plumber */}
-            <button
-              type="button"
-              onClick={() => openWhatsAppDirect("Plumber Services")}
-              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95"
-            >
-              <div className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/70 flex items-center justify-center p-1 transition-all shadow-2xs">
-                <div className="relative h-full w-full rounded-xl overflow-hidden">
-                  <Image
-                    src="/images/service-plumber.jpg"
-                    alt="Plumber"
-                    fill
-                    className="object-cover"
-                    sizes="72px"
-                  />
-                </div>
-              </div>
-              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-purple-700">
-                {lang === "te" ? "ప్లంబర్" : "Plumber"}
-              </span>
-              <span className="text-[9px] font-extrabold text-slate-500 mt-0.5">
-                Starts ₹199
-              </span>
-            </button>
-
-            {/* Category 7: Carpenter */}
-            <button
-              type="button"
-              onClick={() => openWhatsAppDirect("Carpenter Services")}
-              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95"
-            >
-              <div className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/70 flex items-center justify-center p-1 transition-all shadow-2xs">
-                <div className="relative h-full w-full rounded-xl overflow-hidden">
-                  <Image
-                    src="/images/service-carpenter.jpg"
-                    alt="Carpenter"
-                    fill
-                    className="object-cover"
-                    sizes="72px"
-                  />
-                </div>
-              </div>
-              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-purple-700">
-                {lang === "te" ? "కార్పెంటర్" : "Carpenter"}
-              </span>
-              <span className="text-[9px] font-extrabold text-slate-500 mt-0.5">
-                Starts ₹249
-              </span>
-            </button>
-
-            {/* Category 8: Sofa & Balcony */}
-            <Link
-              href="/home-deep-cleaning"
-              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95"
-            >
-              <div className="relative h-16 w-16 sm:h-18 sm:w-18 rounded-2xl bg-[#F5F5F7] group-hover:bg-[#EAEAEA] border border-slate-200/70 flex items-center justify-center p-1 transition-all shadow-2xs">
-                <div className="relative h-full w-full rounded-xl overflow-hidden">
-                  <Image
-                    src="/images/service-sofa.jpg"
-                    alt="Sofa Cleaning"
-                    fill
-                    className="object-cover"
-                    sizes="72px"
-                  />
-                </div>
-              </div>
-              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-purple-700">
-                {lang === "te" ? "సోఫా క్లీనింగ్" : "Sofa Clean"}
-              </span>
-              <span className="text-[9px] font-extrabold text-slate-500 mt-0.5">
-                From ₹399
-              </span>
-            </Link>
           </div>
         </div>
       </section>
@@ -468,9 +397,9 @@ export default function HomePage() {
           {/* Horizontal Swipe Row */}
           <div className="flex gap-3.5 overflow-x-auto no-scrollbar pb-2 pt-1 -mx-3 px-3 sm:mx-0 sm:px-0">
             {/* Item 1: AC Foam Jet */}
-            <div
-              onClick={() => openCategoryModal("ac")}
-              className="w-38 sm:w-44 flex-shrink-0 cursor-pointer group"
+            <Link
+              href="/ac-services"
+              className="w-38 sm:w-44 flex-shrink-0 group block cursor-pointer"
             >
               <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
                 <Image
@@ -481,7 +410,7 @@ export default function HomePage() {
                   sizes="176px"
                 />
               </div>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug">
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600">
                 {lang === "te" ? "స్ప్లిట్ ఏసీ ఫోమ్ జెట్" : "Foam-jet split AC"}
               </h3>
               <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
@@ -489,15 +418,15 @@ export default function HomePage() {
                 <span className="font-bold">4.86</span>
                 <span className="text-slate-500">(1.4k)</span>
               </div>
-              <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-0.5">
+              <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
                 ₹599
               </div>
-            </div>
+            </Link>
 
             {/* Item 2: General Pest Control */}
-            <div
-              onClick={() => openCategoryModal("pest")}
-              className="w-38 sm:w-44 flex-shrink-0 cursor-pointer group"
+            <Link
+              href="/pest-control"
+              className="w-38 sm:w-44 flex-shrink-0 group block cursor-pointer"
             >
               <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
                 <Image
@@ -508,7 +437,7 @@ export default function HomePage() {
                   sizes="176px"
                 />
               </div>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug">
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600">
                 {lang === "te" ? "సాధారణ పురుగులు (1 BHK)" : "General pest (1 BHK)"}
               </h3>
               <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
@@ -516,15 +445,15 @@ export default function HomePage() {
                 <span className="font-bold">4.89</span>
                 <span className="text-slate-500">(890)</span>
               </div>
-              <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-0.5">
+              <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
                 ₹1,499
               </div>
-            </div>
+            </Link>
 
             {/* Item 3: Intense Bathroom Scrubbing */}
-            <div
-              onClick={() => openCategoryModal("cleaning")}
-              className="w-38 sm:w-44 flex-shrink-0 cursor-pointer group"
+            <Link
+              href="/home-deep-cleaning"
+              className="w-38 sm:w-44 flex-shrink-0 group block cursor-pointer"
             >
               <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
                 <Image
@@ -535,7 +464,7 @@ export default function HomePage() {
                   sizes="176px"
                 />
               </div>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug">
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600">
                 {lang === "te" ? "బాత్‌రూమ్ డీప్ స్క్రబ్" : "Bathroom deep scrub"}
               </h3>
               <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
@@ -543,15 +472,15 @@ export default function HomePage() {
                 <span className="font-bold">4.85</span>
                 <span className="text-slate-500">(1.1k)</span>
               </div>
-              <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-0.5">
+              <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
                 ₹499
               </div>
-            </div>
+            </Link>
 
             {/* Item 4: Home Deep Clean */}
-            <div
-              onClick={() => openCategoryModal("cleaning")}
-              className="w-38 sm:w-44 flex-shrink-0 cursor-pointer group"
+            <Link
+              href="/home-deep-cleaning"
+              className="w-38 sm:w-44 flex-shrink-0 group block cursor-pointer"
             >
               <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
                 <Image
@@ -562,7 +491,7 @@ export default function HomePage() {
                   sizes="176px"
                 />
               </div>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug">
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600">
                 {lang === "te" ? "ఫుల్ హోమ్ డీప్ క్లీన్ (1 BHK)" : "Full home clean (1 BHK)"}
               </h3>
               <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
@@ -570,15 +499,15 @@ export default function HomePage() {
                 <span className="font-bold">4.82</span>
                 <span className="text-slate-500">(620)</span>
               </div>
-              <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-0.5">
+              <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
                 ₹2,499
               </div>
-            </div>
+            </Link>
 
             {/* Item 5: Bedbug Treatment */}
-            <div
-              onClick={() => openCategoryModal("pest")}
-              className="w-38 sm:w-44 flex-shrink-0 cursor-pointer group"
+            <Link
+              href="/pest-control"
+              className="w-38 sm:w-44 flex-shrink-0 group block cursor-pointer"
             >
               <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
                 <Image
@@ -589,7 +518,7 @@ export default function HomePage() {
                   sizes="176px"
                 />
               </div>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug">
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600">
                 {lang === "te" ? "నిద్రపురుగులు (ప్రతి గది)" : "Bedbug treatment (Room)"}
               </h3>
               <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
@@ -597,15 +526,15 @@ export default function HomePage() {
                 <span className="font-bold">4.87</span>
                 <span className="text-slate-500">(430)</span>
               </div>
-              <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-0.5">
+              <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
                 ₹999
               </div>
-            </div>
+            </Link>
 
             {/* Item 6: AC Repair */}
-            <div
-              onClick={() => openCategoryModal("ac")}
-              className="w-38 sm:w-44 flex-shrink-0 cursor-pointer group"
+            <Link
+              href="/ac-services"
+              className="w-38 sm:w-44 flex-shrink-0 group block cursor-pointer"
             >
               <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
                 <Image
@@ -616,7 +545,7 @@ export default function HomePage() {
                   sizes="176px"
                 />
               </div>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug">
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600">
                 {lang === "te" ? "ఏసీ చెకప్ & రిపేర్" : "AC checkup & repair"}
               </h3>
               <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
@@ -624,10 +553,10 @@ export default function HomePage() {
                 <span className="font-bold">4.78</span>
                 <span className="text-slate-500">(865k)</span>
               </div>
-              <div className="text-xs sm:text-sm font-extrabold text-slate-900 mt-0.5">
+              <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
                 ₹299
               </div>
-            </div>
+            </Link>
           </div>
         </div>
       </section>
