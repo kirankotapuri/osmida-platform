@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import { Header } from "@/components/Header";
-import { BeforeAfterSlider } from "@/components/BeforeAfterSlider";
+
 import { NelloreBookingFlow } from "@/components/NelloreBookingFlow";
 import { FloatingContactBar } from "@/components/FloatingContactBar";
 import { SafetyPromise } from "@/components/SafetyPromise";
@@ -540,33 +540,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 7. BEFORE & AFTER PROOF GALLERY */}
-      <section id="results" className="border-t border-[#E5E7EB] bg-white px-4 sm:px-6 py-16">
-        <div className="mx-auto max-w-6xl space-y-8 text-center">
-          <div className="max-w-2xl mx-auto">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#1E6FFF] bg-[#1E6FFF]/10 border border-[#1E6FFF]/20 px-3 py-1 rounded-full">
-              {lang === "te" ? "నిరూపితమైన ఫలితాలు" : "Proven Quality Work"}
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-[#111111] mt-3">
-              {lang === "te" ? "పని నాణ్యతను మీరే స్వయంగా చూడండి" : "See the Transformation"}
-            </h2>
-            <p className="text-xs sm:text-sm text-[#555555] mt-2">
-              {lang === "te"
-                ? "నెల్లూరు ఇళ్లలో మా నిపుణులు చేసిన అసలైన పని ఫలితాలు."
-                : "Real before and after pictures from service jobs completed across Nellore."}
-            </p>
-          </div>
 
-          <div className="max-w-3xl mx-auto rounded-3xl overflow-hidden border border-[#E5E7EB] shadow-md">
-            <BeforeAfterSlider
-              beforeImage="/images/kitchen-before.jpg"
-              afterImage="/images/kitchen-after.jpg"
-              title="Kitchen Deep Degreasing"
-              description="Watch stubborn chimney oil and wall grease vanish with professional cleaning."
-            />
-          </div>
-        </div>
-      </section>
 
       {/* 8. NELLORE SERVICE AREA BADGES */}
       <section id="service-area" className="border-t border-[#E5E7EB] bg-[#F7F8FA] px-4 sm:px-6 py-14">
