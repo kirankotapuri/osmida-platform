@@ -325,30 +325,29 @@ export function CategorySelectorModal({
         {/* Top Header Bar */}
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-slate-100 bg-white sticky top-0 z-20">
           <div>
-            <h3 className="text-sm sm:text-base font-black text-[#111111] flex items-center gap-2">
+            <h3 className="text-sm sm:text-base font-black text-[#0F172A] flex items-center gap-2">
               <span>
                 {lang === "te"
                   ? "మీకు అవసరమైన సర్వీస్ ఎంచుకోండి"
                   : "Select Your Service Category"}
               </span>
             </h3>
-            <p className="text-[11px] sm:text-xs text-slate-500 mt-0.5 flex items-center gap-2">
-              <span className="inline-flex items-center gap-1 text-emerald-600 font-semibold">
-                <CheckCircle2 className="h-3 w-3" />
+            <div className="flex items-center gap-2 mt-1">
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#166534] bg-[#F0FDF4] border border-[#BBF7D0] px-2 py-0.5 rounded-full">
+                <CheckCircle2 className="h-3 w-3 text-[#166534]" />
                 <span>{lang === "te" ? "₹0 అడ్వాన్స్" : "₹0 Advance"}</span>
               </span>
-              <span>•</span>
-              <span className="inline-flex items-center gap-1 text-blue-600 font-semibold">
-                <Clock className="h-3 w-3" />
+              <span className="inline-flex items-center gap-1 text-[11px] font-bold text-[#0F172A] bg-[#F1F5F9] border border-[#E2E8F0] px-2 py-0.5 rounded-full">
+                <Clock className="h-3 w-3 text-slate-600" />
                 <span>{lang === "te" ? "30 నిమిషాల్లో కాల్" : "30-Min Call"}</span>
               </span>
-            </p>
+            </div>
           </div>
 
           <button
             type="button"
             onClick={onClose}
-            className="rounded-full p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus:outline-none"
+            className="rounded-full p-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors focus:outline-none"
             aria-label="Close dialog"
           >
             <X className="h-5 w-5" />
@@ -356,13 +355,13 @@ export function CategorySelectorModal({
         </div>
 
         {/* 3 Strict Category Tabs: AC / Pest / Cleaning (Urban Company Pills) */}
-        <div className="grid grid-cols-3 gap-2 px-3 sm:px-6 py-2.5 bg-slate-50 border-b border-slate-100">
+        <div className="grid grid-cols-3 gap-2 px-3 sm:px-6 py-2.5 bg-slate-50 border-b border-slate-200">
           <button
             type="button"
             onClick={() => setActiveTab("ac")}
             className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
               activeTab === "ac"
-                ? "bg-[#1E6FFF] text-white shadow-sm scale-[1.01]"
+                ? "bg-[#0F172A] text-white shadow-md shadow-slate-900/15 scale-[1.01]"
                 : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
             }`}
           >
@@ -375,7 +374,7 @@ export function CategorySelectorModal({
             onClick={() => setActiveTab("pest")}
             className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
               activeTab === "pest"
-                ? "bg-[#1E6FFF] text-white shadow-sm scale-[1.01]"
+                ? "bg-[#0F172A] text-white shadow-md shadow-slate-900/15 scale-[1.01]"
                 : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
             }`}
           >
@@ -388,7 +387,7 @@ export function CategorySelectorModal({
             onClick={() => setActiveTab("cleaning")}
             className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
               activeTab === "cleaning"
-                ? "bg-[#1E6FFF] text-white shadow-sm scale-[1.01]"
+                ? "bg-[#0F172A] text-white shadow-md shadow-slate-900/15 scale-[1.01]"
                 : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
             }`}
           >
@@ -398,14 +397,14 @@ export function CategorySelectorModal({
         </div>
 
         {/* Scrollable Body: Sub-Categories Compact App Grid */}
-        <div className="overflow-y-auto p-3 sm:p-5 space-y-3">
+        <div className="overflow-y-auto p-3 sm:p-5 space-y-3 bg-[#F8FAFC]">
           <div className="flex items-center justify-between px-1">
-            <h4 className="text-xs sm:text-sm font-bold text-slate-800 tracking-tight">
+            <h4 className="text-xs sm:text-sm font-bold text-slate-900 tracking-tight">
               {activeTab === "ac" && (lang === "te" ? "ఏసీ సర్వీసులు & రిపేర్" : "AC Servicing, Repair & Shifting")}
               {activeTab === "pest" && (lang === "te" ? "పురుగుల నియంత్రణ ప్యాకేజీలు" : "Residential Pest Control Packages")}
               {activeTab === "cleaning" && (lang === "te" ? "హోమ్ డీప్ క్లీనింగ్ ప్యాకేజీలు" : "Home Deep Cleaning Packages")}
             </h4>
-            <span className="text-[10px] sm:text-xs text-slate-400 font-medium">
+            <span className="text-[10px] sm:text-xs text-slate-500 font-medium">
               {currentItems.length} {lang === "te" ? "ఎంపికలు" : "options"}
             </span>
           </div>
@@ -416,7 +415,7 @@ export function CategorySelectorModal({
                 key={item.id}
                 href={item.href}
                 onClick={onClose}
-                className="group relative flex flex-col justify-between rounded-xl bg-[#F8FAFC] hover:bg-white border border-slate-200/90 hover:border-[#1E6FFF] p-2 sm:p-3 text-left transition-all duration-150 hover:shadow-md active:scale-[0.98]"
+                className="group relative flex flex-col justify-between rounded-xl bg-white border border-slate-200 hover:border-slate-800 p-2 sm:p-3 text-left transition-all duration-150 hover:shadow-md active:scale-[0.98]"
               >
                 {/* Photo Thumbnail */}
                 <div className="relative h-20 sm:h-28 w-full rounded-lg overflow-hidden mb-2 bg-slate-100">
@@ -427,27 +426,32 @@ export function CategorySelectorModal({
                     className="object-cover transition-transform duration-200 group-hover:scale-105"
                     sizes="(max-width: 768px) 140px, 200px"
                   />
-                  {/* Badge */}
-                  <div className="absolute top-1.5 left-1.5 inline-flex items-center rounded-full bg-white/95 backdrop-blur-xs border border-slate-200/80 px-1.5 py-0.5 text-[8px] sm:text-[9px] font-bold text-slate-800 shadow-2xs">
+                  {/* High-Contrast Badge */}
+                  <div className="absolute top-1.5 left-1.5 inline-flex items-center rounded-md bg-[#0F172A]/90 backdrop-blur-xs border border-white/20 px-2 py-0.5 text-[8px] sm:text-[9px] font-bold text-white shadow-xs">
                     <span>{lang === "te" ? item.badgeTe : item.badgeEn}</span>
                   </div>
                 </div>
 
                 {/* Title */}
                 <div className="space-y-0.5">
-                  <div className="text-[11px] sm:text-xs font-bold text-slate-900 group-hover:text-[#1E6FFF] transition-colors leading-snug line-clamp-2">
+                  <div className="text-[11px] sm:text-xs font-bold text-slate-900 group-hover:text-black transition-colors leading-snug line-clamp-2">
                     {lang === "te" ? item.titleTe : item.titleEn}
                   </div>
                   {/* Price */}
-                  <div className="text-xs font-black text-[#1E6FFF]">
+                  <div className="text-xs sm:text-sm font-black text-[#0F172A]">
                     {lang === "te" ? `${item.priceTe} నుండి` : `From ${item.priceEn}`}
                   </div>
                 </div>
 
-                {/* Instant Book CTA Pill */}
-                <div className="mt-2 pt-1.5 border-t border-slate-200/60 flex items-center justify-between text-[10px] sm:text-[11px] font-bold text-slate-600 group-hover:text-[#1E6FFF]">
-                  <span>{lang === "te" ? "బుక్ చేయండి" : "Book Now"}</span>
-                  <ArrowRight className="h-3 w-3 group-hover:translate-x-0.5 transition-transform" />
+                {/* Instant Book CTA Pill (Urban Company Black Pill) */}
+                <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between">
+                  <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 group-hover:text-slate-900">
+                    {lang === "te" ? "బుక్ చేయండి" : "Book"}
+                  </span>
+                  <span className="inline-flex items-center justify-center h-5 px-2 rounded-md bg-[#0F172A] text-white text-[9px] sm:text-[10px] font-bold group-hover:bg-black transition-colors">
+                    <span>{lang === "te" ? "ఎంపిక" : "Select"}</span>
+                    <ArrowRight className="h-2.5 w-2.5 ml-1 group-hover:translate-x-0.5 transition-transform" />
+                  </span>
                 </div>
               </Link>
             ))}
@@ -455,11 +459,11 @@ export function CategorySelectorModal({
         </div>
 
         {/* Modal Bottom Bar */}
-        <div className="px-4 sm:px-6 py-2.5 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs">
+        <div className="px-4 sm:px-6 py-3 bg-white border-t border-slate-200 flex items-center justify-between text-xs">
           <Link
             href={currentCategoryPage}
             onClick={onClose}
-            className="font-bold text-[#1E6FFF] hover:underline inline-flex items-center gap-1 text-[11px] sm:text-xs"
+            className="font-bold text-[#0F172A] hover:underline inline-flex items-center gap-1 text-[11px] sm:text-xs"
           >
             <span>
               {lang === "te" ? "పూర్తి వివరాలు చూడండి" : "View complete scope"}
@@ -469,9 +473,9 @@ export function CategorySelectorModal({
 
           <a
             href="tel:+917676358162"
-            className="inline-flex items-center gap-1 font-bold text-slate-700 hover:text-[#1E6FFF] text-[11px] sm:text-xs"
+            className="inline-flex items-center gap-1.5 font-bold text-slate-900 hover:text-black text-[11px] sm:text-xs bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-full transition-colors"
           >
-            <Phone className="h-3 w-3 text-emerald-600" />
+            <Phone className="h-3 w-3 text-slate-700" />
             <span>{lang === "te" ? "76763 58162" : "76763 58162"}</span>
           </a>
         </div>

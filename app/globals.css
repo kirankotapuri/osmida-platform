@@ -1,26 +1,31 @@
 @import "tailwindcss";
 
 :root {
-  --background: #F7F8FA;
-  --foreground: #111111;
-  --brand-black: #0B0B0F;
-  --brand-blue: #1E6FFF;
-  --brand-blue-hover: #0F4BD6;
+  --background: #FFFFFF;
+  --foreground: #0F172A;
+  --brand-black: #0F172A;
+  --brand-black-hover: #000000;
+  --brand-blue: #2563EB;
+  --brand-blue-hover: #1D4ED8;
   --brand-green: #25D366;
-  --brand-green-hover: #1FA851;
-  --pest-accent: #FF5A3C;
-  --ac-accent: #3BA3FF;
-  --clean-accent: #2FBF9B;
+  --forest-green: #166534;
+  --forest-green-bg: #F0FDF4;
+  --forest-green-border: #BBF7D0;
+  --slate-badge-bg: #F1F5F9;
+  --slate-badge-text: #0F172A;
+  --border-contrast: #E2E8F0;
+  --surface-cream: #FDFBF7;
+  --surface-cream-border: #F3ECE3;
 }
 
 body {
-  background-color: #F7F8FA;
-  color: #111111;
+  background-color: #FFFFFF;
+  color: #0F172A;
   font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Custom smooth subtle transitions under 250ms */
+/* Custom smooth subtle transitions under 200ms */
 button, a {
-  transition: all 0.2s ease-in-out;
+  transition: all 0.18s ease-in-out;
 }

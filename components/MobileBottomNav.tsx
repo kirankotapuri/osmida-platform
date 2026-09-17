@@ -51,20 +51,20 @@ export function MobileBottomNav({
           <button
             type="button"
             onClick={handleHomeScroll}
-            className="flex flex-col items-center justify-center gap-1 py-1 text-[#1E6FFF] focus:outline-none transition-transform active:scale-95"
+            className="flex flex-col items-center justify-center gap-1 py-1 text-[#0F172A] focus:outline-none transition-transform active:scale-95"
             aria-label="Home"
           >
             <div className="relative flex items-center justify-center h-6 w-6">
-              <Home className="h-5 w-5 stroke-[2.2]" />
+              <Home className="h-5 w-5 stroke-[2.4] text-[#0F172A]" />
             </div>
-            <span className="text-[11px] font-bold tracking-tight">
+            <span className="text-[11px] font-black tracking-tight text-[#0F172A]">
               {lang === "te" ? "హోమ్" : "Home"}
             </span>
           </button>
         ) : (
           <Link
             href="/"
-            className="flex flex-col items-center justify-center gap-1 py-1 text-slate-500 hover:text-[#1E6FFF] focus:outline-none transition-transform active:scale-95"
+            className="flex flex-col items-center justify-center gap-1 py-1 text-slate-500 hover:text-[#0F172A] focus:outline-none transition-transform active:scale-95"
             aria-label="Home"
           >
             <div className="relative flex items-center justify-center h-6 w-6">
@@ -80,12 +80,12 @@ export function MobileBottomNav({
         <button
           type="button"
           onClick={onOpenServices}
-          className="flex flex-col items-center justify-center gap-1 py-1 text-slate-700 hover:text-[#1E6FFF] focus:outline-none transition-transform active:scale-95"
+          className="flex flex-col items-center justify-center gap-1 py-1 text-slate-700 hover:text-[#0F172A] focus:outline-none transition-transform active:scale-95"
           aria-label="Services Catalog"
         >
           <div className="relative flex items-center justify-center h-6 w-6">
-            <LayoutGrid className="h-5 w-5 stroke-[2.2] text-[#1E6FFF]" />
-            <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#1E6FFF]" />
+            <LayoutGrid className="h-5 w-5 stroke-[2.2] text-[#0F172A]" />
+            <span className="absolute -top-1 -right-1 h-2 w-2 rounded-full bg-[#0F172A]" />
           </div>
           <span className="text-[11px] font-bold text-slate-900 tracking-tight">
             {lang === "te" ? "సర్వీసులు" : "Services"}
@@ -96,13 +96,13 @@ export function MobileBottomNav({
         <button
           type="button"
           onClick={handleVideoScroll}
-          className="flex flex-col items-center justify-center gap-1 py-1 text-slate-600 hover:text-[#1E6FFF] focus:outline-none transition-transform active:scale-95"
+          className="flex flex-col items-center justify-center gap-1 py-1 text-slate-600 hover:text-[#0F172A] focus:outline-none transition-transform active:scale-95"
           aria-label="Telugu Video Guide"
         >
           <div className="relative flex items-center justify-center h-6 w-6">
-            <PlayCircle className="h-5 w-5 stroke-[2] text-amber-500" />
+            <PlayCircle className="h-5 w-5 stroke-[2] text-slate-800" />
           </div>
-          <span className="text-[11px] font-semibold text-slate-700 tracking-tight">
+          <span className="text-[11px] font-semibold text-slate-800 tracking-tight">
             {lang === "te" ? "వీడియో గైడ్" : "Video"}
           </span>
         </button>
@@ -110,14 +110,15 @@ export function MobileBottomNav({
         {/* 4. Book Now CTA Tab */}
         <Link
           href="/book"
-          className="flex flex-col items-center justify-center gap-1 py-1 text-[#1E6FFF] focus:outline-none transition-transform active:scale-95"
+          className="flex flex-col items-center justify-center gap-0.5 py-1 text-[#0F172A] focus:outline-none transition-transform active:scale-95"
           aria-label="Book Now"
         >
-          <div className="relative flex items-center justify-center h-7 w-7 rounded-xl bg-blue-50 text-[#1E6FFF]">
-            <CalendarCheck className="h-4 w-4 stroke-[2.4]" />
+          <div className="relative flex items-center justify-center h-7 px-3 rounded-full bg-[#0F172A] text-white shadow-xs">
+            <CalendarCheck className="h-3.5 w-3.5 stroke-[2.4]" />
+            <span className="text-[10px] font-bold ml-1">{lang === "te" ? "బుక్" : "Book"}</span>
           </div>
-          <span className="text-[11px] font-bold text-[#1E6FFF] tracking-tight">
-            {lang === "te" ? "బుకింగ్" : "Book Now"}
+          <span className="text-[10px] font-bold text-[#0F172A] tracking-tight">
+            {lang === "te" ? "సున్నా అడ్వాన్స్" : "₹0 Advance"}
           </span>
         </Link>
       </nav>

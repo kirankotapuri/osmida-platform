@@ -547,7 +547,7 @@ export function HowItWorksVideoSection({
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
           <Link
             href="/book"
-            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-[#1E6FFF] hover:bg-[#0F4BD6] px-8 py-4 text-sm font-black text-white shadow-xl hover:shadow-2xl transition-all duration-200 active:scale-95"
+            className="w-full sm:w-auto inline-flex items-center justify-center gap-2 rounded-2xl bg-white hover:bg-slate-100 px-8 py-4 text-sm font-black text-slate-950 shadow-xl hover:shadow-2xl transition-all duration-200 active:scale-95"
           >
             <span>{lang === "te" ? "ఆన్‌లైన్‌లో ఇప్పుడే బుక్ చేయండి (₹0 అడ్వాన్స్)" : "Book Service Online Now (₹0 Advance)"}</span>
             <ArrowRight className="h-4 w-4" />

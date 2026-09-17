@@ -107,11 +107,11 @@ export default function HomePage() {
       <Header lang={lang} onLanguageChange={setLang} />
 
       {/* 2. TOP TRUST STRIP */}
-      <div className="bg-[#EBF2FE] border-b border-[#D5E4FC] px-4 py-2 text-center text-xs font-bold text-[#0F4BD6]">
+      <div className="bg-[#F8FAFC] border-b border-[#E2E8F0] px-4 py-2 text-center text-xs font-bold text-slate-800">
         <span>
           {lang === "te"
-            ? "⚡ నెల్లూరు నగరంలో 30 నిమిషాల్లో కాల్ నిర్ధారణ • ₹0 అడ్వాన్స్ • 30 రోజుల వారంటీ గ్యారెంటీ"
-            : "⚡ Now in Nellore • 30-Min Call Confirmation • ₹0 Advance • 30-Day Guarantee"}
+            ? "⚡ నెల్లూరులో ఆధీకృత సేవలు • 30 నిమిషాల్లో కాల్ • ₹0 అడ్వాన్స్ • 30 రోజుల వారంటీ"
+            : "⚡ Now in Nellore • 30-Min Call Confirmation • ₹0 Advance • 30-Day Service Warranty"}
         </span>
       </div>
 
@@ -123,16 +123,16 @@ export default function HomePage() {
             <div className="lg:col-span-7 space-y-5 text-left">
               {/* Trust Badge Pill */}
               <div className="flex flex-wrap items-center gap-2">
-                <div className="inline-flex items-center gap-1.5 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1 text-xs font-bold text-[#0F4BD6] shadow-2xs">
-                  <span className="h-2 w-2 rounded-full bg-[#1E6FFF] animate-ping" />
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3.5 py-1 text-xs font-bold text-slate-900 shadow-2xs">
+                  <span className="h-2 w-2 rounded-full bg-[#0F172A] animate-pulse" />
                   <span>
                     {lang === "te"
                       ? "నెల్లూరులో సరికొత్తగా ప్రారంభం"
                       : "Now Launching in Nellore"}
                   </span>
                 </div>
-                <div className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full shadow-2xs">
-                  <ShieldCheck className="h-3.5 w-3.5 text-emerald-600" />
+                <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#166534] bg-[#F0FDF4] border border-[#BBF7D0] px-3 py-1 rounded-full shadow-2xs">
+                  <ShieldCheck className="h-3.5 w-3.5 text-[#166534]" />
                   <span>
                     {lang === "te"
                       ? "ధృవీకరించబడిన ప్రొఫెషనల్స్"
@@ -142,33 +142,33 @@ export default function HomePage() {
               </div>
 
               {/* H1 Headline (Section 2 Spec) */}
-              <h1 className="text-2xl sm:text-4xl lg:text-[38px] font-black tracking-tight text-[#111111] leading-tight sm:leading-snug">
+              <h1 className="text-2xl sm:text-4xl lg:text-[38px] font-black tracking-tight text-[#0F172A] leading-tight sm:leading-snug">
                 {lang === "te" ? (
                   <>
                     నెల్లూరులో ధృవీకరించబడిన{" "}
-                    <span className="text-[#1E6FFF]">హోమ్ సేవలు</span>
+                    <span className="text-[#0F172A] underline decoration-slate-300 underline-offset-8">హోమ్ సేవలు</span>
                   </>
                 ) : (
                   <>
                     Verified home services in{" "}
-                    <span className="text-[#1E6FFF]">Nellore</span>
+                    <span className="text-[#0F172A] underline decoration-slate-300 underline-offset-8">Nellore</span>
                   </>
                 )}
               </h1>
 
               {/* Subheading (Section 2 Spec) */}
-              <p className="text-sm sm:text-base lg:text-[17px] text-[#555555] leading-relaxed max-w-xl">
+              <p className="text-sm sm:text-base lg:text-[17px] text-slate-600 leading-relaxed max-w-xl">
                 {lang === "te"
                   ? "పురుగుల నియంత్రణ, ఏసీ సర్వీస్, ఇంటి డీప్ క్లీనింగ్ – పర్యవేక్షణ నాణ్యత, న్యాయమైన ధరలు."
                   : "Pest control, AC service, and home deep cleaning – supervised quality, fair prices."}
               </p>
 
-              {/* Urban Company Image 1 Search & Quick Category Discovery Bar */}
+              {/* Urban Company Search & Quick Category Discovery Bar */}
               <div
                 onClick={() => openCategoryModal("ac")}
-                className="cursor-pointer group flex items-center gap-3 w-full max-w-xl rounded-2xl border border-slate-200 bg-[#F8FAFC] hover:bg-white p-3 sm:p-3.5 shadow-xs hover:shadow-md transition-all duration-200"
+                className="cursor-pointer group flex items-center gap-3 w-full max-w-xl rounded-2xl border border-slate-200 bg-white hover:border-slate-800 p-3 sm:p-3.5 shadow-xs hover:shadow-md transition-all duration-150"
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-blue-50 text-[#1E6FFF] group-hover:bg-[#1E6FFF] group-hover:text-white transition-colors">
+                <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-900 group-hover:bg-[#0F172A] group-hover:text-white transition-colors">
                   <Search className="h-4 w-4" />
                 </div>
                 <div className="flex-1">
@@ -178,8 +178,8 @@ export default function HomePage() {
                       : "Search for 'AC Foam Jet', 'Pest Control', 'Deep Cleaning'..."}
                   </div>
                 </div>
-                <span className="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-[#1E6FFF] bg-blue-50 px-2.5 py-1 rounded-full">
-                  <span>{lang === "te" ? "కేటలాగ్ చూడండి" : "Explore"}</span>
+                <span className="hidden sm:inline-flex items-center gap-1 text-xs font-bold text-white bg-[#0F172A] px-3 py-1.5 rounded-xl group-hover:bg-black">
+                  <span>{lang === "te" ? "కేటలాగ్" : "Explore"}</span>
                   <ChevronRight className="h-3 w-3" />
                 </span>
               </div>
@@ -190,7 +190,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => openCategoryModal("ac")}
-                  className="group relative flex flex-col items-center justify-between rounded-2xl bg-[#F8FAFC] hover:bg-white border border-slate-200/90 hover:border-[#1E6FFF] p-2.5 sm:p-3 text-center transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]"
+                  className="group relative flex flex-col items-center justify-between rounded-2xl bg-white hover:bg-slate-50/50 border border-slate-200 hover:border-slate-800 p-2.5 sm:p-3 text-center transition-all duration-150 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]"
                 >
                   <div className="relative h-12 sm:h-14 w-full rounded-xl overflow-hidden mb-1 bg-slate-100">
                     <Image
@@ -201,10 +201,10 @@ export default function HomePage() {
                       sizes="(max-width: 768px) 100px, 140px"
                     />
                   </div>
-                  <div className="mt-1 inline-flex items-center rounded-full bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-emerald-700 shadow-2xs">
+                  <div className="mt-1 inline-flex items-center rounded-md bg-slate-100 border border-slate-200 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-slate-800 shadow-2xs">
                     45 mins
                   </div>
-                  <span className="mt-1 text-[11px] sm:text-xs font-bold text-slate-800 group-hover:text-[#1E6FFF] transition-colors leading-tight">
+                  <span className="mt-1 text-[11px] sm:text-xs font-bold text-slate-900 group-hover:text-black transition-colors leading-tight">
                     {lang === "te" ? "ఏసీ సర్వీస్" : "AC Services"}
                   </span>
                 </button>
@@ -213,7 +213,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => openCategoryModal("pest")}
-                  className="group relative flex flex-col items-center justify-between rounded-2xl bg-[#F8FAFC] hover:bg-white border border-slate-200/90 hover:border-[#FF5A3C] p-2.5 sm:p-3 text-center transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]"
+                  className="group relative flex flex-col items-center justify-between rounded-2xl bg-white hover:bg-slate-50/50 border border-slate-200 hover:border-slate-800 p-2.5 sm:p-3 text-center transition-all duration-150 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]"
                 >
                   <div className="relative h-12 sm:h-14 w-full rounded-xl overflow-hidden mb-1 bg-slate-100">
                     <Image
@@ -224,10 +224,10 @@ export default function HomePage() {
                       sizes="(max-width: 768px) 100px, 140px"
                     />
                   </div>
-                  <div className="mt-1 inline-flex items-center rounded-full bg-rose-50 border border-rose-200/80 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-rose-700 shadow-2xs">
+                  <div className="mt-1 inline-flex items-center rounded-md bg-[#FEF3C7] border border-[#FDE68A] px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-[#92400E] shadow-2xs">
                     30-Day
                   </div>
-                  <span className="mt-1 text-[11px] sm:text-xs font-bold text-slate-800 group-hover:text-[#FF5A3C] transition-colors leading-tight">
+                  <span className="mt-1 text-[11px] sm:text-xs font-bold text-slate-900 group-hover:text-black transition-colors leading-tight">
                     {lang === "te" ? "పురుగుల నివారణ" : "Pest Control"}
                   </span>
                 </button>
@@ -236,7 +236,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => openCategoryModal("cleaning")}
-                  className="group relative flex flex-col items-center justify-between rounded-2xl bg-[#F8FAFC] hover:bg-white border border-slate-200/90 hover:border-[#2FBF9B] p-2.5 sm:p-3 text-center transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]"
+                  className="group relative flex flex-col items-center justify-between rounded-2xl bg-white hover:bg-slate-50/50 border border-slate-200 hover:border-slate-800 p-2.5 sm:p-3 text-center transition-all duration-150 hover:shadow-md hover:-translate-y-0.5 active:scale-[0.98]"
                 >
                   <div className="relative h-12 sm:h-14 w-full rounded-xl overflow-hidden mb-1 bg-slate-100">
                     <Image
@@ -247,27 +247,27 @@ export default function HomePage() {
                       sizes="(max-width: 768px) 100px, 140px"
                     />
                   </div>
-                  <div className="mt-1 inline-flex items-center rounded-full bg-emerald-50 border border-emerald-200/80 px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-emerald-700 shadow-2xs">
+                  <div className="mt-1 inline-flex items-center rounded-md bg-[#F0FDF4] border border-[#BBF7D0] px-2 py-0.5 text-[9px] sm:text-[10px] font-bold text-[#166534] shadow-2xs">
                     Safe Chem
                   </div>
-                  <span className="mt-1 text-[11px] sm:text-xs font-bold text-slate-800 group-hover:text-[#2FBF9B] transition-colors leading-tight">
+                  <span className="mt-1 text-[11px] sm:text-xs font-bold text-slate-900 group-hover:text-black transition-colors leading-tight">
                     {lang === "te" ? "హోమ్ డీప్ క్లీన్" : "Home Cleaning"}
                   </span>
                 </button>
               </div>
 
               {/* Quick Trust Highlights (30-day, ₹0 advance, 30 min) */}
-              <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-[#444444] pt-1">
+              <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-slate-700 pt-1">
                 <span className="flex items-center gap-1.5">
-                  <ShieldCheck className="h-4 w-4 text-[#25D366]" />
+                  <ShieldCheck className="h-4 w-4 text-[#166534]" />
                   <span>{lang === "te" ? "₹0 ముందస్తు అడ్వాన్స్" : "₹0 Advance Payment"}</span>
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Clock className="h-4 w-4 text-[#1E6FFF]" />
+                  <Clock className="h-4 w-4 text-slate-700" />
                   <span>{lang === "te" ? "30 నిమిషాల్లో నిర్ధారణ" : "30-Min Call Confirmation"}</span>
                 </span>
                 <span className="flex items-center gap-1.5">
-                  <Award className="h-4 w-4 text-[#FF5A3C]" />
+                  <Award className="h-4 w-4 text-[#92400E]" />
                   <span>{lang === "te" ? "30 రోజుల ఉచిత వారంటీ" : "30-Day Service Warranty"}</span>
                 </span>
               </div>
@@ -276,7 +276,7 @@ export default function HomePage() {
               <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
                 <a
                   href="tel:+917676358162"
-                  className="flex items-center justify-center gap-2 rounded-2xl bg-[#1E6FFF] hover:bg-[#0F4BD6] py-3.5 px-6 text-center text-sm font-black text-white shadow-md hover:shadow-lg transition-all active:scale-[0.97]"
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-[#0F172A] hover:bg-black py-3.5 px-6 text-center text-sm font-bold text-white shadow-md hover:shadow-lg transition-all active:scale-[0.97]"
                 >
                   <Phone className="h-4 w-4 fill-white" />
                   <span>{lang === "te" ? "కాల్: 76763 58162" : "Call 76763 58162"}</span>
@@ -285,7 +285,7 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => openWhatsAppDirect()}
-                  className="flex items-center justify-center gap-2 rounded-2xl bg-[#25D366] hover:bg-[#1FA851] py-3.5 px-6 text-center text-sm font-black text-white shadow-md hover:shadow-lg transition-all active:scale-[0.97]"
+                  className="flex items-center justify-center gap-2 rounded-2xl bg-[#25D366] hover:bg-[#20bd5a] py-3.5 px-6 text-center text-sm font-bold text-white shadow-md hover:shadow-lg transition-all active:scale-[0.97]"
                 >
                   <MessageSquare className="h-4 w-4 text-white" />
                   <span>{lang === "te" ? "వాట్సాప్‌లో మాట్లాడండి" : "WhatsApp Us"}</span>
@@ -295,7 +295,7 @@ export default function HomePage() {
                   href="#how-to-book-video"
                   className="flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white hover:bg-slate-50 py-3.5 px-5 text-center text-sm font-bold text-slate-800 shadow-xs hover:shadow-md transition-all active:scale-[0.97]"
                 >
-                  <Play className="h-4 w-4 text-[#1E6FFF] fill-current" />
+                  <Play className="h-4 w-4 text-[#0F172A] fill-current" />
                   <span>{lang === "te" ? "వీడియో చూడండి (1 నిమిషం)" : "Watch Video (1 Min)"}</span>
                 </a>
               </div>
@@ -315,7 +315,7 @@ export default function HomePage() {
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent pointer-events-none" />
                 <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-xs p-3 rounded-2xl shadow-lg flex items-center justify-between border border-gray-100">
                   <div className="flex items-center gap-2.5">
-                    <div className="w-9 h-9 rounded-xl bg-blue-600 flex items-center justify-center text-white text-base font-black shadow-xs">
+                    <div className="w-9 h-9 rounded-xl bg-[#0F172A] flex items-center justify-center text-white text-base font-black shadow-xs">
                       O
                     </div>
                     <div>
@@ -323,8 +323,8 @@ export default function HomePage() {
                       <p className="text-[11px] text-gray-500 font-medium">Official Black Uniform • ID Checked</p>
                     </div>
                   </div>
-                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200 flex items-center gap-1">
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[11px] font-bold text-[#166534] bg-[#F0FDF4] px-2.5 py-1 rounded-full border border-[#BBF7D0] flex items-center gap-1">
+                    <span className="w-1.5 h-1.5 rounded-full bg-[#166534] animate-pulse" />
                     Nellore Active
                   </span>
                 </div>
@@ -334,17 +334,17 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Urban Company Image 1 'In the spotlight' Banner Section */}
+      {/* Urban Company-Style Spotlight Banner Section (Warm Luxury Cream & Obsidian) */}
       <section className="bg-white px-4 sm:px-6 py-6 border-b border-[#E5E7EB]">
         <div className="mx-auto max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Banner 1: AC Foam Jet */}
+            {/* Banner 1: AC Foam Jet (Obsidian Luxury) */}
             <div
               onClick={() => openCategoryModal("ac")}
-              className="cursor-pointer group relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#0F172A] to-[#1E293B] p-6 text-white shadow-md hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-between"
+              className="cursor-pointer group relative overflow-hidden rounded-2xl bg-[#0F172A] p-6 text-white shadow-md hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-between"
             >
               <div className="space-y-2 z-10 max-w-[65%]">
-                <span className="text-[10px] font-black uppercase tracking-wider bg-blue-500/20 text-[#38BDF8] border border-blue-400/30 px-2.5 py-0.5 rounded-full">
+                <span className="text-[10px] font-black uppercase tracking-wider bg-white/10 text-slate-200 border border-white/20 px-2.5 py-0.5 rounded-full">
                   {lang === "te" ? "ప్రత్యేక ఆఫర్" : "In The Spotlight"}
                 </span>
                 <h3 className="text-base sm:text-lg font-bold leading-tight text-white">
@@ -358,7 +358,7 @@ export default function HomePage() {
                     : "Water jacket deep foam jet wash from ₹599"}
                 </p>
                 <div className="pt-1">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-[#38BDF8] group-hover:translate-x-1 transition-transform">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-white/10 group-hover:bg-white group-hover:text-[#0F172A] px-3 py-1 rounded-lg transition-colors">
                     <span>{lang === "te" ? "వివరాలు చూడండి" : "Explore AC Plans"}</span>
                     <ArrowRight className="h-3.5 w-3.5" />
                   </span>
@@ -376,34 +376,34 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* Banner 2: Zero Advance Guarantee */}
+            {/* Banner 2: Zero Advance Guarantee (Warm Luxury Cream & Deep Ink) */}
             <div
               onClick={() => openCategoryModal("cleaning")}
-              className="cursor-pointer group relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#064E3B] to-[#047857] p-6 text-white shadow-md hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-between"
+              className="cursor-pointer group relative overflow-hidden rounded-2xl bg-[#FDFBF7] border border-[#F3ECE3] p-6 text-slate-900 shadow-md hover:shadow-xl transition-all duration-200 hover:-translate-y-0.5 flex items-center justify-between"
             >
               <div className="space-y-2 z-10 max-w-[65%]">
-                <span className="text-[10px] font-black uppercase tracking-wider bg-emerald-400/20 text-emerald-200 border border-emerald-300/30 px-2.5 py-0.5 rounded-full">
+                <span className="text-[10px] font-black uppercase tracking-wider bg-[#FEF3C7] text-[#92400E] border border-[#FDE68A] px-2.5 py-0.5 rounded-full">
                   {lang === "te" ? "నెల్లూరు హామీ" : "Osmida Guarantee"}
                 </span>
-                <h3 className="text-base sm:text-lg font-bold leading-tight text-white">
+                <h3 className="text-base sm:text-lg font-bold leading-tight text-[#0F172A]">
                   {lang === "te"
                     ? "₹0 ముందస్తు చెల్లింపు – పని అయ్యాకే డబ్బులు"
                     : "Zero advance – Pay after 100% satisfaction"}
                 </h3>
-                <p className="text-xs text-emerald-100">
+                <p className="text-xs text-slate-600">
                   {lang === "te"
                     ? "సర్టిఫైడ్ టెక్నీషియన్లు • 30-రోజుల వారంటీ"
                     : "Supervised technicians • 30-day service guarantee"}
                 </p>
                 <div className="pt-1">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-200 group-hover:translate-x-1 transition-transform">
+                  <span className="inline-flex items-center gap-1.5 text-xs font-bold text-white bg-[#0F172A] group-hover:bg-black px-3 py-1 rounded-lg transition-colors">
                     <span>{lang === "te" ? "సర్వీసులు చూడండి" : "View Cleaning Plans"}</span>
                     <ArrowRight className="h-3.5 w-3.5" />
                   </span>
                 </div>
               </div>
 
-              <div className="relative h-20 w-28 sm:h-24 sm:w-32 rounded-xl overflow-hidden shadow-sm shrink-0">
+              <div className="relative h-20 w-28 sm:h-24 sm:w-32 rounded-xl overflow-hidden shadow-sm shrink-0 border border-[#EBE4DC]">
                 <Image
                   src="/images/service-cleaning-home.jpg"
                   alt="Home Deep Cleaning"
@@ -452,7 +452,7 @@ export default function HomePage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                     <div className="absolute bottom-2 left-2 bg-white/95 backdrop-blur-xs px-2 py-0.5 rounded-md text-[10px] font-bold text-gray-900 shadow-xs flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-800" />
                       Official Uniform
                     </div>
                   </div>
@@ -460,37 +460,37 @@ export default function HomePage() {
 
                 {/* Service Title */}
                 <div className="space-y-0.5">
-                  <h3 className="text-lg sm:text-xl font-bold text-[#111111] group-hover:text-[#1E6FFF] transition-colors">
+                  <h3 className="text-lg sm:text-xl font-bold text-[#0F172A] group-hover:text-black transition-colors">
                     {lang === "te" ? "పురుగుల నియంత్రణ" : "Pest Control"}
                   </h3>
-                  <p className="text-[11px] font-bold text-[#FF5A3C] uppercase tracking-wider">
+                  <p className="text-[11px] font-bold text-[#92400E] bg-[#FEF3C7] border border-[#FDE68A] inline-block px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                     {lang === "te" ? "30 రోజుల ఉచిత వారంటీ" : "30-Day Free Warranty"}
                   </p>
                 </div>
 
                 {/* Short Description (Section 2 Spec) */}
-                <p className="text-xs sm:text-sm text-[#555555] leading-relaxed min-h-[40px]">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed min-h-[40px]">
                   {lang === "te"
                     ? "వారంటీతో ఇల్లు మరియు షాప్ పురుగుల నియంత్రణ."
                     : "Home & shop pest control with warranty."}
                 </p>
 
                 {/* Inclusions Teaser Chips */}
-                <div className="flex flex-wrap justify-center gap-1.5 text-[11px] text-[#444444] pt-1">
-                  <span className="bg-[#FFF5F3] border border-[#FF5A3C]/20 px-2.5 py-0.5 rounded-md font-medium">
+                <div className="flex flex-wrap justify-center gap-1.5 text-[11px] text-slate-700 pt-1">
+                  <span className="bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-md font-medium">
                     {lang === "te" ? "బొద్దింకలు" : "Cockroaches"}
                   </span>
-                  <span className="bg-[#FFF5F3] border border-[#FF5A3C]/20 px-2.5 py-0.5 rounded-md font-medium">
+                  <span className="bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-md font-medium">
                     {lang === "te" ? "నల్లులు" : "Bedbugs"}
                   </span>
-                  <span className="bg-[#FFF5F3] border border-[#FF5A3C]/20 px-2.5 py-0.5 rounded-md font-medium">
+                  <span className="bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-md font-medium">
                     {lang === "te" ? "చెదలు" : "Termites"}
                   </span>
                 </div>
 
                 {/* Price Line (Section 2 Spec) */}
                 <div className="pt-2">
-                  <span className="text-base sm:text-lg font-semibold text-[#1E6FFF]">
+                  <span className="text-base sm:text-lg font-black text-[#0F172A]">
                     {lang === "te" ? "₹1,499 నుండి" : "From ₹1,499"}
                   </span>
                 </div>
@@ -500,7 +500,7 @@ export default function HomePage() {
               <div className="pt-6 space-y-2.5">
                 <Link
                   href="/book?service=pest-control"
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#1E6FFF] hover:bg-[#0F4BD6] py-3.5 px-4 text-center text-sm font-semibold text-white shadow-md active:scale-[0.98] transition-all"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#0F172A] hover:bg-black py-3.5 px-4 text-center text-sm font-bold text-white shadow-md active:scale-[0.98] transition-all"
                 >
                   <span>{lang === "te" ? "బుక్ చేయండి" : "Book Now"}</span>
                   <ArrowRight className="h-4 w-4" />
@@ -509,15 +509,15 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => openCategoryModal("pest")}
-                  className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50/70 hover:bg-rose-100 py-2.5 px-3 text-center text-xs font-bold text-rose-700 transition-all active:scale-[0.98]"
+                  className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 py-2.5 px-3 text-center text-xs font-bold text-slate-800 transition-all active:scale-[0.98]"
                 >
-                  <SlidersHorizontal className="h-3.5 w-3.5" />
+                  <SlidersHorizontal className="h-3.5 w-3.5 text-slate-600" />
                   <span>{lang === "te" ? "సబ్-కేటగిరీలు చూడండి (1/2/3 BHK & Bedbug)" : "Sub-Categories (1/2/3 BHK, Bedbug)"}</span>
                 </button>
 
                 <Link
                   href="/pest-control"
-                  className="w-full flex items-center justify-center gap-1 text-xs font-bold text-[#555555] hover:text-[#1E6FFF] py-1 transition-colors"
+                  className="w-full flex items-center justify-center gap-1 text-xs font-bold text-slate-600 hover:text-black py-1 transition-colors"
                 >
                   <span>{lang === "te" ? "పూర్తి వివరాలు & రేట్లు చూడండి" : "View Full Details & Scope"}</span>
                   <ArrowRight className="h-3 w-3" />
@@ -540,7 +540,7 @@ export default function HomePage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                     <div className="absolute bottom-2 left-2 bg-white/95 backdrop-blur-xs px-2 py-0.5 rounded-md text-[10px] font-bold text-gray-900 shadow-xs flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-blue-500" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-slate-800" />
                       Official Uniform
                     </div>
                   </div>
@@ -548,37 +548,37 @@ export default function HomePage() {
 
                 {/* Service Title */}
                 <div className="space-y-0.5">
-                  <h3 className="text-lg sm:text-xl font-bold text-[#111111] group-hover:text-[#1E6FFF] transition-colors">
+                  <h3 className="text-lg sm:text-xl font-bold text-[#0F172A] group-hover:text-black transition-colors">
                     {lang === "te" ? "ఏసీ సర్వీస్" : "AC Services"}
                   </h3>
-                  <p className="text-[11px] font-bold text-[#3BA3FF] uppercase tracking-wider">
+                  <p className="text-[11px] font-bold text-slate-800 bg-slate-100 border border-slate-200 inline-block px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                     {lang === "te" ? "15 రోజుల లీక్ వారంటీ" : "15-Day Leak Warranty"}
                   </p>
                 </div>
 
                 {/* Short Description (Section 2 Spec) */}
-                <p className="text-xs sm:text-sm text-[#555555] leading-relaxed min-h-[40px]">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed min-h-[40px]">
                   {lang === "te"
                     ? "సర్టిఫైడ్ టెక్నీషియన్లతో ఏసీ రిపేర్, సర్వీస్, ఇన్స్టాల్."
                     : "AC repair, service, installation by certified technicians."}
                 </p>
 
                 {/* Inclusions Teaser Chips */}
-                <div className="flex flex-wrap justify-center gap-1.5 text-[11px] text-[#444444] pt-1">
-                  <span className="bg-[#F0F8FF] border border-[#3BA3FF]/20 px-2.5 py-0.5 rounded-md font-medium">
+                <div className="flex flex-wrap justify-center gap-1.5 text-[11px] text-slate-700 pt-1">
+                  <span className="bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-md font-medium">
                     {lang === "te" ? "జెట్ పంప్ వాష్" : "Jet Pump Wash"}
                   </span>
-                  <span className="bg-[#F0F8FF] border border-[#3BA3FF]/20 px-2.5 py-0.5 rounded-md font-medium">
+                  <span className="bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-md font-medium">
                     {lang === "te" ? "కూలింగ్ చెక్" : "Cooling Check"}
                   </span>
-                  <span className="bg-[#F0F8FF] border border-[#3BA3FF]/20 px-2.5 py-0.5 rounded-md font-medium">
+                  <span className="bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-md font-medium">
                     {lang === "te" ? "వాటర్ లీకేజ్" : "Leak Fix"}
                   </span>
                 </div>
 
                 {/* Price Line (Section 2 Spec) */}
                 <div className="pt-2">
-                  <span className="text-base sm:text-lg font-semibold text-[#1E6FFF]">
+                  <span className="text-base sm:text-lg font-black text-[#0F172A]">
                     {lang === "te" ? "₹699 నుండి" : "From ₹699"}
                   </span>
                 </div>
@@ -588,7 +588,7 @@ export default function HomePage() {
               <div className="pt-6 space-y-2.5">
                 <Link
                   href="/book?service=ac-services"
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#1E6FFF] hover:bg-[#0F4BD6] py-3.5 px-4 text-center text-sm font-semibold text-white shadow-md active:scale-[0.98] transition-all"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#0F172A] hover:bg-black py-3.5 px-4 text-center text-sm font-bold text-white shadow-md active:scale-[0.98] transition-all"
                 >
                   <span>{lang === "te" ? "బుక్ చేయండి" : "Book Now"}</span>
                   <ArrowRight className="h-4 w-4" />
@@ -597,15 +597,15 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => openCategoryModal("ac")}
-                  className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-blue-200 bg-blue-50/70 hover:bg-blue-100 py-2.5 px-3 text-center text-xs font-bold text-[#1E6FFF] transition-all active:scale-[0.98]"
+                  className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 py-2.5 px-3 text-center text-xs font-bold text-slate-800 transition-all active:scale-[0.98]"
                 >
-                  <SlidersHorizontal className="h-3.5 w-3.5" />
+                  <SlidersHorizontal className="h-3.5 w-3.5 text-slate-600" />
                   <span>{lang === "te" ? "సబ్-కేటగిరీలు చూడండి (సర్వీసింగ్, రిపేర్, గ్యాస్)" : "Sub-Categories (Servicing, Repair, Gas)"}</span>
                 </button>
 
                 <Link
                   href="/ac-services"
-                  className="w-full flex items-center justify-center gap-1 text-xs font-bold text-[#555555] hover:text-[#1E6FFF] py-1 transition-colors"
+                  className="w-full flex items-center justify-center gap-1 text-xs font-bold text-slate-600 hover:text-black py-1 transition-colors"
                 >
                   <span>{lang === "te" ? "పూర్తి వివరాలు & రేట్లు చూడండి" : "View Full Details & Scope"}</span>
                   <ArrowRight className="h-3 w-3" />
@@ -628,7 +628,7 @@ export default function HomePage() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                     <div className="absolute bottom-2 left-2 bg-white/95 backdrop-blur-xs px-2 py-0.5 rounded-md text-[10px] font-bold text-gray-900 shadow-xs flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-teal-500" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#166534]" />
                       Official Uniform
                     </div>
                   </div>
@@ -636,37 +636,34 @@ export default function HomePage() {
 
                 {/* Service Title */}
                 <div className="space-y-0.5">
-                  <h3 className="text-lg sm:text-xl font-bold text-[#111111] group-hover:text-[#1E6FFF] transition-colors">
+                  <h3 className="text-lg sm:text-xl font-bold text-[#0F172A] group-hover:text-black transition-colors">
                     {lang === "te" ? "ఇంటి డీప్ క్లీనింగ్" : "Home Deep Cleaning"}
                   </h3>
-                  <p className="text-[11px] font-bold text-[#2FBF9B] uppercase tracking-wider">
+                  <p className="text-[11px] font-bold text-[#166534] bg-[#F0FDF4] border border-[#BBF7D0] inline-block px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                     {lang === "te" ? "24-గంటల క్వాలిటీ హామీ" : "24-Hr Quality Assurance"}
                   </p>
                 </div>
 
                 {/* Short Description (Section 2 Spec) */}
-                <p className="text-xs sm:text-sm text-[#555555] leading-relaxed min-h-[40px]">
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed min-h-[40px]">
                   {lang === "te"
                     ? "అపార్ట్మెంట్లు మరియు ఇళ్లకు ప్రొఫెషనల్ డీప్ క్లీనింగ్."
                     : "Professional deep cleaning for apartments & homes."}
                 </p>
 
                 {/* Inclusions Teaser Chips */}
-                <div className="flex flex-wrap justify-center gap-1.5 text-[11px] text-[#444444] pt-1">
-                  <span className="bg-[#EBFBF7] border border-[#2FBF9B]/20 px-2.5 py-0.5 rounded-md font-medium">
+                <div className="flex flex-wrap justify-center gap-1.5 text-[11px] text-slate-700 pt-1">
+                  <span className="bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-md font-medium">
                     {lang === "te" ? "కిచెన్ డీగ్రీసింగ్" : "Kitchen Scrub"}
                   </span>
-                  <span className="bg-[#EBFBF7] border border-[#2FBF9B]/20 px-2.5 py-0.5 rounded-md font-medium">
+                  <span className="bg-slate-100 border border-slate-200 px-2.5 py-0.5 rounded-md font-medium">
                     {lang === "te" ? "బాత్‌రూమ్ డీస్కేలింగ్" : "Bathrooms"}
-                  </span>
-                  <span className="bg-[#EBFBF7] border border-[#2FBF9B]/20 px-2.5 py-0.5 rounded-md font-medium">
-                    {lang === "te" ? "ఫ్లోర్ డీప్ వాష్" : "Floor Polish"}
                   </span>
                 </div>
 
                 {/* Price Line (Section 2 Spec) */}
                 <div className="pt-2">
-                  <span className="text-base sm:text-lg font-semibold text-[#1E6FFF]">
+                  <span className="text-base sm:text-lg font-black text-[#0F172A]">
                     {lang === "te" ? "₹2,499 నుండి" : "From ₹2,499"}
                   </span>
                 </div>
@@ -676,7 +673,7 @@ export default function HomePage() {
               <div className="pt-6 space-y-2.5">
                 <Link
                   href="/book?service=home-deep-cleaning"
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#1E6FFF] hover:bg-[#0F4BD6] py-3.5 px-4 text-center text-sm font-semibold text-white shadow-md active:scale-[0.98] transition-all"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#0F172A] hover:bg-black py-3.5 px-4 text-center text-sm font-bold text-white shadow-md active:scale-[0.98] transition-all"
                 >
                   <span>{lang === "te" ? "బుక్ చేయండి" : "Book Now"}</span>
                   <ArrowRight className="h-4 w-4" />
@@ -685,15 +682,15 @@ export default function HomePage() {
                 <button
                   type="button"
                   onClick={() => openCategoryModal("cleaning")}
-                  className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-emerald-200 bg-emerald-50/70 hover:bg-emerald-100 py-2.5 px-3 text-center text-xs font-bold text-emerald-700 transition-all active:scale-[0.98]"
+                  className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 py-2.5 px-3 text-center text-xs font-bold text-slate-800 transition-all active:scale-[0.98]"
                 >
-                  <SlidersHorizontal className="h-3.5 w-3.5" />
+                  <SlidersHorizontal className="h-3.5 w-3.5 text-slate-600" />
                   <span>{lang === "te" ? "సబ్-కేటగిరీలు చూడండి (1/2/3 BHK & Villa)" : "Sub-Categories (1/2/3 BHK, Villa)"}</span>
                 </button>
 
                 <Link
                   href="/home-deep-cleaning"
-                  className="w-full flex items-center justify-center gap-1 text-xs font-bold text-[#555555] hover:text-[#1E6FFF] py-1 transition-colors"
+                  className="w-full flex items-center justify-center gap-1 text-xs font-bold text-slate-600 hover:text-black py-1 transition-colors"
                 >
                   <span>{lang === "te" ? "పూర్తి వివరాలు & రేట్లు చూడండి" : "View Full Details & Scope"}</span>
                   <ArrowRight className="h-3 w-3" />
