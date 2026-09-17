@@ -10,16 +10,16 @@ export function SafetyPromise({ lang }: { lang: Language }) {
     <section className="border-t border-[#E5E7EB] bg-white px-4 sm:px-6 py-16">
       <div className="mx-auto max-w-6xl space-y-10">
         <div className="text-center max-w-2xl mx-auto">
-          <span className="text-[10px] font-black uppercase tracking-widest text-[#1E6FFF] bg-[#1E6FFF]/10 border border-[#1E6FFF]/20 px-3 py-1 rounded-full">
+          <span className="text-[10px] font-black uppercase tracking-widest text-[#0F172A] bg-slate-100 border border-slate-200 px-3 py-1 rounded-full">
             {lang === "te" ? "భద్రత & నాణ్యత" : "Trust & Guarantee"}
           </span>
           <h2 className="text-2xl sm:text-4xl font-black text-[#111111] mt-3">
             {t.safetyTitle}
           </h2>
-          <p className="text-xs sm:text-sm text-[#555555] mt-2">
+          <p className="text-xs sm:text-sm text-[#555555] mt-2 max-w-xl mx-auto">
             {lang === "te"
-              ? "నెల్లూరులో మీ ఇంటికి తెలియని వారిని రప్పించడంలో ఉన్న భయాన్ని మేము అర్థం చేసుకున్నాము. అందుకే ఈ 4 రక్షణలు:"
-              : "We understand inviting technicians into your home requires complete trust. Here is our 4-point guarantee:"}
+              ? "నెల్లూరులో సరికొత్త ప్లాట్‌ఫామ్ ప్రారంభిస్తూ, నగరంలోని అనుభవజ్ఞులైన స్థానిక నిపుణులతో భాగస్వామ్యం కుదుర్చుకున్నాము. మీ పూర్తి నమ్మకం కోసం 4 రక్షణలు:"
+              : "Starting fresh in Nellore by collaborating with the city's established local technicians. Here is our 4-point managed quality guarantee:"}
           </p>
         </div>
 

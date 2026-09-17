@@ -42,8 +42,8 @@ export default function AboutPage() {
             </h1>
             <p className="mt-3 text-sm sm:text-base text-[#555555] leading-relaxed">
               {lang === "te"
-                ? "ఆస్మిడా (Osmida) నెల్లూరు నగరంలో పుట్టి, నెల్లూరు కుటుంబాలు మరియు వ్యాపార సంస్థల కోసం ప్రారంభించబడింది. నమ్మకమైన టెక్నీషియన్లను వెతకడం, సరైన రేట్లతో పనిచేయించడం ఎంత కష్టమో మేము చూశాము."
-                : "Osmida was built specifically for Nellore. We saw firsthand how stressful it is for families to find trustworthy technicians who show up on time, quote fair prices, and stand by their work."}
+                ? "ఆస్మిడా (Osmida) నెల్లూరులో సరికొత్తగా ప్రారంభమైన ఆధునిక హోమ్ సర్వీస్ ప్లాట్‌ఫామ్. నగరంలో ఇప్పటికే ఏళ్ల అనుభవం ఉన్న ప్రముఖ స్థానిక టెక్నీషియన్లతో భాగస్వామ్యం కుదుర్చుకుని, పర్యవేక్షణ నాణ్యత, అధికారిక బ్లాక్ యూనిఫాం, నిర్ణీత ధరలు మరియు 30 రోజుల వారంటీ అందిస్తున్నాము."
+                : "Osmida is a new managed home services platform launched in Nellore. We partner directly with Nellore's established, top-rated local technicians — bringing their years of field experience under Osmida's supervised standards, official black uniform, transparent pricing, and 30-day rework guarantee."}
             </p>
           </div>
 
@@ -51,10 +51,10 @@ export default function AboutPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             {[
               {
-                titleEn: "100% Verified Local Experts",
-                titleTe: "పూర్తిగా విచారించిన స్థానిక నిపుణులు",
-                descEn: "Every partner is verified with ID cards, professional tools, and polite customer etiquette.",
-                descTe: "అన్ని గుర్తింపు కార్డులు పరిశీలించి, మర్యాదగా ప్రవర్తించే స్థానిక నిపుణులను మాత్రమే పంపుతాము."
+                titleEn: "Partnered with Established Local Pros",
+                titleTe: "స్థానిక ప్రముఖ నిపుణులతో భాగస్వామ్యం",
+                descEn: "We collaborate with Nellore's trusted local technicians, verified with official uniform, ID cards, and quality supervision.",
+                descTe: "నెల్లూరులో ఇప్పటికే గుర్తింపు పొందిన అనుభవజ్ఞులైన స్థానిక నిపుణులతో భాగస్వామ్యం. అధికారిక యూనిఫాం, ఐడీ కార్డ్ మరియు పర్యవేక్షణ నాణ్యత."
               },
               {
                 titleEn: "Zero Advance • Pay After Service",

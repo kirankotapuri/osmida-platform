@@ -295,11 +295,11 @@ export const TIME_SLOTS = [
 
 export const TRUST_PROMISES = [
   {
-    icon: "🛡️",
-    titleEn: "Verified Local Professionals",
-    titleTe: "ధృవీకరించబడిన స్థానిక నిపుణులు",
-    descEn: "Background-checked Nellore technicians with official Osmida ID cards.",
-    descTe: "పూర్తి విచారణ జరిపిన స్థానిక నెల్లూరు టెక్నీషియన్లు."
+    icon: "🤝",
+    titleEn: "Partnered with Established Local Experts",
+    titleTe: "స్థానిక ప్రముఖ నిపుణులతో భాగస్వామ్యం",
+    descEn: "We collaborate with Nellore's already-established, top-rated technicians — onboarding them under Osmida's supervised standards, official black uniform, and verified ID.",
+    descTe: "నెల్లూరులో ఇప్పటికే గుర్తింపు పొందిన అనుభవజ్ఞులైన స్థానిక నిపుణులతో భాగస్వామ్యం. వారి నైపుణ్యానికి ఓస్మిడా పర్యవేక్షణ, అధికారిక యూనిఫాం మరియు నాణ్యతా రక్షణ తోడవుతాయి."
   },
   {
     icon: "💰",
@@ -359,7 +359,7 @@ export const UI_TEXT = {
     callNow: "Call Now",
     whatsappUs: "WhatsApp Us",
     heroTitle: "What do you need help with today?",
-    heroSub: "Verified experts in Nellore • Transparent upfront prices • 30-minute confirmation",
+    heroSub: "Nellore's new managed platform partnering with established local experts • ₹0 advance • 30-day warranty",
     chooseService: "Choose Service",
     selectPestOrIssue: "Select specific requirement:",
     selectSize: "Select house / space size:",
@@ -384,7 +384,7 @@ export const UI_TEXT = {
     notesPlaceholder: "e.g. Near Ramalayam Temple / Cockroaches in kitchen",
     confirmBooking: "Confirm Booking (Free ₹0)",
     submitting: "Confirming...",
-    trustLine1: "Verified Nellore Technicians",
+    trustLine1: "Nellore Established Partners",
     trustLine2: "30-Day Guarantee",
     trustLine3: "Pay After Service",
     successTitle: "Booking Request Received!",
@@ -411,7 +411,7 @@ export const UI_TEXT = {
     callNow: "కాల్ చేయండి",
     whatsappUs: "వాట్సాప్‌లో మాట్లాడండి",
     heroTitle: "ఈ రోజు మీ ఇంటికి ఏ సేవ కావాలి?",
-    heroSub: "నెల్లూరులో ధృవీకరించబడిన నిపుణులు • సరసమైన ధరలు • 30 నిమిషాల్లో కాల్ నిర్ధారణ",
+    heroSub: "నెల్లూరులో సరికొత్త ప్లాట్‌ఫామ్ — స్థానిక ప్రముఖ నిపుణులతో భాగస్వామ్యం • ₹0 అడ్వాన్స్ • 30 రోజుల వారంటీ",
     chooseService: "సేవను ఎంచుకోండి",
     selectPestOrIssue: "మీ సమస్య లేదా అవసరాన్ని ఎంచుకోండి:",
     selectSize: "ఇంటి లేదా స్పేస్ సైజు ఎంచుకోండి:",
@@ -436,7 +436,7 @@ export const UI_TEXT = {
     notesPlaceholder: "ఉదా: రామాలయం దగ్గర / కిచెన్‌లో ఎక్కువ బొద్దింకలు",
     confirmBooking: "బుకింగ్ ఖాయం చేయండి (ఉచితం ₹0)",
     submitting: "నమోదు అవుతోంది...",
-    trustLine1: "స్థానిక నెల్లూరు నిపుణులు",
+    trustLine1: "స్థానిక ప్రముఖ నిపుణులు",
     trustLine2: "30 రోజుల వారంటీ",
     trustLine3: "పని పూర్తయ్యాక చెల్లింపు",
     successTitle: "మీ బుకింగ్ నమోదైంది!",

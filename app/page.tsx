@@ -135,8 +135,8 @@ export default function HomePage() {
                   <ShieldCheck className="h-3.5 w-3.5 text-[#166534]" />
                   <span>
                     {lang === "te"
-                      ? "ధృవీకరించబడిన ప్రొఫెషనల్స్"
-                      : "Verified Professionals"}
+                      ? "స్థానిక ప్రముఖ నిపుణులతో భాగస్వామ్యం"
+                      : "Partnered with Established Local Experts"}
                   </span>
                 </div>
               </div>
@@ -145,13 +145,13 @@ export default function HomePage() {
               <h1 className="text-2xl sm:text-4xl lg:text-[38px] font-black tracking-tight text-[#0F172A] leading-tight sm:leading-snug">
                 {lang === "te" ? (
                   <>
-                    నెల్లూరులో ధృవీకరించబడిన{" "}
-                    <span className="text-[#0F172A] underline decoration-slate-300 underline-offset-8">హోమ్ సేవలు</span>
+                    నెల్లూరు ప్రముఖ నిపుణులతో{" "}
+                    <span className="text-[#0F172A] underline decoration-slate-300 underline-offset-8">నాణ్యమైన హోమ్ సేవలు</span>
                   </>
                 ) : (
                   <>
-                    Verified home services in{" "}
-                    <span className="text-[#0F172A] underline decoration-slate-300 underline-offset-8">Nellore</span>
+                    Quality home services with{" "}
+                    <span className="text-[#0F172A] underline decoration-slate-300 underline-offset-8">Nellore&apos;s established experts</span>
                   </>
                 )}
               </h1>
@@ -159,8 +159,8 @@ export default function HomePage() {
               {/* Subheading (Section 2 Spec) */}
               <p className="text-sm sm:text-base lg:text-[17px] text-slate-600 leading-relaxed max-w-xl">
                 {lang === "te"
-                  ? "పురుగుల నియంత్రణ, ఏసీ సర్వీస్, ఇంటి డీప్ క్లీనింగ్ – పర్యవేక్షణ నాణ్యత, న్యాయమైన ధరలు."
-                  : "Pest control, AC service, and home deep cleaning – supervised quality, fair prices."}
+                  ? "నెల్లూరులో సరికొత్తగా ప్రారంభమైన ప్లాట్‌ఫామ్ — నగరంలోని ప్రముఖ, అనుభవజ్ఞులైన స్థానిక నిపుణులతో భాగస్వామ్యం. పర్యవేక్షణ నాణ్యత, సరసమైన ధరలు & ₹0 అడ్వాన్స్."
+                  : "Nellore's new managed home services platform — collaborating with top established local technicians under verified standards, fixed rates, and ₹0 advance."}
               </p>
 
               {/* Urban Company Search & Quick Category Discovery Bar */}
@@ -319,8 +319,12 @@ export default function HomePage() {
                       O
                     </div>
                     <div>
-                      <p className="text-xs font-black text-gray-900 leading-tight">Verified Osmida Expert</p>
-                      <p className="text-[11px] text-gray-500 font-medium">Official Black Uniform • ID Checked</p>
+                      <p className="text-xs font-black text-gray-900 leading-tight">
+                        {lang === "te" ? "ప్రముఖ స్థానిక భాగస్వామి" : "Established Local Partner"}
+                      </p>
+                      <p className="text-[11px] text-gray-500 font-medium">
+                        {lang === "te" ? "అధికారిక బ్లాక్ యూనిఫాం • ఐడీ పరిశీలన" : "Official Black Uniform • ID Checked"}
+                      </p>
                     </div>
                   </div>
                   <span className="text-[11px] font-bold text-[#166534] bg-[#F0FDF4] px-2.5 py-1 rounded-full border border-[#BBF7D0] flex items-center gap-1">
@@ -417,12 +421,82 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Collaboration with Established Local Experts Section */}
+      <section className="bg-[#F8FAFC] border-b border-[#E2E8F0] px-4 sm:px-6 py-10">
+        <div className="mx-auto max-w-6xl">
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 shadow-xs">
+            <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
+              <div className="max-w-xl space-y-2.5">
+                <div className="inline-flex items-center gap-2 rounded-full bg-slate-100 border border-slate-200 px-3 py-1 text-xs font-bold text-slate-800">
+                  <span className="h-2 w-2 rounded-full bg-[#166534]" />
+                  <span>{lang === "te" ? "నెల్లూరులో మా ప్రత్యేకత" : "Our Nellore Model"}</span>
+                </div>
+                <h2 className="text-xl sm:text-2xl font-black text-[#0F172A] tracking-tight">
+                  {lang === "te"
+                    ? "నెల్లూరులో సరికొత్త ప్లాట్‌ఫామ్ — స్థానిక ప్రముఖ నిపుణులతో భాగస్వామ్యం"
+                    : "A New Managed Platform Collaborating with Nellore's Established Experts"}
+                </h2>
+                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
+                  {lang === "te"
+                    ? "మేము నెల్లూరులో సరికొత్తగా సేవలందిస్తున్నాము. ఇందుకోసం నగరంలో ఇప్పటికే ఏళ్ల అనుభవం ఉన్న ప్రముఖ స్థానిక టెక్నీషియన్లతో భాగస్వామ్యం కుదుర్చుకున్నాము. వారి నైపుణ్యానికి ఓస్మిడా అధికారిక బ్లాక్ యూనిఫాం, ఐడీ కార్డులు, నిర్ణీత ధరలు మరియు 30 రోజుల వారంటీ తోడవుతాయి."
+                    : "We are starting fresh in Nellore by collaborating directly with the city's already-established, top-rated local technicians. You get proven local experience backed by Osmida's supervised standards, official black uniform, transparent pricing, and 30-day rework warranty."}
+                </p>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 w-full lg:w-auto shrink-0">
+                <div className="flex items-center gap-3 rounded-2xl bg-slate-50 border border-slate-200/80 p-3.5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white border border-slate-200 text-base shadow-2xs">
+                    🤝
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-900 leading-tight">
+                      {lang === "te" ? "స్థానిక ప్రముఖులు" : "Established Partners"}
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      {lang === "te" ? "నెల్లూరు అనుభవజ్ఞులు" : "Proven Nellore pros"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 rounded-2xl bg-slate-50 border border-slate-200/80 p-3.5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white border border-slate-200 text-base shadow-2xs">
+                    👔
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-slate-900 leading-tight">
+                      {lang === "te" ? "అధికారిక యూనిఫాం" : "Official Uniform"}
+                    </p>
+                    <p className="text-[11px] text-slate-500">
+                      {lang === "te" ? "బ్లాక్ డ్రెస్ & ఐడీ కార్డ్" : "Black uniform & photo ID"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 rounded-2xl bg-[#F0FDF4] border border-[#BBF7D0] p-3.5">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-white border border-[#BBF7D0] text-base shadow-2xs">
+                    🛡️
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-[#166534] leading-tight">
+                      {lang === "te" ? "₹0 అడ్వాన్స్ & వారంటీ" : "₹0 Advance & Warranty"}
+                    </p>
+                    <p className="text-[11px] text-[#166534]/80">
+                      {lang === "te" ? "పని చూశాకే చెల్లింపు" : "Pay after satisfaction"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* 4. SECTION 2: 3 SERVICE CARDS GRID (Exact Spec) */}
       <section id="services" className="px-4 sm:px-6 py-12 sm:py-16 bg-[#F7F8FA]">
         <div className="mx-auto max-w-6xl space-y-8">
           {/* Section Header */}
           <div className="text-center max-w-2xl mx-auto space-y-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#1E6FFF] bg-[#1E6FFF]/10 border border-[#1E6FFF]/20 px-3 py-1 rounded-full">
+            <span className="text-[10px] font-black uppercase tracking-widest text-[#0F172A] bg-slate-100 border border-slate-200 px-3 py-1 rounded-full">
               {lang === "te" ? "ముఖ్యమైన సేవలు" : "Our Core Services"}
             </span>
             <h2 className="text-2xl sm:text-3xl font-black text-[#111111]">
@@ -430,8 +504,8 @@ export default function HomePage() {
             </h2>
             <p className="text-xs sm:text-sm text-[#555555]">
               {lang === "te"
-                ? "నెల్లూరులో సర్టిఫైడ్ నిపుణులు • వారంటీ రక్షణ • పని పూర్తయిన తర్వాతే చెల్లింపు"
-                : "Transparent rates, verified local technicians, and zero advance payment."}
+                ? "నెల్లూరులో ప్రముఖ స్థానిక భాగస్వాములు • వారంటీ రక్షణ • పని పూర్తయిన తర్వాతే చెల్లింపు"
+                : "Established Nellore partners, verified quality standards, and zero advance payment."}
             </p>
           </div>
 
@@ -799,8 +873,8 @@ export default function HomePage() {
               </div>
               <p className="text-slate-400 text-xs leading-relaxed">
                 {lang === "te"
-                  ? "నెల్లూరు నగరంలో పురుగుల నివారణ, ఏసీ సర్వీస్, మరియు హోమ్ డీప్ క్లీనింగ్ నమ్మకమైన సేవా సంస్థ."
-                  : "Nellore's premier local home services platform. Zero advance fee, verified technicians, and 30-day warranty."}
+                  ? "నెల్లూరులో సరికొత్త ప్లాట్‌ఫామ్ — స్థానిక ప్రముఖ నిపుణులతో భాగస్వామ్యం. పురుగుల నివారణ, ఏసీ సర్వీస్, డీప్ క్లీనింగ్."
+                  : "Nellore's new managed home services platform — partnering with established local experts. Zero advance fee and 30-day warranty."}
               </p>
               <p className="text-[11px] text-slate-500">
                 Operating Entity: Finkfold (Osmida Brand)
