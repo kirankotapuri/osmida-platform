@@ -4,22 +4,22 @@ import React, { useState, useRef, useCallback } from "react";
 import Image from "next/image";
 
 interface BeforeAfterSliderProps {
-  beforeImage: string;
-  afterImage: string;
+  beforeImage?: string;
+  afterImage?: string;
   beforeLabel?: string;
   afterLabel?: string;
-  title: string;
-  description: string;
+  title?: string;
+  description?: string;
 }
 
 export function BeforeAfterSlider({
-  beforeImage,
-  afterImage,
+  beforeImage = "/images/kitchen-before.jpg",
+  afterImage = "/images/kitchen-after.jpg",
   beforeLabel = "Before Service",
   afterLabel = "Osmida Cleaned",
-  title,
-  description,
-}: BeforeAfterSliderProps) {
+  title = "Kitchen Deep Degreasing",
+  description = "Watch stubborn chimney oil and wall grease vanish with professional cleaning.",
+}: BeforeAfterSliderProps = {}) {
   const [sliderPosition, setSliderPosition] = useState(50);
   const [isDragging, setIsDragging] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);

@@ -3,6 +3,8 @@ import { execSync } from "child_process";
 import path from "path";
 import fs from "fs";
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url);
@@ -26,10 +28,34 @@ export async function GET(request: Request) {
       output = execSync("git branch -a", { cwd: gitDir, encoding: "utf-8" });
     } else if (action === "log") {
       output = execSync("git log -n 5 --oneline", { cwd: gitDir, encoding: "utf-8" });
+    } else if (action === "tree") {
+      output = execSync("git ls-tree --name-only HEAD", { cwd: gitDir, encoding: "utf-8" });
+    } else if (action === "typecheck") {
+      try {
+        output = execSync("npx tsc --noEmit", { cwd: cwd, encoding: "utf-8" }) || "Typecheck passed with 0 errors";
+      } catch (err: any) {
+        output = `TYPECHECK ERROR:\n${err.stdout?.toString() || ""}\n${err.stderr?.toString() || ""}`;
+      }
+    } else if (action === "build") {
+      const logFile = path.join(cwd, "build-log.txt");
+      try {
+        output = execSync("npm run build", { cwd: cwd, encoding: "utf-8" });
+        fs.writeFileSync(logFile, `SUCCESS:\n${output}`);
+      } catch (err: any) {
+        output = `BUILD ERROR: ${err.message}\nSTDOUT:\n${err.stdout?.toString() || ""}\nSTDERR:\n${err.stderr?.toString() || ""}`;
+        fs.writeFileSync(logFile, output);
+      }
+    } else if (action === "build-log") {
+      const logFile = path.join(cwd, "build-log.txt");
+      if (fs.existsSync(logFile)) {
+        output = fs.readFileSync(logFile, "utf-8");
+      } else {
+        output = "No build log yet";
+      }
     } else if (action === "config") {
       output = execSync("git config --list", { cwd: gitDir, encoding: "utf-8" });
     } else if (action === "add") {
-      output = execSync("git add -A osmida-web", { cwd: gitDir, encoding: "utf-8" }) || "Added successfully";
+      output = execSync("git add -A .", { cwd: gitDir, encoding: "utf-8" }) || "Added successfully";
     } else if (action === "commit") {
       try {
         const msg = (searchParams.get("msg") || "Update Osmida web app").replace(/"/g, "'");

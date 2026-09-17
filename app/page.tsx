@@ -558,7 +558,12 @@ export default function HomePage() {
           </div>
 
           <div className="max-w-3xl mx-auto rounded-3xl overflow-hidden border border-[#E5E7EB] shadow-md">
-            <BeforeAfterSlider />
+            <BeforeAfterSlider
+              beforeImage="/images/kitchen-before.jpg"
+              afterImage="/images/kitchen-after.jpg"
+              title="Kitchen Deep Degreasing"
+              description="Watch stubborn chimney oil and wall grease vanish with professional cleaning."
+            />
           </div>
         </div>
       </section>
