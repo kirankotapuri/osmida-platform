@@ -11,6 +11,7 @@ import { VoiceNoteBanner } from "@/components/VoiceNoteBanner";
 import { FaqSection } from "@/components/FaqSection";
 import { CategorySelectorModal } from "@/components/CategorySelectorModal";
 import { HowItWorksVideoSection } from "@/components/HowItWorksVideoSection";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Language, UI_TEXT, SERVICES_DATA } from "@/lib/translations";
 import {
   Phone,
@@ -919,13 +920,19 @@ export default function HomePage() {
         </div>
       </footer>
 
-      {/* 11. FLOATING MOBILE CONTACT BAR (Sticky Call in Blue & WhatsApp in Green) */}
+      {/* 11. FLOATING WHATSAPP BUTTON */}
       <FloatingContactBar
         lang={lang}
         selectedServiceName={SERVICES_DATA.find((s) => s.id === selectedServiceId)?.titleEn}
       />
 
-      {/* 12. URBAN COMPANY IMAGE 2-STYLE CATEGORY SELECTOR MODAL */}
+      {/* 12. URBAN COMPANY-STYLE STICKY MOBILE BOTTOM NAVIGATION */}
+      <MobileBottomNav
+        lang={lang}
+        onOpenServices={() => openCategoryModal("ac")}
+      />
+
+      {/* 13. URBAN COMPANY-STYLE CATEGORY SELECTOR MODAL */}
       <CategorySelectorModal
         isOpen={isCategoryModalOpen}
         onClose={() => setIsCategoryModalOpen(false)}

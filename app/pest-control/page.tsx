@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Header } from "@/components/Header";
 import { FloatingContactBar } from "@/components/FloatingContactBar";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Language } from "@/lib/translations";
 import {
   Phone,
@@ -853,6 +854,9 @@ export default function PestControlPage() {
 
       {/* MOBILE STICKY CONTACT BAR */}
       <FloatingContactBar lang={lang} selectedServiceName="Pest Control" />
+
+      {/* URBAN COMPANY-STYLE MOBILE BOTTOM NAV */}
+      <MobileBottomNav lang={lang} onOpenServices={() => setIsModalOpen(true)} />
 
       {/* URBAN COMPANY IMAGE 2 CATEGORY SELECTOR MODAL */}
       <CategorySelectorModal

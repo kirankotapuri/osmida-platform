@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Header } from "@/components/Header";
 import { FloatingContactBar } from "@/components/FloatingContactBar";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Language } from "@/lib/translations";
 import { CategorySelectorModal } from "@/components/CategorySelectorModal";
 import {
@@ -975,6 +976,9 @@ export default function HomeDeepCleaningPage() {
 
       {/* MOBILE STICKY CONTACT BAR */}
       <FloatingContactBar lang={lang} selectedServiceName="Home Deep Cleaning" />
+
+      {/* URBAN COMPANY-STYLE MOBILE BOTTOM NAV */}
+      <MobileBottomNav lang={lang} onOpenServices={() => setIsModalOpen(true)} />
 
       {/* URBAN COMPANY IMAGE 2 CATEGORY SELECTOR MODAL */}
       <CategorySelectorModal

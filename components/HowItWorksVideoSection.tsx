@@ -271,7 +271,7 @@ export function HowItWorksVideoSection({
                         {lang === "te" ? "▶ వీడియో ప్లే చేయండి (తెలుగు ఆడియోతో)" : "▶ Play Video (With Telugu Audio)"}
                       </span>
                       <p className="text-xs text-slate-200 mt-1.5 font-medium drop-shadow-md">
-                        {lang === "te" ? "54 సెకన్లలో స్పష్టమైన వివరణ" : "Clear explanation in 54 seconds"}
+                        {lang === "te" ? "45 సెకన్లలో స్పష్టమైన వివరణ" : "Clear explanation in 45 seconds"}
                       </p>
                     </div>
                   </div>
@@ -289,12 +289,12 @@ export function HowItWorksVideoSection({
                 )}
 
                 {/* Subtitle / Narration Banner (Bottom Center) */}
-                <div className="absolute bottom-16 left-4 right-4 sm:left-8 sm:right-8 z-20 pointer-events-none">
-                  <div className="bg-black/90 backdrop-blur-md border border-white/15 rounded-xl p-3 sm:p-3.5 max-w-2xl mx-auto shadow-2xl text-center transition-all duration-300">
-                    <p className="text-xs sm:text-sm font-bold text-white leading-snug">
+                <div className="absolute bottom-16 left-2 right-2 sm:left-8 sm:right-8 z-20 pointer-events-none">
+                  <div className="bg-black/90 backdrop-blur-md border border-white/15 rounded-xl p-2.5 sm:p-3.5 max-w-2xl mx-auto shadow-2xl text-center transition-all duration-300">
+                    <p className="text-[11px] sm:text-sm font-bold text-white leading-snug">
                       🗣️ {currentSubtitle.te}
                     </p>
-                    <p className="text-[10px] sm:text-xs text-slate-400 mt-1">
+                    <p className="text-[9px] sm:text-xs text-slate-400 mt-0.5 sm:mt-1 line-clamp-2">
                       {currentSubtitle.en}
                     </p>
                   </div>
