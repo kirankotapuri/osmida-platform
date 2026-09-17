@@ -217,7 +217,7 @@ export default function HomePage() {
               </span>
             </Link>
 
-            {/* Core Service 3: Home & Bathroom Deep Cleaning */}
+            {/* Core Service 3: Bathroom & Kitchen Deep Cleaning */}
             <Link
               href="/home-deep-cleaning"
               className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95 bg-slate-50/80 hover:bg-slate-100/80 border border-slate-200/80 rounded-2xl p-2 sm:p-2.5 shadow-2xs"
@@ -225,20 +225,20 @@ export default function HomePage() {
               <div className="relative h-18 w-18 sm:h-20 sm:w-20 rounded-xl overflow-hidden border border-slate-200/90 shadow-xs">
                 <Image
                   src="/images/bathroom-scrub-banner.jpg"
-                  alt="Deep Cleaning"
+                  alt="Bathroom & Kitchen Cleaning"
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-200"
                   sizes="80px"
                 />
                 <span className="absolute top-1 right-1 bg-[#2563EB] text-white text-[8px] font-black px-1.5 py-0.2 rounded-sm shadow-xs">
-                  ROTARY
+                  BATH & KITCHEN
                 </span>
               </div>
               <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-blue-600">
-                {lang === "te" ? "డీప్ క్లీనింగ్" : "Deep Clean"}
+                {lang === "te" ? "బాత్‌రూమ్ & కిచెన్" : "Bath & Kitchen"}
               </span>
               <span className="text-[10px] font-extrabold text-[#059669] mt-0.5">
-                From ₹499
+                From ₹449
               </span>
             </Link>
           </div>
@@ -452,13 +452,13 @@ export default function HomePage() {
 
             {/* Item 3: Intense Bathroom Scrubbing */}
             <Link
-              href="/home-deep-cleaning"
+              href="/home-deep-cleaning?tab=bathroom"
               className="w-38 sm:w-44 flex-shrink-0 group block cursor-pointer"
             >
               <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
                 <Image
-                  src="/images/service-cleaning-bathroom.jpg"
-                  alt="Bathroom Cleaning"
+                  src="/images/bathroom-scrub-banner.jpg"
+                  alt="Intense Bathroom Cleaning"
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-200"
                   sizes="176px"
@@ -473,34 +473,61 @@ export default function HomePage() {
                 <span className="text-slate-500">(1.1k)</span>
               </div>
               <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
-                ₹499
+                ₹449
               </div>
             </Link>
 
-            {/* Item 4: Home Deep Clean */}
+            {/* Item 4: Chimney & Stove Cleaning */}
             <Link
-              href="/home-deep-cleaning"
+              href="/home-deep-cleaning?tab=kitchen"
               className="w-38 sm:w-44 flex-shrink-0 group block cursor-pointer"
             >
               <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
                 <Image
-                  src="/images/service-cleaning-home.jpg"
-                  alt="Home Deep Cleaning"
+                  src="/images/service-cleaning-chimney.jpg"
+                  alt="Chimney and Stove Cleaning"
                   fill
                   className="object-cover group-hover:scale-105 transition-transform duration-200"
                   sizes="176px"
                 />
               </div>
               <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600">
-                {lang === "te" ? "ఫుల్ హోమ్ డీప్ క్లీన్ (1 BHK)" : "Full home clean (1 BHK)"}
+                {lang === "te" ? "చిమ్నీ & స్టవ్ క్లీనింగ్" : "Chimney & stove clean"}
               </h3>
               <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
                 <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
-                <span className="font-bold">4.82</span>
-                <span className="text-slate-500">(620)</span>
+                <span className="font-bold">4.88</span>
+                <span className="text-slate-500">(940)</span>
               </div>
               <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
-                ₹2,499
+                ₹649
+              </div>
+            </Link>
+
+            {/* Item 5: Refrigerator Deep Clean */}
+            <Link
+              href="/home-deep-cleaning?tab=kitchen"
+              className="w-38 sm:w-44 flex-shrink-0 group block cursor-pointer"
+            >
+              <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
+                <Image
+                  src="/images/service-cleaning-fridge.jpg"
+                  alt="Refrigerator Deep Clean"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-200"
+                  sizes="176px"
+                />
+              </div>
+              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600">
+                {lang === "te" ? "ఫ్రిజ్ డీప్ క్లీనింగ్" : "Fridge deep clean"}
+              </h3>
+              <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
+                <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
+                <span className="font-bold">4.84</span>
+                <span className="text-slate-500">(710)</span>
+              </div>
+              <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
+                ₹349
               </div>
             </Link>
 
@@ -825,7 +852,7 @@ export default function HomePage() {
                 {/* Service Title */}
                 <div className="space-y-0.5">
                   <h3 className="text-lg sm:text-xl font-bold text-[#0F172A] group-hover:text-black transition-colors">
-                    {lang === "te" ? "ఇంటి డీప్ క్లీనింగ్" : "Home Deep Cleaning"}
+                    {lang === "te" ? "బాత్‌రూమ్ & కిచెన్ క్లీనింగ్" : "Bath & Kitchen Cleaning"}
                   </h3>
                   <p className="text-[10px] sm:text-[11px] font-bold text-[#166534] bg-[#F0FDF4] border border-[#BBF7D0] inline-block px-2.5 py-0.5 rounded-full uppercase tracking-wider">
                     {lang === "te" ? "24-గంటల క్వాలిటీ చెక్" : "24-Hr Quality Check"}
@@ -835,24 +862,24 @@ export default function HomePage() {
                 {/* Short Description */}
                 <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
                   {lang === "te"
-                    ? "అపార్ట్మెంట్లు మరియు ఇళ్లకు ప్రొఫెషనల్ డీప్ క్లీనింగ్."
-                    : "Professional deep cleaning for apartments & homes."}
+                    ? "బాత్‌రూమ్ మెషిన్ స్క్రబ్బింగ్ & కిచెన్ చిమ్నీ డీగ్రీసింగ్."
+                    : "Intense machine scrubbing for bathrooms & kitchen degreasing."}
                 </p>
 
                 {/* Inclusions Teaser Chips */}
                 <div className="flex flex-wrap justify-center gap-1.5 text-[10px] sm:text-[11px] text-slate-700 pt-0.5">
                   <span className="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md font-medium">
-                    {lang === "te" ? "కిచెన్ డీగ్రీసింగ్" : "Kitchen Scrub"}
+                    {lang === "te" ? "బాత్‌రూమ్ ₹449" : "Bathroom (₹449)"}
                   </span>
                   <span className="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md font-medium">
-                    {lang === "te" ? "బాత్‌రూమ్ డీస్కేలింగ్" : "Bathrooms"}
+                    {lang === "te" ? "కిచెన్ & చిమ్నీ ₹649" : "Kitchen & Chimney (₹649)"}
                   </span>
                 </div>
 
                 {/* Price Line */}
                 <div className="pt-1">
                   <span className="text-base sm:text-lg font-black text-[#0F172A]">
-                    {lang === "te" ? "1 BHK ₹2,499 నుండి" : "1 BHK From ₹2,499"}
+                    {lang === "te" ? "ప్రారంభ ధర ₹449 • ₹0 అడ్వాన్స్" : "Starts at ₹449 • ₹0 Advance"}
                   </span>
                 </div>
               </div>
