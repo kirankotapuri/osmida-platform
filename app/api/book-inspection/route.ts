@@ -178,7 +178,10 @@ export async function POST(req: Request) {
         const response = await fetch(n8nWebhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(body),
+          body: JSON.stringify({
+            ...body,
+            facilityType: facilityType || "residential",
+          }),
         });
         if (!response.ok) {
           console.error("n8n Dispatch Error:", response.status, response.statusText);
