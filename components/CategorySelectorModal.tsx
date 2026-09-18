@@ -61,7 +61,7 @@ export function CategorySelectorModal({
       badgeEn: "45 mins",
       badgeTe: "45 నిమిషాలు",
       imageSrc: "/images/service-ac-foamjet.jpg",
-      href: "/ac-services",
+      href: "/ac-services#service",
       priceEn: "₹599",
       priceTe: "₹599",
     },
@@ -71,8 +71,8 @@ export function CategorySelectorModal({
       titleTe: "విండో ఏసీ జెట్ వాష్",
       badgeEn: "45 mins",
       badgeTe: "45 నిమిషాలు",
-      imageSrc: "/images/service-ac-foamjet.jpg",
-      href: "/ac-services",
+      imageSrc: "/images/service-ac-window.jpg",
+      href: "/ac-services#service",
       priceEn: "₹499",
       priceTe: "₹499",
     },
@@ -83,7 +83,7 @@ export function CategorySelectorModal({
       badgeEn: "30-min call",
       badgeTe: "30 నిమి కాల్",
       imageSrc: "/images/service-ac-repair.jpg",
-      href: "/ac-services",
+      href: "/ac-services#repair-gas",
       priceEn: "₹299",
       priceTe: "₹299",
     },
@@ -93,8 +93,8 @@ export function CategorySelectorModal({
       titleTe: "వాటర్ లీకేజ్ రిపేర్",
       badgeEn: "30 mins",
       badgeTe: "30 నిమిషాలు",
-      imageSrc: "/images/service-ac-repair.jpg",
-      href: "/ac-services",
+      imageSrc: "/images/service-ac-drainfix.jpg",
+      href: "/ac-services#repair-gas",
       priceEn: "₹349",
       priceTe: "₹349",
     },
@@ -104,8 +104,8 @@ export function CategorySelectorModal({
       titleTe: "గ్యాస్ లీక్ చెక్ & రీఫిల్",
       badgeEn: "Standard Gas",
       badgeTe: "స్టాండర్డ్ గ్యాస్",
-      imageSrc: "/images/service-ac-repair.jpg",
-      href: "/ac-services",
+      imageSrc: "/images/service-ac-gasrefill.jpg",
+      href: "/ac-services#repair-gas",
       priceEn: "₹1,999",
       priceTe: "₹1,999",
     },
@@ -116,7 +116,7 @@ export function CategorySelectorModal({
       badgeEn: "Level Rigged",
       badgeTe: "పర్ఫెక్ట్ ఫిట్టింగ్",
       imageSrc: "/images/service-ac-install.jpg",
-      href: "/ac-services",
+      href: "/ac-services#install-shift",
       priceEn: "₹899",
       priceTe: "₹899",
     },
@@ -126,8 +126,8 @@ export function CategorySelectorModal({
       titleTe: "సురక్షిత ఏసీ అన్‌ఇన్‌స్టాల్",
       badgeEn: "Zero Gas Loss",
       badgeTe: "గ్యాస్ వేస్ట్ కాదు",
-      imageSrc: "/images/service-ac-install.jpg",
-      href: "/ac-services",
+      imageSrc: "/images/service-ac-uninstall.jpg",
+      href: "/ac-services#install-shift",
       priceEn: "₹499",
       priceTe: "₹499",
     },
@@ -137,8 +137,8 @@ export function CategorySelectorModal({
       titleTe: "ఏసీ షిఫ్టింగ్ & రీ-ఫిట్టింగ్",
       badgeEn: "Doorstep Care",
       badgeTe: "ఇంటి వద్దకే",
-      imageSrc: "/images/service-ac-install.jpg",
-      href: "/ac-services",
+      imageSrc: "/images/service-ac-shifting.jpg",
+      href: "/ac-services#install-shift",
       priceEn: "₹1,299",
       priceTe: "₹1,299",
     },
@@ -426,6 +426,71 @@ export function CategorySelectorModal({
               {currentItems.length} {lang === "te" ? "ఎంపికలు" : "options"}
             </span>
           </div>
+
+          {/* Quick Sub-Category Hero Cards for Cleaning (Urban Company style) */}
+          {activeTab === "cleaning" && (
+            <div className="grid grid-cols-2 gap-2.5 mb-2">
+              <Link
+                href="/home-deep-cleaning?tab=bathroom"
+                onClick={onClose}
+                className="group relative flex flex-col justify-between rounded-2xl bg-white border border-slate-200 hover:border-slate-800 p-2.5 sm:p-3 shadow-2xs hover:shadow-xs transition-all active:scale-[0.98]"
+              >
+                <div className="relative h-20 sm:h-24 w-full rounded-xl overflow-hidden mb-2 bg-slate-100">
+                  <Image
+                    src="/images/service-cleaning-bathroom.jpg"
+                    alt="Bathroom Cleaning"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-200"
+                    sizes="160px"
+                  />
+                  <div className="absolute top-1.5 left-1.5 inline-flex items-center gap-1 rounded-md bg-[#0F172A]/90 backdrop-blur-xs px-2 py-0.5 text-[8px] sm:text-[9px] font-black text-white shadow-xs">
+                    <span>{lang === "te" ? "బాత్‌రూమ్" : "BATHROOM"}</span>
+                  </div>
+                </div>
+                <div>
+                  <h5 className="text-[11px] sm:text-xs font-black text-slate-900 leading-snug group-hover:text-blue-600 transition-colors">
+                    {lang === "te" ? "బాత్‌రూమ్ క్లీనింగ్" : "Bathroom Cleaning"}
+                  </h5>
+                  <p className="text-[10px] text-slate-500 mt-0.5 truncate">
+                    {lang === "te" ? "మెషిన్ స్క్రబ్ & డీస్కేలింగ్" : "Machine scrub & descaling"}
+                  </p>
+                  <span className="text-[11px] font-black text-emerald-600 mt-0.5 inline-block">
+                    {lang === "te" ? "₹449 నుండి" : "From ₹449"}
+                  </span>
+                </div>
+              </Link>
+
+              <Link
+                href="/home-deep-cleaning?tab=kitchen"
+                onClick={onClose}
+                className="group relative flex flex-col justify-between rounded-2xl bg-white border border-slate-200 hover:border-slate-800 p-2.5 sm:p-3 shadow-2xs hover:shadow-xs transition-all active:scale-[0.98]"
+              >
+                <div className="relative h-20 sm:h-24 w-full rounded-xl overflow-hidden mb-2 bg-slate-100">
+                  <Image
+                    src="/images/service-cleaning-kitchen.jpg"
+                    alt="Kitchen Cleaning"
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-200"
+                    sizes="160px"
+                  />
+                  <div className="absolute top-1.5 left-1.5 inline-flex items-center gap-1 rounded-md bg-[#0F172A]/90 backdrop-blur-xs px-2 py-0.5 text-[8px] sm:text-[9px] font-black text-white shadow-xs">
+                    <span>{lang === "te" ? "కిచెన్" : "KITCHEN"}</span>
+                  </div>
+                </div>
+                <div>
+                  <h5 className="text-[11px] sm:text-xs font-black text-slate-900 leading-snug group-hover:text-blue-600 transition-colors">
+                    {lang === "te" ? "కిచెన్ క్లీనింగ్" : "Kitchen Cleaning"}
+                  </h5>
+                  <p className="text-[10px] text-slate-500 mt-0.5 truncate">
+                    {lang === "te" ? "చిమ్నీ, స్లాబ్ & స్టవ్" : "Chimney & degreasing"}
+                  </p>
+                  <span className="text-[11px] font-black text-emerald-600 mt-0.5 inline-block">
+                    {lang === "te" ? "₹399 నుండి" : "From ₹399"}
+                  </span>
+                </div>
+              </Link>
+            </div>
+          )}
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-3">
             {currentItems.map((item) => (

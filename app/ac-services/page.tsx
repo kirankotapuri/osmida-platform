@@ -20,7 +20,9 @@ import {
   Share2,
   ChevronDown,
   CheckCircle2,
+  Play,
 } from "lucide-react";
+import { HowItWorksVideoSection } from "@/components/HowItWorksVideoSection";
 
 export default function AcServicesPage() {
   const [lang, setLang] = useState<Language>("en");
@@ -50,20 +52,20 @@ export default function AcServicesPage() {
       id: "annual-plan",
       nameEn: "Annual plan",
       nameTe: "వార్షిక ప్లాన్",
-      image: "/images/service-ac-foamjet.jpg",
+      image: "/images/service-ac-annual.jpg",
       badge: "Up to 30% OFF",
     },
     {
       id: "service",
       nameEn: "Service",
       nameTe: "సర్వీస్ & వాష్",
-      image: "/images/service-ac-v2.jpg",
+      image: "/images/service-ac-foamjet.jpg",
     },
     {
       id: "repair-gas",
       nameEn: "Repair & gas refill",
       nameTe: "రిపేర్ & గ్యాస్",
-      image: "/images/service-ac-repair.jpg",
+      image: "/images/service-ac-gasrefill.jpg",
     },
     {
       id: "install-shift",
@@ -107,7 +109,7 @@ export default function AcServicesPage() {
       ],
       exclusionsEn: ["Major spare parts like compressor replacement"],
       exclusionsTe: ["కంప్రెసర్ వంటి భారీ స్పేర్ పార్ట్స్ మినహాయింపు"],
-      imageSrc: "/images/service-ac-foamjet.jpg",
+      imageSrc: "/images/service-ac-annual.jpg",
       category: "ac",
       subcategory: "annual-plan",
     },
@@ -170,7 +172,7 @@ export default function AcServicesPage() {
         "అవుట్‌డోర్ యూనిట్ ప్రెజర్ క్లీనింగ్",
         "15 రోజుల సర్వీస్ వారంటీ",
       ],
-      imageSrc: "/images/service-ac-v2.jpg",
+      imageSrc: "/images/service-ac-2pack.jpg",
       category: "ac",
       subcategory: "service",
     },
@@ -196,7 +198,7 @@ export default function AcServicesPage() {
         "విడివిడిగా బుక్ చేయడం కంటే ₹348 ఆదా",
         "15 రోజుల ఉచిత కూలింగ్ గ్యారెంటీ",
       ],
-      imageSrc: "/images/service-ac-foamjet.jpg",
+      imageSrc: "/images/service-ac-3pack.jpg",
       category: "ac",
       subcategory: "service",
     },
@@ -220,7 +222,7 @@ export default function AcServicesPage() {
         "కాయిల్ & ఫ్యాన్ బ్లేడ్ ప్రెజర్ క్లీనింగ్",
         "కూలింగ్ పనితీరు పరిశీలన",
       ],
-      imageSrc: "/images/service-ac-v2.jpg",
+      imageSrc: "/images/service-ac-window.jpg",
       category: "ac",
       subcategory: "service",
     },
@@ -244,7 +246,7 @@ export default function AcServicesPage() {
         "సముద్రపు ఉప్పు గాలి వల్ల వచ్చే తుప్పు & గ్యాస్ లీకేజ్ నివారణ",
         "ఏసీ కాయిల్స్ మన్నికను పెంచుతుంది",
       ],
-      imageSrc: "/images/service-ac-repair.jpg",
+      imageSrc: "/images/service-ac-antirust.jpg",
       category: "ac",
       subcategory: "service",
     },
@@ -298,7 +300,7 @@ export default function AcServicesPage() {
         "డిజిటల్ స్కేల్ ద్వారా ఖచ్చితమైన బరువుతో నింపడం",
         "30 రోజుల పూర్తి గ్యాస్ వారంటీ",
       ],
-      imageSrc: "/images/service-ac-repair.jpg",
+      imageSrc: "/images/service-ac-gasrefill.jpg",
       category: "ac",
       subcategory: "repair-gas",
     },
@@ -322,7 +324,7 @@ export default function AcServicesPage() {
         "గోడపై నీళ్లు కారకుండా ఇండోర్ యూనిట్ అలైన్‌మెంట్",
         "15 రోజుల లీక్ వారంటీ",
       ],
-      imageSrc: "/images/service-ac-repair.jpg",
+      imageSrc: "/images/service-ac-drainfix.jpg",
       category: "ac",
       subcategory: "repair-gas",
     },
@@ -375,7 +377,7 @@ export default function AcServicesPage() {
         "ఇండోర్, అవుట్‌డోర్ & కాపర్ పైపులను సురక్షితంగా విప్పడం",
         "వైర్లను భద్రంగా చుట్టి ఇవ్వడం",
       ],
-      imageSrc: "/images/service-ac-install.jpg",
+      imageSrc: "/images/service-ac-uninstall.jpg",
       category: "ac",
       subcategory: "install-shift",
     },
@@ -400,7 +402,7 @@ export default function AcServicesPage() {
         "కొత్త ప్రదేశానికి తరలించి తిరిగి ఫిట్టింగ్ చేయడం",
         "కూలింగ్ టెస్ట్ పూర్తి చేయడం",
       ],
-      imageSrc: "/images/service-ac-install.jpg",
+      imageSrc: "/images/service-ac-shifting.jpg",
       category: "ac",
       subcategory: "install-shift",
     },
@@ -515,6 +517,44 @@ export default function AcServicesPage() {
               </div>
               <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
             </div>
+
+            {/* AC Diagnosis & Causes 1-Min Video Explainer Strip */}
+            <div className="mt-2 rounded-xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 text-white p-3 shadow-sm border border-slate-700/60 flex items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="h-9 w-9 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center shrink-0 shadow-xs">
+                  <Play className="h-4 w-4 fill-emerald-400 ml-0.5" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="bg-emerald-500 text-slate-950 text-[8px] font-black px-1.5 py-0.2 rounded-xs uppercase tracking-wide">
+                      {lang === "te" ? "వీడియో గైడ్" : "1-MIN VIDEO"}
+                    </span>
+                    <span className="text-xs font-bold text-white truncate">
+                      {lang === "te" ? "డయాగ్నోసిస్ & కారణాలు" : "How Diagnosis & Causes Work"}
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-slate-300 mt-0.5 truncate">
+                    {lang === "te"
+                      ? "కూలింగ్ సమస్యలు, గ్యాస్ ప్రెజర్ టెస్ట్ & ఫోమ్ జెట్ వాష్ వివరణ"
+                      : "See how causes are tested, gas checked & foam-jet done with ₹0 advance"}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  const el = document.getElementById("ac-video-guide");
+                  if (el) {
+                    el.scrollIntoView({ behavior: "smooth" });
+                  } else {
+                    window.location.href = "/#how-to-book-video";
+                  }
+                }}
+                className="shrink-0 bg-white hover:bg-slate-100 text-slate-950 text-[11px] font-black px-3 py-1.5 rounded-lg transition-all shadow-xs active:scale-95"
+              >
+                {lang === "te" ? "చూడండి" : "Watch"}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -560,7 +600,7 @@ export default function AcServicesPage() {
 
               <div className="relative h-20 w-24 rounded-xl overflow-hidden shrink-0 border border-slate-200">
                 <Image
-                  src="/images/service-ac-foamjet.jpg"
+                  src="/images/service-ac-annual.jpg"
                   alt="Annual Plan"
                   fill
                   className="object-cover"
@@ -607,7 +647,7 @@ export default function AcServicesPage() {
 
               <div className="relative h-20 w-24 rounded-xl overflow-hidden shrink-0 border border-slate-200">
                 <Image
-                  src="/images/service-ac-v2.jpg"
+                  src="/images/service-ac-foamjet.jpg"
                   alt="Foam Jet Service"
                   fill
                   className="object-cover"
@@ -635,6 +675,35 @@ export default function AcServicesPage() {
             </h2>
           </div>
 
+          {/* UC Repair & Gas Refill Hero Banner Card */}
+          <div className="mb-4 rounded-2xl bg-[#F8F9FA] border border-slate-200/80 p-4 relative overflow-hidden shadow-2xs">
+            <div className="inline-block bg-[#007F5F] text-white text-[9px] font-black px-2 py-0.5 rounded-xs uppercase mb-1.5">
+              Digital Testing
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-black text-slate-900 leading-tight">
+                  {lang === "te" ? "ఏసీ డయాగ్నోసిస్ & గ్యాస్ రీఫిల్" : "AC Repair & Gas Refill"}
+                </h3>
+                <p className="text-xs text-slate-600 mt-1">
+                  {lang === "te"
+                    ? "డిజిటల్ మీటర్ చెకప్ • 100% ఒరిజినల్ గ్యాస్ • 30 రోజుల వారంటీ"
+                    : "Digital manifold test • 100% pure virgin gas • 30-day leak warranty"}
+                </p>
+              </div>
+
+              <div className="relative h-20 w-24 rounded-xl overflow-hidden shrink-0 border border-slate-200">
+                <Image
+                  src="/images/service-ac-gasrefill.jpg"
+                  alt="AC Repair & Gas Refill"
+                  fill
+                  className="object-cover"
+                  sizes="96px"
+                />
+              </div>
+            </div>
+          </div>
+
           {repairGasItems.map((item) => (
             <UCServiceCard
               key={item.id}
@@ -653,6 +722,35 @@ export default function AcServicesPage() {
             </h2>
           </div>
 
+          {/* UC Installation & Shifting Hero Banner Card */}
+          <div className="mb-4 rounded-2xl bg-[#F8F9FA] border border-slate-200/80 p-4 relative overflow-hidden shadow-2xs">
+            <div className="inline-block bg-[#007F5F] text-white text-[9px] font-black px-2 py-0.5 rounded-xs uppercase mb-1.5">
+              Precision Level
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <h3 className="text-base font-black text-slate-900 leading-tight">
+                  {lang === "te" ? "పర్ఫెక్ట్ లెవల్ ఫిట్టింగ్ & షిఫ్టింగ్" : "Precision Mounting & Shifting"}
+                </h3>
+                <p className="text-xs text-slate-600 mt-1">
+                  {lang === "te"
+                    ? "కోర్ డ్రిల్లింగ్ • జీరో గ్యాస్ లాస్ అన్‌ఇన్‌స్టాల్ • సేఫ్ ట్రాన్స్‌పోర్ట్"
+                    : "Core drilling • Zero gas-loss pump-down • Safe local transport in Nellore"}
+                </p>
+              </div>
+
+              <div className="relative h-20 w-24 rounded-xl overflow-hidden shrink-0 border border-slate-200">
+                <Image
+                  src="/images/service-ac-install.jpg"
+                  alt="AC Installation & Shifting"
+                  fill
+                  className="object-cover"
+                  sizes="96px"
+                />
+              </div>
+            </div>
+          </div>
+
           {installShiftItems.map((item) => (
             <UCServiceCard
               key={item.id}
@@ -661,6 +759,24 @@ export default function AcServicesPage() {
               onViewDetails={handleOpenDetail}
             />
           ))}
+        </section>
+
+        {/* SECTION E: VIDEO GUIDE SECTION */}
+        <section id="ac-video-guide" className="pt-6 pb-4">
+          <div className="mb-4">
+            <div className="inline-block bg-slate-900 text-white text-[9px] font-black px-2 py-0.5 rounded-xs uppercase mb-1">
+              {lang === "te" ? "వీడియో గైడ్" : "1-Min Telugu Video"}
+            </div>
+            <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
+              {lang === "te" ? "ఏసీ సర్వీస్ & డయాగ్నోసిస్ విధానం" : "How AC Diagnosis & Service Works"}
+            </h2>
+            <p className="text-xs text-slate-500">
+              {lang === "te"
+                ? "డయాగ్నోసిస్ ఎలా జరుగుతుంది, సమస్యల కారణాలు, మరియు ఫోమ్ జెట్ వాష్ వివరణ"
+                : "Watch step-by-step how our verified technicians inspect causes and service your AC with ₹0 advance"}
+            </p>
+          </div>
+          <HowItWorksVideoSection lang={lang} />
         </section>
       </div>
 

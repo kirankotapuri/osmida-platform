@@ -168,79 +168,73 @@ export default function HomePage() {
 
           <div className="grid grid-cols-3 gap-2.5 sm:gap-3 text-center">
             {/* Core Service 1: AC Services */}
-            <Link
-              href="/ac-services"
-              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95 bg-slate-50/80 hover:bg-slate-100/80 border border-slate-200/80 rounded-2xl p-2 sm:p-2.5 shadow-2xs"
+            <button
+              type="button"
+              onClick={() => openCategoryModal("ac")}
+              className="group flex flex-col items-center text-center focus:outline-none transition-all active:scale-[0.97] bg-white hover:bg-slate-50 border border-slate-200/90 hover:border-slate-300 rounded-2xl p-2 sm:p-2.5 shadow-2xs hover:shadow-xs"
             >
-              <div className="relative h-18 w-18 sm:h-20 sm:w-20 rounded-xl overflow-hidden border border-slate-200/90 shadow-xs">
+              <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-slate-100">
                 <Image
                   src="/images/service-ac-foamjet.jpg"
                   alt="AC Services"
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-200"
-                  sizes="80px"
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 640px) 30vw, 120px"
                 />
-                <span className="absolute top-1 right-1 bg-[#0F172A] text-white text-[8px] font-black px-1.5 py-0.2 rounded-sm shadow-xs">
-                  WARNTY
-                </span>
               </div>
-              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-blue-600">
+              <span className="text-xs sm:text-sm font-bold text-slate-900 mt-2 leading-tight group-hover:text-blue-600 transition-colors">
                 {lang === "te" ? "ఏసీ సర్వీస్" : "AC Service"}
               </span>
-              <span className="text-[10px] font-extrabold text-[#059669] mt-0.5">
+              <span className="text-[11px] sm:text-xs font-black text-emerald-600 mt-0.5">
                 From ₹599
               </span>
-            </Link>
+            </button>
 
             {/* Core Service 2: Pest Control */}
-            <Link
-              href="/pest-control"
-              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95 bg-slate-50/80 hover:bg-slate-100/80 border border-slate-200/80 rounded-2xl p-2 sm:p-2.5 shadow-2xs"
+            <button
+              type="button"
+              onClick={() => openCategoryModal("pest")}
+              className="group flex flex-col items-center text-center focus:outline-none transition-all active:scale-[0.97] bg-white hover:bg-slate-50 border border-slate-200/90 hover:border-slate-300 rounded-2xl p-2 sm:p-2.5 shadow-2xs hover:shadow-xs"
             >
-              <div className="relative h-18 w-18 sm:h-20 sm:w-20 rounded-xl overflow-hidden border border-slate-200/90 shadow-xs">
+              <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-slate-100">
                 <Image
                   src="/images/service-pest-general.jpg"
                   alt="Pest Control"
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-200"
-                  sizes="80px"
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 640px) 30vw, 120px"
                 />
-                <span className="absolute top-1 right-1 bg-[#059669] text-white text-[8px] font-black px-1.5 py-0.2 rounded-sm shadow-xs">
-                  30-DAY
-                </span>
               </div>
-              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-blue-600">
+              <span className="text-xs sm:text-sm font-bold text-slate-900 mt-2 leading-tight group-hover:text-blue-600 transition-colors">
                 {lang === "te" ? "పురుగుల నివారణ" : "Pest Control"}
               </span>
-              <span className="text-[10px] font-extrabold text-[#059669] mt-0.5">
+              <span className="text-[11px] sm:text-xs font-black text-emerald-600 mt-0.5">
                 From ₹1,499
               </span>
-            </Link>
+            </button>
 
             {/* Core Service 3: Bathroom & Kitchen Deep Cleaning */}
-            <Link
-              href="/home-deep-cleaning"
-              className="group flex flex-col items-center focus:outline-none transition-transform active:scale-95 bg-slate-50/80 hover:bg-slate-100/80 border border-slate-200/80 rounded-2xl p-2 sm:p-2.5 shadow-2xs"
+            <button
+              type="button"
+              onClick={() => openCategoryModal("cleaning")}
+              className="group flex flex-col items-center text-center focus:outline-none transition-all active:scale-[0.97] bg-white hover:bg-slate-50 border border-slate-200/90 hover:border-slate-300 rounded-2xl p-2 sm:p-2.5 shadow-2xs hover:shadow-xs"
             >
-              <div className="relative h-18 w-18 sm:h-20 sm:w-20 rounded-xl overflow-hidden border border-slate-200/90 shadow-xs">
+              <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-slate-100">
                 <Image
                   src="/images/bathroom-scrub-banner.jpg"
                   alt="Bathroom & Kitchen Cleaning"
                   fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-200"
-                  sizes="80px"
+                  className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  sizes="(max-width: 640px) 30vw, 120px"
                 />
-                <span className="absolute top-1 right-1 bg-[#2563EB] text-white text-[8px] font-black px-1.5 py-0.2 rounded-sm shadow-xs">
-                  BATH & KITCHEN
-                </span>
               </div>
-              <span className="text-[11px] sm:text-xs font-bold text-slate-900 mt-1.5 leading-tight group-hover:text-blue-600">
+              <span className="text-xs sm:text-sm font-bold text-slate-900 mt-2 leading-tight group-hover:text-blue-600 transition-colors">
                 {lang === "te" ? "బాత్‌రూమ్ & కిచెన్" : "Bath & Kitchen"}
               </span>
-              <span className="text-[10px] font-extrabold text-[#059669] mt-0.5">
+              <span className="text-[11px] sm:text-xs font-black text-emerald-600 mt-0.5">
                 From ₹449
               </span>
-            </Link>
+            </button>
           </div>
 
           {/* Quick Telugu Video Explainer Pill */}
