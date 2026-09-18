@@ -22,6 +22,7 @@ import {
   Clock,
   Wrench,
   Sparkles,
+  Check,
 } from "lucide-react";
 
 export default function PestControlPage() {
@@ -75,8 +76,107 @@ export default function PestControlPage() {
   ];
 
   const cockroachItems = PEST_SERVICE_ITEMS.filter((i) => i.subcategory === "cockroach");
-  const termiteItems = PEST_SERVICE_ITEMS.filter((i) => i.subcategory === "termite");
   const bedbugAntItems = PEST_SERVICE_ITEMS.filter((i) => i.subcategory === "bedbugs-ants");
+
+  // --- "CHOOSE YOUR SPACE" INTERACTIVE STATE & PRICING ---
+  type SpaceTier = "1200-2400" | "2500-4000" | "4000-6000";
+  const [selectedSpace, setSelectedSpace] = useState<SpaceTier>("1200-2400");
+
+  const SPACE_OPTIONS = [
+    {
+      id: "1200-2400" as const,
+      labelEn: "1200-2400 sq. ft.",
+      labelTe: "1200-2400 చ.అ.",
+      displayPrice: "₹8,499",
+      apartmentPrice: 3999,
+      apartmentOriginalPrice: 4999,
+      bungalowPrice: 8499,
+      bungalowOriginalPrice: 9999,
+    },
+    {
+      id: "2500-4000" as const,
+      labelEn: "2500-4000 sq. ft.",
+      labelTe: "2500-4000 చ.అ.",
+      displayPrice: "₹9,999",
+      apartmentPrice: 5499,
+      apartmentOriginalPrice: 6999,
+      bungalowPrice: 9999,
+      bungalowOriginalPrice: 11999,
+    },
+    {
+      id: "4000-6000" as const,
+      labelEn: "4000-6000 sq. ft.",
+      labelTe: "4000-6000 చ.అ.",
+      displayPrice: "₹12,500",
+      apartmentPrice: 7499,
+      apartmentOriginalPrice: 8999,
+      bungalowPrice: 12500,
+      bungalowOriginalPrice: 14999,
+    },
+  ];
+
+  const currentSpaceOption = SPACE_OPTIONS.find((s) => s.id === selectedSpace) || SPACE_OPTIONS[0];
+
+  const dynamicTermiteItems: UCServiceItemData[] = [
+    {
+      id: `pest-termite-apartment-${selectedSpace}`,
+      titleEn: `Apartment termite control (${currentSpaceOption.labelEn})`,
+      titleTe: `అపార్ట్‌మెంట్ చెదలు నివారణ (${currentSpaceOption.labelTe})`,
+      price: currentSpaceOption.apartmentPrice,
+      originalPrice: currentSpaceOption.apartmentOriginalPrice,
+      durationEn: "2 hrs",
+      durationTe: "2 గంటలు",
+      rating: "4.83",
+      reviews: "18k",
+      badge: currentSpaceOption.labelEn,
+      optionsCount: "3 area options",
+      inclusionsEn: [
+        `Complete termite treatment configured for ${currentSpaceOption.labelEn} apartment`,
+        "Precision hole drilling at 1-foot intervals along skirting walls",
+        "Chemical injection to create subterranean barrier and stop termite spread",
+        "White cement sealing of all holes to restore wall aesthetic",
+        "1-year service warranty included",
+      ],
+      inclusionsTe: [
+        `${currentSpaceOption.labelTe} అపార్ట్‌మెంట్ల కోసం సమగ్ర చెదలు నివారణ`,
+        "గోడల వద్ద 1 అడుగు దూరంలో రంధ్రాలు వేసి కెమికల్ ఇంజెక్షన్",
+        "చెదలు వ్యాపించకుండా కెమికల్ బారియర్ ఏర్పాటు",
+        "రంధ్రాలను వైట్ సిమెంట్‌తో భద్రంగా మూసివేయడం",
+        "1 సంవత్సరం పూర్తి వారంటీ",
+      ],
+      imageSrc: "/images/termite-banner.jpg",
+      category: "pest",
+      subcategory: "termite",
+    },
+    {
+      id: `pest-termite-bungalow-${selectedSpace}`,
+      titleEn: `Bungalow termite control (${currentSpaceOption.labelEn})`,
+      titleTe: `బంగ్లా / విల్లా చెదలు నివారణ (${currentSpaceOption.labelTe})`,
+      price: currentSpaceOption.bungalowPrice,
+      originalPrice: currentSpaceOption.bungalowOriginalPrice,
+      durationEn: "3 hrs 30 mins",
+      durationTe: "3 గంటల 30 నిమిషాలు",
+      rating: "4.84",
+      reviews: "772",
+      badge: currentSpaceOption.labelEn,
+      optionsCount: "3 area options",
+      inclusionsEn: [
+        `Extensive termite protection for ${currentSpaceOption.labelEn} independent homes & villas`,
+        "Covers wooden doors, wardrobes, skirting, and wall perimeters",
+        "Detailed drilling, high-pressure chemical injection & white cement application",
+        "Long-term warranty with free annual inspection",
+      ],
+      inclusionsTe: [
+        `${currentSpaceOption.labelTe} పెద్ద ఇళ్ళు, బంగ్లాలు మరియు విల్లాల కోసం పూర్తి చెదలు రక్షణ`,
+        "చెక్క తలుపులు, అల్మారాలు మరియు గోడల మూలల రక్షణ",
+        "హై-ప్రెజర్ కెమికల్ ఇంజెక్షన్ మరియు వైట్ సిమెంట్ సీలింగ్",
+        "వార్షిక ఉచిత తనిఖీ వారంటీ",
+      ],
+      imageSrc: "/images/service-pest-termite.jpg",
+      category: "pest",
+      subcategory: "termite",
+    },
+  ];
 
   const handleShare = () => {
     if (navigator.share) {
@@ -255,24 +355,37 @@ export default function PestControlPage() {
             </p>
           </div>
 
-          {/* Area Selector Quick Chips (Screenshot 2) */}
-          <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
-            <div className="rounded-xl border border-purple-200 bg-purple-50/50 p-2.5 shrink-0 text-center min-w-[120px]">
-              <span className="text-[11px] font-bold text-slate-700 block">2000-2500 sq. ft.</span>
-              <span className="text-xs font-black text-purple-700 block mt-0.5">₹8,499</span>
-            </div>
-            <div className="rounded-xl border border-slate-200 bg-white p-2.5 shrink-0 text-center min-w-[120px]">
-              <span className="text-[11px] font-bold text-slate-700 block">2500-4000 sq. ft.</span>
-              <span className="text-xs font-black text-slate-900 block mt-0.5">₹9,999</span>
-            </div>
-            <div className="rounded-xl border border-slate-200 bg-white p-2.5 shrink-0 text-center min-w-[120px]">
-              <span className="text-[11px] font-bold text-slate-700 block">4000-6000 sq. ft.</span>
-              <span className="text-xs font-black text-slate-900 block mt-0.5">₹12,999</span>
-            </div>
+          {/* Area Selector Quick Chips (Interactive Choose your space) */}
+          <div className="flex gap-2.5 overflow-x-auto no-scrollbar pb-1">
+            {SPACE_OPTIONS.map((opt) => {
+              const isSelected = selectedSpace === opt.id;
+              return (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => setSelectedSpace(opt.id)}
+                  className={`rounded-2xl p-3 shrink-0 text-center min-w-[130px] sm:min-w-[140px] transition-all cursor-pointer ${
+                    isSelected
+                      ? "border-2 border-purple-600 bg-purple-50 text-purple-900 shadow-sm scale-[1.02]"
+                      : "border border-slate-200 bg-white hover:border-slate-300 text-slate-700 shadow-2xs"
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-1 mb-0.5">
+                    {isSelected && <Check className="h-3.5 w-3.5 text-purple-700 stroke-[3]" />}
+                    <span className={`text-[11px] font-bold block ${isSelected ? "text-purple-950 font-black" : "text-slate-600"}`}>
+                      {lang === "te" ? opt.labelTe : opt.labelEn}
+                    </span>
+                  </div>
+                  <span className={`text-xs sm:text-sm font-black block ${isSelected ? "text-purple-700" : "text-slate-900"}`}>
+                    {opt.displayPrice}
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           <div className="space-y-1">
-            {termiteItems.map((item) => (
+            {dynamicTermiteItems.map((item) => (
               <UCServiceCard
                 key={item.id}
                 item={item}
