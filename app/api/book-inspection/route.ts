@@ -132,6 +132,46 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: `SUPABASE ERROR: ${dbError.message || dbError.code}` }, { status: 500 });
     }
 
+    // 2. Mirror into 'leads' table so submissions immediately show up in Supabase Table Editor -> leads
+    try {
+      await supabase.from("leads").insert({
+        reference_id: referenceId,
+        customer_name: contactPerson.trim(),
+        contact_person: contactPerson.trim(),
+        business_name: businessName.trim(),
+        phone: whatsappNumber,
+        whatsapp_number: whatsappNumber,
+        facility_type: facilityType || "residential",
+        selected_service: selectedService,
+        locality: locality.trim(),
+        site_address: siteAddress.trim(),
+        address: siteAddress.trim(),
+        time_slot: timeSlot || null,
+        inspection_date: inspectionDate || null,
+        service_urgency: serviceUrgency || null,
+        floor_area: floorArea || null,
+        notes: notes || null,
+        main_pest_issue: mainPestIssue || null,
+        pest_premises_type: pestPremisesType || null,
+        approximate_size: approximateSize || null,
+        pest_details: pestDetails || null,
+        kitchen_details: kitchenDetails || null,
+        washroom_details: washroomDetails || null,
+        ac_details: acDetails || null,
+        cleaning_details: cleaningDetails || null,
+        cart_items: cartItems || null,
+        total_amount: typeof totalAmount === "number" ? totalAmount : totalAmount ? parseInt(String(totalAmount), 10) : null,
+        advance_amount: typeof advanceAmount === "number" ? advanceAmount : 0,
+        booking_type: bookingType || (cartItems && cartItems.length > 0 ? "cart_order" : "inspection"),
+        category: category || null,
+        payment_status: paymentStatus || "pending",
+        contact_consent: contactConsent,
+        status: "new",
+      });
+    } catch (leadsErr) {
+      console.warn("Non-fatal: leads mirror insert note:", leadsErr);
+    }
+
     const n8nWebhookUrl = process.env.N8N_INSPECTION_WEBHOOK_URL;
     if (n8nWebhookUrl) {
       try {
