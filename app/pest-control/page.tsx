@@ -127,72 +127,62 @@ export default function PestControlPage() {
           </div>
         </div>
 
-        {/* 3. HERO BANNER (Urban Company Style) */}
-        <div className="mx-auto max-w-xl px-4">
-          <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden shadow-sm border border-slate-100 bg-slate-900">
-            <Image
-              src="/images/termite-banner.jpg"
-              alt="Pest & Termite Control Pro"
-              fill
-              className="object-cover opacity-90"
-              priority
-              sizes="(max-width: 640px) 100vw, 576px"
-            />
-            {/* Dark gradient overlay & clean typography */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30 flex flex-col justify-between p-4 text-white">
-              <div className="flex items-center gap-2">
-                <span className="bg-[#0F172A] border border-white/20 text-white text-[9px] font-black px-2 py-0.5 rounded-sm uppercase tracking-wider">
-                  OSMIDA PEST PRO
-                </span>
-                <span className="bg-emerald-600/90 text-white text-[9px] font-bold px-2 py-0.5 rounded-sm">
-                  100% ODORLESS • ₹0 ADVANCE
-                </span>
-              </div>
+        {/* 3. HERO CARD (Matching AC Services Clean Professional Layout) */}
+        <div className="mx-auto max-w-xl px-4 pb-4">
+          <div className="flex items-center justify-between gap-3">
+            {/* Left Headline */}
+            <div className="space-y-1">
+              <span className="inline-block bg-[#007F5F] text-white text-[10px] font-black px-2 py-0.5 rounded-xs tracking-wider uppercase">
+                ★ INSTANT
+              </span>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+                {lang === "te" ? "బొద్దింకలు & చెదలు నివారణ 60 నిమిషాల్లో" : "Cockroach & termite\ncontrol in 60 mins"}
+              </h1>
+              <p className="text-xs font-semibold text-slate-500">
+                {lang === "te" ? "ప్రారంభ ధర ₹699" : "Starts at ₹699"}
+              </p>
+            </div>
 
-              <div>
-                <p className="text-xs font-semibold text-slate-200">Ensuring</p>
-                <div className="inline-block bg-teal-700/80 px-2.5 py-1 rounded-md text-xs sm:text-sm font-bold text-white mt-0.5 shadow-xs">
-                  99% removal of termites & pests
-                </div>
-              </div>
+            {/* Right Hero Image (Technician in black uniform kneeling with drill) */}
+            <div className="relative h-28 w-32 sm:h-32 sm:w-36 rounded-2xl overflow-hidden shadow-sm shrink-0 border border-slate-100">
+              <Image
+                src="/images/termite-banner.jpg"
+                alt="Pest & Termite Control Pro"
+                fill
+                className="object-cover"
+                priority
+                sizes="144px"
+              />
             </div>
           </div>
 
-          {/* 4. TITLE & GUARANTEE STRIP (Screenshot 1) */}
-          <div className="mt-3.5 space-y-2">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
-                  {lang === "te" ? "బొద్దింకలు & చెదలు నివారణ" : "Cockroach & Termite Control"}
-                </h1>
-                <div className="flex items-center gap-1.5 text-xs text-slate-600 mt-1">
+          {/* 4. RATING & OSMIDA COVER GUARANTEE STRIP */}
+          <div className="mt-4 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-2xs space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-base font-black text-slate-900">Pest Control</span>
+                <div className="flex items-center gap-1 text-xs text-slate-700">
                   <Star className="h-3.5 w-3.5 fill-slate-900 text-slate-900" />
-                  <span className="font-bold text-slate-900">4.84</span>
-                  <span className="text-slate-500">(1.5 M bookings)</span>
+                  <span className="font-black">4.84</span>
+                  <span className="text-slate-500">(1.5M reviews)</span>
                 </div>
               </div>
 
-              {/* Earliest Slot Badge */}
-              <div className="rounded-lg bg-[#E8F5E9] border border-[#C8E6C9] px-2.5 py-1 text-right shrink-0">
-                <div className="flex items-center gap-1 text-[11px] font-bold text-[#166534]">
-                  <Clock className="h-3 w-3 text-[#166534]" />
-                  <span>Earliest</span>
-                </div>
-                <div className="text-[10px] font-extrabold text-[#166534]">
-                  Today, 8:00 AM
-                </div>
+              <div className="flex items-center gap-1 bg-[#E8F5E9] text-[#007F5F] px-2 py-0.5 rounded-md text-[11px] font-bold">
+                <ShieldCheck className="h-3.5 w-3.5 text-[#007F5F]" />
+                <span>{lang === "te" ? "ధృవీకరించిన నిపుణులు" : "Verified Pros"}</span>
               </div>
             </div>
 
-            {/* 60 Days Warranty Strip (Screenshot 1) */}
-            <div className="flex items-center justify-between rounded-xl bg-[#F8F9FA] px-3.5 py-2 text-xs border border-slate-200/80 shadow-2xs">
+            {/* Osmida Cover Banner */}
+            <div className="flex items-center justify-between rounded-xl bg-[#F8F9FA] px-3 py-2 text-xs border border-slate-100">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-[#007F5F]" />
-                <span className="font-bold text-slate-900">
-                  {lang === "te" ? "60 రోజుల ఉచిత వారంటీ" : "60 days warranty"}
-                </span>
-                <span className="text-[11px] text-slate-500">
-                  (2-visit comprehensive treatment)
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                <span className="font-extrabold text-slate-900">OSMIDA COVER</span>
+                <span className="text-slate-500 text-[11px]">
+                  {lang === "te"
+                    ? "ట్రీట్‌మెంట్‌లపై 60 రోజుల వరకు ఉచిత వారంటీ"
+                    : "Upto 60 days warranty on treatments"}
                 </span>
               </div>
               <ChevronRight className="h-3.5 w-3.5 text-slate-400" />

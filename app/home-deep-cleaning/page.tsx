@@ -260,86 +260,86 @@ export default function HomeDeepCleaningPage() {
           </div>
         </div>
 
-        {/* 4. HERO BANNER (Urban Company Style) */}
-        <div className="mx-auto max-w-xl px-4">
-          <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden shadow-sm border border-slate-100 bg-slate-900">
-            <Image
-              src={
-                cleaningSection === "bathroom"
-                  ? "/images/bathroom-scrub-banner.jpg"
-                  : "/images/service-cleaning-chimney.jpg"
-              }
-              alt={cleaningSection === "bathroom" ? "Bathroom Scrubbing" : "Kitchen Chimney Cleaning"}
-              fill
-              className="object-cover opacity-90"
-              priority
-              sizes="(max-width: 640px) 100vw, 576px"
-            />
-            {/* Dark gradient overlay & clean typography */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/30 flex flex-col justify-between p-4 text-white">
-              <div className="flex items-center gap-2">
-                <span className="bg-[#0F172A] border border-white/20 text-white text-[9px] font-black px-2 py-0.5 rounded-sm uppercase tracking-wider">
-                  {cleaningSection === "bathroom" ? "OSMIDA BATH PRO" : "OSMIDA KITCHEN PRO"}
-                </span>
-                <span className="bg-emerald-600/90 text-white text-[9px] font-bold px-2 py-0.5 rounded-sm">
-                  ₹0 ADVANCE • NO HARSH ACIDS
-                </span>
-              </div>
+        {/* 4. HERO CARD (Matching AC Services Clean Professional Layout) */}
+        <div className="mx-auto max-w-xl px-4 pb-4">
+          <div className="flex items-center justify-between gap-3">
+            {/* Left Headline */}
+            <div className="space-y-1">
+              <span className="inline-block bg-[#007F5F] text-white text-[10px] font-black px-2 py-0.5 rounded-xs tracking-wider uppercase">
+                ★ INSTANT
+              </span>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+                {cleaningSection === "bathroom"
+                  ? (lang === "te" ? "బాత్‌రూమ్ క్లీనింగ్ 60 నిమిషాల్లో" : "Bathroom cleaning &\nscrub in 60 mins")
+                  : (lang === "te" ? "కిచెన్ & చిమ్నీ క్లీనింగ్ 60 నిమిషాల్లో" : "Kitchen & chimney\ncleaning in 60 mins")}
+              </h1>
+              <p className="text-xs font-semibold text-slate-500">
+                {cleaningSection === "bathroom"
+                  ? (lang === "te" ? "ప్రారంభ ధర ₹449" : "Starts at ₹449")
+                  : (lang === "te" ? "ప్రారంభ ధర ₹399" : "Starts at ₹399")}
+              </p>
+            </div>
 
-              <div>
-                <h2 className="text-sm sm:text-base font-black text-white">
-                  {cleaningSection === "bathroom"
-                    ? (lang === "te" ? "బాత్‌రూమ్ డీప్ క్లీనింగ్ & మెషిన్ స్క్రబ్బింగ్" : "We got you covered (Bathroom Deep Clean)")
-                    : (lang === "te" ? "స్పాట్‌లెస్ కిచెన్ & చిమ్నీ క్లీనింగ్" : "Spotless oil-free kitchen & chimney")}
-                </h2>
-                <p className="text-[11px] text-slate-200 mt-0.5">
-                  {cleaningSection === "bathroom"
-                    ? "Rotary machine scrubbing • Hard water descaling • Non-acidic safe formula"
-                    : "Chimney degrease dip • Gas stove carbon removal • Deep appliance clean"}
-                </p>
-              </div>
+            {/* Right Hero Image */}
+            <div className="relative h-28 w-32 sm:h-32 sm:w-36 rounded-2xl overflow-hidden shadow-sm shrink-0 border border-slate-100">
+              <Image
+                src={
+                  cleaningSection === "bathroom"
+                    ? "/images/bathroom-scrub-banner.jpg"
+                    : "/images/service-cleaning-chimney.jpg"
+                }
+                alt={cleaningSection === "bathroom" ? "Bathroom Scrubbing" : "Kitchen Chimney Cleaning"}
+                fill
+                className="object-cover"
+                priority
+                sizes="144px"
+              />
             </div>
           </div>
 
-          {/* 5. TITLE & METRICS STRIP */}
-          <div className="mt-3.5 space-y-2">
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
-                  {cleaningSection === "bathroom"
-                    ? (lang === "te" ? "బాత్‌రూమ్ క్లీనింగ్" : "Bathroom Cleaning")
-                    : (lang === "te" ? "కిచెన్ & చిమ్నీ క్లీనింగ్" : "Kitchen Cleaning")}
-                </h2>
-                <div className="flex items-center gap-1.5 text-xs text-slate-600 mt-1">
+          {/* 5. RATING, VERIFIED PROS & OSMIDA COVER GUARANTEE STRIP */}
+          <div className="mt-4 rounded-2xl border border-slate-200/80 bg-white p-3.5 shadow-2xs space-y-2.5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="text-base font-black text-slate-900">
+                  {cleaningSection === "bathroom" ? "Bathroom Cleaning" : "Kitchen Cleaning"}
+                </span>
+                <div className="flex items-center gap-1 text-xs text-slate-700">
                   <Star className="h-3.5 w-3.5 fill-slate-900 text-slate-900" />
-                  <span className="font-bold text-slate-900">
+                  <span className="font-black">
                     {cleaningSection === "bathroom" ? "4.83" : "4.79"}
                   </span>
                   <span className="text-slate-500">
-                    {cleaningSection === "bathroom"
-                      ? "(5.6M bookings • Nellore Verified)"
-                      : "(3.1M bookings • Nellore Verified)"}
+                    {cleaningSection === "bathroom" ? "(5.6M reviews)" : "(3.1M reviews)"}
                   </span>
                 </div>
               </div>
 
-              {/* Earliest Slot Badge */}
-              <div className="rounded-lg bg-[#E8F5E9] border border-[#C8E6C9] px-2.5 py-1 text-right shrink-0">
-                <div className="flex items-center gap-1 text-[11px] font-bold text-[#166534]">
-                  <Clock className="h-3 w-3 text-[#166534]" />
-                  <span>Earliest</span>
-                </div>
-                <div className="text-[10px] font-extrabold text-[#166534]">
-                  Today, 8:00 AM
-                </div>
+              <div className="flex items-center gap-1 bg-[#E8F5E9] text-[#007F5F] px-2 py-0.5 rounded-md text-[11px] font-bold">
+                <ShieldCheck className="h-3.5 w-3.5 text-[#007F5F]" />
+                <span>{lang === "te" ? "ధృవీకరించిన నిపుణులు" : "Verified Pros"}</span>
               </div>
+            </div>
+
+            {/* Osmida Cover Banner */}
+            <div className="flex items-center justify-between rounded-xl bg-[#F8F9FA] px-3 py-2 text-xs border border-slate-100">
+              <div className="flex items-center gap-2">
+                <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                <span className="font-extrabold text-slate-900">OSMIDA COVER</span>
+                <span className="text-slate-500 text-[11px]">
+                  {lang === "te"
+                    ? "సర్వీస్‌పై 30 రోజుల వరకు ఉచిత వారంటీ"
+                    : "Upto 30 days warranty on cleaning"}
+                </span>
+              </div>
+              <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
             </div>
 
             {/* Areas & Surfaces Included Trigger Button */}
             <button
               type="button"
               onClick={() => setIsAreasModalOpen(true)}
-              className="w-full flex items-center justify-between rounded-xl bg-[#F8F9FA] px-3.5 py-2 text-xs border border-slate-200/80 shadow-2xs text-left hover:bg-slate-100 transition-colors"
+              className="w-full flex items-center justify-between rounded-xl bg-[#F8F9FA] px-3.5 py-2 text-xs border border-slate-200/80 shadow-2xs text-left hover:bg-slate-100 transition-colors cursor-pointer"
             >
               <div className="flex items-center gap-2">
                 <Sparkles className="h-4 w-4 text-[#059669]" />
