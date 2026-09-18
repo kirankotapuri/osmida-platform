@@ -10,7 +10,6 @@ import { UCFloatingCartBar } from "@/components/UCFloatingCartBar";
 import { UCServiceDetailModal } from "@/components/UCServiceDetailModal";
 import { UCSubcategoryTabs, SubcategoryTabItem } from "@/components/UCSubcategoryTabs";
 import { UCSubcategoryMenuModal, MenuSubcategory } from "@/components/UCSubcategoryMenuModal";
-import { HowItWorksVideoSection } from "@/components/HowItWorksVideoSection";
 import {
   BATHROOM_SERVICE_ITEMS,
   KITCHEN_SERVICE_ITEMS,
@@ -22,7 +21,6 @@ import {
   ArrowLeft,
   Search,
   Share2,
-  Play,
   Clock,
   Sparkles,
   Check,
@@ -262,64 +260,46 @@ export default function HomeDeepCleaningPage() {
           </div>
         </div>
 
-        {/* 4. HERO VIDEO BANNER (Interactive Live Video) */}
+        {/* 4. HERO BANNER (Urban Company Style) */}
         <div className="mx-auto max-w-xl px-4">
-          <button
-            type="button"
-            onClick={() => {
-              const el = document.getElementById("cleaning-video-guide");
-              if (el) {
-                el.scrollIntoView({ behavior: "smooth" });
+          <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden shadow-sm border border-slate-100 bg-slate-900">
+            <Image
+              src={
+                cleaningSection === "bathroom"
+                  ? "/images/bathroom-scrub-banner.jpg"
+                  : "/images/service-cleaning-chimney.jpg"
               }
-            }}
-            className="w-full text-left cursor-pointer focus:outline-none block"
-            aria-label="Watch Cleaning Video Guide"
-          >
-            <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden shadow-sm border border-slate-100 bg-slate-900 group">
-              <Image
-                src={
-                  cleaningSection === "bathroom"
-                    ? "/images/bathroom-scrub-banner.jpg"
-                    : "/images/service-cleaning-chimney.jpg"
-                }
-                alt={cleaningSection === "bathroom" ? "Bathroom Scrubbing" : "Kitchen Chimney Cleaning"}
-                fill
-                className="object-cover opacity-90 group-hover:scale-102 transition-transform duration-300"
-                priority
-                sizes="(max-width: 640px) 100vw, 576px"
-              />
-              {/* Dark overlay & Play Button */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/30 flex flex-col justify-between p-4 text-white">
-                <div className="flex items-center gap-2">
-                  <span className="bg-[#0F172A] border border-white/20 text-white text-[9px] font-black px-2 py-0.5 rounded-sm uppercase tracking-wider">
-                    {cleaningSection === "bathroom" ? "OSMIDA BATH PRO" : "OSMIDA KITCHEN PRO"}
-                  </span>
-                  <span className="bg-emerald-600/90 text-white text-[9px] font-bold px-2 py-0.5 rounded-sm animate-pulse">
-                    LIVE VIDEO • ₹0 ADVANCE
-                  </span>
-                </div>
+              alt={cleaningSection === "bathroom" ? "Bathroom Scrubbing" : "Kitchen Chimney Cleaning"}
+              fill
+              className="object-cover opacity-90"
+              priority
+              sizes="(max-width: 640px) 100vw, 576px"
+            />
+            {/* Dark gradient overlay & clean typography */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-black/30 flex flex-col justify-between p-4 text-white">
+              <div className="flex items-center gap-2">
+                <span className="bg-[#0F172A] border border-white/20 text-white text-[9px] font-black px-2 py-0.5 rounded-sm uppercase tracking-wider">
+                  {cleaningSection === "bathroom" ? "OSMIDA BATH PRO" : "OSMIDA KITCHEN PRO"}
+                </span>
+                <span className="bg-emerald-600/90 text-white text-[9px] font-bold px-2 py-0.5 rounded-sm">
+                  ₹0 ADVANCE • NO HARSH ACIDS
+                </span>
+              </div>
 
-                <div className="flex items-center justify-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/30 backdrop-blur-md border border-white/60 text-white shadow-xl transition-transform group-hover:scale-110 active:scale-95">
-                    <Play className="h-5 w-5 fill-white text-white ml-0.5" />
-                  </div>
-                </div>
-
-                <div>
-                  <h2 className="text-sm sm:text-base font-black text-white">
-                    {cleaningSection === "bathroom"
-                      ? "We got you covered (Bathroom Deep Clean) • Watch Demo"
-                      : "Spotless oil-free kitchen & chimney • Watch Demo"}
-                  </h2>
-                  <p className="text-[11px] text-slate-200">
-                    {cleaningSection === "bathroom"
-                      ? "Rotary machine scrubbing • Hard water descaling • No harsh acids"
-                      : "Chimney degrease dip • Gas stove carbon removal • Appliance clean"}
-                  </p>
-                </div>
+              <div>
+                <h2 className="text-sm sm:text-base font-black text-white">
+                  {cleaningSection === "bathroom"
+                    ? (lang === "te" ? "బాత్‌రూమ్ డీప్ క్లీనింగ్ & మెషిన్ స్క్రబ్బింగ్" : "We got you covered (Bathroom Deep Clean)")
+                    : (lang === "te" ? "స్పాట్‌లెస్ కిచెన్ & చిమ్నీ క్లీనింగ్" : "Spotless oil-free kitchen & chimney")}
+                </h2>
+                <p className="text-[11px] text-slate-200 mt-0.5">
+                  {cleaningSection === "bathroom"
+                    ? "Rotary machine scrubbing • Hard water descaling • Non-acidic safe formula"
+                    : "Chimney degrease dip • Gas stove carbon removal • Deep appliance clean"}
+                </p>
               </div>
             </div>
-          </button>
+          </div>
 
           {/* 5. TITLE & METRICS STRIP */}
           <div className="mt-3.5 space-y-2">
@@ -570,27 +550,6 @@ export default function HomeDeepCleaningPage() {
           </>
         )}
 
-        {/* SECTION: VIDEO GUIDE SECTION */}
-        <section id="cleaning-video-guide" className="pt-6 pb-4">
-          <div className="mb-4">
-            <div className="inline-block bg-slate-900 text-white text-[9px] font-black px-2 py-0.5 rounded-xs uppercase mb-1">
-              {lang === "te" ? "వీడియో గైడ్" : "1-Min Telugu Video"}
-            </div>
-            <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-              {lang === "te" ? "డీప్ క్లీనింగ్ విధానం & మెషిన్ స్క్రబ్బింగ్" : "How Deep Cleaning & Machine Scrubbing Works"}
-            </h2>
-            <p className="text-xs text-slate-500">
-              {lang === "te"
-                ? "బాత్‌రూమ్ మెషిన్ స్క్రబ్బింగ్, కిచెన్ చిమ్నీ డీగ్రీసింగ్ మరియు ₹0 అడ్వాన్స్ విధానం చూడండి"
-                : "Watch step-by-step rotary machine scrubbing, chimney degrease, and ₹0 advance booking"}
-            </p>
-          </div>
-          <HowItWorksVideoSection
-            lang={lang}
-            defaultService="cleaning"
-            sectionId="cleaning-video-guide"
-          />
-        </section>
       </div>
 
       {/* 8. AREAS & SURFACES INCLUDED BOTTOM SHEET (Screenshot 1 / 2 Modal) */}

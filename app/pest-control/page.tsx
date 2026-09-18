@@ -10,7 +10,6 @@ import { UCFloatingCartBar } from "@/components/UCFloatingCartBar";
 import { UCServiceDetailModal } from "@/components/UCServiceDetailModal";
 import { UCSubcategoryTabs, SubcategoryTabItem } from "@/components/UCSubcategoryTabs";
 import { UCSubcategoryMenuModal, MenuSubcategory } from "@/components/UCSubcategoryMenuModal";
-import { HowItWorksVideoSection } from "@/components/HowItWorksVideoSection";
 import { PEST_SERVICE_ITEMS } from "@/lib/ucServiceData";
 import {
   Star,
@@ -19,7 +18,6 @@ import {
   ArrowLeft,
   Search,
   Share2,
-  Play,
   CheckCircle2,
   Clock,
   Wrench,
@@ -129,54 +127,36 @@ export default function PestControlPage() {
           </div>
         </div>
 
-        {/* 3. HERO VIDEO BANNER (Interactive Live Video) */}
+        {/* 3. HERO BANNER (Urban Company Style) */}
         <div className="mx-auto max-w-xl px-4">
-          <button
-            type="button"
-            onClick={() => {
-              const el = document.getElementById("pest-video-guide");
-              if (el) {
-                el.scrollIntoView({ behavior: "smooth" });
-              }
-            }}
-            className="w-full text-left cursor-pointer focus:outline-none block"
-            aria-label="Watch Pest Control Video Guide"
-          >
-            <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden shadow-sm border border-slate-100 bg-slate-900 group">
-              <Image
-                src="/images/termite-banner.jpg"
-                alt="Pest & Termite Control Pro"
-                fill
-                className="object-cover opacity-90 group-hover:scale-102 transition-transform duration-300"
-                priority
-                sizes="(max-width: 640px) 100vw, 576px"
-              />
-              {/* Dark overlay & Play Button */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/30 flex flex-col justify-between p-4 text-white">
-                <div className="flex items-center gap-2">
-                  <span className="bg-red-600/90 backdrop-blur-xs text-white text-[9px] font-black px-2 py-0.5 rounded-sm uppercase tracking-wider animate-pulse">
-                    LIVE VIDEO
-                  </span>
-                  <span className="bg-white/20 backdrop-blur-xs text-white text-[9px] font-bold px-2 py-0.5 rounded-sm">
-                    45-SEC DEMO
-                  </span>
-                </div>
+          <div className="relative aspect-[16/9] w-full rounded-2xl overflow-hidden shadow-sm border border-slate-100 bg-slate-900">
+            <Image
+              src="/images/termite-banner.jpg"
+              alt="Pest & Termite Control Pro"
+              fill
+              className="object-cover opacity-90"
+              priority
+              sizes="(max-width: 640px) 100vw, 576px"
+            />
+            {/* Dark gradient overlay & clean typography */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/30 flex flex-col justify-between p-4 text-white">
+              <div className="flex items-center gap-2">
+                <span className="bg-[#0F172A] border border-white/20 text-white text-[9px] font-black px-2 py-0.5 rounded-sm uppercase tracking-wider">
+                  OSMIDA PEST PRO
+                </span>
+                <span className="bg-emerald-600/90 text-white text-[9px] font-bold px-2 py-0.5 rounded-sm">
+                  100% ODORLESS • ₹0 ADVANCE
+                </span>
+              </div>
 
-                <div className="flex items-center justify-center">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white/30 backdrop-blur-md border border-white/60 text-white shadow-xl transition-transform group-hover:scale-110 active:scale-95">
-                    <Play className="h-5 w-5 fill-white text-white ml-0.5" />
-                  </div>
-                </div>
-
-                <div>
-                  <p className="text-xs font-semibold text-slate-200">Ensuring</p>
-                  <div className="inline-block bg-teal-700/80 px-2 py-0.5 rounded text-xs sm:text-sm font-bold text-white mt-0.5">
-                    99% removal of termites & pests • Watch Live Demo
-                  </div>
+              <div>
+                <p className="text-xs font-semibold text-slate-200">Ensuring</p>
+                <div className="inline-block bg-teal-700/80 px-2.5 py-1 rounded-md text-xs sm:text-sm font-bold text-white mt-0.5 shadow-xs">
+                  99% removal of termites & pests
                 </div>
               </div>
             </div>
-          </button>
+          </div>
 
           {/* 4. TITLE & GUARANTEE STRIP (Screenshot 1) */}
           <div className="mt-3.5 space-y-2">
@@ -369,27 +349,6 @@ export default function PestControlPage() {
           </div>
         </section>
 
-        {/* SECTION D: VIDEO GUIDE SECTION */}
-        <section id="pest-video-guide" className="pt-6 pb-4">
-          <div className="mb-4">
-            <div className="inline-block bg-slate-900 text-white text-[9px] font-black px-2 py-0.5 rounded-xs uppercase mb-1">
-              {lang === "te" ? "వీడియో గైడ్" : "1-Min Telugu Video"}
-            </div>
-            <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-              {lang === "te" ? "పురుగుల నివారణ విధానం & బుకింగ్" : "How Pest & Termite Control Works"}
-            </h2>
-            <p className="text-xs text-slate-500">
-              {lang === "te"
-                ? "వాసన లేని జెల్ చికిత్స, స్ప్రే పద్ధతులు మరియు ₹0 అడ్వాన్స్ విధానం చూడండి"
-                : "Watch step-by-step how our verified technicians apply odorless gel and inspect with ₹0 advance"}
-            </p>
-          </div>
-          <HowItWorksVideoSection
-            lang={lang}
-            defaultService="pest"
-            sectionId="pest-video-guide"
-          />
-        </section>
       </div>
 
       {/* 7. FLOATING ≡ MENU MODAL */}

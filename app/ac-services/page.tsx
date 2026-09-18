@@ -19,9 +19,7 @@ import {
   Share2,
   ChevronDown,
   CheckCircle2,
-  Play,
 } from "lucide-react";
-import { HowItWorksVideoSection } from "@/components/HowItWorksVideoSection";
 
 export default function AcServicesPage() {
   const [lang, setLang] = useState<Language>("en");
@@ -472,35 +470,17 @@ export default function AcServicesPage() {
               </p>
             </div>
 
-            {/* Right Hero Image (Technician in black uniform & cap servicing AC - Interactive Video Trigger) */}
-            <button
-              type="button"
-              onClick={() => {
-                const el = document.getElementById("ac-video-guide");
-                if (el) {
-                  el.scrollIntoView({ behavior: "smooth" });
-                }
-              }}
-              className="relative h-28 w-32 sm:h-32 sm:w-36 rounded-2xl overflow-hidden shadow-sm shrink-0 border border-slate-100 group cursor-pointer focus:outline-none"
-              aria-label="Watch AC Service Video Guide"
-            >
+            {/* Right Hero Image (Technician in black uniform & cap servicing AC) */}
+            <div className="relative h-28 w-32 sm:h-32 sm:w-36 rounded-2xl overflow-hidden shadow-sm shrink-0 border border-slate-100">
               <Image
                 src="/images/ac-tech-hero.jpg"
                 alt="AC Technician Servicing"
                 fill
-                className="object-cover group-hover:scale-105 transition-transform duration-300"
+                className="object-cover"
                 priority
                 sizes="144px"
               />
-              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors flex items-center justify-center">
-                <div className="h-8 w-8 rounded-full bg-white/40 backdrop-blur-xs border border-white/60 flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform">
-                  <Play className="h-4 w-4 fill-white text-white ml-0.5" />
-                </div>
-              </div>
-              <div className="absolute bottom-1.5 inset-x-1.5 bg-black/75 backdrop-blur-xs text-white text-[8px] font-black py-0.5 rounded text-center tracking-wider uppercase">
-                VIDEO GUIDE
-              </div>
-            </button>
+            </div>
           </div>
 
           {/* 4. RATING & OSMIDA COVER GUARANTEE STRIP (Screenshot 3) */}
@@ -535,43 +515,6 @@ export default function AcServicesPage() {
               <ChevronRight className="h-3.5 w-3.5 text-slate-400" />
             </div>
 
-            {/* AC Diagnosis & Causes 1-Min Video Explainer Strip */}
-            <div className="mt-2 rounded-xl bg-gradient-to-r from-slate-950 via-slate-900 to-slate-800 text-white p-3 shadow-sm border border-slate-700/60 flex items-center justify-between gap-2.5">
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="h-9 w-9 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center shrink-0 shadow-xs">
-                  <Play className="h-4 w-4 fill-emerald-400 ml-0.5" />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5">
-                    <span className="bg-emerald-500 text-slate-950 text-[8px] font-black px-1.5 py-0.2 rounded-xs uppercase tracking-wide">
-                      {lang === "te" ? "వీడియో గైడ్" : "1-MIN VIDEO"}
-                    </span>
-                    <span className="text-xs font-bold text-white truncate">
-                      {lang === "te" ? "డయాగ్నోసిస్ & కారణాలు" : "How Diagnosis & Causes Work"}
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-slate-300 mt-0.5 truncate">
-                    {lang === "te"
-                      ? "కూలింగ్ సమస్యలు, గ్యాస్ ప్రెజర్ టెస్ట్ & ఫోమ్ జెట్ వాష్ వివరణ"
-                      : "See how causes are tested, gas checked & foam-jet done with ₹0 advance"}
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  const el = document.getElementById("ac-video-guide");
-                  if (el) {
-                    el.scrollIntoView({ behavior: "smooth" });
-                  } else {
-                    window.location.href = "/#how-to-book-video";
-                  }
-                }}
-                className="shrink-0 bg-white hover:bg-slate-100 text-slate-950 text-[11px] font-black px-3 py-1.5 rounded-lg transition-all shadow-xs active:scale-95"
-              >
-                {lang === "te" ? "చూడండి" : "Watch"}
-              </button>
-            </div>
           </div>
         </div>
       </div>
@@ -778,27 +721,6 @@ export default function AcServicesPage() {
           ))}
         </section>
 
-        {/* SECTION E: VIDEO GUIDE SECTION */}
-        <section id="ac-video-guide" className="pt-6 pb-4">
-          <div className="mb-4">
-            <div className="inline-block bg-slate-900 text-white text-[9px] font-black px-2 py-0.5 rounded-xs uppercase mb-1">
-              {lang === "te" ? "వీడియో గైడ్" : "1-Min Telugu Video"}
-            </div>
-            <h2 className="text-base sm:text-lg font-black text-slate-900 tracking-tight">
-              {lang === "te" ? "ఏసీ సర్వీస్ & డయాగ్నోసిస్ విధానం" : "How AC Diagnosis & Service Works"}
-            </h2>
-            <p className="text-xs text-slate-500">
-              {lang === "te"
-                ? "డయాగ్నోసిస్ ఎలా జరుగుతుంది, సమస్యల కారణాలు, మరియు ఫోమ్ జెట్ వాష్ వివరణ"
-                : "Watch step-by-step how our verified technicians inspect causes and service your AC with ₹0 advance"}
-            </p>
-          </div>
-          <HowItWorksVideoSection
-            lang={lang}
-            defaultService="ac"
-            sectionId="ac-video-guide"
-          />
-        </section>
       </div>
 
       {/* 7. FLOATING ≡ MENU MODAL */}
