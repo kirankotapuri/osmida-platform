@@ -59,11 +59,11 @@ export function UCCartDrawer({ lang }: { lang: Language }) {
 
       const payload = {
         referenceId: `OSM-${Date.now().toString().slice(-6)}`,
-        businessName: "Residential Booking",
-        contactPerson: contactName,
+        businessName: contactName.trim(),
+        contactPerson: contactName.trim(),
         whatsappNumber: cleanPhone,
         locality: locality,
-        siteAddress: address,
+        siteAddress: address.trim(),
         selectedService: itemsSummary,
         facilityType: "Home",
         timeSlot: `${selectedDate}, ${selectedSlot}`,
@@ -72,6 +72,20 @@ export function UCCartDrawer({ lang }: { lang: Language }) {
         serviceUrgency: "Standard",
         floorArea: "Standard",
         notes: `Total: ₹${totalAmount} (₹0 Advance Booking via UC Cart)`,
+        cartItems: items.map((item) => ({
+          id: item.id,
+          title: item.titleEn,
+          category: item.category,
+          subcategory: item.subcategory,
+          price: item.price,
+          quantity: item.quantity,
+          subtotal: item.price * item.quantity,
+        })),
+        totalAmount: totalAmount,
+        advanceAmount: 0,
+        bookingType: "cart_order",
+        category: items[0]?.category || "general",
+        paymentStatus: "pending",
       };
 
       const res = await fetch("/api/book-inspection", {

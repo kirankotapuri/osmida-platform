@@ -26,6 +26,13 @@ export async function POST(req: Request) {
       kitchenDetails,
       washroomDetails,
       acDetails,
+      cleaningDetails,
+      cartItems,
+      totalAmount,
+      advanceAmount,
+      bookingType,
+      category,
+      paymentStatus,
       businessName,
       whatsappNumber,
     } = body;
@@ -54,11 +61,46 @@ export async function POST(req: Request) {
     }
 
     const supabase = createClient(supabaseUrl, supabaseKey);
-    const { error: dbError } = await supabase
-      .from("inspections")
-      .insert({
+
+    const fullPayload: Record<string, any> = {
+      reference_id: referenceId,
+      facility_type: facilityType || "residential",
+      selected_service: selectedService,
+      locality: locality.trim(),
+      time_slot: timeSlot || null,
+      inspection_date: inspectionDate || null,
+      site_address: siteAddress.trim(),
+      contact_person: contactPerson.trim(),
+      service_urgency: serviceUrgency || null,
+      floor_area: floorArea || null,
+      notes: notes || null,
+      main_pest_issue: mainPestIssue || null,
+      pest_premises_type: pestPremisesType || null,
+      approximate_size: approximateSize || null,
+      pest_details: pestDetails || null,
+      kitchen_details: kitchenDetails || null,
+      washroom_details: washroomDetails || null,
+      ac_details: acDetails || null,
+      cleaning_details: cleaningDetails || null,
+      cart_items: cartItems || null,
+      total_amount: typeof totalAmount === "number" ? totalAmount : totalAmount ? parseInt(String(totalAmount), 10) : null,
+      advance_amount: typeof advanceAmount === "number" ? advanceAmount : 0,
+      booking_type: bookingType || (cartItems && cartItems.length > 0 ? "cart_order" : "inspection"),
+      category: category || null,
+      payment_status: paymentStatus || "pending",
+      contact_consent: contactConsent,
+      business_name: businessName.trim(),
+      whatsapp_number: whatsappNumber,
+    };
+
+    let { error: dbError } = await supabase.from("inspections").insert(fullPayload);
+
+    // Fallback: If schema migration hasn't been applied yet and extended columns don't exist in Supabase
+    if (dbError && dbError.message && dbError.message.includes("does not exist")) {
+      console.warn("Supabase schema column missing, falling back to baseline schema:", dbError.message);
+      const baselinePayload: Record<string, any> = {
         reference_id: referenceId,
-        facility_type: facilityType,
+        facility_type: facilityType || "residential",
         selected_service: selectedService,
         locality: locality.trim(),
         time_slot: timeSlot || null,
@@ -67,18 +109,24 @@ export async function POST(req: Request) {
         contact_person: contactPerson.trim(),
         service_urgency: serviceUrgency || null,
         floor_area: floorArea || null,
-        notes: notes || null,
+        notes: [
+          notes || "",
+          acDetails ? `[AC: ${JSON.stringify(acDetails)}]` : "",
+          cartItems ? `[Cart: ${JSON.stringify(cartItems)}]` : "",
+        ].filter(Boolean).join(" | "),
         main_pest_issue: mainPestIssue || null,
         pest_premises_type: pestPremisesType || null,
         approximate_size: approximateSize || null,
         pest_details: pestDetails || null,
         kitchen_details: kitchenDetails || null,
         washroom_details: washroomDetails || null,
-        ac_details: acDetails || null,
         contact_consent: contactConsent,
         business_name: businessName.trim(),
         whatsapp_number: whatsappNumber,
-      });
+      };
+      const retryResult = await supabase.from("inspections").insert(baselinePayload);
+      dbError = retryResult.error;
+    }
 
     if (dbError) {
       return NextResponse.json({ error: `SUPABASE ERROR: ${dbError.message || dbError.code}` }, { status: 500 });

@@ -338,6 +338,8 @@ function BookingFormInner() {
           notes.trim() || "None"
         }`,
         floorArea: propertySize,
+        bookingType: "inspection",
+        category: service === "pest-control" ? "pest" : service === "ac-services" ? "ac" : "cleaning",
       };
 
       const response = await fetch("/api/book-inspection", {

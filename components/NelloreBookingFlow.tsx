@@ -131,6 +131,8 @@ export function NelloreBookingFlow({
         } | User Notes: ${notes || "None"}`,
         mainPestIssue: selectedService.id === "pest-control" ? selectedSubtype : undefined,
         floorArea: propertySize,
+        bookingType: isQuoteRequest ? "quote_request" : "standard_booking",
+        category: selectedService.id,
       };
 
       const response = await fetch("/api/book-inspection", {

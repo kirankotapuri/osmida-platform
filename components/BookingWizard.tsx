@@ -79,6 +79,8 @@ export function BookingWizard({ initialService = "kitchen-deep-clean" }: { initi
           kitchenDetails: selectedService === "kitchen-deep-clean" ? kitchenDetails : undefined,
           washroomDetails: selectedService === "washroom-sanitation" ? washroomDetails : undefined,
           acDetails: isAcBooking ? acDetails : undefined,
+          bookingType: "inspection",
+          category: isAcBooking ? "ac" : isPestBooking ? "pest" : "cleaning",
           businessName,
           whatsappNumber: cleanNumber,
         }),
