@@ -13,12 +13,22 @@ export function UCCartDrawer({ lang }: { lang: Language }) {
 
   const [contactName, setContactName] = useState("");
   const [phone, setPhone] = useState("");
-  const [locality, setLocality] = useState<string>("Pogathota");
+  const [locality, setLocality] = useState<string>("Kailasapuram");
   const [address, setAddress] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("Morning (9:00 AM – 12:00 PM)");
   const [selectedDate, setSelectedDate] = useState("Tomorrow");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+
+  // Sync selected locality from localStorage when drawer is opened
+  React.useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedLoc = localStorage.getItem("osmida_selected_locality");
+      if (savedLoc) {
+        setLocality(savedLoc);
+      }
+    }
+  }, [isCartDrawerOpen]);
 
   if (!isCartDrawerOpen) return null;
 
@@ -99,7 +109,7 @@ export function UCCartDrawer({ lang }: { lang: Language }) {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-200">
+    <div className="fixed inset-0 z-[1200] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-200">
       <div className="absolute inset-0" onClick={() => setIsCartDrawerOpen(false)} />
 
       <div

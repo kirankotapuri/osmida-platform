@@ -19,15 +19,34 @@ export interface ServiceItem {
 }
 
 export const NELLORE_LOCALITIES = [
-  "Trunk Road",
   "Pogathota",
+  "Kailasapuram",
+  "Trunk Road",
   "Magunta Layout",
   "Haranathapuram",
   "Dargamitta",
+  "Vedayapalem",
   "VRC Centre",
   "Stonehousepet",
-  "Vedayapalem",
+  "Nawabpet",
+  "Fathekhanpet",
   "Podalakur Road",
+  "Children's Park Road",
+  "Mini Bypass Road",
+  "BV Nagar",
+  "Ramalingapuram",
+  "Gandhi Nagar",
+  "Balaji Nagar",
+  "Saraswathi Nagar",
+  "Kothur",
+  "AC Nagar",
+  "Chinthareddypalem",
+  "Muthukur Road",
+  "A.K. Nagar",
+  "Padmavathi Nagar",
+  "Santhapet",
+  "Mulapet",
+  "Current Office Area",
   "Other Area in Nellore"
 ] as const;
 

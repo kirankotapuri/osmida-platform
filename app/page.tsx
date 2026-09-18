@@ -13,7 +13,6 @@ import { CategorySelectorModal } from "@/components/CategorySelectorModal";
 import { HowItWorksVideoSection } from "@/components/HowItWorksVideoSection";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UCFloatingCartBar } from "@/components/UCFloatingCartBar";
-import { UCCartDrawer } from "@/components/UCCartDrawer";
 import { Language, UI_TEXT, SERVICES_DATA } from "@/lib/translations";
 import {
   Phone,
@@ -1139,9 +1138,8 @@ export default function HomePage() {
         initialTab={modalTab}
       />
 
-      {/* 14. URBAN COMPANY FLOATING CART BAR & SLIDE-UP DRAWER */}
+      {/* 14. URBAN COMPANY FLOATING CART BAR */}
       <UCFloatingCartBar lang={lang} />
-      <UCCartDrawer lang={lang} />
     </main>
   );
 }

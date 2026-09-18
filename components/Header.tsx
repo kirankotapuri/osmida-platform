@@ -1,12 +1,14 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { Language } from "@/lib/translations";
-import { NELLORE_LOCALITIES } from "@/lib/constants";
-import { MapPin, ChevronDown, Check, X } from "lucide-react";
+import { MapPin, ChevronDown, ShoppingCart } from "lucide-react";
+import { useCart } from "@/lib/cartContext";
+import { LocationSelectorModal } from "@/components/LocationSelectorModal";
+import { UCCartDrawer } from "@/components/UCCartDrawer";
 
 interface HeaderProps {
   lang: Language;
@@ -15,8 +17,29 @@ interface HeaderProps {
 
 export function Header({ lang, onLanguageChange }: HeaderProps) {
   const pathname = usePathname();
-  const [selectedLocality, setSelectedLocality] = useState<string>("Pogathota");
+  const { totalItems, setIsCartDrawerOpen } = useCart();
+  const [selectedLocality, setSelectedLocality] = useState<string>("Kailasapuram");
   const [isLocalityModalOpen, setIsLocalityModalOpen] = useState(false);
+
+  // Restore saved locality from localStorage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("osmida_selected_locality");
+      if (saved) {
+        setSelectedLocality(saved);
+      }
+    }
+  }, []);
+
+  const handleSelectLocality = (loc: string, details?: string) => {
+    setSelectedLocality(loc);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("osmida_selected_locality", loc);
+      if (details) {
+        localStorage.setItem("osmida_selected_locality_details", details);
+      }
+    }
+  };
 
   const navLinks = [
     {
@@ -84,7 +107,7 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
               </div>
             </Link>
 
-            {/* Urban Company-Style Exact Location Selector (Screenshot 1) */}
+            {/* Urban Company-Style Exact Location Selector (Screenshot 1 & 2) */}
             <button
               type="button"
               onClick={() => setIsLocalityModalOpen(true)}
@@ -94,12 +117,12 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
               <MapPin className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-white shrink-0" />
               <div className="flex flex-col text-left">
                 <div className="flex items-center gap-1">
-                  <span className="text-xs sm:text-sm font-black text-white truncate max-w-[120px] sm:max-w-[180px]">
+                  <span className="text-xs sm:text-sm font-black text-white truncate max-w-[100px] xs:max-w-[130px] sm:max-w-[180px]">
                     {selectedLocality}
                   </span>
                   <ChevronDown className="h-3 w-3 text-slate-300 shrink-0 stroke-[2.5]" />
                 </div>
-                <span className="text-[10px] text-slate-300 truncate max-w-[120px] sm:max-w-[200px] leading-tight font-medium">
+                <span className="text-[10px] text-slate-300 truncate max-w-[100px] xs:max-w-[130px] sm:max-w-[200px] leading-tight font-medium">
                   {lang === "te" ? "నెల్లూరు • ప్రముఖ నిపుణులు" : "Nellore, AP • Verified Pros"}
                 </span>
               </div>
@@ -134,8 +157,25 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
             })}
           </nav>
 
-          {/* Right: Language Toggle */}
-          <div className="flex items-center gap-2 shrink-0">
+          {/* Right: Cart Button & Language Toggle (Screenshot 4 & Audio 2) */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Urban Company-Style Circular Cart Button (Screenshot 4) */}
+            <button
+              type="button"
+              onClick={() => setIsCartDrawerOpen(true)}
+              className="relative flex h-8.5 w-8.5 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-white/10 hover:bg-white/20 active:scale-95 text-white border border-white/25 transition-all shadow-xs"
+              aria-label={`Open Cart (${totalItems} items)`}
+              title={lang === "te" ? `కార్ట్ (${totalItems})` : `Cart (${totalItems})`}
+            >
+              <ShoppingCart className="h-4 w-4 sm:h-4.5 sm:w-4.5 text-white" />
+              {totalItems > 0 && (
+                <span className="absolute -top-1 -right-1 flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-emerald-500 text-slate-950 text-[10px] font-black px-1 shadow-sm border border-[#0F172A] animate-in zoom-in-50">
+                  {totalItems}
+                </span>
+              )}
+            </button>
+
+            {/* Language Switcher */}
             <div
               className="flex items-center gap-1 text-xs font-bold bg-white/10 rounded-full p-1 border border-white/15"
               role="group"
@@ -144,7 +184,7 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
               <button
                 type="button"
                 onClick={() => onLanguageChange("en")}
-                className={`transition-colors duration-200 rounded-full px-2.5 py-0.5 ${
+                className={`transition-colors duration-200 rounded-full px-2 sm:px-2.5 py-0.5 text-[11px] sm:text-xs ${
                   lang === "en"
                     ? "font-black text-slate-950 bg-white shadow-xs"
                     : "text-slate-300 hover:text-white"
@@ -158,7 +198,7 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
               <button
                 type="button"
                 onClick={() => onLanguageChange("te")}
-                className={`transition-colors duration-200 rounded-full px-2.5 py-0.5 ${
+                className={`transition-colors duration-200 rounded-full px-2 sm:px-2.5 py-0.5 text-[11px] sm:text-xs ${
                   lang === "te"
                     ? "font-black text-slate-950 bg-white shadow-xs"
                     : "text-slate-300 hover:text-white"
@@ -173,72 +213,17 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
         </div>
       </header>
 
-      {/* Urban Company-Style Locality Picker Bottom Sheet / Modal */}
-      {isLocalityModalOpen && (
-        <div className="fixed inset-0 z-[1100] flex items-end sm:items-center justify-center bg-black/60 backdrop-blur-xs p-0 sm:p-4 animate-in fade-in duration-200">
-          <div
-            className="absolute inset-0"
-            onClick={() => setIsLocalityModalOpen(false)}
-          />
+      {/* Dynamic Google Maps-Style Location Selector Modal with Out-of-Service Warning (Screenshot 3 & Audio 1) */}
+      <LocationSelectorModal
+        isOpen={isLocalityModalOpen}
+        onClose={() => setIsLocalityModalOpen(false)}
+        selectedLocality={selectedLocality}
+        onSelectLocality={handleSelectLocality}
+        lang={lang}
+      />
 
-          <div
-            className="relative w-full max-w-md bg-white rounded-t-3xl sm:rounded-2xl shadow-2xl p-5 z-10 max-h-[80vh] flex flex-col animate-in slide-in-from-bottom-6 duration-200"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Drag Handle Bar for mobile */}
-            <div className="w-12 h-1.5 bg-slate-200 rounded-full mx-auto mb-3 sm:hidden" />
-
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <div>
-                <h3 className="text-base font-bold text-slate-900">
-                  {lang === "te" ? "నెల్లూరులో మీ ప్రాంతాన్ని ఎంచుకోండి" : "Select Your Nellore Area"}
-                </h3>
-                <p className="text-xs text-slate-500">
-                  {lang === "te" ? "30 నిమిషాల్లో సర్వీస్ నిర్ధారణ" : "30-min doorstep arrival confirmation"}
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsLocalityModalOpen(false)}
-                className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-              >
-                <X className="h-5 w-5" />
-              </button>
-            </div>
-
-            <div className="overflow-y-auto divide-y divide-slate-100 py-2">
-              {NELLORE_LOCALITIES.map((loc) => {
-                const isSelected = selectedLocality === loc;
-                return (
-                  <button
-                    key={loc}
-                    type="button"
-                    onClick={() => {
-                      setSelectedLocality(loc);
-                      setIsLocalityModalOpen(false);
-                    }}
-                    className={`w-full flex items-center justify-between py-3 px-2 text-left rounded-xl transition-colors ${
-                      isSelected
-                        ? "bg-slate-100 text-slate-950 font-bold"
-                        : "hover:bg-slate-50 text-slate-700 font-medium"
-                    }`}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <MapPin
-                        className={`h-4 w-4 ${
-                          isSelected ? "text-slate-950" : "text-slate-400"
-                        }`}
-                      />
-                      <span className="text-sm">{loc}, Nellore</span>
-                    </div>
-                    {isSelected && <Check className="h-4 w-4 text-slate-950" />}
-                  </button>
-                );
-              })}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Slide-Up Bottom Cart Checkout Drawer (Available across all pages) */}
+      <UCCartDrawer lang={lang} />
     </>
   );
 }

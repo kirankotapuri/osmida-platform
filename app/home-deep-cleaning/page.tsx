@@ -7,7 +7,6 @@ import { Header } from "@/components/Header";
 import { Language } from "@/lib/translations";
 import { UCServiceCard, UCServiceItemData } from "@/components/UCServiceCard";
 import { UCFloatingCartBar } from "@/components/UCFloatingCartBar";
-import { UCCartDrawer } from "@/components/UCCartDrawer";
 import { UCServiceDetailModal } from "@/components/UCServiceDetailModal";
 import { UCSubcategoryTabs, SubcategoryTabItem } from "@/components/UCSubcategoryTabs";
 import { UCSubcategoryMenuModal, MenuSubcategory } from "@/components/UCSubcategoryMenuModal";
@@ -643,9 +642,6 @@ export default function HomeDeepCleaningPage() {
 
       {/* 10. FLOATING CART DOCK */}
       <UCFloatingCartBar lang={lang} />
-
-      {/* 11. SLIDE-UP BOTTOM CART CHECKOUT DRAWER */}
-      <UCCartDrawer lang={lang} />
 
       {/* 12. SERVICE DETAIL BOTTOM SHEET MODAL */}
       <UCServiceDetailModal
