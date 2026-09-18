@@ -472,17 +472,35 @@ export default function AcServicesPage() {
               </p>
             </div>
 
-            {/* Right Hero Image (Technician in black uniform & cap servicing AC) */}
-            <div className="relative h-28 w-32 sm:h-32 sm:w-36 rounded-2xl overflow-hidden shadow-sm shrink-0 border border-slate-100">
+            {/* Right Hero Image (Technician in black uniform & cap servicing AC - Interactive Video Trigger) */}
+            <button
+              type="button"
+              onClick={() => {
+                const el = document.getElementById("ac-video-guide");
+                if (el) {
+                  el.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
+              className="relative h-28 w-32 sm:h-32 sm:w-36 rounded-2xl overflow-hidden shadow-sm shrink-0 border border-slate-100 group cursor-pointer focus:outline-none"
+              aria-label="Watch AC Service Video Guide"
+            >
               <Image
                 src="/images/ac-tech-hero.jpg"
                 alt="AC Technician Servicing"
                 fill
-                className="object-cover"
+                className="object-cover group-hover:scale-105 transition-transform duration-300"
                 priority
                 sizes="144px"
               />
-            </div>
+              <div className="absolute inset-0 bg-black/20 group-hover:bg-black/30 transition-colors flex items-center justify-center">
+                <div className="h-8 w-8 rounded-full bg-white/40 backdrop-blur-xs border border-white/60 flex items-center justify-center text-white shadow-md group-hover:scale-110 transition-transform">
+                  <Play className="h-4 w-4 fill-white text-white ml-0.5" />
+                </div>
+              </div>
+              <div className="absolute bottom-1.5 inset-x-1.5 bg-black/75 backdrop-blur-xs text-white text-[8px] font-black py-0.5 rounded text-center tracking-wider uppercase">
+                VIDEO GUIDE
+              </div>
+            </button>
           </div>
 
           {/* 4. RATING & OSMIDA COVER GUARANTEE STRIP (Screenshot 3) */}
@@ -775,7 +793,11 @@ export default function AcServicesPage() {
                 : "Watch step-by-step how our verified technicians inspect causes and service your AC with ₹0 advance"}
             </p>
           </div>
-          <HowItWorksVideoSection lang={lang} />
+          <HowItWorksVideoSection
+            lang={lang}
+            defaultService="ac"
+            sectionId="ac-video-guide"
+          />
         </section>
       </div>
 
