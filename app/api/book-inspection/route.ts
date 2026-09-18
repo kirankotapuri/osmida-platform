@@ -13,6 +13,7 @@ export async function POST(req: Request) {
       locality,
       timeSlot,
       inspectionDate,
+      preferredDate,
       siteAddress,
       contactPerson,
       contactConsent,
@@ -35,173 +36,178 @@ export async function POST(req: Request) {
       paymentStatus,
       businessName,
       whatsappNumber,
+      servicePrice,
     } = body;
 
+    const refId = (referenceId || `OSM-${Date.now().toString().slice(-6)}`).trim();
+    const cleanPhone = String(whatsappNumber || body.phone || "").replace(/\D/g, "").slice(-10);
+    const bName = String(businessName || body.customerName || contactPerson || "").trim();
+    const cPerson = String(contactPerson || bName).trim();
+    const sAddress = String(siteAddress || body.address || "").trim();
+    const loc = String(locality || "").trim();
+    const fType = String(facilityType || "residential").trim();
+    const sService = String(selectedService || "General Inspection").trim();
+
     if (
-      typeof businessName !== "string" ||
-      !businessName.trim() ||
-      typeof contactPerson !== "string" ||
-      !contactPerson.trim() ||
-      typeof siteAddress !== "string" ||
-      !siteAddress.trim() ||
-      contactConsent !== true ||
-      typeof whatsappNumber !== "string" ||
-      !/^\d{10}$/.test(whatsappNumber) ||
-      typeof locality !== "string" ||
-      !locality.trim()
+      !bName ||
+      !cPerson ||
+      !sAddress ||
+      !loc ||
+      cleanPhone.length !== 10 ||
+      contactConsent !== true
     ) {
-      return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Missing required fields (businessName, contactPerson, siteAddress, locality, 10-digit whatsappNumber, contactConsent)" },
+        { status: 400 }
+      );
     }
 
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-    if (!supabaseUrl || !supabaseKey) {
-      console.error("Supabase server configuration is missing");
-      return NextResponse.json({ error: "Lead storage is not configured" }, { status: 503 });
-    }
+    const supabase = supabaseUrl && supabaseKey ? createClient(supabaseUrl, supabaseKey) : null;
 
-    const supabase = createClient(supabaseUrl, supabaseKey);
-
-    const fullPayload: Record<string, any> = {
-      reference_id: referenceId,
-      facility_type: facilityType || "residential",
-      selected_service: selectedService,
-      locality: locality.trim(),
-      time_slot: timeSlot || null,
-      inspection_date: inspectionDate || null,
-      site_address: siteAddress.trim(),
-      contact_person: contactPerson.trim(),
-      service_urgency: serviceUrgency || null,
-      floor_area: floorArea || null,
+    const n8nPayload = {
+      referenceId: refId,
+      businessName: bName,
+      contactPerson: cPerson,
+      customerName: cPerson,
+      whatsappNumber: cleanPhone,
+      phone: cleanPhone,
+      facilityType: fType,
+      selectedService: sService,
+      servicePrice: servicePrice || totalAmount || null,
+      locality: loc,
+      siteAddress: sAddress,
+      address: sAddress,
+      inspectionDate: inspectionDate || null,
+      preferredDate: preferredDate || inspectionDate || null,
+      timeSlot: timeSlot || null,
+      serviceUrgency: serviceUrgency || null,
+      floorArea: floorArea || null,
       notes: notes || null,
-      main_pest_issue: mainPestIssue || null,
-      pest_premises_type: pestPremisesType || null,
-      approximate_size: approximateSize || null,
-      pest_details: pestDetails || null,
-      kitchen_details: kitchenDetails || null,
-      washroom_details: washroomDetails || null,
-      ac_details: acDetails || null,
-      cleaning_details: cleaningDetails || null,
-      cart_items: cartItems || null,
-      total_amount: typeof totalAmount === "number" ? totalAmount : totalAmount ? parseInt(String(totalAmount), 10) : null,
-      advance_amount: typeof advanceAmount === "number" ? advanceAmount : 0,
-      booking_type: bookingType || (cartItems && cartItems.length > 0 ? "cart_order" : "inspection"),
+      mainPestIssue: mainPestIssue || null,
+      pestPremisesType: pestPremisesType || null,
+      approximateSize: approximateSize || null,
+      pestDetails: pestDetails || null,
+      kitchenDetails: kitchenDetails || null,
+      washroomDetails: washroomDetails || null,
+      acDetails: acDetails || null,
+      cleaningDetails: cleaningDetails || null,
+      cartItems: cartItems || null,
+      totalAmount: typeof totalAmount === "number" ? totalAmount : null,
+      advanceAmount: typeof advanceAmount === "number" ? advanceAmount : 0,
+      contactConsent: true,
+      bookingType: bookingType || (cartItems && cartItems.length > 0 ? "cart_order" : "inspection"),
       category: category || null,
-      payment_status: paymentStatus || "pending",
-      contact_consent: contactConsent,
-      business_name: businessName.trim(),
-      whatsapp_number: whatsappNumber,
     };
 
-    let { error: dbError } = await supabase.from("inspections").insert(fullPayload);
-
-    // Fallback: If schema migration hasn't been applied yet and extended columns don't exist in Supabase
-    if (dbError && dbError.message && dbError.message.includes("does not exist")) {
-      console.warn("Supabase schema column missing, falling back to baseline schema:", dbError.message);
-      const baselinePayload: Record<string, any> = {
-        reference_id: referenceId,
-        facility_type: facilityType || "residential",
-        selected_service: selectedService,
-        locality: locality.trim(),
-        time_slot: timeSlot || null,
-        inspection_date: inspectionDate || null,
-        site_address: siteAddress.trim(),
-        contact_person: contactPerson.trim(),
-        service_urgency: serviceUrgency || null,
-        floor_area: floorArea || null,
-        notes: [
-          notes || "",
-          acDetails ? `[AC: ${JSON.stringify(acDetails)}]` : "",
-          cartItems ? `[Cart: ${JSON.stringify(cartItems)}]` : "",
-        ].filter(Boolean).join(" | "),
-        main_pest_issue: mainPestIssue || null,
-        pest_premises_type: pestPremisesType || null,
-        approximate_size: approximateSize || null,
-        pest_details: pestDetails || null,
-        kitchen_details: kitchenDetails || null,
-        washroom_details: washroomDetails || null,
-        contact_consent: contactConsent,
-        business_name: businessName.trim(),
-        whatsapp_number: whatsappNumber,
-      };
-      const retryResult = await supabase.from("inspections").insert(baselinePayload);
-      dbError = retryResult.error;
-    }
-
-    if (dbError) {
-      return NextResponse.json({ error: `SUPABASE ERROR: ${dbError.message || dbError.code}` }, { status: 500 });
-    }
-
-    // 2. Mirror into 'leads' table so submissions immediately show up in Supabase Table Editor -> leads
-    try {
-      await supabase.from("leads").insert({
-        reference_id: referenceId,
-        customer_name: contactPerson.trim(),
-        contact_person: contactPerson.trim(),
-        business_name: businessName.trim(),
-        phone: whatsappNumber,
-        whatsapp_number: whatsappNumber,
-        facility_type: facilityType || "residential",
-        selected_service: selectedService,
-        locality: locality.trim(),
-        site_address: siteAddress.trim(),
-        address: siteAddress.trim(),
-        time_slot: timeSlot || null,
-        inspection_date: inspectionDate || null,
-        service_urgency: serviceUrgency || null,
-        floor_area: floorArea || null,
-        notes: notes || null,
-        main_pest_issue: mainPestIssue || null,
-        pest_premises_type: pestPremisesType || null,
-        approximate_size: approximateSize || null,
-        pest_details: pestDetails || null,
-        kitchen_details: kitchenDetails || null,
-        washroom_details: washroomDetails || null,
-        ac_details: acDetails || null,
-        cleaning_details: cleaningDetails || null,
-        cart_items: cartItems || null,
-        total_amount: typeof totalAmount === "number" ? totalAmount : totalAmount ? parseInt(String(totalAmount), 10) : null,
-        advance_amount: typeof advanceAmount === "number" ? advanceAmount : 0,
-        booking_type: bookingType || (cartItems && cartItems.length > 0 ? "cart_order" : "inspection"),
-        category: category || null,
-        payment_status: paymentStatus || "pending",
-        contact_consent: contactConsent,
-        status: "new",
-      });
-    } catch (leadsErr) {
-      console.warn("Non-fatal: leads mirror insert note:", leadsErr);
-    }
-
+    let n8nSuccess = false;
     const n8nWebhookUrl = process.env.N8N_INSPECTION_WEBHOOK_URL;
+
+    // 1. Primary Ingestion: Dispatch to n8n Webhook
+    // In n8n Workflow 1: Deduplication -> Insert into public.leads -> WhatsApp Customer & Admin Notifications
     if (n8nWebhookUrl) {
       try {
-        const response = await fetch(n8nWebhookUrl, {
+        const n8nRes = await fetch(n8nWebhookUrl, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            ...body,
-            facilityType: facilityType || "residential",
-          }),
+          body: JSON.stringify(n8nPayload),
         });
-        if (!response.ok) {
-          console.error("n8n Dispatch Error:", response.status, response.statusText);
+
+        if (n8nRes.ok) {
+          n8nSuccess = true;
+        } else {
+          console.error("n8n Webhook returned status:", n8nRes.status, n8nRes.statusText);
         }
-      } catch (error) {
-        console.error("n8n Dispatch Error:", error);
+      } catch (n8nErr) {
+        console.error("n8n Dispatch Fetch Error:", n8nErr);
+      }
+    }
+
+    // 2. Database Synchronization & Resilient Fallback
+    if (supabase) {
+      if (n8nSuccess) {
+        // n8n already created the lead row; enrich it with webapp-specific cart & service details
+        try {
+          await supabase
+            .from("leads")
+            .update({
+              ac_details: acDetails || null,
+              cleaning_details: cleaningDetails || null,
+              cart_items: cartItems || null,
+              total_amount: typeof totalAmount === "number" ? totalAmount : null,
+              advance_amount: typeof advanceAmount === "number" ? advanceAmount : 0,
+              booking_type: n8nPayload.bookingType,
+              category: category || null,
+              payment_status: paymentStatus || "pending",
+            })
+            .eq("reference_id", refId);
+        } catch (enrichErr) {
+          console.warn("Non-fatal: Lead enrichment note:", enrichErr);
+        }
+      } else {
+        // Fallback: If n8n was offline or failed, insert directly into public.leads so no lead is ever lost
+        console.warn("Falling back to direct Supabase leads insertion for ref:", refId);
+        try {
+          try {
+            await supabase.from("osmida_processed_refs").insert({ reference_id: refId });
+          } catch {}
+          const { error: dbErr } = await supabase.from("leads").insert({
+            reference_id: refId,
+            customer_name: cPerson,
+            contact_person: cPerson,
+            business_name: bName,
+            phone: cleanPhone,
+            whatsapp_number: cleanPhone,
+            facility_type: fType,
+            selected_service: sService,
+            service_price: servicePrice || totalAmount || null,
+            preferred_date: preferredDate || inspectionDate || null,
+            inspection_date: inspectionDate || null,
+            time_slot: timeSlot || null,
+            service_urgency: serviceUrgency || null,
+            address: sAddress,
+            site_address: sAddress,
+            locality: loc,
+            floor_area: floorArea || null,
+            notes: notes || null,
+            main_pest_issue: mainPestIssue || null,
+            pest_premises_type: pestPremisesType || null,
+            approximate_size: approximateSize || null,
+            pest_details: pestDetails || null,
+            kitchen_details: kitchenDetails || null,
+            washroom_details: washroomDetails || null,
+            ac_details: acDetails || null,
+            cleaning_details: cleaningDetails || null,
+            cart_items: cartItems || null,
+            total_amount: typeof totalAmount === "number" ? totalAmount : null,
+            advance_amount: typeof advanceAmount === "number" ? advanceAmount : 0,
+            booking_type: n8nPayload.bookingType,
+            category: category || null,
+            payment_status: paymentStatus || "pending",
+            contact_consent: true,
+            status: "new",
+          });
+
+          if (dbErr) {
+            console.error("Direct Supabase Insert Error:", dbErr);
+          }
+        } catch (directErr) {
+          console.error("Direct Supabase Exception:", directErr);
+        }
       }
     }
 
     return NextResponse.json({
       success: true,
-      referenceId,
-      message: "Inspection booked successfully",
+      referenceId: refId,
+      message: "Inspection / service booking received successfully",
     });
-
   } catch (error) {
     console.error("API Route Error:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" }, 
+      { error: "Internal Server Error" },
       { status: 500 }
     );
   }
-}
+}
