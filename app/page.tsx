@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Image from "next/image";
 import { Header } from "@/components/Header";
 
@@ -25,6 +25,7 @@ import {
   Award,
   ArrowRight,
   Search,
+  ChevronLeft,
   ChevronRight,
   SlidersHorizontal,
   Play,
@@ -35,6 +36,17 @@ export default function HomePage() {
   const [lang, setLang] = useState<Language>("en");
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState<"ac" | "pest" | "cleaning">("ac");
+  const mostBookedScrollRef = useRef<HTMLDivElement | null>(null);
+
+  const scrollMostBooked = (direction: "left" | "right") => {
+    if (mostBookedScrollRef.current) {
+      const scrollAmount = 320;
+      mostBookedScrollRef.current.scrollBy({
+        left: direction === "left" ? -scrollAmount : scrollAmount,
+        behavior: "smooth",
+      });
+    }
+  };
 
   const openCategoryModal = (tab: "ac" | "pest" | "cleaning" = "ac") => {
     setModalTab(tab);
@@ -392,198 +404,243 @@ export default function HomePage() {
             <h2 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
               {lang === "te" ? "అత్యధికంగా బుక్ చేసిన సర్వీసులు" : "Most booked services"}
             </h2>
+            {/* Header Left & Right Navigation Arrows */}
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => scrollMostBooked("left")}
+                aria-label="Scroll left"
+                className="h-8 w-8 rounded-full border border-slate-200 bg-white hover:bg-slate-100 shadow-2xs flex items-center justify-center text-slate-700 hover:text-black transition-all active:scale-95"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+              <button
+                type="button"
+                onClick={() => scrollMostBooked("right")}
+                aria-label="Scroll right"
+                className="h-8 w-8 rounded-full border border-slate-200 bg-white hover:bg-slate-100 shadow-2xs flex items-center justify-center text-slate-700 hover:text-black transition-all active:scale-95"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            </div>
           </div>
 
-          {/* Horizontal Swipe Row */}
-          <div className="flex gap-3.5 overflow-x-auto no-scrollbar pb-2 pt-1 -mx-3 px-3 sm:mx-0 sm:px-0">
-            {/* Item 1: AC Foam Jet */}
-            <Link
-              href="/ac-services"
-              className="w-38 sm:w-44 flex-shrink-0 group block cursor-pointer"
+          {/* Carousel Wrapper with Floating Desktop Hover Arrows */}
+          <div className="relative group">
+            {/* Floating Left Arrow (Desktop) */}
+            <button
+              type="button"
+              onClick={() => scrollMostBooked("left")}
+              aria-label="Scroll previous services"
+              className="hidden sm:flex absolute -left-4 top-1/3 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-white/95 backdrop-blur-xs border border-slate-200 shadow-md items-center justify-center text-slate-700 hover:text-black hover:scale-105 active:scale-95 transition-all opacity-0 group-hover:opacity-100"
             >
-              <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
-                <Image
-                  src="/images/service-ac-foamjet.jpg"
-                  alt="Split AC Foam Jet"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-200"
-                  sizes="176px"
-                />
-              </div>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600">
-                {lang === "te" ? "స్ప్లిట్ ఏసీ ఫోమ్ జెట్" : "Foam-jet split AC"}
-              </h3>
-              <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
-                <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
-                <span className="font-bold">4.86</span>
-                <span className="text-slate-500">(1.4k)</span>
-              </div>
-              <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
-                ₹599
-              </div>
-            </Link>
+              <ChevronLeft className="h-5 w-5" />
+            </button>
 
-            {/* Item 2: General Pest Control */}
-            <Link
-              href="/pest-control"
-              className="w-38 sm:w-44 flex-shrink-0 group block cursor-pointer"
+            {/* Horizontal Swipe Row */}
+            <div
+              ref={mostBookedScrollRef}
+              className="flex gap-3.5 overflow-x-auto no-scrollbar scroll-smooth pb-2 pt-1 -mx-3 px-3 sm:mx-0 sm:px-0"
             >
-              <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
-                <Image
-                  src="/images/service-pest-general.jpg"
-                  alt="General Pest Control"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-200"
-                  sizes="176px"
-                />
-              </div>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600">
-                {lang === "te" ? "సాధారణ పురుగులు (1 BHK)" : "General pest (1 BHK)"}
-              </h3>
-              <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
-                <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
-                <span className="font-bold">4.89</span>
-                <span className="text-slate-500">(890)</span>
-              </div>
-              <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
-                ₹1,499
-              </div>
-            </Link>
+              {/* Item 1: AC Foam Jet */}
+              <Link
+                href="/ac-services"
+                className="w-38 sm:w-44 flex-shrink-0 group/card block cursor-pointer"
+              >
+                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
+                  <Image
+                    src="/images/service-ac-v2.jpg"
+                    alt="Split AC Foam Jet"
+                    fill
+                    className="object-cover group-hover/card:scale-105 transition-transform duration-200"
+                    sizes="176px"
+                  />
+                </div>
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover/card:text-blue-600">
+                  {lang === "te" ? "స్ప్లిట్ ఏసీ ఫోమ్ జెట్" : "Foam-jet split AC"}
+                </h3>
+                <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
+                  <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
+                  <span className="font-bold">4.86</span>
+                  <span className="text-slate-500">(1.4k)</span>
+                </div>
+                <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
+                  ₹599
+                </div>
+              </Link>
 
-            {/* Item 3: Intense Bathroom Scrubbing */}
-            <Link
-              href="/home-deep-cleaning?tab=bathroom"
-              className="w-38 sm:w-44 flex-shrink-0 group block cursor-pointer"
-            >
-              <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
-                <Image
-                  src="/images/bathroom-scrub-banner.jpg"
-                  alt="Intense Bathroom Cleaning"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-200"
-                  sizes="176px"
-                />
-              </div>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600">
-                {lang === "te" ? "బాత్‌రూమ్ డీప్ స్క్రబ్" : "Bathroom deep scrub"}
-              </h3>
-              <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
-                <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
-                <span className="font-bold">4.85</span>
-                <span className="text-slate-500">(1.1k)</span>
-              </div>
-              <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
-                ₹449
-              </div>
-            </Link>
+              {/* Item 2: General Pest Control */}
+              <Link
+                href="/pest-control"
+                className="w-38 sm:w-44 flex-shrink-0 group/card block cursor-pointer"
+              >
+                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
+                  <Image
+                    src="/images/service-pest-v2.jpg"
+                    alt="General Pest Control"
+                    fill
+                    className="object-cover group-hover/card:scale-105 transition-transform duration-200"
+                    sizes="176px"
+                  />
+                </div>
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover/card:text-blue-600">
+                  {lang === "te" ? "సాధారణ పురుగులు (1 BHK)" : "General pest (1 BHK)"}
+                </h3>
+                <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
+                  <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
+                  <span className="font-bold">4.89</span>
+                  <span className="text-slate-500">(890)</span>
+                </div>
+                <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
+                  ₹1,499
+                </div>
+              </Link>
 
-            {/* Item 4: Chimney & Stove Cleaning */}
-            <Link
-              href="/home-deep-cleaning?tab=kitchen"
-              className="w-38 sm:w-44 flex-shrink-0 group block cursor-pointer"
-            >
-              <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
-                <Image
-                  src="/images/service-cleaning-chimney.jpg"
-                  alt="Chimney and Stove Cleaning"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-200"
-                  sizes="176px"
-                />
-              </div>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600">
-                {lang === "te" ? "చిమ్నీ & స్టవ్ క్లీనింగ్" : "Chimney & stove clean"}
-              </h3>
-              <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
-                <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
-                <span className="font-bold">4.88</span>
-                <span className="text-slate-500">(940)</span>
-              </div>
-              <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
-                ₹649
-              </div>
-            </Link>
+              {/* Item 3: Intense Bathroom Scrubbing */}
+              <Link
+                href="/home-deep-cleaning?tab=bathroom"
+                className="w-38 sm:w-44 flex-shrink-0 group/card block cursor-pointer"
+              >
+                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
+                  <Image
+                    src="/images/service-cleaning-bathroom.jpg"
+                    alt="Intense Bathroom Cleaning"
+                    fill
+                    className="object-cover group-hover/card:scale-105 transition-transform duration-200"
+                    sizes="176px"
+                  />
+                </div>
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover/card:text-blue-600">
+                  {lang === "te" ? "బాత్‌రూమ్ డీప్ స్క్రబ్" : "Bathroom deep scrub"}
+                </h3>
+                <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
+                  <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
+                  <span className="font-bold">4.85</span>
+                  <span className="text-slate-500">(1.1k)</span>
+                </div>
+                <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
+                  ₹449
+                </div>
+              </Link>
 
-            {/* Item 5: Refrigerator Deep Clean */}
-            <Link
-              href="/home-deep-cleaning?tab=kitchen"
-              className="w-38 sm:w-44 flex-shrink-0 group block cursor-pointer"
-            >
-              <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
-                <Image
-                  src="/images/service-cleaning-fridge.jpg"
-                  alt="Refrigerator Deep Clean"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-200"
-                  sizes="176px"
-                />
-              </div>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600">
-                {lang === "te" ? "ఫ్రిజ్ డీప్ క్లీనింగ్" : "Fridge deep clean"}
-              </h3>
-              <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
-                <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
-                <span className="font-bold">4.84</span>
-                <span className="text-slate-500">(710)</span>
-              </div>
-              <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
-                ₹349
-              </div>
-            </Link>
+              {/* Item 4: Chimney & Stove Cleaning */}
+              <Link
+                href="/home-deep-cleaning?tab=kitchen"
+                className="w-38 sm:w-44 flex-shrink-0 group/card block cursor-pointer"
+              >
+                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
+                  <Image
+                    src="/images/service-cleaning-chimney.jpg"
+                    alt="Chimney and Stove Cleaning"
+                    fill
+                    className="object-cover group-hover/card:scale-105 transition-transform duration-200"
+                    sizes="176px"
+                  />
+                </div>
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover/card:text-blue-600">
+                  {lang === "te" ? "చిమ్నీ & స్టవ్ క్లీనింగ్" : "Chimney & stove clean"}
+                </h3>
+                <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
+                  <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
+                  <span className="font-bold">4.88</span>
+                  <span className="text-slate-500">(940)</span>
+                </div>
+                <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
+                  ₹649
+                </div>
+              </Link>
 
-            {/* Item 5: Bedbug Treatment */}
-            <Link
-              href="/pest-control"
-              className="w-38 sm:w-44 flex-shrink-0 group block cursor-pointer"
-            >
-              <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
-                <Image
-                  src="/images/service-pest-bedbug.jpg"
-                  alt="Bedbug Treatment"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-200"
-                  sizes="176px"
-                />
-              </div>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600">
-                {lang === "te" ? "నిద్రపురుగులు (ప్రతి గది)" : "Bedbug treatment (Room)"}
-              </h3>
-              <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
-                <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
-                <span className="font-bold">4.87</span>
-                <span className="text-slate-500">(430)</span>
-              </div>
-              <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
-                ₹999
-              </div>
-            </Link>
+              {/* Item 5: Refrigerator Deep Clean */}
+              <Link
+                href="/home-deep-cleaning?tab=kitchen"
+                className="w-38 sm:w-44 flex-shrink-0 group/card block cursor-pointer"
+              >
+                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
+                  <Image
+                    src="/images/service-cleaning-fridge.jpg"
+                    alt="Refrigerator Deep Clean"
+                    fill
+                    className="object-cover group-hover/card:scale-105 transition-transform duration-200"
+                    sizes="176px"
+                  />
+                </div>
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover/card:text-blue-600">
+                  {lang === "te" ? "ఫ్రిజ్ డీప్ క్లీనింగ్" : "Fridge deep clean"}
+                </h3>
+                <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
+                  <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
+                  <span className="font-bold">4.84</span>
+                  <span className="text-slate-500">(710)</span>
+                </div>
+                <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
+                  ₹349
+                </div>
+              </Link>
 
-            {/* Item 6: AC Repair */}
-            <Link
-              href="/ac-services"
-              className="w-38 sm:w-44 flex-shrink-0 group block cursor-pointer"
+              {/* Item 6: Bedbug Treatment */}
+              <Link
+                href="/pest-control"
+                className="w-38 sm:w-44 flex-shrink-0 group/card block cursor-pointer"
+              >
+                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
+                  <Image
+                    src="/images/service-pest-bedbug.jpg"
+                    alt="Bedbug Treatment"
+                    fill
+                    className="object-cover group-hover/card:scale-105 transition-transform duration-200"
+                    sizes="176px"
+                  />
+                </div>
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover/card:text-blue-600">
+                  {lang === "te" ? "నిద్రపురుగులు (ప్రతి గది)" : "Bedbug treatment (Room)"}
+                </h3>
+                <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
+                  <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
+                  <span className="font-bold">4.87</span>
+                  <span className="text-slate-500">(430)</span>
+                </div>
+                <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
+                  ₹999
+                </div>
+              </Link>
+
+              {/* Item 7: AC Repair */}
+              <Link
+                href="/ac-services"
+                className="w-38 sm:w-44 flex-shrink-0 group/card block cursor-pointer"
+              >
+                <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
+                  <Image
+                    src="/images/service-ac-repair.jpg"
+                    alt="AC Repair"
+                    fill
+                    className="object-cover group-hover/card:scale-105 transition-transform duration-200"
+                    sizes="176px"
+                  />
+                </div>
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover/card:text-blue-600">
+                  {lang === "te" ? "ఏసీ చెకప్ & రిపేర్" : "AC checkup & repair"}
+                </h3>
+                <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
+                  <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
+                  <span className="font-bold">4.78</span>
+                  <span className="text-slate-500">(865k)</span>
+                </div>
+                <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
+                  ₹299
+                </div>
+              </Link>
+            </div>
+
+            {/* Floating Right Arrow (Desktop) */}
+            <button
+              type="button"
+              onClick={() => scrollMostBooked("right")}
+              aria-label="Scroll next services"
+              className="hidden sm:flex absolute -right-4 top-1/3 -translate-y-1/2 z-20 h-10 w-10 rounded-full bg-white/95 backdrop-blur-xs border border-slate-200 shadow-md items-center justify-center text-slate-700 hover:text-black hover:scale-105 active:scale-95 transition-all opacity-0 group-hover:opacity-100"
             >
-              <div className="relative aspect-square w-full rounded-2xl overflow-hidden bg-slate-100 mb-2 border border-slate-100 shadow-2xs">
-                <Image
-                  src="/images/service-ac-repair.jpg"
-                  alt="AC Repair"
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform duration-200"
-                  sizes="176px"
-                />
-              </div>
-              <h3 className="text-xs sm:text-sm font-bold text-slate-900 line-clamp-1 leading-snug group-hover:text-blue-600">
-                {lang === "te" ? "ఏసీ చెకప్ & రిపేర్" : "AC checkup & repair"}
-              </h3>
-              <div className="flex items-center gap-1 text-[11px] text-slate-700 mt-0.5">
-                <Star className="h-3 w-3 fill-slate-900 text-slate-900" />
-                <span className="font-bold">4.78</span>
-                <span className="text-slate-500">(865k)</span>
-              </div>
-              <div className="text-xs sm:text-sm font-extrabold text-[#059669] mt-0.5">
-                ₹299
-              </div>
-            </Link>
+              <ChevronRight className="h-5 w-5" />
+            </button>
           </div>
         </div>
       </section>
