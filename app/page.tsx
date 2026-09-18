@@ -4,7 +4,6 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { Header } from "@/components/Header";
 
-import { NelloreBookingFlow } from "@/components/NelloreBookingFlow";
 import { FloatingContactBar } from "@/components/FloatingContactBar";
 import { SafetyPromise } from "@/components/SafetyPromise";
 import { VoiceNoteBanner } from "@/components/VoiceNoteBanner";
@@ -25,7 +24,6 @@ import {
   Clock,
   Award,
   ArrowRight,
-  Zap,
   Search,
   ChevronRight,
   SlidersHorizontal,
@@ -35,9 +33,6 @@ import Link from "next/link";
 
 export default function HomePage() {
   const [lang, setLang] = useState<Language>("en");
-  const [selectedServiceId, setSelectedServiceId] = useState<
-    "pest-control" | "ac-services" | "home-cleaning"
-  >("pest-control");
   const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
   const [modalTab, setModalTab] = useState<"ac" | "pest" | "cleaning">("ac");
 
@@ -111,14 +106,23 @@ export default function HomePage() {
       {/* 1. FIXED BLACK HEADER */}
       <Header lang={lang} onLanguageChange={setLang} />
 
-      {/* 2. EXECUTIVE MIDNIGHT HERO STRIP & SEARCH BAR (Color Psychology: Authority & Verified Trust) */}
-      <section className="bg-gradient-to-b from-[#0F172A] via-[#1E293B] to-[#0F172A] px-3 sm:px-6 pt-3 pb-5 text-white">
-        <div className="mx-auto max-w-xl space-y-3">
+      {/* 2. AIRY HIGH-CONTRAST HERO & QUICK SEARCH (Color Psychology: Cleanliness, Hygiene & Instant Readability) */}
+      <section className="bg-gradient-to-b from-slate-100/80 via-slate-50 to-white px-3 sm:px-6 pt-5 pb-6 border-b border-slate-100">
+        <div className="mx-auto max-w-xl space-y-3 text-center sm:text-left">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
+              {lang === "te" ? "నెల్లూరులో మీ ఇంటి వద్దకే నమ్మకమైన సేవలు" : "Reliable Home Services at Your Doorstep in Nellore"}
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-600 mt-1 font-medium">
+              {lang === "te" ? "స్థానిక అనుభవజ్ఞులైన టెక్నీషియన్లు • ₹0 అడ్వాన్స్ • 30 నిమిషాల్లో కన్ఫర్మేషన్" : "Partnered with verified local technicians • ₹0 Advance • 30-min pro arrival"}
+            </p>
+          </div>
+
           {/* White Pill Search Bar */}
           <button
             type="button"
             onClick={() => openCategoryModal("ac")}
-            className="w-full flex items-center gap-3 rounded-2xl bg-white p-3 sm:p-3.5 shadow-lg transition-transform active:scale-98 text-left group"
+            className="w-full flex items-center gap-3 rounded-2xl bg-white p-3 sm:p-3.5 shadow-sm border border-slate-200/90 hover:border-slate-300 transition-all active:scale-98 text-left group"
             aria-label="Search services"
           >
             <Search className="h-4.5 w-4.5 text-slate-400 group-hover:text-slate-900 shrink-0" />
@@ -130,14 +134,17 @@ export default function HomePage() {
           </button>
 
           {/* Value Prop Banner */}
-          <div className="flex items-center justify-between rounded-xl bg-white/10 backdrop-blur-md px-3 py-2 text-[11px] sm:text-xs font-semibold text-slate-200 border border-white/15">
+          <div className="flex items-center justify-between rounded-xl bg-emerald-50 border border-emerald-200/80 px-3 py-2 text-[11px] sm:text-xs font-semibold text-emerald-900 shadow-2xs">
             <span>
               {lang === "te"
-                ? "⚡ నెల్లూరులో తొలిసారిగా • ప్రముఖ నిపుణులు • "
-                : "⚡ 30-min Pro Dispatch in Nellore • Partnered with Local Pros • "}
-              <strong className="text-emerald-400 font-black">
-                {lang === "te" ? "₹0 అడ్వాన్స్" : "₹0 Advance"}
+                ? "⚡ నెల్లూరులో ప్రముఖ నిపుణులు • "
+                : "⚡ 30-min Pro Dispatch in Nellore • Verified Local Pros • "}
+              <strong className="text-emerald-700 font-black">
+                {lang === "te" ? "₹0 ముందస్తు అడ్వాన్స్" : "₹0 Advance"}
               </strong>
+            </span>
+            <span className="text-[10px] font-black uppercase text-emerald-700 bg-white px-2 py-0.5 rounded-md border border-emerald-200">
+              {lang === "te" ? "ధృవీకరించబడింది" : "Verified"}
             </span>
           </div>
         </div>
@@ -639,303 +646,11 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 4. SECTION 2: 3 SERVICE CARDS GRID (Mobile Aligned) */}
-      <section id="services" className="px-3 sm:px-6 py-10 sm:py-16 bg-[#F7F8FA]">
-        <div className="mx-auto max-w-6xl space-y-6 sm:space-y-8">
-          {/* Section Header */}
-          <div className="text-center max-w-2xl mx-auto space-y-1.5 sm:space-y-2">
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#0F172A] bg-slate-100 border border-slate-200 px-3 py-1 rounded-full">
-              {lang === "te" ? "ముఖ్యమైన సేవలు" : "Our Core Services"}
-            </span>
-            <h2 className="text-2xl sm:text-3xl font-black text-[#111111]">
-              {lang === "te" ? "మీకు అవసరమైన సేవను ఎంచుకోండి" : "Select Your Home Service"}
-            </h2>
-            <p className="text-xs sm:text-sm text-[#555555]">
-              {lang === "te"
-                ? "నెల్లూరులో ప్రముఖ స్థానిక భాగస్వాములు • వారంటీ రక్షణ • పని పూర్తయిన తర్వాతే చెల్లింపు"
-                : "Established Nellore partners, transparent pricing, and zero advance payment."}
-            </p>
-          </div>
-
-          {/* 3-Column Grid on Desktop / 1-Column on Mobile */}
-          <div className="grid gap-4 sm:gap-8 lg:grid-cols-3">
-            {/* Card 1: Pest Control */}
-            <div className="group relative flex flex-col justify-between rounded-2xl sm:rounded-3xl border border-[#E5E7EB] bg-white p-4 sm:p-6 shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.1)] transition-all duration-200 hover:-translate-y-1">
-              <div className="space-y-3 sm:space-y-4 text-center">
-                {/* Service Photo with Official Uniform */}
-                <div className="flex justify-center pt-1">
-                  <div className="relative h-32 sm:h-36 w-full max-w-[280px] rounded-xl sm:rounded-2xl overflow-hidden shadow-md border border-gray-100 group-hover:scale-105 transition-transform duration-300">
-                    <Image
-                      src="/images/service-pest-v2.jpg"
-                      alt="Osmida Pest Specialist in Official Uniform"
-                      fill
-                      className="object-cover object-top"
-                      sizes="280px"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                    <div className="absolute bottom-2 left-2 bg-white/95 backdrop-blur-xs px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold text-gray-900 shadow-xs flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-800" />
-                      Official Uniform
-                    </div>
-                  </div>
-                </div>
-
-                {/* Service Title */}
-                <div className="space-y-0.5">
-                  <h3 className="text-lg sm:text-xl font-bold text-[#0F172A] group-hover:text-black transition-colors">
-                    {lang === "te" ? "పురుగుల నియంత్రణ" : "Pest Control"}
-                  </h3>
-                  <p className="text-[10px] sm:text-[11px] font-bold text-[#92400E] bg-[#FEF3C7] border border-[#FDE68A] inline-block px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                    {lang === "te" ? "30 రోజుల ఉచిత రీవిజిట్ వారంటీ (నిబంధనలు వర్తిస్తాయి)" : "30-Day Revisit Warranty (Terms Apply)"}
-                  </p>
-                </div>
-
-                {/* Short Description */}
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  {lang === "te"
-                    ? "వారంటీతో ఇల్లు మరియు షాప్ పురుగుల నియంత్రణ."
-                    : "Home & shop pest control with warranty."}
-                </p>
-
-                {/* Inclusions Teaser Chips */}
-                <div className="flex flex-wrap justify-center gap-1.5 text-[10px] sm:text-[11px] text-slate-700 pt-0.5">
-                  <span className="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md font-medium">
-                    {lang === "te" ? "బొద్దింకలు" : "Cockroaches"}
-                  </span>
-                  <span className="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md font-medium">
-                    {lang === "te" ? "నల్లులు" : "Bedbugs"}
-                  </span>
-                  <span className="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md font-medium">
-                    {lang === "te" ? "చెదలు" : "Termites"}
-                  </span>
-                </div>
-
-                {/* Price Line */}
-                <div className="pt-1">
-                  <span className="text-base sm:text-lg font-black text-[#0F172A]">
-                    {lang === "te" ? "₹1,499 నుండి" : "From ₹1,499"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Action Buttons: Primary View Plans + Secondary Details */}
-              <div className="pt-4 sm:pt-6 space-y-2">
-                <button
-                  type="button"
-                  onClick={() => openCategoryModal("pest")}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#0F172A] hover:bg-black py-3 sm:py-3.5 px-4 text-center text-xs sm:text-sm font-bold text-white shadow-md active:scale-[0.98] transition-all"
-                >
-                  <SlidersHorizontal className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-300" />
-                  <span>{lang === "te" ? "ప్లాన్లు ఎంచుకోండి & బుక్ చేయండి" : "View Plans & Book"}</span>
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </button>
-
-                <Link
-                  href="/pest-control"
-                  className="w-full flex items-center justify-center gap-1 text-[11px] sm:text-xs font-semibold text-slate-500 hover:text-black py-1 transition-colors"
-                >
-                  <span>{lang === "te" ? "పూర్తి వివరాలు & రేట్లు చూడండి" : "View Full Details & Scope"}</span>
-                  <ArrowRight className="h-3 w-3" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Card 2: AC Services */}
-            <div className="group relative flex flex-col justify-between rounded-2xl sm:rounded-3xl border border-[#E5E7EB] bg-white p-4 sm:p-6 shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.1)] transition-all duration-200 hover:-translate-y-1">
-              <div className="space-y-3 sm:space-y-4 text-center">
-                {/* Service Photo with Official Uniform */}
-                <div className="flex justify-center pt-1">
-                  <div className="relative h-32 sm:h-36 w-full max-w-[280px] rounded-xl sm:rounded-2xl overflow-hidden shadow-md border border-gray-100 group-hover:scale-105 transition-transform duration-300">
-                    <Image
-                      src="/images/service-ac-v2.jpg"
-                      alt="Osmida AC Service Technician in Official Uniform"
-                      fill
-                      className="object-cover object-top"
-                      sizes="280px"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                    <div className="absolute bottom-2 left-2 bg-white/95 backdrop-blur-xs px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold text-gray-900 shadow-xs flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-slate-800" />
-                      Official Uniform
-                    </div>
-                  </div>
-                </div>
-
-                {/* Service Title */}
-                <div className="space-y-0.5">
-                  <h3 className="text-lg sm:text-xl font-bold text-[#0F172A] group-hover:text-black transition-colors">
-                    {lang === "te" ? "ఏసీ సర్వీస్" : "AC Services"}
-                  </h3>
-                  <p className="text-[10px] sm:text-[11px] font-bold text-slate-800 bg-slate-100 border border-slate-200 inline-block px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                    {lang === "te" ? "15 రోజుల కూలింగ్ & లీక్ వారంటీ" : "15-Day Cooling & Leak Warranty"}
-                  </p>
-                </div>
-
-                {/* Short Description */}
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  {lang === "te"
-                    ? "స్థానిక అనుభవజ్ఞులతో ఏసీ రిపేర్, సర్వీస్, ఇన్‌స్టాలేషన్."
-                    : "AC repair, foam jet service, installation by local experts."}
-                </p>
-
-                {/* Inclusions Teaser Chips */}
-                <div className="flex flex-wrap justify-center gap-1.5 text-[10px] sm:text-[11px] text-slate-700 pt-0.5">
-                  <span className="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md font-medium">
-                    {lang === "te" ? "ఫోమ్ జెట్ వాష్" : "Foam Jet Wash"}
-                  </span>
-                  <span className="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md font-medium">
-                    {lang === "te" ? "కూలింగ్ చెక్" : "Cooling Check"}
-                  </span>
-                  <span className="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md font-medium">
-                    {lang === "te" ? "గ్యాస్ రీఫిల్" : "Gas Refill"}
-                  </span>
-                </div>
-
-                {/* Price Line */}
-                <div className="pt-1">
-                  <span className="text-base sm:text-lg font-black text-[#0F172A]">
-                    {lang === "te" ? "₹599 నుండి" : "From ₹599"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Action Buttons: Primary View Plans + Secondary Details */}
-              <div className="pt-4 sm:pt-6 space-y-2">
-                <button
-                  type="button"
-                  onClick={() => openCategoryModal("ac")}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#0F172A] hover:bg-black py-3 sm:py-3.5 px-4 text-center text-xs sm:text-sm font-bold text-white shadow-md active:scale-[0.98] transition-all"
-                >
-                  <SlidersHorizontal className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-300" />
-                  <span>{lang === "te" ? "ప్లాన్లు ఎంచుకోండి & బుక్ చేయండి" : "View Plans & Book"}</span>
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </button>
-
-                <Link
-                  href="/ac-services"
-                  className="w-full flex items-center justify-center gap-1 text-[11px] sm:text-xs font-semibold text-slate-500 hover:text-black py-1 transition-colors"
-                >
-                  <span>{lang === "te" ? "పూర్తి వివరాలు & రేట్లు చూడండి" : "View Full Details & Scope"}</span>
-                  <ArrowRight className="h-3 w-3" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Card 3: Home Deep Cleaning */}
-            <div className="group relative flex flex-col justify-between rounded-2xl sm:rounded-3xl border border-[#E5E7EB] bg-white p-4 sm:p-6 shadow-[0_4px_16px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_28px_rgba(0,0,0,0.1)] transition-all duration-200 hover:-translate-y-1">
-              <div className="space-y-3 sm:space-y-4 text-center">
-                {/* Service Photo with Official Uniform */}
-                <div className="flex justify-center pt-1">
-                  <div className="relative h-32 sm:h-36 w-full max-w-[280px] rounded-xl sm:rounded-2xl overflow-hidden shadow-md border border-gray-100 group-hover:scale-105 transition-transform duration-300">
-                    <Image
-                      src="/images/service-cleaning-v2.jpg"
-                      alt="Osmida Cleaning Professional in Official Uniform"
-                      fill
-                      className="object-cover object-top"
-                      sizes="280px"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
-                    <div className="absolute bottom-2 left-2 bg-white/95 backdrop-blur-xs px-2 py-0.5 rounded-md text-[9px] sm:text-[10px] font-bold text-gray-900 shadow-xs flex items-center gap-1">
-                      <span className="w-1.5 h-1.5 rounded-full bg-[#166534]" />
-                      Official Uniform
-                    </div>
-                  </div>
-                </div>
-
-                {/* Service Title */}
-                <div className="space-y-0.5">
-                  <h3 className="text-lg sm:text-xl font-bold text-[#0F172A] group-hover:text-black transition-colors">
-                    {lang === "te" ? "బాత్‌రూమ్ & కిచెన్ క్లీనింగ్" : "Bath & Kitchen Cleaning"}
-                  </h3>
-                  <p className="text-[10px] sm:text-[11px] font-bold text-[#166534] bg-[#F0FDF4] border border-[#BBF7D0] inline-block px-2.5 py-0.5 rounded-full uppercase tracking-wider">
-                    {lang === "te" ? "24-గంటల క్వాలిటీ చెక్" : "24-Hr Quality Check"}
-                  </p>
-                </div>
-
-                {/* Short Description */}
-                <p className="text-xs sm:text-sm text-slate-600 leading-relaxed">
-                  {lang === "te"
-                    ? "బాత్‌రూమ్ మెషిన్ స్క్రబ్బింగ్ & కిచెన్ చిమ్నీ డీగ్రీసింగ్."
-                    : "Intense machine scrubbing for bathrooms & kitchen degreasing."}
-                </p>
-
-                {/* Inclusions Teaser Chips */}
-                <div className="flex flex-wrap justify-center gap-1.5 text-[10px] sm:text-[11px] text-slate-700 pt-0.5">
-                  <span className="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md font-medium">
-                    {lang === "te" ? "బాత్‌రూమ్ ₹449" : "Bathroom (₹449)"}
-                  </span>
-                  <span className="bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md font-medium">
-                    {lang === "te" ? "కిచెన్ & చిమ్నీ ₹649" : "Kitchen & Chimney (₹649)"}
-                  </span>
-                </div>
-
-                {/* Price Line */}
-                <div className="pt-1">
-                  <span className="text-base sm:text-lg font-black text-[#0F172A]">
-                    {lang === "te" ? "ప్రారంభ ధర ₹449 • ₹0 అడ్వాన్స్" : "Starts at ₹449 • ₹0 Advance"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Action Buttons: Primary View Plans + Secondary Details */}
-              <div className="pt-4 sm:pt-6 space-y-2">
-                <button
-                  type="button"
-                  onClick={() => openCategoryModal("cleaning")}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#0F172A] hover:bg-black py-3 sm:py-3.5 px-4 text-center text-xs sm:text-sm font-bold text-white shadow-md active:scale-[0.98] transition-all"
-                >
-                  <SlidersHorizontal className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-slate-300" />
-                  <span>{lang === "te" ? "ప్లాన్లు ఎంచుకోండి & బుక్ చేయండి" : "View Plans & Book"}</span>
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </button>
-
-                <Link
-                  href="/home-deep-cleaning"
-                  className="w-full flex items-center justify-center gap-1 text-[11px] sm:text-xs font-semibold text-slate-500 hover:text-black py-1 transition-colors"
-                >
-                  <span>{lang === "te" ? "పూర్తి వివరాలు & రేట్లు చూడండి" : "View Full Details & Scope"}</span>
-                  <ArrowRight className="h-3 w-3" />
-                </Link>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 2B. HOW TO BOOK VIDEO EXPLAINER (Telugu Video Guide) */}
+      {/* 4. HOW TO BOOK VIDEO EXPLAINER (Telugu Video Guide) */}
       <HowItWorksVideoSection
         lang={lang}
         onOpenBookingModal={openCategoryModal}
       />
-
-      {/* 5. FAST 60-SECOND BOOKING SECTION (Hybrid Flow Option) */}
-      <section id="booking-section" className="px-4 sm:px-6 py-12 bg-white border-t border-[#E5E7EB]">
-        <div className="mx-auto max-w-4xl space-y-6">
-          <div className="text-center space-y-1.5">
-            <div className="inline-flex items-center gap-1.5 text-xs font-bold text-[#1E6FFF] bg-[#1E6FFF]/10 px-3 py-1 rounded-full">
-              <Zap className="h-3.5 w-3.5" />
-              <span>{lang === "te" ? "తక్షణ బుకింగ్ (60 సెకన్లు)" : "Instant 60-Second Booking"}</span>
-            </div>
-            <h2 className="text-2xl sm:text-3xl font-black text-[#111111]">
-              {lang === "te" ? "నేరుగా ఇప్పుడే షెడ్యూల్ చేయండి" : "Schedule Service Without Advance Payment"}
-            </h2>
-            <p className="text-xs sm:text-sm text-[#555555]">
-              {lang === "te"
-                ? "మీ సర్వీస్ ఎంచుకోండి, వివరాలు ఇవ్వండి, 30 నిమిషాల్లో మా కోఆర్డినేటర్ కాల్ చేసి సమయాన్ని ఖరారు చేస్తారు."
-                : "Pick your service, choose your time slot, and our local coordinator will call in 30 minutes."}
-            </p>
-          </div>
-
-          <div className="max-w-xl mx-auto">
-            <NelloreBookingFlow
-              key={selectedServiceId}
-              lang={lang}
-              onLanguageChange={setLang}
-              initialServiceId={selectedServiceId}
-            />
-          </div>
-        </div>
-      </section>
 
       {/* 4. VOICE NOTE & PHOTO EXIT RAMP (Zero typing for low-literacy users) */}
       <VoiceNoteBanner lang={lang} />
@@ -1119,10 +834,7 @@ export default function HomePage() {
       </footer>
 
       {/* 11. FLOATING WHATSAPP BUTTON */}
-      <FloatingContactBar
-        lang={lang}
-        selectedServiceName={SERVICES_DATA.find((s) => s.id === selectedServiceId)?.titleEn}
-      />
+      <FloatingContactBar lang={lang} />
 
       {/* 12. URBAN COMPANY-STYLE STICKY MOBILE BOTTOM NAVIGATION */}
       <MobileBottomNav
