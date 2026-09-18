@@ -1,18 +1,55 @@
-import { MetadataRoute } from 'next'
+import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
+  const now = new Date();
   return [
     {
       url: 'https://osmida.com',
-      lastModified: new Date(),
-      changeFrequency: 'weekly',
-      priority: 1,
+      lastModified: now,
+      changeFrequency: 'daily',
+      priority: 1.0,
     },
     {
       url: 'https://osmida.com/ac-services',
-      lastModified: new Date(),
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: 'https://osmida.com/pest-control',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: 'https://osmida.com/home-deep-cleaning',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: 'https://osmida.com/about',
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.8,
+    },
+    {
+      url: 'https://osmida.com/service-area',
+      lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.7,
-    }
-  ]
+    },
+    {
+      url: 'https://osmida.com/privacy-policy',
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+    {
+      url: 'https://osmida.com/terms',
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.5,
+    },
+  ];
 }
