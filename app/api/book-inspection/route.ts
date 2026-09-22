@@ -198,6 +198,32 @@ export async function POST(req: Request) {
       }
     }
 
+    // 3. Quick-Commerce Automated Dispatch Tree:
+    // Route job to closest available partner in Nellore
+    try {
+      const dispatchPayload = {
+        referenceId: refId,
+        customerName: cPerson,
+        customerPhone: cleanPhone,
+        customerAddress: sAddress,
+        locality: loc,
+        selectedService: sService,
+        category: category || null,
+        totalAmount: typeof totalAmount === "number" ? totalAmount : null,
+        inspectionDate: inspectionDate || null,
+        timeSlot: timeSlot || null,
+      };
+
+      const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+      fetch(`${siteUrl.replace(/\/$/, "")}/api/partner/dispatch`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(dispatchPayload),
+      }).catch((e) => console.warn("Background partner dispatch note:", e));
+    } catch (dispatchErr) {
+      console.warn("Non-fatal dispatch trigger note:", dispatchErr);
+    }
+
     return NextResponse.json({
       success: true,
       referenceId: refId,
