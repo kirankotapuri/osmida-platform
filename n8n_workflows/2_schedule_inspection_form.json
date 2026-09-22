@@ -1,0 +1,208 @@
+{
+  "name": "Osmida - 2. Schedule Inspection",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Osmida - Schedule Inspection",
+        "formDescription": "Convert a lead into a scheduled site inspection",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Lead Reference ID",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Inspection Date (YYYY-MM-DD)",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Time Slot",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Morning (9 AM - 12 PM)"
+                  },
+                  {
+                    "option": "Post-Lunch (3 PM - 5:30 PM)"
+                  },
+                  {
+                    "option": "Night Closing (9:30 PM - 11:30 PM)"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "739cdc5c-30c2-441d-90e8-aea19301b32f",
+      "name": "Schedule Inspection Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [0, 0],
+      "webhookId": "bc2d48f8-5f15-48a2-bedc-d73e510e1e12"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const f = $json;\nreturn { json: {\n  referenceId: String(f['Lead Reference ID'] || '').trim(),\n  inspectionDate: String(f['Inspection Date (YYYY-MM-DD)'] || '').trim(),\n  timeSlot: String(f['Time Slot'] || '').trim()\n} };"
+      },
+      "id": "2eb5ea71-37dd-4045-bc7d-5e4e12f9714e",
+      "name": "Parse Form",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [224, 0]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "insert into public.inspections (\n  reference_id, facility_type, selected_service, locality, site_address,\n  inspection_date, time_slot, service_urgency, business_name, contact_person,\n  whatsapp_number, floor_area, notes, main_pest_issue, pest_premises_type,\n  approximate_size, pest_details, kitchen_details, washroom_details, contact_consent, status\n)\nselect\n  l.reference_id, l.facility_type, l.selected_service, l.locality, l.site_address,\n  $2::date, $3, l.service_urgency, l.business_name, coalesce(l.customer_name, l.business_name),\n  l.whatsapp_number, l.floor_area, l.notes, l.main_pest_issue, l.pest_premises_type,\n  l.approximate_size, l.pest_details, l.kitchen_details, l.washroom_details, l.contact_consent, 'new'\nfrom public.leads l\nwhere l.reference_id = $1\nreturning id, reference_id, business_name, whatsapp_number, selected_service, inspection_date, time_slot;",
+        "options": {
+          "queryReplacement": "={{ [ $json.referenceId, $json.inspectionDate, $json.timeSlot ] }}"
+        }
+      },
+      "id": "320f915d-36d5-458f-b9d3-967522ee7644",
+      "name": "Create Inspection from Lead",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [448, 0],
+      "credentials": {
+        "postgres": {
+          "id": "VuIGfHYGg4mUQ5X5",
+          "name": "Postgres account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "update public.leads set status = 'inspection_scheduled', updated_at = now() where reference_id = $1;",
+        "options": {
+          "queryReplacement": "={{ [ $('Parse Form').item.json.referenceId ] }}"
+        }
+      },
+      "id": "5dea4ec6-3c2c-431f-bb2d-d5e28e451c1f",
+      "name": "Mark Lead as Scheduled",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [672, 0],
+      "credentials": {
+        "postgres": {
+          "id": "VuIGfHYGg4mUQ5X5",
+          "name": "Postgres account 3"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v25.0/1275804505618996/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ messaging_product: \"whatsapp\", recipient_type: \"individual\", to: \"91\" + $('Create Inspection from Lead').item.json.whatsapp_number, type: \"template\", template: { name: \"osmida\", language: { code: \"en_US\" }, components: [ { type: \"body\", parameters: [ { type: \"text\", text: $('Create Inspection from Lead').item.json.business_name || 'Customer' }, { type: \"text\", text: $('Create Inspection from Lead').item.json.selected_service || 'Inspection' }, { type: \"text\", text: $('Create Inspection from Lead').item.json.inspection_date + ' ' + $('Create Inspection from Lead').item.json.time_slot }, { type: \"text\", text: $('Create Inspection from Lead').item.json.reference_id || '' } ] } ] } }) }}",
+        "options": {}
+      },
+      "id": "a7b4b4b2-f0a2-4499-b563-6af809e1d36f",
+      "name": "Send Inspection Confirmation (WhatsApp)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [896, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "qra2BiYiYRFBQvvl",
+          "name": "Header Auth account 3"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Inspection scheduled",
+        "completionMessage": "The inspection has been created and the customer notified via WhatsApp.",
+        "options": {}
+      },
+      "id": "33c2e422-67f7-491c-9e02-c8e0ca8bd76d",
+      "name": "Confirm to Admin",
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [1120, 0],
+      "webhookId": "90fa32f5-2b6c-4e10-995d-d3c1f44ba977"
+    }
+  ],
+  "connections": {
+    "Schedule Inspection Form": {
+      "main": [
+        [
+          {
+            "node": "Parse Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Form": {
+      "main": [
+        [
+          {
+            "node": "Create Inspection from Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Inspection from Lead": {
+      "main": [
+        [
+          {
+            "node": "Mark Lead as Scheduled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Lead as Scheduled": {
+      "main": [
+        [
+          {
+            "node": "Send Inspection Confirmation (WhatsApp)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Inspection Confirmation (WhatsApp)": {
+      "main": [
+        [
+          {
+            "node": "Confirm to Admin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "a55bc3735e5e144902011188bb2c1643472b0daafdfb9f278687e96d860b810e"
+  }
+}

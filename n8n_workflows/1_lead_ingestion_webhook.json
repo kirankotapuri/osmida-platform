@@ -1,0 +1,443 @@
+{
+  "name": "Osmida - 1. Lead Ingest Webhook",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "osmida-lead-ingest",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "7a727877-f5bc-4504-b487-dd6837148061",
+      "name": "Lead Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [-1440, 384],
+      "webhookId": "51bd34eb-ddaa-4586-9390-13dc90ecd858"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const b = $json.body ?? $json;\n\nconst referenceId = String(b.referenceId || '').trim();\nconst rawPhone = String(b.whatsappNumber || b.phone || '');\nconst whatsappNumber = rawPhone.replace(/\\D/g, '').slice(-10);\nconst businessName = String(b.businessName || b.customerName || '').trim();\nconst contactPerson = String(b.contactPerson || businessName || '').trim();\nconst facilityType = String(b.facilityType || 'residential').trim();\nconst selectedService = String(b.selectedService || '').trim();\nconst locality = String(b.locality || '').trim();\nconst siteAddress = String(b.siteAddress || b.address || '').trim();\n\nlet errorMsg = '';\nif (!referenceId) errorMsg = 'referenceId is required';\nelse if (!businessName) errorMsg = 'businessName is required';\nelse if (whatsappNumber.length !== 10) errorMsg = 'whatsappNumber must be exactly 10 digits';\nelse if (!facilityType) errorMsg = 'facilityType is required';\nelse if (!selectedService) errorMsg = 'selectedService is required';\nelse if (!locality) errorMsg = 'locality is required';\nelse if (!siteAddress) errorMsg = 'siteAddress is required';\n\nreturn { json: {\n  isValid: !errorMsg,\n  errorMsg,\n  referenceId,\n  isFreeAudit: selectedService === 'free-audit' || b.isFreeAudit === true,\n  facilityType,\n  selectedService,\n  servicePrice: b.servicePrice || null,\n  locality,\n  siteAddress,\n  preferredDate: b.preferredDate ? String(b.preferredDate).trim() : null,\n  inspectionDate: b.inspectionDate ? String(b.inspectionDate).trim() : null,\n  timeSlot: b.timeSlot ? String(b.timeSlot).trim() : null,\n  serviceUrgency: b.serviceUrgency || null,\n  businessName,\n  contactPerson,\n  whatsappNumber,\n  floorArea: b.floorArea || null,\n  notes: b.notes || null,\n  mainPestIssue: b.mainPestIssue || null,\n  pestPremisesType: b.pestPremisesType || null,\n  approximateSize: b.approximateSize || null,\n  pestDetails: b.pestDetails ? JSON.stringify(b.pestDetails) : null,\n  kitchenDetails: b.kitchenDetails ? JSON.stringify(b.kitchenDetails) : null,\n  washroomDetails: b.washroomDetails ? JSON.stringify(b.washroomDetails) : null,\n  contactConsent: b.contactConsent === true\n} };"
+      },
+      "id": "01f99c1c-3371-4e99-8c26-a2e95dfcc489",
+      "name": "Normalize Payload",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-1216, 384]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "valid-check",
+              "leftValue": "={{ $json.isValid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "d159ccd2-77b6-4703-b9bd-8c0eae08d18d",
+      "name": "Is Data Valid?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-992, 384]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: false, error: $json.errorMsg }) }}",
+        "options": {
+          "responseCode": 400
+        }
+      },
+      "id": "c0db99d5-b99a-457e-b26b-7cb801d4e145",
+      "name": "Respond (Validation Error)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [-992, 592]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "insert into public.osmida_processed_refs (reference_id)\nvalues ($1)\non conflict (reference_id) do nothing\nreturning reference_id;",
+        "options": {
+          "queryReplacement": "={{ [ $json.referenceId ] }}"
+        }
+      },
+      "id": "0689e398-62b5-4f3f-a787-97a106581fc9",
+      "name": "Dedupe Check",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [-768, 288],
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "47ghjtWFviHCYUZ4",
+          "name": "Postgres account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "new-check",
+              "leftValue": "={{ $json.reference_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "cba6e7de-ae48-41ee-8d2c-29b3bbd436a5",
+      "name": "Is New Submission?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-544, 288]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\"success\":true,\"note\":\"duplicate submission ignored\"}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "54d8c005-e381-47e8-b877-4a5bd7800cc5",
+      "name": "Respond (Duplicate)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [-544, 496]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "insert into public.leads (\n  reference_id,\n  customer_name,\n  contact_person,\n  business_name,\n  phone,\n  whatsapp_number,\n  facility_type,\n  selected_service,\n  service_price,\n  preferred_date,\n  inspection_date,\n  time_slot,\n  service_urgency,\n  address,\n  site_address,\n  locality,\n  floor_area,\n  notes,\n  main_pest_issue,\n  pest_premises_type,\n  approximate_size,\n  pest_details,\n  kitchen_details,\n  washroom_details,\n  contact_consent,\n  is_free_audit,\n  status\n)\nvalues (\n  $1, $2, $3, $2, $4, $4,\n  $5, $6, $7, $8, $9, $10,\n  $11, $12, $12, $13, $14, $15,\n  $16, $17, $18, $19::jsonb, $20::jsonb,\n  $21::jsonb, $22, $23, 'new'\n)\nreturning\n  id,\n  reference_id,\n  business_name,\n  contact_person,\n  whatsapp_number,\n  selected_service,\n  is_free_audit;",
+        "options": {
+          "queryReplacement": "={{ [ $('Normalize Payload').item.json.referenceId, $('Normalize Payload').item.json.businessName, $('Normalize Payload').item.json.contactPerson, $('Normalize Payload').item.json.whatsappNumber, $('Normalize Payload').item.json.facilityType, $('Normalize Payload').item.json.selectedService, $('Normalize Payload').item.json.servicePrice, $('Normalize Payload').item.json.preferredDate, $('Normalize Payload').item.json.inspectionDate, $('Normalize Payload').item.json.timeSlot, $('Normalize Payload').item.json.serviceUrgency, $('Normalize Payload').item.json.siteAddress, $('Normalize Payload').item.json.locality, $('Normalize Payload').item.json.floorArea, $('Normalize Payload').item.json.notes, $('Normalize Payload').item.json.mainPestIssue, $('Normalize Payload').item.json.pestPremisesType, $('Normalize Payload').item.json.approximateSize, $('Normalize Payload').item.json.pestDetails, $('Normalize Payload').item.json.kitchenDetails, $('Normalize Payload').item.json.washroomDetails, $('Normalize Payload').item.json.contactConsent, $('Normalize Payload').item.json.isFreeAudit ] }}"
+        }
+      },
+      "id": "edf1ac2f-2674-4fbe-9281-d56e3f5b115d",
+      "name": "Insert Lead",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [-320, 288],
+      "credentials": {
+        "postgres": {
+          "id": "47ghjtWFviHCYUZ4",
+          "name": "Postgres account 4"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "delete from public.osmida_processed_refs\nwhere reference_id = $1;",
+        "options": {
+          "queryReplacement": "={{ [ $('Normalize Payload').item.json.referenceId ] }}"
+        }
+      },
+      "id": "70199ab7-c9f3-41dc-a8af-9a0a0338d327",
+      "name": "Release Dedupe on DB Error",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [-96, 496],
+      "credentials": {
+        "postgres": {
+          "id": "VuIGfHYGg4mUQ5X5",
+          "name": "Postgres account 3"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "db-ok-check",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "9183cc85-ee9d-4e28-a9e2-811a33e244e9",
+      "name": "Did Insert Succeed?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-96, 288]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: false, error: 'database insert failed' }) }}",
+        "options": {
+          "responseCode": 500
+        }
+      },
+      "id": "c591abd4-9b4f-4f78-8450-065383d8fce3",
+      "name": "Respond (DB Error)",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [128, 496]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v25.0/1275804505618996/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ messaging_product: \"whatsapp\", recipient_type: \"individual\", to: \"91\" + $('Normalize Payload').item.json.whatsappNumber, type: \"template\", template: { name: \"osmida\", language: { code: \"en_US\" }, components: [ { type: \"body\", parameters: [ { type: \"text\", text: $('Normalize Payload').item.json.businessName || 'Customer' }, { type: \"text\", text: $('Normalize Payload').item.json.selectedService || 'Service' }, { type: \"text\", text: [$('Normalize Payload').item.json.inspectionDate, $('Normalize Payload').item.json.timeSlot].filter(Boolean).join(' ') || 'to be confirmed' }, { type: \"text\", text: $('Normalize Payload').item.json.referenceId || '' } ] } ] } }) }}",
+        "options": {}
+      },
+      "id": "78940b35-4321-4fda-99e2-a6d061f521dc",
+      "name": "Customer Acknowledgment (WhatsApp)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [128, 192],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "qra2BiYiYRFBQvvl",
+          "name": "Header Auth account 3"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v25.0/1275804505618996/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "=={\n  \"messaging_product\": \"whatsapp\",\n  \"to\": \"917981067780\",\n  \"type\": \"template\",\n  \"template\": {\n    \"name\": \"admin_lead_alert\",\n    \"language\": { \"code\": \"en\" },\n    \"components\": [\n      {\n        \"type\": \"body\",\n        \"parameters\": [\n          { \"type\": \"text\", \"text\": $('Normalize Payload').item.json.referenceId || '' },\n          { \"type\": \"text\", \"text\": $('Normalize Payload').item.json.businessName || '' },\n          { \"type\": \"text\", \"text\": $('Normalize Payload').item.json.locality || '' },\n          { \"type\": \"text\", \"text\": $('Normalize Payload').item.json.selectedService || '' },\n          { \"type\": \"text\", \"text\": $('Normalize Payload').item.json.whatsappNumber || '' }\n        ]\n      }\n    ]\n  }\n}",
+        "options": {}
+      },
+      "id": "fb77789d-1b17-4665-962b-4c695e4b7872",
+      "name": "Alert Admin (WhatsApp)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [368, 176],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "qra2BiYiYRFBQvvl",
+          "name": "Header Auth account 3"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ success: true, referenceId: $('Normalize Payload').item.json.referenceId }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "a964f163-ce42-43dd-b3da-c59cba23e93c",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [576, 176]
+    }
+  ],
+  "connections": {
+    "Lead Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Payload": {
+      "main": [
+        [
+          {
+            "node": "Is Data Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Data Valid?": {
+      "main": [
+        [
+          {
+            "node": "Dedupe Check",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond (Validation Error)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedupe Check": {
+      "main": [
+        [
+          {
+            "node": "Is New Submission?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is New Submission?": {
+      "main": [
+        [
+          {
+            "node": "Insert Lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond (Duplicate)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Lead": {
+      "main": [
+        [
+          {
+            "node": "Did Insert Succeed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Release Dedupe on DB Error": {
+      "main": [
+        [
+          {
+            "node": "Respond (DB Error)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Did Insert Succeed?": {
+      "main": [
+        [
+          {
+            "node": "Customer Acknowledgment (WhatsApp)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Release Dedupe on DB Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer Acknowledgment (WhatsApp)": {
+      "main": [
+        [
+          {
+            "node": "Alert Admin (WhatsApp)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Admin (WhatsApp)": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "a55bc3735e5e144902011188bb2c1643472b0daafdfb9f278687e96d860b810e"
+  }
+}

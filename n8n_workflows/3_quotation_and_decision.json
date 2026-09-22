@@ -1,0 +1,551 @@
+{
+  "name": "Osmida - 3. Quotation and Decision",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Osmida - Create Quote",
+        "formDescription": "Draft and send a quotation for an inspected lead",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Inspection Reference ID",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Line Items / Scope",
+              "fieldType": "textarea",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Quote Amount (INR)",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Advance %"
+            },
+            {
+              "fieldLabel": "Validity (days)"
+            },
+            {
+              "fieldLabel": "Terms / Notes",
+              "fieldType": "textarea"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e62fb84c-7278-42be-8798-6fa7a53da15b",
+      "name": "Create Quote (Admin)",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [0, 0],
+      "webhookId": "76a89e8b-e9aa-44df-9a54-1f3f60e27f2f"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const f = $json;\nconst referenceId = String(f['Inspection Reference ID'] || '').trim();\nconst lineItems = String(f['Line Items / Scope'] || '').trim();\nconst amount = parseInt(String(f['Quote Amount (INR)'] || '0').replace(/[^0-9]/g, ''), 10) || 0;\nlet advancePercent = parseInt(String(f['Advance %'] || '').replace(/[^0-9]/g, ''), 10);\nif (isNaN(advancePercent)) advancePercent = 50;\nlet validityDays = parseInt(String(f['Validity (days)'] || '').replace(/[^0-9]/g, ''), 10);\nif (isNaN(validityDays)) validityDays = 15;\nconst terms = String(f['Terms / Notes'] || '').trim();\nconst quoteNo = 'QT-' + referenceId + '-' + String(Date.now()).slice(-6);\nreturn { json: { referenceId, lineItems, amount, advancePercent, validityDays, terms, quoteNo } };"
+      },
+      "id": "41041db0-7d7a-4663-993c-fc1227981478",
+      "name": "Parse Create Form",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [224, 0]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "insert into public.quotes (quote_no, reference_id, business_name, contact_person, whatsapp_number, service_type, line_items, amount, advance_percent, advance_amount, validity_days, terms, status)\nselect $1, i.reference_id, i.business_name, i.contact_person, i.whatsapp_number, i.selected_service, $3, $4::int, $5::int, ($4::int * $5::int / 100), $6::int, $7, 'sent'\nfrom public.inspections i\nwhere i.reference_id = $2\nreturning quote_no, reference_id, business_name, contact_person, whatsapp_number, service_type, amount, advance_percent, advance_amount, validity_days;",
+        "options": {
+          "queryReplacement": "={{ [ $('Parse Create Form').item.json.quoteNo, $('Parse Create Form').item.json.referenceId, $('Parse Create Form').item.json.lineItems, $('Parse Create Form').item.json.amount, $('Parse Create Form').item.json.advancePercent, $('Parse Create Form').item.json.validityDays, $('Parse Create Form').item.json.terms ] }}"
+        }
+      },
+      "id": "f85075d5-e333-4e54-aaf0-20cdac20b561",
+      "name": "Insert Quote",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [448, 0],
+      "credentials": {
+        "postgres": {
+          "id": "VuIGfHYGg4mUQ5X5",
+          "name": "Postgres account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v25.0/1275804505618996/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ messaging_product: \"whatsapp\", recipient_type: \"individual\", to: \"91\" + $('Insert Quote').item.json.whatsapp_number, type: \"template\", template: { name: \"osmida_quote\", language: { code: \"en\" }, components: [ { type: \"body\", parameters: [ { type: \"text\", text: $('Insert Quote').item.json.business_name || 'Customer' }, { type: \"text\", text: $('Insert Quote').item.json.service_type || 'Service' }, { type: \"text\", text: $('Insert Quote').item.json.reference_id || '' }, { type: \"text\", text: 'Rs ' + String($('Insert Quote').item.json.amount || 0) } ] } ] } }) }}",
+        "options": {}
+      },
+      "id": "9f5e6320-3716-4912-8389-426ef0af102d",
+      "name": "Customer Quote (WhatsApp)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [672, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "qra2BiYiYRFBQvvl",
+          "name": "Header Auth account 3"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v25.0/1275804505618996/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ messaging_product: \"whatsapp\", to: \"917981067780\", type: \"text\", text: { body: \"QUOTE SENT\\n\\nQuote: \" + $('Insert Quote').item.json.quote_no + \"\\nRef: \" + $('Insert Quote').item.json.reference_id + \"\\nBusiness: \" + $('Insert Quote').item.json.business_name + \"\\nAmount: Rs \" + $('Insert Quote').item.json.amount } }) }}",
+        "options": {}
+      },
+      "id": "d7d11cf0-67da-4dd5-a5a9-310c274da178",
+      "name": "Admin Quote Alert (WhatsApp)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [896, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "qra2BiYiYRFBQvvl",
+          "name": "Header Auth account 3"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Quote created",
+        "completionMessage": "The quotation has been saved and sent to the customer via WhatsApp.",
+        "options": {}
+      },
+      "id": "80c38492-8503-4cab-99ef-0b2502f11b55",
+      "name": "Quote Created",
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [1120, 0],
+      "webhookId": "2f82cd0f-d80b-47e0-ae8e-d5a201e6a2c3"
+    },
+    {
+      "parameters": {
+        "formTitle": "Osmida - Quote Decision",
+        "formDescription": "Record whether a quote was won or lost",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Inspection Reference ID",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Decision",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Won"
+                  },
+                  {
+                    "option": "Lost"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Final Amount (INR)"
+            },
+            {
+              "fieldLabel": "UPI ID or Payment Link"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "8611fe18-a307-4c1e-9b08-dfa0bcdb2497",
+      "name": "Quote Decision (Admin)",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [0, 320],
+      "webhookId": "6d22b0d8-1b01-4b00-ae40-bf283ad17962"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const f = $json;\nconst referenceId = String(f['Inspection Reference ID'] || '').trim();\nconst decision = String(f['Decision'] || '').trim().toLowerCase() === 'won' ? 'won' : 'lost';\nconst finalAmount = parseInt(String(f['Final Amount (INR)'] || '0').replace(/[^0-9]/g, ''), 10) || 0;\nconst upiId = String(f['UPI ID or Payment Link'] || f['UPI ID for advance'] || '').trim() || 'upi://pay?pa=osmida@upi';\nreturn { json: { referenceId, decision, finalAmount, upiId, isWon: decision === 'won' } };"
+      },
+      "id": "964f3402-f5dc-4926-9ab1-cc60422a93a7",
+      "name": "Parse Decision",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [224, 320]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "update public.quotes\nset status = $1,\n    amount = case when $3::int > 0 then $3::int else amount end,\n    updated_at = now()\nwhere reference_id = $2\nreturning quote_no, reference_id, amount, status;",
+        "options": {
+          "queryReplacement": "={{ [ $('Parse Decision').item.json.decision, $('Parse Decision').item.json.referenceId, $('Parse Decision').item.json.finalAmount ] }}"
+        }
+      },
+      "id": "6b236f43-cb50-4adf-ad65-8c30071a6e5b",
+      "name": "Update Quote Status",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [448, 320],
+      "alwaysOutputData": true,
+      "credentials": {
+        "postgres": {
+          "id": "VuIGfHYGg4mUQ5X5",
+          "name": "Postgres account 3"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "won-check",
+              "leftValue": "={{ $('Parse Decision').item.json.isWon }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "51623f17-ada8-407d-8729-a711e59ccacb",
+      "name": "Won?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [672, 320]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "insert into public.bookings (\n  reference_id, customer_name, contact_person, phone, whatsapp_number, business_name,\n  facility_type, service_type, selected_service, service_price, preferred_date, inspection_date,\n  time_slot, address, site_address, locality, floor_area, notes, service_urgency,\n  main_pest_issue, pest_premises_type, approximate_size, pest_details, kitchen_details,\n  washroom_details, contact_consent, status\n)\nselect\n  i.reference_id, i.business_name, i.contact_person, i.whatsapp_number, i.whatsapp_number, i.business_name,\n  i.facility_type, i.selected_service, i.selected_service,\n  coalesce(nullif($2::int, 0), (select q.amount from public.quotes q where q.reference_id = i.reference_id order by q.created_at desc limit 1), 0), \n  i.inspection_date, i.inspection_date,\n  coalesce(i.time_slot, 'TBD'), i.site_address, i.site_address, i.locality, i.floor_area, i.notes, i.service_urgency,\n  i.main_pest_issue, i.pest_premises_type, i.approximate_size, i.pest_details, i.kitchen_details,\n  i.washroom_details, i.contact_consent, 'confirmed'\nfrom public.inspections i\nwhere i.reference_id = $1\nreturning id, reference_id, business_name, whatsapp_number, selected_service, service_price;",
+        "options": {
+          "queryReplacement": "={{ [ $('Parse Decision').item.json.referenceId, $('Parse Decision').item.json.finalAmount ] }}"
+        }
+      },
+      "id": "2c3b8cbf-fd5b-4c52-995d-97e3a88651be",
+      "name": "Create Booking",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [896, 224],
+      "credentials": {
+        "postgres": {
+          "id": "VuIGfHYGg4mUQ5X5",
+          "name": "Postgres account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v25.0/1275804505618996/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ messaging_product: \"whatsapp\", recipient_type: \"individual\", to: \"91\" + $('Create Booking').item.json.whatsapp_number, type: \"template\", template: { name: \"osmida_advance\", language: { code: \"en\" }, components: [ { type: \"body\", parameters: [ { type: \"text\", text: $('Create Booking').item.json.business_name || 'Customer' }, { type: \"text\", text: $('Create Booking').item.json.reference_id || '' }, { type: \"text\", text: $('Create Booking').item.json.selected_service || 'Service' }, { type: \"text\", text: 'Rs ' + String(Math.round(($('Create Booking').item.json.service_price || 0) * 0.5) || $('Create Booking').item.json.service_price || 0) }, { type: \"text\", text: $('Parse Decision').item.json.upiId || 'call +917676358162' } ] } ] } }) }}",
+        "options": {}
+      },
+      "id": "ecaadab6-672c-4132-bcaa-808155c089ab",
+      "name": "Customer Advance Request (WhatsApp)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [1120, 224],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "qra2BiYiYRFBQvvl",
+          "name": "Header Auth account 3"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v25.0/1275804505618996/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ messaging_product: \"whatsapp\", to: \"917981067780\", type: \"text\", text: { body: \"QUOTE WON - BOOKING CREATED\\n\\nRef: \" + $('Create Booking').item.json.reference_id + \"\\nBusiness: \" + $('Create Booking').item.json.business_name + \"\\nPrice: Rs \" + $('Create Booking').item.json.service_price } }) }}",
+        "options": {}
+      },
+      "id": "c50f56c9-3b68-4f30-a7d2-665a6b9abefb",
+      "name": "Admin Won Alert (WhatsApp)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [1344, 224],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "qra2BiYiYRFBQvvl",
+          "name": "Header Auth account 3"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Decision recorded",
+        "completionMessage": "The quote decision has been recorded and customer notified.",
+        "options": {}
+      },
+      "id": "b665b9e8-91e2-431b-a798-5c9f7dade999",
+      "name": "Decision Recorded",
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [1568, 320],
+      "webhookId": "23dffe8d-0cc8-4ca4-bcce-d155d4be71de"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v25.0/1275804505618996/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ messaging_product: \"whatsapp\", to: \"917981067780\", type: \"text\", text: { body: \"QUOTE LOST\\n\\nRef: \" + $('Parse Decision').item.json.referenceId } }) }}",
+        "options": {}
+      },
+      "id": "970a57fb-0912-4e6a-b56d-8fa4b0972eea",
+      "name": "Admin Lost Alert (WhatsApp)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [1344, 416],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "qra2BiYiYRFBQvvl",
+          "name": "Header Auth account 3"
+        }
+      },
+      "onError": "continueRegularOutput"
+    }
+  ],
+  "connections": {
+    "Create Quote (Admin)": {
+      "main": [
+        [
+          {
+            "node": "Parse Create Form",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Create Form": {
+      "main": [
+        [
+          {
+            "node": "Insert Quote",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Quote": {
+      "main": [
+        [
+          {
+            "node": "Customer Quote (WhatsApp)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer Quote (WhatsApp)": {
+      "main": [
+        [
+          {
+            "node": "Admin Quote Alert (WhatsApp)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Admin Quote Alert (WhatsApp)": {
+      "main": [
+        [
+          {
+            "node": "Quote Created",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quote Decision (Admin)": {
+      "main": [
+        [
+          {
+            "node": "Parse Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Decision": {
+      "main": [
+        [
+          {
+            "node": "Update Quote Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Quote Status": {
+      "main": [
+        [
+          {
+            "node": "Won?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Won?": {
+      "main": [
+        [
+          {
+            "node": "Create Booking",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Admin Lost Alert (WhatsApp)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Booking": {
+      "main": [
+        [
+          {
+            "node": "Customer Advance Request (WhatsApp)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Customer Advance Request (WhatsApp)": {
+      "main": [
+        [
+          {
+            "node": "Admin Won Alert (WhatsApp)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Admin Won Alert (WhatsApp)": {
+      "main": [
+        [
+          {
+            "node": "Decision Recorded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Admin Lost Alert (WhatsApp)": {
+      "main": [
+        [
+          {
+            "node": "Decision Recorded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "a55bc3735e5e144902011188bb2c1643472b0daafdfb9f278687e96d860b810e"
+  }
+}

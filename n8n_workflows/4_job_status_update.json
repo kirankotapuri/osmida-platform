@@ -1,0 +1,224 @@
+{
+  "name": "Osmida - 4. Job Status Update",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Osmida - Update Job Status",
+        "formDescription": "Update a booking's status and notify the customer",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Reference ID",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "New Status",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "dispatched"
+                  },
+                  {
+                    "option": "in_progress"
+                  },
+                  {
+                    "option": "completed"
+                  },
+                  {
+                    "option": "cancelled"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "32c1bcff-4c0b-4a40-9d60-c920464debf2",
+      "name": "Manual Status Update Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [-896, 96],
+      "webhookId": "b264fd70-99a8-42bb-8c12-92cf44d7b26d"
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE bookings SET status = $1, updated_at = now()\nWHERE reference_id = $2\nRETURNING id, reference_id, business_name, whatsapp_number, selected_service, status;",
+        "options": {
+          "queryReplacement": "={{ [ $json['New Status'], $json['Reference ID'] ] }}"
+        }
+      },
+      "id": "daaa57be-3910-4fe7-a24d-89da57c1f817",
+      "name": "Update Booking Status",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [-672, 96],
+      "credentials": {
+        "postgres": {
+          "id": "VuIGfHYGg4mUQ5X5",
+          "name": "Postgres account 3"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const row = $json;\nconst status = row.status;\nconst name = row.business_name || 'Customer';\nconst service = row.selected_service || 'service';\nconst reference = row.reference_id || '';\n\nfunction body(params) {\n  return [{ type: 'body', parameters: params.map(t => ({ type: 'text', text: String(t || '') })) }];\n}\n\n// Exact template names as confirmed approved in Meta (note: 'omsida_in_progress' is a real typo in the live template name)\nlet statusTemplate = null;\nif (status === 'dispatched') {\n  statusTemplate = { name: 'osmida_dispatched', language: { code: 'en' }, components: body([name, service, reference]) };\n} else if (status === 'in_progress') {\n  statusTemplate = { name: 'omsida_in_progress', language: { code: 'en' }, components: body([name, service, reference]) };\n} else if (status === 'completed') {\n  statusTemplate = { name: 'osmida_completed', language: { code: 'en' }, components: body([name, service, reference]) };\n} else if (status === 'cancelled') {\n  statusTemplate = { name: 'osmida_cancelled', language: { code: 'en' }, components: body([name, service, reference]) };\n}\n\nreturn { json: { ...row, customerPhone: row.whatsapp_number || '', statusTemplate, hasTemplate: !!statusTemplate } };"
+      },
+      "id": "595fcf01-a0fc-4aa5-a835-89a31b3ff7fd",
+      "name": "Build Status Message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [-448, 96]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "has-phone-c",
+              "leftValue": "={{ $json.customerPhone }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "2f767fa1-3b63-4e1a-acc1-ab4823e610ba",
+      "name": "Has Customer Phone?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [-224, 96]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v25.0/1275804505618996/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ messaging_product: \"whatsapp\", recipient_type: \"individual\", to: \"91\" + $json.customerPhone.replace(/\\D/g,'').slice(-10), type: \"template\", template: $json.statusTemplate }) }}",
+        "options": {}
+      },
+      "id": "d2a4276a-7153-4c3e-9097-1aea54b3beea",
+      "name": "Send Status Update (WhatsApp)",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [0, 0],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "qra2BiYiYRFBQvvl",
+          "name": "Header Auth account 3"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "completionTitle": "Status updated",
+        "completionMessage": "The booking status has been updated and the customer notified.",
+        "options": {}
+      },
+      "id": "2c725da1-f875-4be6-aa10-92e08e245664",
+      "name": "Confirm to Admin",
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 1,
+      "position": [224, 96],
+      "webhookId": "e6e80135-6bfd-4b7b-8464-c1b314cf81db"
+    }
+  ],
+  "connections": {
+    "Manual Status Update Form": {
+      "main": [
+        [
+          {
+            "node": "Update Booking Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Booking Status": {
+      "main": [
+        [
+          {
+            "node": "Build Status Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Status Message": {
+      "main": [
+        [
+          {
+            "node": "Has Customer Phone?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Customer Phone?": {
+      "main": [
+        [
+          {
+            "node": "Send Status Update (WhatsApp)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Confirm to Admin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Status Update (WhatsApp)": {
+      "main": [
+        [
+          {
+            "node": "Confirm to Admin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "a55bc3735e5e144902011188bb2c1643472b0daafdfb9f278687e96d860b810e"
+  }
+}
