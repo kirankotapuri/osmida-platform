@@ -155,7 +155,7 @@ export default function HomePage() {
                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </div>
-                <p className="mt-2 text-[11px] text-[#475559] font-medium text-left">
+                <p className="mt-2 text-[11px] text-[#475559] font-medium text-center sm:text-left">
                   Doorstep arrival in 15–30 mins across Nellore apartments • ₹0 advance
                 </p>
               </div>
@@ -188,18 +188,24 @@ export default function HomePage() {
               {/* Teal Ambient Backdrop Glow */}
               <div className="absolute -inset-4 bg-radial from-[#B6D7D8]/60 via-[#EBF4F5]/40 to-transparent rounded-full blur-2xl -z-10" />
 
-              <div className="relative h-[380px] sm:h-[460px] w-[300px] sm:w-[360px] rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-linear-to-b from-[#EBF4F5] to-[#D1E7E8]">
+              <div className="relative h-[400px] sm:h-[460px] w-full max-w-[310px] sm:max-w-[360px] rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-linear-to-b from-[#EBF4F5] to-[#D1E7E8]">
+                {/* Official Osmida Uniform Callout Badge */}
+                <div className="absolute top-3.5 left-3.5 bg-[#0C6266]/90 backdrop-blur-md text-white text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md flex items-center gap-1.5 border border-white/20 z-10">
+                  <ShieldCheck className="w-3.5 h-3.5 text-[#E68A00]" />
+                  <span>Osmida Uniformed Helper</span>
+                </div>
+
                 <Image
-                  src="/images/pronto_hero_helper.jpg"
-                  alt="Osmida Professional House Help in Nellore"
+                  src="/images/osmida_hero_helper.jpg"
+                  alt="Osmida Professional Uniformed House Help in Nellore"
                   fill
                   className="object-cover object-top"
                   priority
-                  sizes="(max-width: 768px) 300px, 360px"
+                  sizes="(max-width: 768px) 310px, 360px"
                 />
 
                 {/* Floating Micro Badge */}
-                <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md rounded-xl p-3 shadow-lg border border-[#DFE8E8] flex items-center justify-between">
+                <div className="absolute bottom-4 left-4 right-4 bg-white/95 backdrop-blur-md rounded-xl p-3 shadow-lg border border-[#DFE8E8] flex items-center justify-between z-10">
                   <div className="flex items-center gap-2">
                     <span className="flex h-3 w-3 rounded-full bg-[#16A34A] animate-ping" />
                     <span className="text-xs font-bold text-[#0F171A]">Verified Helpers Online</span>
