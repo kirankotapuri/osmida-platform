@@ -446,7 +446,7 @@ export default function HomePage() {
           {/* 3 Step Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             {/* Step 1 */}
-            <div className="rounded-xl bg-[#0B2E31] border border-[#104347] p-6 flex flex-col justify-between space-y-6 hover:border-[#E68A00]/50 transition-all group">
+            <div className="rounded-2xl bg-[#0B2E31] border border-[#104347] p-6 flex flex-col justify-between space-y-6 hover:border-[#E68A00]/50 transition-all group shadow-xl">
               <div className="space-y-4">
                 <span className="inline-block rounded-full bg-[#E68A00]/20 border border-[#E68A00]/40 text-[#E68A00] px-3 py-1 text-xs font-bold uppercase">
                   Step 01
@@ -457,18 +457,60 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="relative h-60 w-full rounded-lg overflow-hidden border border-slate-700 bg-slate-900 shadow-2xl">
-                <Image
-                  src="/images/pronto_app_mockups.jpg"
-                  alt="Step 1 Booking Mockup"
-                  fill
-                  className="object-cover object-left"
-                />
+              {/* Step 1 Native UI Screen */}
+              <div className="relative rounded-2xl border border-[#165054] bg-[#072427] p-4 shadow-2xl space-y-3 font-sans">
+                {/* Mini App Bar */}
+                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-[#16A34A] animate-pulse" />
+                    <span className="text-[11px] font-black text-white tracking-wide">Osmida • Select Tasks</span>
+                  </div>
+                  <span className="text-[10px] font-extrabold text-[#E68A00] bg-[#E68A00]/15 px-2 py-0.5 rounded-full border border-[#E68A00]/30">
+                    Flat ₹199/hr
+                  </span>
+                </div>
+
+                {/* Selected Chores Sequence */}
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-md bg-[#0C6266] text-white flex items-center justify-center shrink-0">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      </div>
+                      <span className="text-white font-bold">Bathroom Scrubbing</span>
+                    </div>
+                    <span className="text-[11px] font-bold text-slate-300">1.0 hr</span>
+                  </div>
+
+                  <div className="flex items-center justify-between p-2.5 rounded-xl bg-white/5 border border-white/10 text-xs">
+                    <div className="flex items-center gap-2">
+                      <div className="w-5 h-5 rounded-md bg-[#0C6266] text-white flex items-center justify-center shrink-0">
+                        <Check className="w-3.5 h-3.5 stroke-[3]" />
+                      </div>
+                      <span className="text-white font-bold">Kitchen Utensils</span>
+                    </div>
+                    <span className="text-[11px] font-bold text-slate-300">0.5 hr</span>
+                  </div>
+                </div>
+
+                {/* Live Estimated Cost & ₹0 Advance Indicator */}
+                <div className="pt-1 flex items-center justify-between border-t border-white/10">
+                  <div>
+                    <p className="text-[10px] text-slate-400 font-medium">1.5 hrs sequence</p>
+                    <p className="text-sm font-black text-white">
+                      ₹299 <span className="text-[10px] text-[#16A34A] font-extrabold">• ₹0 Advance</span>
+                    </p>
+                  </div>
+                  <div className="text-[10px] font-extrabold bg-[#E68A00] text-white px-3 py-1.5 rounded-lg shadow-sm flex items-center gap-1">
+                    <span>Book Now</span>
+                    <ArrowRight className="w-3 h-3 stroke-[2.5]" />
+                  </div>
+                </div>
               </div>
             </div>
 
             {/* Step 2 */}
-            <div className="rounded-xl bg-[#0B2E31] border border-[#104347] p-6 flex flex-col justify-between space-y-6 hover:border-[#E68A00]/50 transition-all group">
+            <div className="rounded-2xl bg-[#0B2E31] border border-[#104347] p-6 flex flex-col justify-between space-y-6 hover:border-[#E68A00]/50 transition-all group shadow-xl">
               <div className="space-y-4">
                 <span className="inline-block rounded-full bg-[#E68A00]/20 border border-[#E68A00]/40 text-[#E68A00] px-3 py-1 text-xs font-bold uppercase">
                   Step 02
@@ -479,18 +521,55 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="relative h-60 w-full rounded-lg overflow-hidden border border-slate-700 bg-slate-900 shadow-2xl">
-                <Image
-                  src="/images/pronto_app_mockups.jpg"
-                  alt="Step 2 Arrival Mockup"
-                  fill
-                  className="object-cover object-center"
-                />
+              {/* Step 2 Native UI Screen */}
+              <div className="relative rounded-2xl border border-[#165054] bg-[#072427] p-4 shadow-2xl space-y-3 font-sans">
+                {/* Mini App Bar */}
+                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                  <div className="flex items-center gap-1.5">
+                    <span className="h-2 w-2 rounded-full bg-[#16A34A] animate-ping" />
+                    <span className="text-[11px] font-black text-white tracking-wide">Helper At Doorstep</span>
+                  </div>
+                  <span className="text-[10px] font-extrabold text-[#0C6266] bg-[#EBF4F5] px-2 py-0.5 rounded-full">
+                    Nellore Central
+                  </span>
+                </div>
+
+                {/* Helper Profile Card */}
+                <div className="flex items-center gap-2.5 p-2.5 rounded-xl bg-white/5 border border-white/10">
+                  <div className="w-9 h-9 rounded-xl bg-[#0C6266] text-white flex items-center justify-center font-bold text-xs border border-white/20 shrink-0">
+                    LK
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-1.5">
+                      <p className="text-xs font-bold text-white truncate">Lakshmi K.</p>
+                      <ShieldCheck className="w-3.5 h-3.5 text-[#16A34A] shrink-0" />
+                    </div>
+                    <p className="text-[10px] text-slate-400">Police &amp; Aadhaar Verified</p>
+                  </div>
+                </div>
+
+                {/* 4-Digit Start OTP Box */}
+                <div className="rounded-xl bg-[#E68A00]/10 border border-[#E68A00]/30 p-2.5 text-center space-y-1.5">
+                  <p className="text-[10px] font-extrabold text-[#E68A00] uppercase tracking-wider">
+                    Share Start OTP with helper
+                  </p>
+                  <div className="flex items-center justify-center gap-2">
+                    {["4", "8", "2", "9"].map((digit, i) => (
+                      <span
+                        key={i}
+                        className="w-8 h-8 rounded-lg bg-black/50 border border-[#E68A00]/50 text-white font-mono text-sm font-black flex items-center justify-center shadow-inner"
+                      >
+                        {digit}
+                      </span>
+                    ))}
+                  </div>
+                  <p className="text-[9px] text-slate-400">Timer begins only after helper enters this</p>
+                </div>
               </div>
             </div>
 
             {/* Step 3 */}
-            <div className="rounded-xl bg-[#0B2E31] border border-[#104347] p-6 flex flex-col justify-between space-y-6 hover:border-[#E68A00]/50 transition-all group">
+            <div className="rounded-2xl bg-[#0B2E31] border border-[#104347] p-6 flex flex-col justify-between space-y-6 hover:border-[#E68A00]/50 transition-all group shadow-xl">
               <div className="space-y-4">
                 <span className="inline-block rounded-full bg-[#E68A00]/20 border border-[#E68A00]/40 text-[#E68A00] px-3 py-1 text-xs font-bold uppercase">
                   Step 03
@@ -501,13 +580,46 @@ export default function HomePage() {
                 </p>
               </div>
 
-              <div className="relative h-60 w-full rounded-lg overflow-hidden border border-slate-700 bg-slate-900 shadow-2xl">
-                <Image
-                  src="/images/pronto_app_mockups.jpg"
-                  alt="Step 3 Inspection Mockup"
-                  fill
-                  className="object-cover object-right"
-                />
+              {/* Step 3 Native UI Screen */}
+              <div className="relative rounded-2xl border border-[#165054] bg-[#072427] p-4 shadow-2xl space-y-3 font-sans">
+                {/* Mini App Bar */}
+                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#16A34A]" />
+                    <span className="text-[11px] font-black text-white tracking-wide">Work Completed</span>
+                  </div>
+                  <span className="text-[10px] font-extrabold text-[#16A34A] bg-[#16A34A]/15 px-2 py-0.5 rounded-full border border-[#16A34A]/30">
+                    QC Verified
+                  </span>
+                </div>
+
+                {/* Before / After Proof Badges */}
+                <div className="grid grid-cols-2 gap-2 text-center">
+                  <div className="p-2 rounded-xl bg-white/5 border border-white/10 space-y-1">
+                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">Before Photo</span>
+                    <div className="h-8 rounded-lg bg-black/40 flex items-center justify-center text-[10px] text-slate-300 font-semibold border border-white/5">
+                      📷 Untidy Sink
+                    </div>
+                  </div>
+                  <div className="p-2 rounded-xl bg-[#16A34A]/10 border border-[#16A34A]/30 space-y-1">
+                    <span className="text-[9px] font-bold text-[#16A34A] uppercase tracking-wider">After Photo</span>
+                    <div className="h-8 rounded-lg bg-[#16A34A]/20 flex items-center justify-center text-[10px] text-white font-bold border border-[#16A34A]/40">
+                      ✨ Spotless Clean
+                    </div>
+                  </div>
+                </div>
+
+                {/* Escrow Release Card */}
+                <div className="rounded-xl bg-white/5 border border-white/10 p-2.5 flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] text-slate-400 font-medium">Escrow Protection</p>
+                    <p className="text-xs font-black text-white">₹299 Held Safe</p>
+                  </div>
+                  <div className="text-[10px] font-extrabold bg-[#16A34A] hover:bg-[#15803D] text-white px-3 py-1.5 rounded-lg flex items-center gap-1 shadow-sm">
+                    <span>Release Pay</span>
+                    <Check className="w-3 h-3 stroke-[3]" />
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -620,14 +732,18 @@ export default function HomePage() {
       <section className="py-14 sm:py-18 bg-white">
         <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
           <div className="rounded-2xl bg-linear-to-r from-[#EBF4F5] via-[#F4F8F8] to-[#EBF4F5] border border-[#B6D7D8] p-8 sm:p-12 text-center space-y-6 shadow-xs">
-            <div className="relative h-48 sm:h-64 max-w-lg mx-auto rounded-xl overflow-hidden shadow-xl border-4 border-white bg-slate-950">
+            <div className="relative h-60 sm:h-80 max-w-2xl mx-auto rounded-2xl overflow-hidden shadow-2xl border-4 border-white bg-slate-900 group">
               <Image
-                src="/images/pronto_app_mockups.jpg"
-                alt="Get Osmida House Help in Minutes"
+                src="/images/osmida_app_real.jpg"
+                alt="Osmida Customer App - Trusted House Help in Nellore"
                 fill
-                className="object-cover"
-                sizes="(max-width: 768px) 100vw, 512px"
+                className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                sizes="(max-width: 768px) 100vw, 672px"
               />
+              <div className="absolute top-3 left-3 bg-[#0C6266]/90 backdrop-blur-md text-white text-[10px] font-extrabold px-3 py-1 rounded-full shadow-md flex items-center gap-1.5 border border-white/20">
+                <Sparkles className="w-3.5 h-3.5 text-[#E68A00]" />
+                <span>Real Osmida Experience</span>
+              </div>
             </div>
 
             <div className="max-w-xl mx-auto space-y-2">
