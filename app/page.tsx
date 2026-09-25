@@ -91,7 +91,6 @@ export default function HomePage() {
   const [selectedModalService, setSelectedModalService] = useState<ProntoService | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
-  const [heroPhone, setHeroPhone] = useState("");
 
   const handleOpenModal = (service: ProntoService) => {
     setSelectedModalService(service);
@@ -130,43 +129,27 @@ export default function HomePage() {
                 From daily dishwashing to deep bathroom scrubbing, verified apartment house help at your doorstep. Standardized tasks at a flat ₹199/hr rate.
               </p>
 
-              {/* Quick Instant Booking Bar */}
-              <div className="max-w-lg mx-auto lg:mx-0 pt-1">
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (heroPhone.length === 10) {
-                      window.location.href = `/book?phone=${heroPhone}`;
-                    } else {
-                      window.location.href = "/book";
-                    }
-                  }}
-                  className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5"
-                >
-                  <div className="relative flex-1">
-                    <div className="absolute left-3.5 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-xs font-black text-[#0C6266] border-r border-[#DFE8E8] pr-2.5">
-                      <span>🇮🇳</span>
-                      <span>+91</span>
-                    </div>
-                    <input
-                      type="tel"
-                      maxLength={10}
-                      placeholder="Enter 10-digit mobile number"
-                      value={heroPhone}
-                      onChange={(e) => setHeroPhone(e.target.value.replace(/\D/g, ""))}
-                      className="w-full rounded-xl border border-[#DFE8E8] bg-white py-3.5 pl-20 pr-4 text-sm font-bold text-[#0F171A] placeholder:text-slate-400 focus:border-[#0C6266] focus:outline-hidden focus:ring-2 focus:ring-[#0C6266]/20 shadow-xs"
-                    />
-                  </div>
-                  <button
-                    type="submit"
-                    className="shrink-0 flex items-center justify-center gap-2 rounded-xl bg-[#E68A00] hover:bg-[#CC7A00] active:scale-95 text-white px-7 py-3.5 text-sm font-black transition-all shadow-md shadow-[#E68A00]/25 cursor-pointer whitespace-nowrap"
+              {/* Primary Call to Action Buttons */}
+              <div className="pt-2 max-w-lg mx-auto lg:mx-0 space-y-3">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                  <Link
+                    href="/book"
+                    className="flex-1 flex items-center justify-center gap-2.5 rounded-xl bg-[#E68A00] hover:bg-[#CC7A00] active:scale-95 text-white px-7 py-3.5 sm:py-4 text-sm sm:text-base font-black transition-all shadow-lg shadow-[#E68A00]/25 cursor-pointer whitespace-nowrap"
                   >
-                    <span>Book House Help</span>
-                    <ArrowRight className="h-4 w-4 stroke-[2.5]" />
-                  </button>
-                </form>
-                <div className="mt-2.5 flex items-center justify-center lg:justify-start gap-2 text-[11px] text-[#475559] font-medium">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#16A34A] animate-pulse" />
+                    <span>Book House Help in 60s</span>
+                    <ArrowRight className="h-4 w-4 stroke-[3]" />
+                  </Link>
+
+                  <a
+                    href="#services-section"
+                    className="flex items-center justify-center gap-2 rounded-xl bg-white hover:bg-[#F4F8F8] active:scale-95 text-[#0C6266] border border-[#B6D7D8] px-6 py-3.5 sm:py-4 text-sm font-bold transition-all shadow-2xs whitespace-nowrap"
+                  >
+                    <span>View 4 Services</span>
+                  </a>
+                </div>
+
+                <div className="flex items-center justify-center lg:justify-start gap-2 text-xs text-[#475559] font-medium">
+                  <span className="h-2 w-2 rounded-full bg-[#16A34A] animate-pulse shrink-0" />
                   <span>Doorstep arrival in 15–30 mins across Nellore • Flat ₹199/hr • ₹0 Advance</span>
                 </div>
               </div>
