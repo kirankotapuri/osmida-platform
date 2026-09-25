@@ -2,22 +2,27 @@ import type { MetadataRoute } from 'next';
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: 'Osmida Nellore',
+    name: 'Osmida - Doorstep Home Services Nellore',
     short_name: 'Osmida',
-    description: 'Pest Control, AC Service & Home Deep Cleaning in Nellore',
+    description: 'Nellore residential home help, bathroom cleaning, kitchen cleaning & dishwashing at flat ₹199/hr.',
     start_url: '/',
     display: 'standalone',
-    background_color: '#000000',
-    theme_color: '#000000',
+    background_color: '#F4F8F8',
+    theme_color: '#0C6266',
     icons: [
       {
-        src: '/icon.png',
-        sizes: '816x816',
+        src: '/icons/icon-192x192.png',
+        sizes: '192x192',
         type: 'image/png',
       },
       {
-        src: '/apple-icon.png',
-        sizes: '816x816',
+        src: '/icons/icon-512x512.png',
+        sizes: '512x512',
+        type: 'image/png',
+      },
+      {
+        src: '/icons/apple-touch-icon.png',
+        sizes: '180x180',
         type: 'image/png',
       },
       {

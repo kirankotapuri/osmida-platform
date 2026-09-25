@@ -1,24 +1,20 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const plusJakartaSans = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta-sans",
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://osmida.com'),
   title: {
     template: '%s | Osmida Nellore',
-    default: 'Osmida - AC Services, Pest Control & Home Deep Cleaning in Nellore',
+    default: 'Osmida - Trusted House Help & Apartment Cleaning in Nellore (₹199/hr)',
   },
-  description: "Osmida is Nellore's #1 trusted home services platform. Book verified local technicians for AC servicing & repair, cockroach & termite pest control, and full home deep cleaning. ₹0 advance, pay after service, 30-day warranty.",
+  description: "Osmida provides verified, on-demand house help for Nellore apartments. Book bathroom cleaning, kitchen cleaning, dishwashing, and general house help at a flat ₹199/hr rate. ₹0 advance, pay after service with Before/After photo proof.",
   icons: {
     icon: [
       { url: "/favicon.ico?v=3", sizes: "any" },
@@ -34,21 +30,19 @@ export const metadata: Metadata = {
   keywords: [
     "Osmida",
     "Osmida Nellore",
-    "Osmida home services",
-    "Osmida pest control",
-    "Osmida AC service",
-    "pest control in nellore",
-    "ac service in nellore",
-    "home deep cleaning nellore",
-    "cockroach pest control nellore",
-    "termite treatment nellore",
-    "bedbug treatment nellore",
-    "ac repair trunk road nellore",
-    "cleaning services magunta layout nellore"
+    "Osmida house help",
+    "maid in nellore",
+    "apartment cleaning nellore",
+    "bathroom cleaning in nellore",
+    "kitchen cleaning in nellore",
+    "dishwashing service nellore",
+    "house maid haranathapuram",
+    "cleaning services magunta layout nellore",
+    "vedayapalem cleaning service"
   ],
   openGraph: {
-    title: 'Osmida - Reliable Doorstep Home Services in Nellore',
-    description: 'Book verified local pros for AC service, pest control (cockroach, termite), and home deep cleaning across Nellore. 30-day warranty, ₹0 advance, pay after service.',
+    title: 'Osmida - Trusted House Help in Minutes in Nellore',
+    description: 'Verified house helpers for bathroom cleaning, kitchen cleaning, dishwashing, and house help across Nellore apartments at flat ₹199/hr. ₹0 advance, pay after service.',
     url: 'https://osmida.com',
     siteName: 'Osmida',
     locale: 'en_IN',
@@ -56,8 +50,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Osmida - Doorstep Home Services in Nellore',
-    description: 'AC Servicing, Pest & Termite Control, and Home Deep Cleaning in Nellore with ₹0 advance.',
+    title: 'Osmida - Trusted House Help in Minutes in Nellore',
+    description: 'Apartment house help & cleaning at flat ₹199/hr in Nellore with ₹0 advance and photo verification.',
   },
 };
 
@@ -162,12 +156,37 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      className={`${plusJakartaSans.variable} font-sans h-full antialiased`}
     >
       <head>
+        <meta name="theme-color" content="#0C6266" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Osmida" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+        <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        />
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').then(
+                    function(reg) {
+                      console.log('Osmida Service Worker active:', reg.scope);
+                    },
+                    function(err) {
+                      console.warn('Osmida Service Worker registration error:', err);
+                    }
+                  );
+                });
+              }
+            `,
+          }}
         />
       </head>
       <body className="min-h-full flex flex-col">

@@ -35,6 +35,7 @@ export interface PartnerJob {
   total_amount: number;
   payout_amount: number;
   start_otp: string;
+  end_otp?: string;
   offered_at: string;
   accepted_at?: string;
   started_at?: string;

@@ -1,864 +1,741 @@
 "use client";
 
-import React, { Suspense, useState, useEffect, useRef } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Header } from "@/components/Header";
+import Image from "next/image";
+import { ProntoHeader } from "@/components/ProntoHeader";
 import { Language } from "@/lib/translations";
-import { Loader2, ArrowLeft, ShieldCheck, CheckCircle2 } from "lucide-react";
+import {
+  PRONTO_SERVICES,
+  DURATION_OPTIONS,
+  DEFAULT_APP_SETTINGS,
+} from "@/lib/prontoServices";
+import { AiQuickBookBar } from "@/components/AiQuickBookBar";
+import { OsmidaSupportChat } from "@/components/OsmidaSupportChat";
+import {
+  Loader2,
+  ArrowLeft,
+  ShieldCheck,
+  CheckCircle2,
+  Clock,
+  MapPin,
+  Building2,
+  Sparkles,
+  Phone,
+  User,
+  Calendar,
+  Check,
+  AlertCircle,
+  CreditCard,
+  Lock,
+} from "lucide-react";
 
-// Locality options for Nellore
-const LOCALITIES = [
-  "Nellore Bazar",
-  "Kovuru Road",
-  "Muthukur Road",
-  "Dargamitta",
-  "Venkatampeta",
-  "Indrapuri",
-  "Saraswathi Nagar",
-  "Magunta Layout",
-  "Pogathota",
-  "Vedayapalem",
-  "Haranathapuram",
-  "Stonehouse Pet",
-  "Children's Park Road",
-  "Podalakur Road",
-  "Ramamurthy Nagar",
-  "Other",
-];
-
-// Service definitions with plans and localized titles
-interface PlanOption {
-  id: string;
-  en: string;
-  te: string;
-}
-
-const SERVICE_PLANS: Record<
-  "pest-control" | "ac-services" | "home-deep-cleaning",
-  {
-    nameEn: string;
-    nameTe: string;
-    plans: PlanOption[];
-  }
-> = {
-  "pest-control": {
-    nameEn: "Pest Control",
-    nameTe: "పురుగుల నియంత్రణ",
-    plans: [
-      { id: "general-1bhk", en: "General Pest – 1 BHK", te: "సాధారణ పురుగులు – 1 BHK" },
-      { id: "general-2bhk", en: "General Pest – 2 BHK", te: "సాధారణ పురుగులు – 2 BHK" },
-      { id: "general-3bhk", en: "General Pest – 3 BHK", te: "సాధారణ పురుగులు – 3 BHK" },
-      { id: "bedbug", en: "Bedbug Treatment – Per Room", te: "నిద్రపురుగుల చికిత్స – ప్రతి గది" },
-      { id: "termite", en: "Termite Control – Per Sq. Ft.", te: "తెల్లచీమల నియంత్రణ – ప్రతి చ.అ.కు" },
-      { id: "other", en: "Other", te: "ఇతర" },
-    ],
-  },
-  "ac-services": {
-    nameEn: "AC Services",
-    nameTe: "ఏసీ సర్వీస్",
-    plans: [
-      { id: "foam-jet", en: "AC Foam Jet Service", te: "ఏసీ ఫోమ్ జెట్ సర్వీస్" },
-      { id: "repair-diagnosis", en: "AC Repair & Diagnosis", te: "ఏసీ రిపేర్ & డయాగ్నోసిస్" },
-      { id: "gas-refill", en: "Gas Top‑Up / Refill", te: "గ్యాస్ టాప్‑అప్ / రీఫిల్" },
-      { id: "ac-installation", en: "AC Installation", te: "ఏసీ ఇన్స్టాల్" },
-      { id: "other", en: "Other", te: "ఇతర" },
-    ],
-  },
-  "home-deep-cleaning": {
-    nameEn: "Home Deep Cleaning",
-    nameTe: "ఇంటి డీప్ క్లీనింగ్",
-    plans: [
-      { id: "1bhk", en: "1 BHK Deep Clean", te: "1 BHK డీప్ క్లీన్" },
-      { id: "2bhk", en: "2 BHK Deep Clean", te: "2 BHK డీప్ క్లీన్" },
-      { id: "3bhk", en: "3 BHK Deep Clean", te: "3 BHK డీప్ క్లీన్" },
-      { id: "kitchen-bathroom", en: "Kitchen / Bathroom Deep Clean", te: "కిచెన్ / బాత్రూమ్ డీప్ క్లీన్" },
-      { id: "other", en: "Other", te: "ఇతర" },
-    ],
-  },
-};
-
-const PROPERTY_SIZES_HOME = [
-  "1 BHK",
-  "2 BHK",
-  "3 BHK",
-  "4 BHK or more",
-  "Independent House",
-  "Villa / Duplex",
-];
-
-const PROPERTY_SIZES_AC = ["1 AC", "2 ACs", "3 ACs", "4 or more ACs"];
-
-const TIME_SLOTS = [
-  { id: "morning", en: "Morning (9 AM – 12 PM)", te: "ఉదయం (9 AM – 12 PM)" },
-  { id: "afternoon", en: "Afternoon (12 PM – 4 PM)", te: "మధ్యాహ్నం (12 PM – 4 PM)" },
-  { id: "evening", en: "Evening (4 PM – 8 PM)", te: "సాయంత్రం (4 PM – 8 PM)" },
-  {
-    id: "call-to-confirm",
-    en: "Call me to confirm",
-    te: "నాకు కాల్ చేసి ఖాయం చేయండి",
-  },
-];
-
-function BookingFormInner() {
+function BookingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
-
-  // Language state (defaults to "en", switchable)
   const [lang, setLang] = useState<Language>("en");
 
-  // Read URL query parameters
-  const initialServiceParam = searchParams.get("service") || "";
-  const initialPlanParam = searchParams.get("plan") || "";
+  // Pre-fill from query or localStorage
+  const [selectedServices, setSelectedServices] = useState<string[]>(["bathroom_cleaning"]);
+  const [selectedDuration, setSelectedDuration] = useState<number>(1.5);
+  const [hourlyRate, setHourlyRate] = useState<number>(DEFAULT_APP_SETTINGS.hourly_rate);
 
-  // Normalize service param
-  let matchedServiceKey: "" | "pest-control" | "ac-services" | "home-deep-cleaning" = "";
-  if (initialServiceParam === "pest-control" || initialServiceParam.includes("pest")) {
-    matchedServiceKey = "pest-control";
-  } else if (initialServiceParam === "ac-services" || initialServiceParam.includes("ac")) {
-    matchedServiceKey = "ac-services";
-  } else if (
-    initialServiceParam === "home-deep-cleaning" ||
-    initialServiceParam.includes("clean")
-  ) {
-    matchedServiceKey = "home-deep-cleaning";
-  }
+  // Booking Type: instant | scheduled | recurring
+  const [bookingType, setBookingType] = useState<"instant" | "scheduled" | "recurring">("instant");
+  const [scheduledDate, setScheduledDate] = useState<string>("");
+  const [timeSlot, setTimeSlot] = useState<string>("Morning (9 AM – 12 PM)");
+  const [recurringFrequency, setRecurringFrequency] = useState<string>("Weekly (Every Saturday)");
 
-  // Normalize plan param
-  let matchedPlanKey = "";
-  if (matchedServiceKey && initialPlanParam) {
-    const availablePlans = SERVICE_PLANS[matchedServiceKey].plans;
-    const found = availablePlans.find(
-      (p) =>
-        p.id.toLowerCase() === initialPlanParam.toLowerCase() ||
-        initialPlanParam.toLowerCase().includes(p.id.toLowerCase()) ||
-        p.id.toLowerCase().includes(initialPlanParam.toLowerCase())
-    );
-    if (found) {
-      matchedPlanKey = found.id;
-    }
-  }
+  // Address & Resident Details
+  const [locality, setLocality] = useState<string>("Pogathota");
+  const [apartmentName, setApartmentName] = useState<string>("");
+  const [flatNumber, setFlatNumber] = useState<string>("");
+  const [towerBlock, setTowerBlock] = useState<string>("");
+  const [streetAddress, setStreetAddress] = useState<string>("");
+  const [customerName, setCustomerName] = useState<string>("");
+  const [phone, setPhone] = useState<string>("");
+  const [notes, setNotes] = useState<string>("");
 
-  // Determine whether URL had pre-selected service/plan
-  const hasPreselectedParams = Boolean(matchedServiceKey || matchedPlanKey);
+  // Payment mode state
+  const [paymentMode, setPaymentMode] = useState<"cash" | "online">("cash");
 
-  // Form Field States
-  const [name, setName] = useState("");
-  const [phone, setPhone] = useState("");
-  const [locality, setLocality] = useState("");
-  const [service, setService] = useState<"" | "pest-control" | "ac-services" | "home-deep-cleaning">(
-    matchedServiceKey
-  );
-  const [plan, setPlan] = useState(matchedPlanKey);
-  const [propertySize, setPropertySize] = useState("");
-  const [preferredDate, setPreferredDate] = useState("");
-  const [preferredSlot, setPreferredSlot] = useState("");
-  const [notes, setNotes] = useState("");
-
-  // Validation & Error States
-  interface FormErrors {
-    name?: string;
-    phone?: string;
-    locality?: string;
-    service?: string;
-    plan?: string;
-    propertySize?: string;
-    dateTime?: string;
-  }
-  const [errors, setErrors] = useState<FormErrors>({});
+  // UI state
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string>("");
 
-  // Refs for auto-scrolling to first error
-  const nameRef = useRef<HTMLInputElement>(null);
-  const phoneRef = useRef<HTMLInputElement>(null);
-  const localityRef = useRef<HTMLSelectElement>(null);
-  const serviceRef = useRef<HTMLSelectElement>(null);
-  const planRef = useRef<HTMLSelectElement>(null);
-  const propertySizeRef = useRef<HTMLSelectElement>(null);
-  const dateRef = useRef<HTMLInputElement>(null);
+  useEffect(() => {
+    // Initial date default: tomorrow
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    setScheduledDate(tomorrow.toISOString().split("T")[0]);
 
-  // When service changes, reset or re-validate plan & property size
-  const handleServiceChange = (newService: "" | "pest-control" | "ac-services" | "home-deep-cleaning") => {
-    setService(newService);
-    setPlan("");
-    setPropertySize("");
-    if (errors.service) {
-      setErrors((prev) => ({ ...prev, service: undefined }));
-    }
-  };
-
-  // Get localized summary label for summary box
-  const getSummaryLabel = () => {
-    if (!service) return "";
-    const servObj = SERVICE_PLANS[service];
-    const sName = lang === "te" ? servObj.nameTe : servObj.nameEn;
-    const planObj = servObj.plans.find((p) => p.id === plan);
-    const pName = planObj ? (lang === "te" ? planObj.te : planObj.en) : "";
-    return pName ? `${sName} – ${pName}` : sName;
-  };
-
-  // Today's date in YYYY-MM-DD for min attribute
-  const todayDateString = new Date().toISOString().split("T")[0];
-
-  // Validate form
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-
-    // 1. Name validation
-    if (!name.trim() || name.trim().length < 2) {
-      newErrors.name =
-        lang === "te"
-          ? "దయచేసి మీ పేరును నమోదు చేయండి."
-          : "Please enter your name.";
-    }
-
-    // 2. Phone validation (10 digits after +91)
-    const cleanDigits = phone.replace(/\D/g, "");
-    if (!cleanDigits || cleanDigits.length !== 10) {
-      newErrors.phone =
-        lang === "te"
-          ? "దయచేసి సరైన 10 అంకెల మొబైల్ నంబర్ నమోదు చేయండి."
-          : "Please enter a valid 10‑digit mobile number.";
-    }
-
-    // 3. Locality validation
-    if (!locality) {
-      newErrors.locality =
-        lang === "te"
-          ? "దయచేసి మీ ప్రాంతాన్ని ఎంచుకోండి."
-          : "Please select your locality.";
-    }
-
-    // 4. Service validation
-    if (!service) {
-      newErrors.service =
-        lang === "te"
-          ? "దయచేసి ఒక సర్వీస్ ఎంచుకోండి."
-          : "Please select a service.";
-    }
-
-    // 5. Plan validation
-    if (!plan) {
-      newErrors.plan =
-        lang === "te"
-          ? "దయచేసి ఒక ప్లాన్ ఎంచుకోండి."
-          : "Please select a plan.";
-    }
-
-    // 6. Property Size / Number of ACs validation
-    if (!propertySize) {
-      if (service === "ac-services") {
-        newErrors.propertySize =
-          lang === "te"
-            ? "దయచేసి ఏసీల సంఖ్య ఎంచుకోండి."
-            : "Please select number of ACs.";
-      } else {
-        newErrors.propertySize =
-          lang === "te"
-            ? "దయచేసి ఇంటి పరిమాణం ఎంచుకోండి."
-            : "Please select property size.";
+    // Read from searchParams or localStorage
+    const servicesParam = searchParams.get("services");
+    if (servicesParam) {
+      setSelectedServices(servicesParam.split(",").filter(Boolean));
+    } else if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("osmida_pronto_services");
+      if (saved) {
+        try {
+          setSelectedServices(JSON.parse(saved));
+        } catch {}
       }
     }
 
-    // 7. Preferred Date & Time Slot validation
-    if (!preferredDate || !preferredSlot) {
-      newErrors.dateTime =
-        lang === "te"
-          ? "దయచేసి ఇష్టమైన తేదీ మరియు సమయం ఎంచుకోండి."
-          : "Please select a preferred date and time.";
+    const durationParam = searchParams.get("duration");
+    if (durationParam) {
+      setSelectedDuration(Number(durationParam) || 1.5);
     }
 
-    setErrors(newErrors);
+    const localityParam = searchParams.get("locality");
+    if (localityParam) setLocality(localityParam);
 
-    // Scroll to the first error field smoothly
-    if (newErrors.name && nameRef.current) {
-      nameRef.current.focus();
-      nameRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-    } else if (newErrors.phone && phoneRef.current) {
-      phoneRef.current.focus();
-      phoneRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-    } else if (newErrors.locality && localityRef.current) {
-      localityRef.current.focus();
-      localityRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-    } else if (newErrors.service && serviceRef.current) {
-      serviceRef.current.focus();
-      serviceRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-    } else if (newErrors.plan && planRef.current) {
-      planRef.current.focus();
-      planRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-    } else if (newErrors.propertySize && propertySizeRef.current) {
-      propertySizeRef.current.focus();
-      propertySizeRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
-    } else if (newErrors.dateTime && dateRef.current) {
-      dateRef.current.focus();
-      dateRef.current.scrollIntoView({ behavior: "smooth", block: "center" });
+    const aptParam = searchParams.get("apartment");
+    if (aptParam) setApartmentName(aptParam);
+
+    const typeParam = searchParams.get("type");
+    if (typeParam && ["instant", "scheduled", "recurring"].includes(typeParam)) {
+      setBookingType(typeParam as any);
     }
 
-    return Object.keys(newErrors).length === 0;
+    const dateParam = searchParams.get("date");
+    if (dateParam) setScheduledDate(dateParam);
+
+    const timeSlotParam = searchParams.get("timeSlot");
+    if (timeSlotParam) {
+      if (timeSlotParam === "morning_09_12") setTimeSlot("Morning (9 AM – 12 PM)");
+      else if (timeSlotParam === "afternoon_13_16") setTimeSlot("Afternoon (1 PM – 4 PM)");
+      else if (timeSlotParam === "evening_16_19") setTimeSlot("Evening (4 PM – 7 PM)");
+      else setTimeSlot(timeSlotParam);
+    }
+
+    // Fetch dynamic rate from API
+    fetch("/api/settings")
+      .then((r) => r.json())
+      .then((data) => {
+        if (data.success && data.settings?.hourly_rate) {
+          setHourlyRate(Number(data.settings.hourly_rate));
+        }
+      })
+      .catch(() => {});
+  }, [searchParams]);
+
+  const toggleService = (id: string) => {
+    setSelectedServices((prev) => {
+      if (prev.includes(id)) {
+        if (prev.length === 1) return prev;
+        return prev.filter((item) => item !== id);
+      }
+      return [...prev, id];
+    });
   };
 
-  // Submit Handler
+  const totalPrice = Math.round(selectedDuration * hourlyRate);
+
+  const handleApplyIntent = (intent: any) => {
+    if (intent.services && intent.services.length > 0) {
+      setSelectedServices(intent.services);
+    }
+    if (intent.duration_hours) {
+      setSelectedDuration(Number(intent.duration_hours));
+    }
+    if (intent.locality) {
+      setLocality(intent.locality);
+    }
+    if (intent.apartment_hint) {
+      setApartmentName(intent.apartment_hint);
+    }
+    if (intent.booking_type) {
+      setBookingType(intent.booking_type);
+    }
+    if (intent.date) {
+      setScheduledDate(intent.date);
+    }
+    if (intent.time_slot_label) {
+      setTimeSlot(intent.time_slot_label);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError("");
 
-    if (!validateForm()) {
+    const cleanPhone = phone.replace(/\D/g, "").slice(-10);
+    if (!cleanPhone || cleanPhone.length !== 10) {
+      setFormError(
+        lang === "te"
+          ? "దయచేసి సరైన 10 అంకెల వాట్సాప్ మొబైల్ నంబర్ నమోదు చేయండి."
+          : "Please enter a valid 10-digit WhatsApp mobile number."
+      );
+      return;
+    }
+
+    if (!customerName.trim()) {
+      setFormError(
+        lang === "te"
+          ? "దయచేసి మీ పేరును నమోదు చేయండి."
+          : "Please enter your name."
+      );
+      return;
+    }
+
+    if (!apartmentName.trim() && !streetAddress.trim()) {
+      setFormError(
+        lang === "te"
+          ? "దయచేసి అపార్ట్‌మెంట్ పేరు లేదా ఇంటి నంబర్ నమోదు చేయండి."
+          : "Please enter your apartment name or street address."
+      );
       return;
     }
 
     setIsSubmitting(true);
-    const cleanDigits = phone.replace(/\D/g, "");
-    const generatedRef = `OSM-NEL-${Math.floor(1000 + Math.random() * 9000)}`;
-
-    const currentServiceObj = service ? SERVICE_PLANS[service] : null;
-    const currentPlanObj = currentServiceObj?.plans.find((p) => p.id === plan);
-    const serviceName = currentServiceObj?.nameEn || service;
-    const planName = currentPlanObj?.en || plan;
-
-    const timeSlotObj = TIME_SLOTS.find((s) => s.id === preferredSlot);
-    const slotLabel = timeSlotObj ? timeSlotObj.en : preferredSlot;
 
     try {
       const payload = {
-        referenceId: generatedRef,
-        facilityType:
-          propertySize === "Shop / Office" ? "commercial_shop" : "residential",
-        selectedService: service === "pest-control" ? "pest-shield" : service,
-        locality: locality,
-        timeSlot: slotLabel,
-        inspectionDate: preferredDate,
-        siteAddress: `${locality}, Nellore`,
-        contactPerson: name.trim(),
-        businessName:
-          propertySize === "Shop / Office"
-            ? `${name.trim()}'s Office`
-            : `${name.trim()}'s Residence`,
-        whatsappNumber: cleanDigits,
-        contactConsent: true,
-        notes: `[Shared Booking Wizard] Service: ${serviceName} | Plan: ${planName} | Size/ACs: ${propertySize} | Date: ${preferredDate} | Slot: ${slotLabel} | Notes: ${
-          notes.trim() || "None"
-        }`,
-        floorArea: propertySize,
-        bookingType: "inspection",
-        category: service === "pest-control" ? "pest" : service === "ac-services" ? "ac" : "cleaning",
+        selectedServices,
+        durationHours: selectedDuration,
+        customerName: customerName.trim(),
+        customerPhone: cleanPhone,
+        locality,
+        apartmentName: apartmentName.trim(),
+        flatNumber: flatNumber.trim(),
+        towerBlock: towerBlock.trim(),
+        address: streetAddress.trim(),
+        bookingType,
+        scheduledDate: bookingType === "instant" ? new Date().toISOString().split("T")[0] : scheduledDate,
+        timeSlot:
+          bookingType === "instant"
+            ? "Within 60 mins"
+            : bookingType === "recurring"
+            ? `${recurringFrequency} • ${timeSlot}`
+            : timeSlot,
+        notes: notes.trim(),
+        paymentMethod: paymentMode,
       };
 
-      const response = await fetch("/api/book-inspection", {
+      const res = await fetch("/api/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 
-      // Whether success or local backend fallback, proceed to confirmation
-    } catch (err) {
-      console.error("Submission handled:", err);
-    } finally {
-      // Redirect to Confirmation Page with details
-      const queryParams = new URLSearchParams({
-        ref: generatedRef,
-        service: serviceName,
-        plan: planName,
-        locality: locality,
-        slot: slotLabel,
-        date: preferredDate,
-      });
-      router.push(`/booking-confirmed?${queryParams.toString()}`);
+      const data = await res.json();
+
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to create booking");
+      }
+
+      // Success: redirect to Active Booking Screen with live status and start OTP
+      router.push(`/booking/${data.referenceId}`);
+    } catch (err: any) {
+      setFormError(err.message || "An unexpected error occurred. Please try again.");
+      setIsSubmitting(false);
     }
   };
 
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#111111] pt-16 lg:pt-20 pb-16">
-      {/* 1. FIXED HEADER */}
-      <Header lang={lang} onLanguageChange={setLang} />
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
+      <ProntoHeader />
 
-      {/* 2. TOP BREADCRUMB / TRUST STRIP */}
-      <div className="border-b border-[#E5E7EB] bg-white px-4 py-3">
-        <div className="mx-auto max-w-4xl flex items-center justify-between text-xs font-bold">
-          <Link
-            href="/"
-            className="flex items-center gap-1.5 text-[#555555] hover:text-[#1E6FFF] transition-colors"
-          >
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{lang === "te" ? "హోమ్ పేజీ" : "Home"}</span>
-          </Link>
-          <span className="text-[#25D366] flex items-center gap-1.5 font-bold">
-            <ShieldCheck className="h-4 w-4" />
-            <span>
-              {lang === "te"
-                ? "₹0 అడ్వాన్స్ • సురక్షిత బుకింగ్"
-                : "₹0 Advance • Pay After Service"}
-            </span>
-          </span>
+      <div className="mx-auto max-w-3xl px-4 sm:px-6 py-6 sm:py-8">
+        {/* Top Back Link */}
+        <Link
+          href="/"
+          className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 transition-colors mb-4"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>{lang === "te" ? "సర్వీస్ కేటలాగ్‌కి తిరిగి వెళ్ళండి" : "Back to Services"}</span>
+        </Link>
+
+        {/* Page Title */}
+        <div className="space-y-1 mb-6">
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 text-emerald-900 px-3 py-0.5 text-xs font-bold">
+            <ShieldCheck className="h-3.5 w-3.5 text-emerald-700" />
+            <span>Escrow Protected • Pay After Service</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+            {lang === "te" ? "మీ ఇంటి సహాయాన్ని బుక్ చేసుకోండి" : "Book Your Home Help Visit"}
+          </h1>
+          <p className="text-xs sm:text-sm text-slate-600 font-medium">
+            {lang === "te"
+              ? "నెల్లూరు అపార్ట్‌మెంట్‌ల కోసం ఫ్లాట్ అవర్లీ రేటు. సర్వీస్ పూర్తయిన తర్వాతే చెల్లించండి."
+              : "Standardized residential tasks for Nellore apartments. 1 visit covers your sequence of tasks."}
+          </p>
         </div>
-      </div>
 
-      {/* 3. SECTION 5: FORM CONTAINER & FORM CARD */}
-      <div className="px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12 flex justify-center items-center">
-        <div className="w-full max-w-[560px] bg-white rounded-2xl shadow-[0_4px_20px_rgba(0,0,0,0.08)] border border-[#E5E7EB]/70 p-5 sm:p-7 lg:p-8 animate-in fade-in slide-in-from-bottom-3 duration-250">
-          {/* FORM HEADER */}
-          <div className="mb-6">
-            {/* Title (H2) */}
-            <h2 className="text-[20px] sm:text-[22px] lg:text-[24px] font-bold text-[#111111] mb-2 leading-tight">
-              {lang === "te" ? "మీ సర్వీస్ బుక్ చేయండి" : "Book Your Service"}
-            </h2>
+        {/* AI Quick-Fill Bar */}
+        <AiQuickBookBar onParsed={handleApplyIntent} className="mb-6" />
 
-            {/* Subtext */}
-            <p className="text-[13px] sm:text-[14px] lg:text-[15px] font-normal text-[#555555] mb-3 sm:mb-4 leading-relaxed">
-              {lang === "te"
-                ? "మీ స్లాట్ ఖాయం చేయడానికి మేము 30 నిమిషాల్లో మీకు కాల్ చేస్తాము."
-                : "We’ll call you within 30 minutes to confirm your slot."}
-            </p>
+        {formError && (
+          <div className="mb-6 rounded-xl bg-rose-50 border border-rose-200 p-3.5 flex items-start gap-3 text-xs text-rose-800 font-semibold animate-in fade-in">
+            <AlertCircle className="h-4 w-4 text-rose-600 shrink-0 mt-0.5" />
+            <span>{formError}</span>
+          </div>
+        )}
 
-            {/* Optional Summary Box (if service / plan pre-selected) */}
-            {hasPreselectedParams && service && (
-              <div className="bg-[#F0F5FF] border border-[#D6E4FF] rounded-lg sm:rounded-xl p-3 sm:p-3.5 mb-2 text-[14px] sm:text-[15px] text-[#111111] flex items-start gap-2">
-                <CheckCircle2 className="h-5 w-5 text-[#1E6FFF] shrink-0 mt-0.5" />
-                <span>
-                  {lang === "te"
-                    ? `మీరు బుక్ చేస్తున్నారు: ${getSummaryLabel()}`
-                    : `You are booking: ${getSummaryLabel()}`}
-                </span>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          {/* 1. CONFIRM SERVICES */}
+          <div className="rounded-2xl bg-white p-4 sm:p-5 border border-slate-200 shadow-2xs space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black uppercase tracking-wider text-slate-500">
+                {lang === "te" ? "1. ఎంచుకున్న పనులు (Tasks)" : "1. Tasks to Cover"}
+              </span>
+              <span className="text-xs font-bold text-slate-500">
+                {selectedServices.length} {lang === "te" ? "ఎంచుకోబడ్డాయి" : "selected"}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {PRONTO_SERVICES.map((s) => {
+                const isChecked = selectedServices.includes(s.id);
+                const imageMap: Record<string, string> = {
+                  bathroom_cleaning: "/images/isometric_bathroom_mini.jpg",
+                  kitchen_cleaning: "/images/isometric_kitchen_mini.jpg",
+                  dishwashing: "/images/isometric_dishes_mini.jpg",
+                  general_house_help: "/images/isometric_livingroom_mini.jpg",
+                };
+                const imgSrc = imageMap[s.id] || "/images/isometric_bathroom_mini.jpg";
+
+                return (
+                  <button
+                    key={s.id}
+                    type="button"
+                    onClick={() => toggleService(s.id)}
+                    className={`flex flex-col items-center justify-between p-2.5 rounded-xl border text-center transition-all cursor-pointer ${
+                      isChecked
+                        ? "border-[#0C6266] bg-[#EBF4F5] text-[#0C6266] shadow-xs"
+                        : "border-[#DFE8E8] bg-white text-[#475559] hover:border-[#B6D7D8]"
+                    }`}
+                  >
+                    <div className="relative h-20 w-full rounded-lg overflow-hidden mb-2 bg-[#F4F8F8]">
+                      <Image
+                        src={imgSrc}
+                        alt={s.name}
+                        fill
+                        className="object-cover"
+                        sizes="160px"
+                      />
+                      {isChecked && (
+                        <span className="absolute top-1.5 right-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-[#0C6266] text-white shadow-xs">
+                          <Check className="h-3 w-3 stroke-[3]" />
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-xs font-bold text-[#0F171A]">{s.name}</span>
+                    <span className="text-[10px] text-[#0C6266] font-bold mt-0.5">
+                      {isChecked ? "✓ Selected" : "+ Add"}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 2. DURATION SELECTOR */}
+          <div className="rounded-xl bg-white p-4 sm:p-5 border border-[#DFE8E8] shadow-2xs space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#475559]">
+                {lang === "te" ? "2. సమయం (Duration)" : "2. Visit Duration"}
+              </span>
+              <span className="text-xs font-bold text-[#0C6266] bg-[#EBF4F5] px-2 py-0.5 rounded border border-[#B6D7D8]">
+                Flat ₹{hourlyRate}/hr
+              </span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-2.5">
+              {DURATION_OPTIONS.map((opt) => {
+                const isSelected = selectedDuration === opt.hours;
+                return (
+                  <button
+                    key={opt.hours}
+                    type="button"
+                    onClick={() => setSelectedDuration(opt.hours)}
+                    className={`p-3 rounded-lg border-2 text-center transition-all ${
+                      isSelected
+                        ? "border-[#0C6266] bg-[#0C6266] text-white shadow-sm"
+                        : "border-[#DFE8E8] hover:border-[#B6D7D8] bg-[#F4F8F8] text-[#0F171A]"
+                    }`}
+                  >
+                    <div className="text-xs sm:text-sm font-bold">
+                      {lang === "te" ? opt.labelTe : opt.label}
+                    </div>
+                    <div
+                      className={`text-[11px] font-bold mt-0.5 ${
+                        isSelected ? "text-[#E68A00]" : "text-[#475559]"
+                      }`}
+                    >
+                      ₹{Math.round(opt.hours * hourlyRate)}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* 3. BOOKING TYPE: INSTANT / SCHEDULED / RECURRING */}
+          <div className="rounded-xl bg-white p-4 sm:p-5 border border-[#DFE8E8] shadow-2xs space-y-3">
+            <span className="text-xs font-bold uppercase tracking-wider text-[#475559]">
+              {lang === "te" ? "3. రాక సమయం (When Do You Need Help?)" : "3. When Do You Need Help?"}
+            </span>
+
+            <div className="grid grid-cols-3 gap-2">
+              <button
+                type="button"
+                onClick={() => setBookingType("instant")}
+                className={`p-3 rounded-lg border text-center transition-all ${
+                  bookingType === "instant"
+                    ? "border-[#0C6266] bg-[#EBF4F5] text-[#0C6266] font-bold"
+                    : "border-[#DFE8E8] bg-[#F4F8F8] text-[#475559]"
+                }`}
+              >
+                <div className="text-xs font-bold">⚡ {lang === "te" ? "ఇప్పుడే (Instant)" : "Instant"}</div>
+                <div className="text-[10px] text-[#475559] mt-0.5">Within 60 mins</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setBookingType("scheduled")}
+                className={`p-3 rounded-lg border text-center transition-all ${
+                  bookingType === "scheduled"
+                    ? "border-[#0C6266] bg-[#EBF4F5] text-[#0C6266] font-bold"
+                    : "border-[#DFE8E8] bg-[#F4F8F8] text-[#475559]"
+                }`}
+              >
+                <div className="text-xs font-bold">📅 {lang === "te" ? "షెడ్యూల్డ్" : "Scheduled"}</div>
+                <div className="text-[10px] text-[#475559] mt-0.5">Specific Slot</div>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setBookingType("recurring")}
+                className={`p-3 rounded-lg border text-center transition-all ${
+                  bookingType === "recurring"
+                    ? "border-[#0C6266] bg-[#EBF4F5] text-[#0C6266] font-bold"
+                    : "border-[#DFE8E8] bg-[#F4F8F8] text-[#475559]"
+                }`}
+              >
+                <div className="text-xs font-bold">🔁 {lang === "te" ? "రొటీన్ ప్లాన్" : "Recurring"}</div>
+                <div className="text-[10px] text-[#475559] mt-0.5">Weekly / Daily</div>
+              </button>
+            </div>
+
+            {/* Scheduled Slot Selection */}
+            {bookingType === "scheduled" && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    {lang === "te" ? "తేదీ (Date)" : "Select Date"}
+                  </label>
+                  <input
+                    type="date"
+                    required
+                    value={scheduledDate}
+                    onChange={(e) => setScheduledDate(e.target.value)}
+                    min={new Date().toISOString().split("T")[0]}
+                    className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-medium focus:outline-none focus:border-slate-900"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    {lang === "te" ? "సమయం స్లాట్ (Time Slot)" : "Preferred Slot"}
+                  </label>
+                  <select
+                    value={timeSlot}
+                    onChange={(e) => setTimeSlot(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-medium focus:outline-none focus:border-slate-900 bg-white"
+                  >
+                    <option value="Morning (9 AM – 12 PM)">Morning (9 AM – 12 PM)</option>
+                    <option value="Afternoon (12 PM – 4 PM)">Afternoon (12 PM – 4 PM)</option>
+                    <option value="Evening (4 PM – 8 PM)">Evening (4 PM – 8 PM)</option>
+                  </select>
+                </div>
+              </div>
+            )}
+
+            {/* Recurring Frequency Selection */}
+            {bookingType === "recurring" && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    {lang === "te" ? "ఫ్రీక్వెన్సీ (Frequency)" : "Frequency Plan"}
+                  </label>
+                  <select
+                    value={recurringFrequency}
+                    onChange={(e) => setRecurringFrequency(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-medium focus:outline-none focus:border-slate-900 bg-white"
+                  >
+                    <option value="Daily (Morning Routine)">Daily (Every Day)</option>
+                    <option value="Weekly (Every Saturday)">Weekly (Every Saturday)</option>
+                    <option value="Weekly (Every Sunday)">Weekly (Every Sunday)</option>
+                    <option value="Bi-Weekly (Twice a week)">Bi-Weekly (2x per week)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                    {lang === "te" ? "సమయం స్లాట్ (Time Slot)" : "Time Slot"}
+                  </label>
+                  <select
+                    value={timeSlot}
+                    onChange={(e) => setTimeSlot(e.target.value)}
+                    className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-medium focus:outline-none focus:border-slate-900 bg-white"
+                  >
+                    <option value="Morning (8 AM – 11 AM)">Morning (8 AM – 11 AM)</option>
+                    <option value="Afternoon (1 PM – 4 PM)">Afternoon (1 PM – 4 PM)</option>
+                    <option value="Evening (5 PM – 8 PM)">Evening (5 PM – 8 PM)</option>
+                  </select>
+                </div>
               </div>
             )}
           </div>
 
-          {/* FORM FIELDS */}
-          <form onSubmit={handleSubmit} noValidate className="space-y-4 sm:space-y-5">
-            {/* Field 1 – Name */}
-            <div>
-              <label
-                htmlFor="booking-name"
-                className="block text-[14px] sm:text-[15px] font-semibold text-[#111111] mb-1.5"
-              >
-                {lang === "te" ? "పేరు" : "Name"} <span className="text-[#D93025]">*</span>
-              </label>
-              <input
-                ref={nameRef}
-                id="booking-name"
-                type="text"
-                value={name}
-                onChange={(e) => {
-                  setName(e.target.value);
-                  if (errors.name) setErrors((prev) => ({ ...prev, name: undefined }));
-                }}
-                placeholder={lang === "te" ? "మీ పూర్తి పేరు" : "Your full name"}
-                className={`w-full h-[48px] sm:h-[52px] rounded-lg sm:rounded-xl border px-3.5 sm:px-4 text-[15px] sm:text-[16px] text-[#111111] placeholder:text-[#9AA0A6] transition-colors duration-150 focus:outline-none ${
-                  errors.name
-                    ? "border-[#D93025] focus:border-[#D93025] focus:ring-1 focus:ring-[#D93025]"
-                    : "border-[#D1D5DB] focus:border-[#1E6FFF] focus:ring-1 focus:ring-[#1E6FFF]"
-                }`}
-              />
-              {errors.name && (
-                <p className="text-[12px] sm:text-[13px] text-[#D93025] mt-1.5 animate-in fade-in duration-150">
-                  {errors.name}
-                </p>
-              )}
-            </div>
+          {/* 4. ADDRESS & APARTMENT DETAILS */}
+          <div className="rounded-2xl bg-white p-4 sm:p-5 border border-slate-200 shadow-2xs space-y-3">
+            <span className="text-xs font-black uppercase tracking-wider text-slate-500">
+              {lang === "te" ? "4. అడ్రస్ & అపార్ట్‌మెంట్ వివరాలు" : "4. Address & Apartment Details (Nellore)"}
+            </span>
 
-            {/* Field 2 – Phone Number */}
-            <div>
-              <label
-                htmlFor="booking-phone"
-                className="block text-[14px] sm:text-[15px] font-semibold text-[#111111] mb-1.5"
-              >
-                {lang === "te" ? "ఫోన్ నంబర్" : "Phone Number"}{" "}
-                <span className="text-[#D93025]">*</span>
-              </label>
-              <div
-                className={`flex items-center w-full h-[48px] sm:h-[52px] rounded-lg sm:rounded-xl border transition-colors duration-150 ${
-                  errors.phone
-                    ? "border-[#D93025] ring-1 ring-[#D93025]"
-                    : "border-[#D1D5DB] focus-within:border-[#1E6FFF] focus-within:ring-1 focus-within:ring-[#1E6FFF]"
-                }`}
-              >
-                <div className="h-full px-3.5 bg-[#F7F8FA] border-r border-[#D1D5DB] flex items-center justify-center text-[#555555] font-semibold text-[14px] sm:text-[15px] rounded-l-lg sm:rounded-l-xl select-none">
-                  +91
-                </div>
-                <input
-                  ref={phoneRef}
-                  id="booking-phone"
-                  type="tel"
-                  maxLength={10}
-                  value={phone}
-                  onChange={(e) => {
-                    const val = e.target.value.replace(/\D/g, "");
-                    setPhone(val);
-                    if (errors.phone) setErrors((prev) => ({ ...prev, phone: undefined }));
-                  }}
-                  placeholder="9876543210"
-                  className="flex-1 h-full px-3.5 sm:px-4 text-[15px] sm:text-[16px] text-[#111111] placeholder:text-[#9AA0A6] bg-transparent focus:outline-none rounded-r-lg sm:rounded-r-xl"
-                />
-              </div>
-              {errors.phone && (
-                <p className="text-[12px] sm:text-[13px] text-[#D93025] mt-1.5 animate-in fade-in duration-150">
-                  {errors.phone}
-                </p>
-              )}
-            </div>
-
-            {/* Field 3 – Locality */}
-            <div>
-              <label
-                htmlFor="booking-locality"
-                className="block text-[14px] sm:text-[15px] font-semibold text-[#111111] mb-1.5"
-              >
-                {lang === "te" ? "ప్రాంతం" : "Locality"}{" "}
-                <span className="text-[#D93025]">*</span>
-              </label>
-              <select
-                ref={localityRef}
-                id="booking-locality"
-                value={locality}
-                onChange={(e) => {
-                  setLocality(e.target.value);
-                  if (errors.locality) setErrors((prev) => ({ ...prev, locality: undefined }));
-                }}
-                className={`w-full h-[48px] sm:h-[52px] rounded-lg sm:rounded-xl border px-3.5 sm:px-4 text-[15px] sm:text-[16px] bg-white transition-colors duration-150 focus:outline-none ${
-                  !locality ? "text-[#9AA0A6]" : "text-[#111111]"
-                } ${
-                  errors.locality
-                    ? "border-[#D93025] focus:border-[#D93025] focus:ring-1 focus:ring-[#D93025]"
-                    : "border-[#D1D5DB] focus:border-[#1E6FFF] focus:ring-1 focus:ring-[#1E6FFF]"
-                }`}
-              >
-                <option value="">
-                  {lang === "te"
-                    ? "మీ ప్రాంతం ఎంచుకోండి"
-                    : "Select your locality"}
-                </option>
-                {LOCALITIES.map((loc) => (
-                  <option key={loc} value={loc} className="text-[#111111]">
-                    {loc}
-                  </option>
-                ))}
-              </select>
-              {errors.locality && (
-                <p className="text-[12px] sm:text-[13px] text-[#D93025] mt-1.5 animate-in fade-in duration-150">
-                  {errors.locality}
-                </p>
-              )}
-            </div>
-
-            {/* Field 4 – Service */}
-            <div>
-              <label
-                htmlFor="booking-service"
-                className="block text-[14px] sm:text-[15px] font-semibold text-[#111111] mb-1.5"
-              >
-                {lang === "te" ? "సర్వీస్" : "Service"}{" "}
-                <span className="text-[#D93025]">*</span>
-              </label>
-              <select
-                ref={serviceRef}
-                id="booking-service"
-                value={service}
-                onChange={(e) =>
-                  handleServiceChange(
-                    e.target.value as "" | "pest-control" | "ac-services" | "home-deep-cleaning"
-                  )
-                }
-                className={`w-full h-[48px] sm:h-[52px] rounded-lg sm:rounded-xl border px-3.5 sm:px-4 text-[15px] sm:text-[16px] bg-white transition-colors duration-150 focus:outline-none ${
-                  !service ? "text-[#9AA0A6]" : "text-[#111111]"
-                } ${
-                  errors.service
-                    ? "border-[#D93025] focus:border-[#D93025] focus:ring-1 focus:ring-[#D93025]"
-                    : "border-[#D1D5DB] focus:border-[#1E6FFF] focus:ring-1 focus:ring-[#1E6FFF]"
-                }`}
-              >
-                <option value="">
-                  {lang === "te" ? "సర్వీస్ ఎంచుకోండి" : "Select service"}
-                </option>
-                <option value="pest-control" className="text-[#111111]">
-                  Pest Control / పురుగుల నియంత్రణ
-                </option>
-                <option value="ac-services" className="text-[#111111]">
-                  AC Services / ఏసీ సర్వీస్
-                </option>
-                <option value="home-deep-cleaning" className="text-[#111111]">
-                  Home Deep Cleaning / ఇంటి డీప్ క్లీనింగ్
-                </option>
-              </select>
-              {errors.service && (
-                <p className="text-[12px] sm:text-[13px] text-[#D93025] mt-1.5 animate-in fade-in duration-150">
-                  {errors.service}
-                </p>
-              )}
-            </div>
-
-            {/* Field 5 – Plan / Package (Dynamic based on selected service) */}
-            <div>
-              <label
-                htmlFor="booking-plan"
-                className="block text-[14px] sm:text-[15px] font-semibold text-[#111111] mb-1.5"
-              >
-                {lang === "te" ? "ప్లాన్" : "Plan"} <span className="text-[#D93025]">*</span>
-              </label>
-              <select
-                ref={planRef}
-                id="booking-plan"
-                disabled={!service}
-                value={plan}
-                onChange={(e) => {
-                  setPlan(e.target.value);
-                  if (errors.plan) setErrors((prev) => ({ ...prev, plan: undefined }));
-                }}
-                className={`w-full h-[48px] sm:h-[52px] rounded-lg sm:rounded-xl border px-3.5 sm:px-4 text-[15px] sm:text-[16px] bg-white transition-colors duration-150 focus:outline-none disabled:bg-[#F7F8FA] disabled:text-[#9AA0A6] disabled:cursor-not-allowed ${
-                  !plan ? "text-[#9AA0A6]" : "text-[#111111]"
-                } ${
-                  errors.plan
-                    ? "border-[#D93025] focus:border-[#D93025] focus:ring-1 focus:ring-[#D93025]"
-                    : "border-[#D1D5DB] focus:border-[#1E6FFF] focus:ring-1 focus:ring-[#1E6FFF]"
-                }`}
-              >
-                <option value="">
-                  {service
-                    ? lang === "te"
-                      ? "ప్లాన్ ఎంచుకోండి"
-                      : "Select plan"
-                    : lang === "te"
-                    ? "ముందుగా సర్వీస్ ఎంచుకోండి"
-                    : "Select a service first"}
-                </option>
-                {service &&
-                  SERVICE_PLANS[service].plans.map((p) => (
-                    <option key={p.id} value={p.id} className="text-[#111111]">
-                      {p.en} / {p.te}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  {lang === "te" ? "ప్రాంతం (Locality in Nellore)*" : "Nellore Locality*"}
+                </label>
+                <select
+                  value={locality}
+                  onChange={(e) => setLocality(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:outline-none focus:border-slate-900 bg-white"
+                >
+                  {DEFAULT_APP_SETTINGS.service_zones.map((loc) => (
+                    <option key={loc} value={loc}>
+                      {loc}
                     </option>
                   ))}
-              </select>
-              {errors.plan && (
-                <p className="text-[12px] sm:text-[13px] text-[#D93025] mt-1.5 animate-in fade-in duration-150">
-                  {errors.plan}
-                </p>
-              )}
-            </div>
+                </select>
+              </div>
 
-            {/* Field 6 – Property Size / Number of ACs (Changes by Service) */}
-            <div>
-              <label
-                htmlFor="booking-size"
-                className="block text-[14px] sm:text-[15px] font-semibold text-[#111111] mb-1.5"
-              >
-                {service === "ac-services"
-                  ? lang === "te"
-                    ? "ఏసీల సంఖ్య"
-                    : "Number of ACs"
-                  : lang === "te"
-                  ? "ఇంటి పరిమాణం"
-                  : "Property Size"}{" "}
-                <span className="text-[#D93025]">*</span>
-              </label>
-              <select
-                ref={propertySizeRef}
-                id="booking-size"
-                value={propertySize}
-                onChange={(e) => {
-                  setPropertySize(e.target.value);
-                  if (errors.propertySize)
-                    setErrors((prev) => ({ ...prev, propertySize: undefined }));
-                }}
-                className={`w-full h-[48px] sm:h-[52px] rounded-lg sm:rounded-xl border px-3.5 sm:px-4 text-[15px] sm:text-[16px] bg-white transition-colors duration-150 focus:outline-none ${
-                  !propertySize ? "text-[#9AA0A6]" : "text-[#111111]"
-                } ${
-                  errors.propertySize
-                    ? "border-[#D93025] focus:border-[#D93025] focus:ring-1 focus:ring-[#D93025]"
-                    : "border-[#D1D5DB] focus:border-[#1E6FFF] focus:ring-1 focus:ring-[#1E6FFF]"
-                }`}
-              >
-                <option value="">
-                  {service === "ac-services"
-                    ? lang === "te"
-                      ? "ఏసీల సంఖ్య ఎంచుకోండి"
-                      : "Select number of ACs"
-                    : lang === "te"
-                    ? "ఇంటి పరిమాణం ఎంచుకోండి"
-                    : "Select property size"}
-                </option>
-                {service === "ac-services"
-                  ? PROPERTY_SIZES_AC.map((sz) => (
-                      <option key={sz} value={sz} className="text-[#111111]">
-                        {sz}
-                      </option>
-                    ))
-                  : PROPERTY_SIZES_HOME.map((sz) => (
-                      <option key={sz} value={sz} className="text-[#111111]">
-                        {sz}
-                      </option>
-                    ))}
-              </select>
-              {errors.propertySize && (
-                <p className="text-[12px] sm:text-[13px] text-[#D93025] mt-1.5 animate-in fade-in duration-150">
-                  {errors.propertySize}
-                </p>
-              )}
-            </div>
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  {lang === "te" ? "అపార్ట్‌మెంట్ / గేటెడ్ కమ్యూనిటీ పేరు*" : "Apartment / Society Name*"}
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Sri Sai Residency, Haranathapuram"
+                  value={apartmentName}
+                  onChange={(e) => setApartmentName(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-medium focus:outline-none focus:border-slate-900"
+                />
+              </div>
 
-            {/* Field 7 – Preferred Date & Time */}
-            <div>
-              <label className="block text-[14px] sm:text-[15px] font-semibold text-[#111111] mb-1.5">
-                {lang === "te"
-                  ? "ఇష్టమైన తేదీ మరియు సమయం"
-                  : "Preferred Date & Time"}{" "}
-                <span className="text-[#D93025]">*</span>
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 sm:gap-3">
-                {/* Date Picker */}
-                <div>
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  {lang === "te" ? "ఫ్లాట్ నంబర్ (Flat No)*" : "Flat / Door Number*"}
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Flat 302"
+                  value={flatNumber}
+                  onChange={(e) => setFlatNumber(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-medium focus:outline-none focus:border-slate-900"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  {lang === "te" ? "టవర్ / బ్లాక్ (Tower/Block)" : "Tower / Block (Optional)"}
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Block B, 3rd Floor"
+                  value={towerBlock}
+                  onChange={(e) => setTowerBlock(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-medium focus:outline-none focus:border-slate-900"
+                />
+              </div>
+
+              <div className="sm:col-span-2">
+                <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  {lang === "te" ? "స్ట్రీట్ లేదా ల్యాండ్‌మార్క్" : "Street / Landmark"}
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Near Children's Park, Behind Apollo Pharmacy"
+                  value={streetAddress}
+                  onChange={(e) => setStreetAddress(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-medium focus:outline-none focus:border-slate-900"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 5. RESIDENT CONTACT */}
+          <div className="rounded-2xl bg-white p-4 sm:p-5 border border-slate-200 shadow-2xs space-y-3">
+            <span className="text-xs font-black uppercase tracking-wider text-slate-500">
+              {lang === "te" ? "5. మీ వివరాలు (Resident Contact)" : "5. Resident Contact"}
+            </span>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  {lang === "te" ? "మీ పేరు (Full Name)*" : "Your Name*"}
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Venkat Rao"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-medium focus:outline-none focus:border-slate-900"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  {lang === "te" ? "వాట్సాప్ నంబర్ (10-Digit Mobile)*" : "WhatsApp Number*"}
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2.5 text-xs font-bold text-slate-400">
+                    +91
+                  </span>
                   <input
-                    ref={dateRef}
-                    type="date"
-                    min={todayDateString}
-                    value={preferredDate}
-                    onChange={(e) => {
-                      setPreferredDate(e.target.value);
-                      if (errors.dateTime)
-                        setErrors((prev) => ({ ...prev, dateTime: undefined }));
-                    }}
-                    className={`w-full h-[48px] sm:h-[52px] rounded-lg sm:rounded-xl border px-3.5 sm:px-4 text-[14px] sm:text-[15px] text-[#111111] bg-white transition-colors duration-150 focus:outline-none ${
-                      errors.dateTime
-                        ? "border-[#D93025] focus:border-[#D93025] focus:ring-1 focus:ring-[#D93025]"
-                        : "border-[#D1D5DB] focus:border-[#1E6FFF] focus:ring-1 focus:ring-[#1E6FFF]"
-                    }`}
+                    type="tel"
+                    required
+                    maxLength={10}
+                    placeholder="94901 22849"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
+                    className="w-full rounded-xl border border-slate-300 pl-11 p-2.5 text-xs font-bold focus:outline-none focus:border-slate-900"
                   />
                 </div>
+              </div>
 
-                {/* Time Slot Select */}
-                <div>
-                  <select
-                    value={preferredSlot}
-                    onChange={(e) => {
-                      setPreferredSlot(e.target.value);
-                      if (errors.dateTime)
-                        setErrors((prev) => ({ ...prev, dateTime: undefined }));
-                    }}
-                    className={`w-full h-[48px] sm:h-[52px] rounded-lg sm:rounded-xl border px-3.5 sm:px-4 text-[14px] sm:text-[15px] bg-white transition-colors duration-150 focus:outline-none ${
-                      !preferredSlot ? "text-[#9AA0A6]" : "text-[#111111]"
-                    } ${
-                      errors.dateTime
-                        ? "border-[#D93025] focus:border-[#D93025] focus:ring-1 focus:ring-[#D93025]"
-                        : "border-[#D1D5DB] focus:border-[#1E6FFF] focus:ring-1 focus:ring-[#1E6FFF]"
+              <div className="sm:col-span-2">
+                <label className="block text-[11px] font-bold text-slate-600 mb-1">
+                  {lang === "te" ? "ఏదైనా ప్రత్యేక సూచనలు (Special Instructions)" : "Special Instructions / Notes"}
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Please bring extra floor wiper, ring bell twice"
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-medium focus:outline-none focus:border-slate-900"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* 6. PAYMENT MODE SELECTION */}
+          <div className="rounded-xl bg-[#EBF4F5] border border-[#B6D7D8] p-4 sm:p-5 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold uppercase tracking-wider text-[#0C6266] flex items-center gap-1.5">
+                <Lock className="h-4 w-4 text-[#0C6266]" />
+                <span>{lang === "te" ? "6. చెల్లింపు విధానం (Payment Mode)" : "6. Choose Payment Mode"}</span>
+              </span>
+              <span className="text-xs font-bold text-[#0C6266]">
+                ₹0 Upfront • Pay After Service
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {/* Option 1: Cash on Delivery */}
+              <button
+                type="button"
+                onClick={() => setPaymentMode("cash")}
+                className={`p-3 rounded-xl border text-left transition-all ${
+                  paymentMode === "cash"
+                    ? "bg-white border-[#0C6266] ring-2 ring-[#0C6266]/20 shadow-xs"
+                    : "bg-white/60 border-slate-200 hover:bg-white"
+                }`}
+              >
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-black text-slate-900">💵 Cash on Delivery</span>
+                  <span
+                    className={`h-4 w-4 rounded-full border flex items-center justify-center ${
+                      paymentMode === "cash" ? "border-[#0C6266] bg-[#0C6266]" : "border-slate-300"
                     }`}
                   >
-                    <option value="">
-                      {lang === "te" ? "సమయం ఎంచుకోండి" : "Select time slot"}
-                    </option>
-                    {TIME_SLOTS.map((slot) => (
-                      <option key={slot.id} value={slot.id} className="text-[#111111]">
-                        {lang === "te" ? slot.te : slot.en}
-                      </option>
-                    ))}
-                  </select>
+                    {paymentMode === "cash" && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                  </span>
                 </div>
-              </div>
-              {errors.dateTime && (
-                <p className="text-[12px] sm:text-[13px] text-[#D93025] mt-1.5 animate-in fade-in duration-150">
-                  {errors.dateTime}
+                <p className="text-[11px] text-[#475559] font-medium leading-relaxed">
+                  Pay ₹{totalPrice} in cash directly to your pro after they finish all cleaning tasks.
                 </p>
-              )}
-            </div>
+              </button>
 
-            {/* Field 8 – Notes (Optional) */}
-            <div>
-              <label
-                htmlFor="booking-notes"
-                className="block text-[14px] sm:text-[15px] font-semibold text-[#111111] mb-1.5"
-              >
-                {lang === "te" ? "గమనికలు (ఐచ్ఛికం)" : "Notes (Optional)"}
-              </label>
-              <textarea
-                id="booking-notes"
-                rows={3}
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                placeholder={
-                  lang === "te"
-                    ? "మీ సమస్య గురించి లేదా ఏదైనా ప్రత్యేక అవసరాలు మాకు చెప్పండి."
-                    : "Tell us about your problem or any special requirements."
-                }
-                className="w-full rounded-lg sm:rounded-xl border border-[#D1D5DB] p-3.5 sm:p-4 text-[14px] sm:text-[15px] text-[#111111] placeholder:text-[#9AA0A6] focus:border-[#1E6FFF] focus:ring-1 focus:ring-[#1E6FFF] focus:outline-none transition-colors duration-150"
-              />
-            </div>
-
-            {/* Submit Button */}
-            <div className="pt-2 sm:pt-3">
+              {/* Option 2: Online Payment via Escrow */}
               <button
-                type="submit"
-                disabled={isSubmitting}
-                className="w-full h-[52px] sm:h-[56px] rounded-xl bg-[#1E6FFF] hover:bg-[#0F4BD6] text-white font-semibold text-[16px] shadow-sm transition-all duration-150 active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                type="button"
+                onClick={() => setPaymentMode("online")}
+                className={`p-3 rounded-xl border text-left transition-all ${
+                  paymentMode === "online"
+                    ? "bg-white border-[#0C6266] ring-2 ring-[#0C6266]/20 shadow-xs"
+                    : "bg-white/60 border-slate-200 hover:bg-white"
+                }`}
               >
-                {isSubmitting ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    <span>{lang === "te" ? "బుక్ అవుతోంది…" : "Booking…"}</span>
-                  </>
-                ) : (
-                  <span>{lang === "te" ? "తర్వాతి దశకు" : "Continue"}</span>
-                )}
+                <div className="flex items-center justify-between mb-1">
+                  <span className="text-xs font-black text-slate-900">🛡️ Online Escrow</span>
+                  <span
+                    className={`h-4 w-4 rounded-full border flex items-center justify-center ${
+                      paymentMode === "online" ? "border-[#0C6266] bg-[#0C6266]" : "border-slate-300"
+                    }`}
+                  >
+                    {paymentMode === "online" && <span className="h-1.5 w-1.5 rounded-full bg-white" />}
+                  </span>
+                </div>
+                <p className="text-[11px] text-[#475559] font-medium leading-relaxed">
+                  Pay via UPI / Card. Funds held securely in escrow until you verify before/after photos.
+                </p>
               </button>
             </div>
 
-            {/* Small Legal / Trust Text */}
-            <div className="pt-2 text-center">
-              <p className="text-[12px] sm:text-[13px] text-[#777777] leading-relaxed">
-                {lang === "te" ? (
-                  <>
-                    దీని ద్వారా మీరు మా{" "}
-                    <Link
-                      href="/terms"
-                      target="_blank"
-                      className="text-[#1E6FFF] underline underline-offset-2 hover:text-[#0F4BD6]"
-                    >
-                      నిబంధనలు
-                    </Link>{" "}
-                    మరియు{" "}
-                    <Link
-                      href="/privacy"
-                      target="_blank"
-                      className="text-[#1E6FFF] underline underline-offset-2 hover:text-[#0F4BD6]"
-                    >
-                      గోప్యతా విధానానికి
-                    </Link>{" "}
-                    అంగీకరిస్తున్నారు. మీ వివరాలను ఈ బుకింగ్ గురించి మిమ్మల్ని సంప్రదించడానికి మాత్రమే వాడతాము.
-                  </>
-                ) : (
-                  <>
-                    By continuing, you agree to our{" "}
-                    <Link
-                      href="/terms"
-                      target="_blank"
-                      className="text-[#1E6FFF] underline underline-offset-2 hover:text-[#0F4BD6]"
-                    >
-                      Terms
-                    </Link>{" "}
-                    and{" "}
-                    <Link
-                      href="/privacy"
-                      target="_blank"
-                      className="text-[#1E6FFF] underline underline-offset-2 hover:text-[#0F4BD6]"
-                    >
-                      Privacy Policy
-                    </Link>
-                    . We’ll only use your details to contact you about this booking.
-                  </>
-                )}
-              </p>
+            <div className="rounded-lg bg-white p-3 border border-[#B6D7D8] text-xs text-[#0F171A] space-y-1.5 font-medium">
+              <div className="flex items-center justify-between text-[#0F171A] font-bold">
+                <span>Total for {selectedDuration} hrs:</span>
+                <span className="text-base font-black text-[#0C6266]">₹{totalPrice}</span>
+              </div>
             </div>
-          </form>
-        </div>
+          </div>
+
+          {/* SUBMIT BUTTON */}
+          <button
+            type="submit"
+            disabled={isSubmitting || selectedServices.length === 0}
+            className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#E68A00] hover:bg-[#CC7A00] active:scale-98 text-white p-4 text-sm font-bold transition-all shadow-md shadow-[#E68A00]/25 disabled:opacity-50 cursor-pointer"
+          >
+            {isSubmitting ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin" />
+                <span>Generating Your Booking & OTPs...</span>
+              </>
+            ) : (
+              <>
+                <ShieldCheck className="h-4 w-4" />
+                <span>
+                  Confirm Booking (₹{totalPrice} • {paymentMode === "online" ? "Online Escrow" : "Cash on Delivery"})
+                </span>
+              </>
+            )}
+          </button>
+        </form>
       </div>
-    </main>
+
+      {/* AI Support Chat Concierge */}
+      <OsmidaSupportChat />
+    </div>
   );
 }
 
-export default function BookPage() {
+export default function BookingPage() {
   return (
     <Suspense
       fallback={
-        <div className="min-h-screen bg-[#F7F8FA] flex items-center justify-center text-sm font-bold text-slate-500">
-          Loading booking form...
+        <div className="min-h-screen flex items-center justify-center bg-slate-50">
+          <Loader2 className="h-8 w-8 animate-spin text-slate-900" />
         </div>
       }
     >
-      <BookingFormInner />
+      <BookingContent />
     </Suspense>
   );
 }

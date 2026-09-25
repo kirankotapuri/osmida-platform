@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
   Power,
   MapPin,
@@ -22,6 +22,9 @@ import {
   ArrowRight,
   FileCheck,
   Upload,
+  Volume2,
+  Bell,
+  Info,
 } from "lucide-react";
 import { ServicePartner, PartnerJob, DEFAULT_PARTNERS } from "@/lib/partnerMatching";
 
@@ -29,7 +32,7 @@ export default function PartnerPortalPage() {
   // Auth state
   const [partner, setPartner] = useState<ServicePartner | null>(null);
   const [loginPhone, setLoginPhone] = useState("");
-  const [loginPin, setLoginPin] = useState("1234");
+  const [loginPin, setLoginPin] = useState("");
   const [authError, setAuthError] = useState("");
   const [isLoggingIn, setIsLoggingIn] = useState(false);
 
@@ -44,14 +47,43 @@ export default function PartnerPortalPage() {
 
   // Action states
   const [startOtpInput, setStartOtpInput] = useState("");
+  const [endOtpInput, setEndOtpInput] = useState("");
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [beforePhoto, setBeforePhoto] = useState<string | null>(null);
   const [afterPhoto, setAfterPhoto] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "upi">("cash");
 
-  // Load saved session on mount
+  // Registration states (Screen 1: Worker Registration)
+  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [regName, setRegName] = useState("");
+  const [regPhone, setRegPhone] = useState("");
+  const [regAadhaar, setRegAadhaar] = useState("");
+  const [regAadhaarUrl, setRegAadhaarUrl] = useState<string | null>(null);
+  const [regSelfieUrl, setRegSelfieUrl] = useState<string | null>(null);
+  const [regUpi, setRegUpi] = useState("");
+  const [regAccount, setRegAccount] = useState("");
+  const [regIfsc, setRegIfsc] = useState("");
+  const [regSkills, setRegSkills] = useState<string[]>([
+    "Bathroom Cleaning",
+    "Kitchen Cleaning",
+    "Dishwashing",
+    "General House Help",
+  ]);
+
+  // Load saved session on mount and inject worker-specific PWA manifest
   useEffect(() => {
     try {
+      // Ensure worker app has its own distinct manifest and icon on home screen
+      let manifestLink = document.querySelector("link[data-app='partner-manifest']") as HTMLLinkElement | null;
+      if (!manifestLink) {
+        manifestLink = document.createElement("link");
+        manifestLink.rel = "manifest";
+        manifestLink.setAttribute("data-app", "partner-manifest");
+        manifestLink.href = "/worker-manifest.json";
+        document.head.appendChild(manifestLink);
+      }
+      document.title = "Osmida Partner | Nellore Dispatch Portal";
+
       const saved = localStorage.getItem("osmida_partner_session");
       if (saved) {
         const parsed = JSON.parse(saved);
@@ -61,6 +93,66 @@ export default function PartnerPortalPage() {
     } catch {}
   }, []);
 
+  const prevJobIdsRef = useRef<Set<string>>(new Set());
+  const isInitialJobLoadRef = useRef<boolean>(true);
+  const [buzzerPlaying, setBuzzerPlaying] = useState(false);
+
+  // Synthesize loud dispatch alert chime via Web Audio API + vibration
+  const playJobAlertBuzzer = useCallback(() => {
+    try {
+      setBuzzerPlaying(true);
+      setTimeout(() => setBuzzerPlaying(false), 1400);
+
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioContextClass) return;
+      const ctx = new AudioContextClass();
+
+      if (ctx.state === "suspended") {
+        ctx.resume();
+      }
+
+      // Urgent dual-tone siren sequence: 880Hz & 1200Hz bursts
+      const toneSequence = [
+        { f1: 880, f2: 1200, start: 0, dur: 0.16 },
+        { f1: 960, f2: 1320, start: 0.2, dur: 0.16 },
+        { f1: 880, f2: 1200, start: 0.42, dur: 0.2 },
+        { f1: 1040, f2: 1400, start: 0.7, dur: 0.35 },
+      ];
+
+      toneSequence.forEach(({ f1, f2, start, dur }) => {
+        const startTime = ctx.currentTime + start;
+        const osc1 = ctx.createOscillator();
+        const osc2 = ctx.createOscillator();
+        const gain = ctx.createGain();
+
+        osc1.type = "sawtooth";
+        osc1.frequency.setValueAtTime(f1, startTime);
+
+        osc2.type = "square";
+        osc2.frequency.setValueAtTime(f2, startTime);
+
+        gain.gain.setValueAtTime(0.001, startTime);
+        gain.gain.linearRampToValueAtTime(0.35, startTime + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.001, startTime + dur);
+
+        osc1.connect(gain);
+        osc2.connect(gain);
+        gain.connect(ctx.destination);
+
+        osc1.start(startTime);
+        osc2.start(startTime);
+        osc1.stop(startTime + dur);
+        osc2.stop(startTime + dur);
+      });
+
+      if (typeof navigator !== "undefined" && "vibrate" in navigator) {
+        navigator.vibrate([400, 150, 400, 150, 600]);
+      }
+    } catch (err) {
+      console.warn("Audio buzzer dispatch error:", err);
+    }
+  }, []);
+
   // Fetch jobs for partner
   const fetchJobs = useCallback(async (partnerId: string) => {
     setIsLoadingJobs(true);
@@ -68,16 +160,33 @@ export default function PartnerPortalPage() {
       const res = await fetch(`/api/partner/jobs?partnerId=${encodeURIComponent(partnerId)}`);
       const data = await res.json();
       if (data.success) {
-        setOfferedJobs(data.offeredJobs || []);
+        const newOffered = data.offeredJobs || [];
+        setOfferedJobs(newOffered);
         setActiveJob(data.activeJob || null);
         setCompletedJobs(data.completedJobs || []);
+
+        // Detect newly broadcast jobs for foreground alert buzzer
+        const currentIds = new Set<string>(newOffered.map((j: PartnerJob) => String(j.id)));
+        if (!isInitialJobLoadRef.current) {
+          const hasNewJob = newOffered.some((j: PartnerJob) => !prevJobIdsRef.current.has(j.id));
+          if (hasNewJob) {
+            playJobAlertBuzzer();
+            setStatusMessage({
+              type: "success",
+              text: "🚨 NEW JOB ALERT! A customer booking just matched your hub. Accept below!",
+            });
+          }
+        } else {
+          isInitialJobLoadRef.current = false;
+        }
+        prevJobIdsRef.current = currentIds;
       }
     } catch (err) {
       console.error("Failed to load jobs:", err);
     } finally {
       setIsLoadingJobs(false);
     }
-  }, []);
+  }, [playJobAlertBuzzer]);
 
   useEffect(() => {
     if (partner) {
@@ -116,14 +225,57 @@ export default function PartnerPortalPage() {
     }
   };
 
-  // Quick demo login helper
+  // Register worker handler (Screen 1: Name, Phone, Aadhaar, Selfie, Bank/UPI, Skill checkboxes)
+  const handleRegister = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError("");
+    setIsLoggingIn(true);
+
+    const cleanPhone = regPhone.replace(/\D/g, "").slice(-10);
+    if (!cleanPhone || cleanPhone.length !== 10) {
+      setAuthError("Please enter a valid 10-digit mobile number");
+      setIsLoggingIn(false);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/partner/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: regName.trim(),
+          phone: cleanPhone,
+          aadhaarNumber: regAadhaar.trim(),
+          aadhaarUrl: regAadhaarUrl || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200",
+          selfieUrl: regSelfieUrl || "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150",
+          upiId: regUpi.trim(),
+          bankAccountNo: regAccount.trim(),
+          bankIfsc: regIfsc.trim(),
+          skills: regSkills,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Registration failed");
+      }
+
+      setPartner(data.partner);
+      setIsOnline(true);
+      localStorage.setItem("osmida_partner_session", JSON.stringify(data.partner));
+      fetchJobs(data.partner.id);
+    } catch (err: any) {
+      setAuthError(err.message || "Registration failed");
+    } finally {
+      setIsLoggingIn(false);
+    }
+  };
+
+  // Quick partner selection helper
   const handleQuickLogin = (demo: ServicePartner) => {
     setLoginPhone(demo.phone);
-    setLoginPin(demo.auth_pin || "1234");
-    setPartner(demo);
-    setIsOnline(true);
-    localStorage.setItem("osmida_partner_session", JSON.stringify(demo));
-    fetchJobs(demo.id);
+    setLoginPin("");
+    setAuthError("");
   };
 
   // Logout handler
@@ -177,9 +329,17 @@ export default function PartnerPortalPage() {
       }
 
       if (action === "complete") {
+        // Enforce mandatory Before and After photos (core to PRD)
+        if (!beforePhoto || !afterPhoto) {
+          throw new Error("Both Before Photo and After Photo are strictly mandatory before marking job complete.");
+        }
+        if (!endOtpInput.trim()) {
+          throw new Error("Please enter the customer's 4-digit End OTP to finalize the job.");
+        }
         payload.paymentMethod = paymentMethod;
-        payload.beforePhotoUrl = beforePhoto || "https://images.unsplash.com/photo-1581092160607-ee22621dd758?w=500";
-        payload.afterPhotoUrl = afterPhoto || "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500";
+        payload.beforePhotoUrl = beforePhoto;
+        payload.afterPhotoUrl = afterPhoto;
+        payload.endOtp = endOtpInput.trim();
       }
 
       const res = await fetch("/api/partner/job-action", {
@@ -195,6 +355,7 @@ export default function PartnerPortalPage() {
 
       setStatusMessage({ type: "success", text: data.message });
       setStartOtpInput("");
+      setEndOtpInput("");
       setBeforePhoto(null);
       setAfterPhoto(null);
 
@@ -213,79 +374,244 @@ export default function PartnerPortalPage() {
   };
 
   // -------------------------------------------------------------
-  // VIEW: LOGIN SCREEN (if not authenticated)
+  // VIEW: LOGIN & REGISTRATION SCREENS (if not authenticated)
   // -------------------------------------------------------------
   if (!partner) {
     return (
-      <main className="min-h-screen bg-[#0E131F] text-white flex flex-col justify-center items-center px-4 py-12">
-        <div className="w-full max-w-md bg-[#161D2F] border border-white/10 rounded-2xl p-6 sm:p-8 shadow-2xl">
+      <main className="min-h-screen bg-[#0E131F] text-white flex flex-col justify-center items-center px-4 py-8">
+        <div className="w-full max-w-md bg-[#161D2F] border border-white/10 rounded-2xl p-5 sm:p-7 shadow-2xl">
           {/* Logo & Header */}
-          <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-2 bg-[#00D084]/10 border border-[#00D084]/30 px-3 py-1 rounded-full mb-3 text-xs font-semibold text-[#00D084]">
+          <div className="text-center mb-6">
+            <div className="inline-flex items-center gap-2 bg-[#0C6266]/15 border border-[#0C6266]/30 px-3 py-1 rounded-full mb-2 text-xs font-semibold text-[#0C6266]">
               <Sparkles className="w-3.5 h-3.5" />
-              OSMIDA PARTNER NETWORK
+              OSMIDA WORKER PORTAL • NELLORE
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">Partner Portal</h1>
-            <p className="text-xs sm:text-sm text-gray-400 mt-1">
-              Urban Company Style Quick-Dispatch for Nellore Technicians
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Partner Portal</h1>
+            <p className="text-xs text-gray-400 mt-1">
+              Standardized Residential Services in Nellore Apartments
             </p>
           </div>
 
+          {/* Tab Switch: Login vs Register */}
+          <div className="grid grid-cols-2 gap-1 bg-black/40 p-1 rounded-xl mb-5 border border-white/10 text-xs font-bold">
+            <button
+              type="button"
+              onClick={() => setAuthMode("login")}
+              className={`py-2 rounded-lg transition ${
+                authMode === "login"
+                  ? "bg-[#0C6266] text-white shadow-sm"
+                  : "text-gray-400 hover:text-white"
+              }`}
+            >
+              Partner Login
+            </button>
+            <button
+              type="button"
+              onClick={() => setAuthMode("register")}
+              className={`py-2 rounded-lg transition ${
+                authMode === "register"
+                  ? "bg-[#0C6266] text-white shadow-sm"
+                  : "text-gray-400 hover:text-white"
+              }`}
+            >
+              New Registration
+            </button>
+          </div>
+
           {authError && (
-            <div className="mb-5 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
+            <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{authError}</span>
             </div>
           )}
 
-          {/* Form */}
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">
-                Mobile Number (10 Digits)
-              </label>
-              <div className="relative">
-                <span className="absolute left-3.5 top-3 text-gray-400 text-sm font-medium">+91</span>
+          {/* SCREEN 1: REGISTRATION FORM */}
+          {authMode === "register" ? (
+            <form onSubmit={handleRegister} className="space-y-3.5 text-xs">
+              <div>
+                <label className="block font-semibold text-gray-300 uppercase tracking-wider mb-1">
+                  Full Name*
+                </label>
                 <input
-                  type="tel"
-                  maxLength={10}
+                  type="text"
                   required
-                  value={loginPhone}
-                  onChange={(e) => setLoginPhone(e.target.value.replace(/\D/g, ""))}
-                  placeholder="9848011111"
-                  className="w-full bg-[#0E131F] border border-white/15 rounded-xl pl-12 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D084]"
+                  placeholder="e.g. Sujatha Reddy"
+                  value={regName}
+                  onChange={(e) => setRegName(e.target.value)}
+                  className="w-full bg-[#0E131F] border border-white/15 rounded-xl px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266]"
                 />
               </div>
-            </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">
-                4-Digit Security PIN
-              </label>
-              <input
-                type="password"
-                maxLength={4}
-                required
-                value={loginPin}
-                onChange={(e) => setLoginPin(e.target.value)}
-                placeholder="1234"
-                className="w-full bg-[#0E131F] border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#00D084] tracking-widest text-center"
-              />
-              <span className="block text-[11px] text-gray-400 mt-1">Default PIN for all technicians is 1234</span>
-            </div>
+              <div>
+                <label className="block font-semibold text-gray-300 uppercase tracking-wider mb-1">
+                  Phone (WhatsApp Mobile)*
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-2 text-gray-400 font-medium">+91</span>
+                  <input
+                    type="tel"
+                    maxLength={10}
+                    required
+                    placeholder="9490122849"
+                    value={regPhone}
+                    onChange={(e) => setRegPhone(e.target.value.replace(/\D/g, ""))}
+                    className="w-full bg-[#0E131F] border border-white/15 rounded-xl pl-11 pr-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266]"
+                  />
+                </div>
+              </div>
 
-            <button
-              type="submit"
-              disabled={isLoggingIn}
-              className="w-full bg-[#00D084] hover:bg-[#00b573] text-[#0E131F] font-bold py-3 rounded-xl transition shadow-lg shadow-[#00D084]/20 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
-            >
-              {isLoggingIn ? "Authenticating..." : "Login to Dispatch Hub"}
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </form>
+              <div>
+                <label className="block font-semibold text-gray-300 uppercase tracking-wider mb-1">
+                  Aadhaar Number (12 Digits)*
+                </label>
+                <input
+                  type="text"
+                  maxLength={12}
+                  required
+                  placeholder="XXXX-XXXX-XXXX"
+                  value={regAadhaar}
+                  onChange={(e) => setRegAadhaar(e.target.value.replace(/\D/g, ""))}
+                  className="w-full bg-[#0E131F] border border-white/15 rounded-xl px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266]"
+                />
+              </div>
+
+              {/* Photo & Selfie simulation/pickers */}
+              <div className="grid grid-cols-2 gap-2">
+                <div className="border border-white/15 rounded-xl p-2.5 bg-black/30 text-center space-y-1">
+                  <span className="text-[10px] text-gray-300 block font-bold">Aadhaar Card Photo</span>
+                  <button
+                    type="button"
+                    onClick={() => setRegAadhaarUrl("https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=200")}
+                    className="text-[10px] font-bold text-[#0C6266] underline"
+                  >
+                    {regAadhaarUrl ? "✓ Attached" : "+ Upload Photo"}
+                  </button>
+                </div>
+                <div className="border border-white/15 rounded-xl p-2.5 bg-black/30 text-center space-y-1">
+                  <span className="text-[10px] text-gray-300 block font-bold">Worker Selfie</span>
+                  <button
+                    type="button"
+                    onClick={() => setRegSelfieUrl("https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150")}
+                    className="text-[10px] font-bold text-[#0C6266] underline"
+                  >
+                    {regSelfieUrl ? "✓ Attached" : "+ Take Selfie"}
+                  </button>
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-gray-300 uppercase tracking-wider mb-1">
+                  UPI ID (For Daily Payout Settlements)*
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. sujatha@okaxis"
+                  value={regUpi}
+                  onChange={(e) => setRegUpi(e.target.value)}
+                  className="w-full bg-[#0E131F] border border-white/15 rounded-xl px-3 py-2 text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266]"
+                />
+              </div>
+
+              {/* Skill Checkboxes (All 4 Services) */}
+              <div>
+                <label className="block font-semibold text-gray-300 uppercase tracking-wider mb-1">
+                  Service Skills (Select All That Apply):
+                </label>
+                <div className="grid grid-cols-2 gap-1.5 pt-1">
+                  {[
+                    "Bathroom Cleaning",
+                    "Kitchen Cleaning",
+                    "Dishwashing",
+                    "General House Help",
+                  ].map((skill) => {
+                    const isChecked = regSkills.includes(skill);
+                    return (
+                      <button
+                        key={skill}
+                        type="button"
+                        onClick={() =>
+                          setRegSkills((prev) =>
+                            prev.includes(skill)
+                              ? prev.length > 1
+                                ? prev.filter((s) => s !== skill)
+                                : prev
+                              : [...prev, skill]
+                          )
+                        }
+                        className={`p-2 rounded-lg border text-left flex items-center justify-between text-[11px] transition ${
+                          isChecked
+                            ? "bg-[#0C6266]/25 border-[#0C6266] text-[#0C6266] font-bold"
+                            : "bg-white/5 border-white/10 text-gray-400"
+                        }`}
+                      >
+                        <span>{skill}</span>
+                        {isChecked && <span>✓</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoggingIn}
+                className="w-full bg-[#E68A00] hover:bg-[#CC7A00] text-white font-black py-3 rounded-xl transition shadow-lg shadow-[#E68A00]/25 flex items-center justify-center gap-2 text-xs sm:text-sm mt-3 disabled:opacity-50"
+              >
+                {isLoggingIn ? "Submitting Registration..." : "Complete Registration & Start Jobs"}
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </form>
+          ) : (
+            /* LOGIN FORM */
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">
+                  Mobile Number (10 Digits)
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-3 text-gray-400 text-sm font-medium">+91</span>
+                  <input
+                    type="tel"
+                    maxLength={10}
+                    required
+                    value={loginPhone}
+                    onChange={(e) => setLoginPhone(e.target.value.replace(/\D/g, ""))}
+                    placeholder="9848011111"
+                    className="w-full bg-[#0E131F] border border-white/15 rounded-xl pl-12 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">
+                  4-Digit Security PIN
+                </label>
+                <input
+                  type="password"
+                  maxLength={4}
+                  required
+                  value={loginPin}
+                  onChange={(e) => setLoginPin(e.target.value)}
+                  placeholder="••••"
+                  className="w-full bg-[#0E131F] border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266] tracking-widest text-center"
+                />
+                <span className="block text-[11px] text-gray-400 mt-1">Enter your registered 4-digit partner security PIN</span>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoggingIn}
+                className="w-full bg-[#E68A00] hover:bg-[#CC7A00] text-white font-bold py-3 rounded-xl transition shadow-lg shadow-[#E68A00]/25 flex items-center justify-center gap-2 text-sm disabled:opacity-50"
+              >
+                {isLoggingIn ? "Authenticating..." : "Login to Dispatch Hub"}
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </form>
+          )}
 
           {/* Quick Demo Logins for Immediate Field Testing */}
-          <div className="mt-8 pt-6 border-t border-white/10">
+          <div className="mt-6 pt-5 border-t border-white/10">
             <span className="text-[11px] uppercase tracking-wider text-gray-400 font-semibold block mb-2.5 text-center">
               Quick Test Login as Verified Nellore Partner:
             </span>
@@ -298,17 +624,17 @@ export default function PartnerPortalPage() {
                   className="w-full bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl p-2.5 text-left flex items-center justify-between transition group"
                 >
                   <div className="flex items-center gap-2.5">
-                    <div className="w-7 h-7 rounded-full bg-[#00D084]/20 text-[#00D084] flex items-center justify-center font-bold text-xs">
+                    <div className="w-7 h-7 rounded-full bg-[#0C6266]/25 text-[#0C6266] flex items-center justify-center font-bold text-xs">
                       {demo.name[0]}
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white group-hover:text-[#00D084] transition">{demo.name}</p>
+                      <p className="text-xs font-bold text-white group-hover:text-[#0C6266] transition">{demo.name}</p>
                       <p className="text-[10px] text-gray-400">
                         {demo.categories.join(", ").toUpperCase()} • {demo.assigned_hub} Hub ({demo.coverage_localities[0]})
                       </p>
                     </div>
                   </div>
-                  <span className="text-[11px] font-semibold text-[#00D084] flex items-center gap-0.5">
+                  <span className="text-[11px] font-semibold text-[#0C6266] flex items-center gap-0.5">
                     Select <ChevronRight className="w-3 h-3" />
                   </span>
                 </button>
@@ -329,7 +655,7 @@ export default function PartnerPortalPage() {
       <header className="sticky top-0 z-40 bg-[#121826]/95 backdrop-blur-md border-b border-white/10 px-4 py-3">
         <div className="max-w-xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#00D084]/20 border border-[#00D084]/30 flex items-center justify-center font-black text-[#00D084] text-sm">
+            <div className="w-9 h-9 rounded-xl bg-[#0C6266]/25 border border-[#0C6266]/30 flex items-center justify-center font-black text-[#0C6266] text-sm">
               {partner.name[0]}
             </div>
             <div>
@@ -351,7 +677,7 @@ export default function PartnerPortalPage() {
               onClick={handleToggleOnline}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition border ${
                 isOnline
-                  ? "bg-[#00D084]/20 border-[#00D084] text-[#00D084] shadow-sm shadow-[#00D084]/30"
+                  ? "bg-[#0C6266]/25 border-[#0C6266] text-[#0C6266] shadow-sm shadow-[#E68A00]/25"
                   : "bg-gray-800 border-gray-600 text-gray-400"
               }`}
             >
@@ -370,10 +696,10 @@ export default function PartnerPortalPage() {
       </header>
 
       {/* ONLINE STATUS BANNER */}
-      <div className={`px-4 py-2 text-center text-xs font-medium ${isOnline ? "bg-[#00D084]/10 text-[#00D084] border-b border-[#00D084]/20" : "bg-gray-800 text-gray-400 border-b border-gray-700"}`}>
+      <div className={`px-4 py-2 text-center text-xs font-medium ${isOnline ? "bg-[#0C6266]/15 text-[#0C6266] border-b border-[#0C6266]/20" : "bg-gray-800 text-gray-400 border-b border-gray-700"}`}>
         {isOnline ? (
           <span className="flex items-center justify-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#00D084] animate-ping" />
+            <span className="w-2 h-2 rounded-full bg-[#0C6266] animate-ping" />
             Ready for Quick-Commerce Dispatch in {partner.coverage_localities.slice(0, 3).join(", ")}
           </span>
         ) : (
@@ -382,12 +708,98 @@ export default function PartnerPortalPage() {
       </div>
 
       <div className="max-w-xl mx-auto px-4 py-4 space-y-4">
+        {/* BUZZER TEST & SOUND CONTROLS BAR */}
+        <div className="bg-[#121826] border border-white/10 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-md">
+          <div className="flex items-center gap-2.5">
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${buzzerPlaying ? "bg-[#E68A00] text-white animate-bounce" : "bg-[#0C6266]/20 text-[#0C6266]"}`}>
+              <Volume2 className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-white">Dispatch Alert Buzzer</p>
+              <p className="text-[10px] text-gray-400">Plays loud dual-tone alarm when job broadcasts</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={playJobAlertBuzzer}
+            disabled={buzzerPlaying}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
+              buzzerPlaying
+                ? "bg-[#E68A00] text-white"
+                : "bg-white/10 hover:bg-white/20 text-gray-200 border border-white/15"
+            }`}
+          >
+            <Bell className={`w-3.5 h-3.5 ${buzzerPlaying ? "animate-spin" : ""}`} />
+            {buzzerPlaying ? "Sounding..." : "Test Buzzer"}
+          </button>
+        </div>
+
+        {/* WEB PUSH / FCM SUBSCRIPTION CONTROLS */}
+        <div className="bg-[#121826] border border-white/10 rounded-2xl p-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
+              <Bell className="w-4 h-4" />
+            </div>
+            <div>
+              <p className="text-xs font-bold text-white">Background Push (FCM / Web Push)</p>
+              <p className="text-[10px] text-gray-400">Receive alerts even when screen is locked</p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={async () => {
+              if (typeof window === "undefined" || !("Notification" in window)) {
+                alert("Push notifications are not supported on this browser.");
+                return;
+              }
+              try {
+                const perm = await Notification.requestPermission();
+                if (perm === "granted" && "serviceWorker" in navigator && partner) {
+                  const reg = await navigator.serviceWorker.ready;
+                  let sub = await reg.pushManager.getSubscription();
+                  if (!sub) {
+                    try {
+                      sub = await reg.pushManager.subscribe({ userVisibleOnly: true });
+                    } catch {}
+                  }
+                  await fetch("/api/partner/push-token", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ partnerId: partner.id, subscription: sub }),
+                  });
+                  setStatusMessage({ type: "success", text: "Background job notifications enabled successfully!" });
+                } else {
+                  alert("Notification permission was not granted.");
+                }
+              } catch (err: any) {
+                console.warn("Push error:", err);
+              }
+            }}
+            className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#0C6266] hover:bg-[#094e51] text-white transition flex items-center gap-1.5 shadow"
+          >
+            Enable Push
+          </button>
+        </div>
+
+        {/* PLATFORM NOTICE & IOS FALLBACK GUIDANCE */}
+        <div className="bg-amber-500/10 border border-amber-500/25 rounded-2xl p-3 text-xs text-amber-200/90 flex items-start gap-2.5">
+          <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
+          <div className="space-y-1">
+            <p className="font-semibold text-amber-200">
+              ⚡ Keep the app open while online to never miss a job
+            </p>
+            <p className="text-[11px] text-amber-300/80 leading-relaxed">
+              Foreground alerts chime instantly. On iPhone (iOS 16.4+), tap <span className="font-bold underline">Share &gt; Add to Home Screen</span> in Safari to receive background dispatch notifications.
+            </p>
+          </div>
+        </div>
+
         {/* Status Alert */}
         {statusMessage && (
           <div
             className={`p-3 rounded-xl text-xs flex items-center justify-between border ${
               statusMessage.type === "success"
-                ? "bg-[#00D084]/15 border-[#00D084]/30 text-[#00D084]"
+                ? "bg-[#0C6266]/20 border-[#0C6266]/30 text-[#0C6266]"
                 : "bg-red-500/15 border-red-500/30 text-red-300"
             }`}
           >
@@ -408,8 +820,8 @@ export default function PartnerPortalPage() {
             {offeredJobs.length > 0 && (
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#00D084] flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-[#00D084] animate-ping" />
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#0C6266] flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full bg-[#0C6266] animate-ping" />
                     Incoming Job Alert ({offeredJobs.length})
                   </span>
                   <span className="text-[11px] text-gray-400">Tap to claim</span>
@@ -418,23 +830,25 @@ export default function PartnerPortalPage() {
                 {offeredJobs.map((job) => (
                   <div
                     key={job.id}
-                    className="bg-gradient-to-br from-[#1A233A] to-[#121826] border-2 border-[#00D084] rounded-2xl p-4 shadow-xl shadow-[#00D084]/10 relative overflow-hidden"
+                    className="bg-gradient-to-br from-[#1A233A] to-[#121826] border-2 border-[#0C6266] rounded-2xl p-4 shadow-xl shadow-[#0C6266]/15 relative overflow-hidden"
                   >
-                    <div className="flex items-start justify-between gap-2 mb-2">
-                      <span className="inline-block px-2.5 py-0.5 rounded-full bg-[#00D084]/20 text-[#00D084] font-bold text-[11px] uppercase tracking-wide">
-                        {job.category.toUpperCase()} SERVICE
-                      </span>
-                      <div className="text-right">
-                        <span className="text-xs text-gray-400 block">Your Payout</span>
-                        <span className="text-lg font-extrabold text-[#00D084]">₹{job.payout_amount}</span>
+                    <div className="flex items-center justify-between gap-2 mb-3 bg-[#E68A00]/15 border border-[#E68A00]/30 rounded-xl p-2.5">
+                      <div>
+                        <span className="text-[10px] font-bold text-amber-300 uppercase tracking-wider block">
+                          Guaranteed Pay (Immediate Escrow)
+                        </span>
+                        <span className="text-2xl font-black text-[#E68A00]">₹{job.payout_amount}</span>
                       </div>
+                      <span className="inline-block px-2.5 py-1 rounded-full bg-[#0C6266]/30 text-[#B6D7D8] font-bold text-[10px] uppercase tracking-wide border border-[#0C6266]">
+                        {job.category.toUpperCase()} • 1 VISIT
+                      </span>
                     </div>
 
                     <h3 className="text-base font-bold text-white mb-2 leading-snug">{job.service_name}</h3>
 
                     <div className="bg-black/30 rounded-xl p-3 space-y-1.5 text-xs text-gray-300 mb-4">
                       <div className="flex items-center gap-2">
-                        <MapPin className="w-3.5 h-3.5 text-[#00D084] shrink-0" />
+                        <MapPin className="w-3.5 h-3.5 text-[#0C6266] shrink-0" />
                         <span className="font-semibold text-white">{job.locality}</span>
                       </div>
                       <div className="flex items-center gap-2">
@@ -459,7 +873,7 @@ export default function PartnerPortalPage() {
                       <button
                         onClick={() => handleJobAction("accept", job.id)}
                         disabled={isActionLoading}
-                        className="w-full bg-[#00D084] hover:bg-[#00b573] text-[#0A0E17] font-extrabold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-lg shadow-[#00D084]/30"
+                        className="w-full bg-[#E68A00] hover:bg-[#CC7A00] text-white font-extrabold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-lg shadow-[#E68A00]/25"
                       >
                         <CheckCircle2 className="w-4 h-4" />
                         ACCEPT JOB
@@ -483,7 +897,7 @@ export default function PartnerPortalPage() {
                   </div>
                   <div className="text-right">
                     <span className="text-[10px] text-gray-400">Guaranteed Payout</span>
-                    <p className="text-base font-bold text-[#00D084]">₹{activeJob.payout_amount}</p>
+                    <p className="text-base font-bold text-[#0C6266]">₹{activeJob.payout_amount}</p>
                   </div>
                 </div>
 
@@ -493,7 +907,7 @@ export default function PartnerPortalPage() {
                     <div>
                       <p className="font-bold text-white text-sm">{activeJob.customer_name}</p>
                       <p className="text-gray-400 flex items-center gap-1 mt-0.5">
-                        <MapPin className="w-3 h-3 text-[#00D084]" /> {activeJob.customer_address}
+                        <MapPin className="w-3 h-3 text-[#0C6266]" /> {activeJob.customer_address}
                       </p>
                     </div>
                   </div>
@@ -504,7 +918,7 @@ export default function PartnerPortalPage() {
                       href={`tel:${activeJob.customer_phone}`}
                       className="bg-white/10 hover:bg-white/15 text-white font-semibold py-2 rounded-lg flex items-center justify-center gap-1.5 text-xs transition"
                     >
-                      <Phone className="w-3.5 h-3.5 text-[#00D084]" />
+                      <Phone className="w-3.5 h-3.5 text-[#0C6266]" />
                       Call Customer
                     </a>
                     <a
@@ -533,13 +947,13 @@ export default function PartnerPortalPage() {
                       <span className="text-xs font-semibold flex items-center gap-2">
                         <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
                           activeJob.status === "dispatched" || activeJob.status === "in_progress"
-                            ? "bg-[#00D084] text-black"
+                            ? "bg-[#0C6266] text-black"
                             : "bg-white/20 text-white"
                         }`}>1</span>
                         Step 1: On The Way
                       </span>
                       {activeJob.status === "dispatched" || activeJob.status === "in_progress" ? (
-                        <span className="text-[10px] text-[#00D084] font-bold flex items-center gap-1">
+                        <span className="text-[10px] text-[#0C6266] font-bold flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3" /> Dispatched
                         </span>
                       ) : null}
@@ -549,7 +963,7 @@ export default function PartnerPortalPage() {
                       <button
                         onClick={() => handleJobAction("dispatch", activeJob.id)}
                         disabled={isActionLoading}
-                        className="w-full bg-[#00D084] hover:bg-[#00b573] text-black font-bold py-2 rounded-lg text-xs transition flex items-center justify-center gap-1.5"
+                        className="w-full bg-[#E68A00] hover:bg-[#CC7A00] text-white font-bold py-2 rounded-lg text-xs transition flex items-center justify-center gap-1.5"
                       >
                         <Navigation className="w-3.5 h-3.5" />
                         I am On The Way (Alert Customer)
@@ -562,12 +976,12 @@ export default function PartnerPortalPage() {
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold flex items-center gap-2">
                         <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                          activeJob.status === "in_progress" ? "bg-[#00D084] text-black" : "bg-white/20 text-white"
+                          activeJob.status === "in_progress" ? "bg-[#0C6266] text-black" : "bg-white/20 text-white"
                         }`}>2</span>
                         Step 2: Start Job (Customer OTP)
                       </span>
                       {activeJob.status === "in_progress" && (
-                        <span className="text-[10px] text-[#00D084] font-bold flex items-center gap-1">
+                        <span className="text-[10px] text-[#0C6266] font-bold flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3" /> In Progress
                         </span>
                       )}
@@ -585,12 +999,12 @@ export default function PartnerPortalPage() {
                             placeholder="4-digit OTP"
                             value={startOtpInput}
                             onChange={(e) => setStartOtpInput(e.target.value)}
-                            className="bg-black/50 border border-white/20 rounded-lg px-3 py-1.5 text-sm text-center tracking-widest font-mono text-white focus:outline-none focus:border-[#00D084] flex-1"
+                            className="bg-black/50 border border-white/20 rounded-lg px-3 py-1.5 text-sm text-center tracking-widest font-mono text-white focus:outline-none focus:border-[#0C6266] flex-1"
                           />
                           <button
                             onClick={() => handleJobAction("start", activeJob.id)}
                             disabled={isActionLoading}
-                            className="bg-[#00D084] hover:bg-[#00b573] text-black font-bold px-4 py-1.5 rounded-lg text-xs transition"
+                            className="bg-[#E68A00] hover:bg-[#CC7A00] text-white font-bold px-4 py-1.5 rounded-lg text-xs transition"
                           >
                             Verify & Start
                           </button>
@@ -600,69 +1014,131 @@ export default function PartnerPortalPage() {
                     )}
                   </div>
 
-                  {/* STEP 3: COMPLETE WORK (PHOTOS & PAYMENT) */}
+                  {/* STEP 3: COMPLETE WORK (MANDATORY BEFORE/AFTER PHOTOS & END OTP) */}
                   <div className="border border-white/10 rounded-xl p-3 bg-white/5 space-y-3">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-semibold flex items-center gap-2">
                         <span className="w-5 h-5 rounded-full bg-white/20 text-white flex items-center justify-center text-[10px] font-bold">
                           3
                         </span>
-                        Step 3: Completion & Proof
+                        Step 3: Completion Proof & End OTP
                       </span>
                     </div>
 
                     {activeJob.status === "in_progress" && (
                       <div className="space-y-3 pt-1">
-                        {/* Photo proof simulation */}
-                        <div className="grid grid-cols-2 gap-2">
-                          <div className="border border-dashed border-white/20 rounded-lg p-2.5 text-center bg-black/30">
-                            <Camera className="w-4 h-4 text-gray-400 mx-auto mb-1" />
-                            <span className="text-[10px] text-gray-300 block font-medium">Before Photo</span>
-                            <span className="text-[9px] text-[#00D084]">Attached</span>
-                          </div>
-                          <div className="border border-dashed border-white/20 rounded-lg p-2.5 text-center bg-black/30">
-                            <Camera className="w-4 h-4 text-gray-400 mx-auto mb-1" />
-                            <span className="text-[10px] text-gray-300 block font-medium">After Photo</span>
-                            <span className="text-[9px] text-[#00D084]">Attached</span>
+                        {/* MANDATORY BEFORE & AFTER PHOTOS */}
+                        <div>
+                          <label className="text-[11px] text-gray-300 block mb-1.5 font-bold">
+                            Mandatory Photos (Both Required to Close Job):
+                          </label>
+                          <div className="grid grid-cols-2 gap-2">
+                            {/* Before Photo */}
+                            <div className="border border-dashed border-white/20 rounded-xl p-3 text-center bg-black/40 space-y-1.5">
+                              <Camera className="w-5 h-5 text-gray-400 mx-auto" />
+                              <span className="text-[10px] text-gray-300 block font-bold">1. Before Photo</span>
+                              {beforePhoto ? (
+                                <span className="text-[10px] text-[#0C6266] font-bold block">✓ Photo Attached</span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setBeforePhoto(
+                                      "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400&auto=format&fit=crop&q=80"
+                                    )
+                                  }
+                                  className="text-[10px] font-bold text-[#0C6266] bg-[#0C6266]/20 px-2 py-1 rounded border border-[#0C6266]/30"
+                                >
+                                  + Capture Before
+                                </button>
+                              )}
+                            </div>
+
+                            {/* After Photo */}
+                            <div className="border border-dashed border-white/20 rounded-xl p-3 text-center bg-black/40 space-y-1.5">
+                              <Camera className="w-5 h-5 text-gray-400 mx-auto" />
+                              <span className="text-[10px] text-gray-300 block font-bold">2. After Photo</span>
+                              {afterPhoto ? (
+                                <span className="text-[10px] text-[#0C6266] font-bold block">✓ Photo Attached</span>
+                              ) : (
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setAfterPhoto(
+                                      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&auto=format&fit=crop&q=80"
+                                    )
+                                  }
+                                  className="text-[10px] font-bold text-[#0C6266] bg-[#0C6266]/20 px-2 py-1 rounded border border-[#0C6266]/30"
+                                >
+                                  + Capture After
+                                </button>
+                              )}
+                            </div>
                           </div>
                         </div>
 
-                        {/* Payment Method */}
+                        {/* END OTP INPUT (FROM CUSTOMER) */}
+                        <div className="bg-black/40 rounded-xl p-3 border border-white/10 space-y-1.5">
+                          <label className="text-[11px] text-gray-300 block font-bold">
+                            Enter Customer&apos;s 4-Digit End OTP (Completion Code):
+                          </label>
+                          <div className="flex gap-2">
+                            <input
+                              type="text"
+                              maxLength={4}
+                              placeholder="End OTP"
+                              value={endOtpInput}
+                              onChange={(e) => setEndOtpInput(e.target.value)}
+                              className="bg-black/60 border border-white/20 rounded-lg px-3 py-1.5 text-sm text-center tracking-widest font-mono text-white focus:outline-none focus:border-[#0C6266] flex-1"
+                            />
+                          </div>
+                        </div>
+
+                        {/* Payment Collection Mode */}
                         <div>
                           <label className="text-[11px] text-gray-400 block mb-1 font-semibold">Payment Collection Mode:</label>
                           <div className="grid grid-cols-2 gap-2">
                             <button
                               type="button"
                               onClick={() => setPaymentMethod("cash")}
-                              className={`py-1.5 text-xs font-bold rounded-lg border transition ${
+                              className={`py-2 text-xs font-bold rounded-lg border transition ${
                                 paymentMethod === "cash"
-                                  ? "bg-[#00D084]/20 border-[#00D084] text-[#00D084]"
+                                  ? "bg-[#0C6266]/25 border-[#0C6266] text-[#0C6266]"
                                   : "bg-white/5 border-white/10 text-gray-400"
                               }`}
                             >
-                              Cash (₹{activeJob.total_amount})
+                              💵 Cash (₹{activeJob.total_amount})
                             </button>
                             <button
                               type="button"
                               onClick={() => setPaymentMethod("upi")}
-                              className={`py-1.5 text-xs font-bold rounded-lg border transition ${
+                              className={`py-2 text-xs font-bold rounded-lg border transition ${
                                 paymentMethod === "upi"
-                                  ? "bg-[#00D084]/20 border-[#00D084] text-[#00D084]"
+                                  ? "bg-[#0C6266]/25 border-[#0C6266] text-[#0C6266]"
                                   : "bg-white/5 border-white/10 text-gray-400"
                               }`}
                             >
-                              Customer UPI
+                              🛡️ Online Escrow
                             </button>
                           </div>
                         </div>
 
+                        {/* Submit Button - Enforces Both Photos, End OTP, and Cash/Escrow confirmation */}
                         <button
                           onClick={() => handleJobAction("complete", activeJob.id)}
-                          disabled={isActionLoading}
-                          className="w-full bg-[#00D084] hover:bg-[#00b573] text-black font-extrabold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-lg shadow-[#00D084]/20"
+                          disabled={isActionLoading || !beforePhoto || !afterPhoto || !endOtpInput.trim()}
+                          className="w-full bg-[#E68A00] hover:bg-[#CC7A00] text-slate-950 font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-lg shadow-[#E68A00]/25 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                         >
                           <CheckCircle2 className="w-4 h-4" />
-                          Submit Work Completion
+                          <span>
+                            {!beforePhoto || !afterPhoto
+                              ? "Upload Both Photos to Complete"
+                              : !endOtpInput.trim()
+                              ? "Enter Customer End OTP to Complete"
+                              : paymentMethod === "cash"
+                              ? `Confirm Cash Received (₹${activeJob.total_amount}) & Complete Job`
+                              : "Submit & Complete Job (Release Payout)"}
+                          </span>
                         </button>
                       </div>
                     )}
@@ -674,7 +1150,7 @@ export default function PartnerPortalPage() {
             {/* If no jobs at all */}
             {offeredJobs.length === 0 && !activeJob && (
               <div className="text-center py-12 px-4 bg-white/5 border border-white/10 rounded-2xl">
-                <div className="w-12 h-12 rounded-full bg-[#00D084]/20 text-[#00D084] flex items-center justify-center mx-auto mb-3">
+                <div className="w-12 h-12 rounded-full bg-[#0C6266]/25 text-[#0C6266] flex items-center justify-center mx-auto mb-3">
                   <ShieldCheck className="w-6 h-6" />
                 </div>
                 <h4 className="text-sm font-bold text-white mb-1">No Active Jobs Right Now</h4>
@@ -698,21 +1174,21 @@ export default function PartnerPortalPage() {
         {activeTab === "earnings" && (
           <div className="space-y-4">
             {/* Wallet Balance Card */}
-            <div className="bg-gradient-to-br from-[#162138] to-[#0E1524] border border-[#00D084]/30 rounded-2xl p-5 shadow-xl">
+            <div className="bg-gradient-to-br from-[#162138] to-[#0E1524] border border-[#0C6266]/30 rounded-2xl p-5 shadow-xl">
               <div className="flex items-center justify-between mb-3">
                 <span className="text-xs font-semibold text-gray-400">Available Payout Balance</span>
-                <span className="text-xs bg-[#00D084]/20 text-[#00D084] font-bold px-2 py-0.5 rounded">
+                <span className="text-xs bg-[#0C6266]/25 text-[#0C6266] font-bold px-2 py-0.5 rounded">
                   Daily Settlement
                 </span>
               </div>
               <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-3xl font-extrabold text-[#00D084]">₹{partner.payout_balance}</span>
+                <span className="text-3xl font-extrabold text-[#0C6266]">₹{partner.payout_balance}</span>
                 <span className="text-xs text-gray-400">INR</span>
               </div>
 
               <div className="bg-black/40 rounded-xl p-3 text-xs flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
-                  <Wallet className="w-4 h-4 text-[#00D084]" />
+                  <Wallet className="w-4 h-4 text-[#0C6266]" />
                   <span className="text-gray-300">Registered UPI ID:</span>
                 </div>
                 <span className="font-mono font-bold text-white">{partner.upi_id || `${partner.phone}@upi`}</span>
@@ -720,7 +1196,7 @@ export default function PartnerPortalPage() {
 
               <button
                 onClick={() => alert(`Payout request of ₹${partner.payout_balance} initiated to ${partner.upi_id || partner.phone + "@upi"}. Funds will settle within 2 hours.`)}
-                className="w-full bg-[#00D084] hover:bg-[#00b573] text-black font-extrabold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5"
+                className="w-full bg-[#E68A00] hover:bg-[#CC7A00] text-white font-extrabold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5"
               >
                 <IndianRupee className="w-4 h-4" />
                 Request Instant UPI Transfer
@@ -735,7 +1211,7 @@ export default function PartnerPortalPage() {
               </div>
               <div className="bg-white/5 border border-white/10 rounded-xl p-3.5">
                 <span className="text-xs text-gray-400 block mb-1">Partner Share</span>
-                <span className="text-xl font-bold text-[#00D084]">70%</span>
+                <span className="text-xl font-bold text-[#0C6266]">70%</span>
               </div>
             </div>
 
@@ -752,7 +1228,7 @@ export default function PartnerPortalPage() {
                       <p className="font-bold text-white">{job.service_name}</p>
                       <p className="text-gray-400 text-[11px]">{job.locality} • {job.date}</p>
                     </div>
-                    <span className="font-extrabold text-[#00D084] text-sm">+₹{job.payout_amount}</span>
+                    <span className="font-extrabold text-[#0C6266] text-sm">+₹{job.payout_amount}</span>
                   </div>
                 ))
               ) : (
@@ -771,13 +1247,13 @@ export default function PartnerPortalPage() {
           <div className="space-y-4">
             <div className="bg-white/5 border border-white/10 rounded-2xl p-5 space-y-3">
               <div className="flex items-center gap-3 pb-3 border-b border-white/10">
-                <div className="w-12 h-12 rounded-full bg-[#00D084]/20 text-[#00D084] font-black flex items-center justify-center text-lg">
+                <div className="w-12 h-12 rounded-full bg-[#0C6266]/25 text-[#0C6266] font-black flex items-center justify-center text-lg">
                   {partner.name[0]}
                 </div>
                 <div>
                   <h3 className="font-bold text-white">{partner.name}</h3>
                   <p className="text-xs text-gray-400">+91 {partner.phone}</p>
-                  <span className="inline-flex items-center gap-1 text-[11px] text-[#00D084] font-semibold mt-0.5">
+                  <span className="inline-flex items-center gap-1 text-[11px] text-[#0C6266] font-semibold mt-0.5">
                     <ShieldCheck className="w-3.5 h-3.5" /> Osmida Certified Partner
                   </span>
                 </div>
@@ -786,7 +1262,7 @@ export default function PartnerPortalPage() {
               <div className="space-y-2.5 text-xs">
                 <div>
                   <span className="text-gray-400 block font-semibold mb-1">Assigned Dispatch Hub:</span>
-                  <span className="inline-block bg-[#00D084]/20 text-[#00D084] font-bold px-2.5 py-1 rounded-lg">
+                  <span className="inline-block bg-[#0C6266]/25 text-[#0C6266] font-bold px-2.5 py-1 rounded-lg">
                     {partner.assigned_hub} Nellore Hub
                   </span>
                 </div>
@@ -833,13 +1309,13 @@ export default function PartnerPortalPage() {
           <button
             onClick={() => setActiveTab("jobs")}
             className={`flex flex-col items-center gap-1 py-1 text-[11px] font-bold transition ${
-              activeTab === "jobs" ? "text-[#00D084]" : "text-gray-400 hover:text-gray-200"
+              activeTab === "jobs" ? "text-[#0C6266]" : "text-gray-400 hover:text-gray-200"
             }`}
           >
             <div className="relative">
               <Clock className="w-5 h-5" />
               {offeredJobs.length > 0 && (
-                <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 rounded-full bg-[#00D084] text-black text-[9px] font-black flex items-center justify-center">
+                <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 rounded-full bg-[#0C6266] text-black text-[9px] font-black flex items-center justify-center">
                   {offeredJobs.length}
                 </span>
               )}
@@ -850,7 +1326,7 @@ export default function PartnerPortalPage() {
           <button
             onClick={() => setActiveTab("earnings")}
             className={`flex flex-col items-center gap-1 py-1 text-[11px] font-bold transition ${
-              activeTab === "earnings" ? "text-[#00D084]" : "text-gray-400 hover:text-gray-200"
+              activeTab === "earnings" ? "text-[#0C6266]" : "text-gray-400 hover:text-gray-200"
             }`}
           >
             <Wallet className="w-5 h-5" />
@@ -860,7 +1336,7 @@ export default function PartnerPortalPage() {
           <button
             onClick={() => setActiveTab("profile")}
             className={`flex flex-col items-center gap-1 py-1 text-[11px] font-bold transition ${
-              activeTab === "profile" ? "text-[#00D084]" : "text-gray-400 hover:text-gray-200"
+              activeTab === "profile" ? "text-[#0C6266]" : "text-gray-400 hover:text-gray-200"
             }`}
           >
             <User className="w-5 h-5" />

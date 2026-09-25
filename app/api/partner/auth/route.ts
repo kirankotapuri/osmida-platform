@@ -40,8 +40,8 @@ export async function POST(req: Request) {
           .maybeSingle();
 
         if (data && !error) {
-          if (data.auth_pin !== pin && pin !== "1234") {
-            return NextResponse.json({ error: "Invalid PIN. Default PIN is 1234" }, { status: 401 });
+          if (data.auth_pin && data.auth_pin !== pin) {
+            return NextResponse.json({ error: "Invalid 4-digit PIN. Please try again." }, { status: 401 });
           }
           partner = data as ServicePartner;
         }
@@ -54,28 +54,15 @@ export async function POST(req: Request) {
     if (!partner) {
       const match = DEFAULT_PARTNERS.find((p) => p.phone === phone);
       if (match) {
-        if (match.auth_pin !== pin && pin !== "1234") {
-          return NextResponse.json({ error: "Invalid PIN. Default PIN is 1234" }, { status: 401 });
+        if (match.auth_pin && match.auth_pin !== pin) {
+          return NextResponse.json({ error: "Invalid 4-digit PIN. Please try again." }, { status: 401 });
         }
         partner = { ...match };
       } else {
-        // Allow any Nellore technician to log in on demo / field test with auto-profile
-        partner = {
-          id: `part-${phone}`,
-          name: `Partner ${phone.slice(-4)}`,
-          phone: phone,
-          whatsapp_number: phone,
-          auth_pin: pin || "1234",
-          categories: ["ac", "pest", "cleaning"],
-          skills: ["all_services"],
-          coverage_localities: ["Pogathota", "Haranathapuram", "Magunta Layout", "Vedayapalem"],
-          assigned_hub: "Central",
-          status: "online",
-          rating: 4.9,
-          completed_jobs_count: 12,
-          payout_balance: 1500,
-          upi_id: `${phone}@upi`,
-        };
+        return NextResponse.json(
+          { error: "Partner account not found for this phone. Please contact Osmida Operations to register." },
+          { status: 404 }
+        );
       }
     }
 

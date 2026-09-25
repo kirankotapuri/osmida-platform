@@ -40,11 +40,7 @@ function seedSampleJob(partnerId: string): PartnerJob {
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const partnerId = searchParams.get("partnerId");
-
-    if (!partnerId) {
-      return NextResponse.json({ error: "partnerId is required" }, { status: 400 });
-    }
+    const partnerId = searchParams.get("partnerId") || "default-partner-pogathota";
 
     const supabase = getSupabaseClient();
     let jobs: PartnerJob[] = [];
@@ -54,7 +50,7 @@ export async function GET(req: Request) {
         const { data, error } = await supabase
           .from("partner_job_assignments")
           .select("*")
-          .eq("partner_id", partnerId)
+          .or(`partner_id.eq.${partnerId},status.eq.offered`)
           .order("created_at", { ascending: false });
 
         if (data && !error && data.length > 0) {
@@ -67,7 +63,11 @@ export async function GET(req: Request) {
 
     // Include any in-memory active jobs
     for (const [id, job] of globalActiveJobs.entries()) {
-      if (job.partner_id === partnerId && !jobs.some((j) => j.id === id)) {
+      const isMatch =
+        job.partner_id === partnerId ||
+        job.partner_id === "default-partner-pogathota" ||
+        job.status === "offered";
+      if (isMatch && !jobs.some((j) => j.id === id || j.reference_id === job.reference_id)) {
         jobs.unshift(job);
       }
     }
@@ -85,6 +85,7 @@ export async function GET(req: Request) {
 
     return NextResponse.json({
       success: true,
+      jobs,
       offeredJobs,
       activeJob,
       completedJobs,

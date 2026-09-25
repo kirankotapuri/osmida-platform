@@ -21,7 +21,7 @@ DROP TABLE IF EXISTS public.data_deletion_requests CASCADE;
 -- Used by n8n Workflow 1 to avoid processing duplicate webhook submissions
 CREATE TABLE public.osmida_processed_refs (
   reference_id TEXT PRIMARY KEY,
-  processed_at TIMESTAMPTZ NOT NULL DEFAULT now()
+  processed_at TIMESTAMPTZ NOT NULL DEFAULT now()which we have build so far 
 );
 
 -- 3. LEADS TABLE (STAGE 1: Inbound Web / Audit Submissions)

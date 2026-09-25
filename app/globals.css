@@ -1,36 +1,61 @@
 @import "tailwindcss";
 
 :root {
-  --background: #FFFFFF;
-  --foreground: #0F172A;
-  --brand-black: #0F172A;
-  --brand-black-hover: #000000;
-  --brand-blue: #2563EB;
-  --brand-blue-hover: #1D4ED8;
-  --brand-green: #25D366;
-  --forest-green: #166534;
-  --forest-green-bg: #F0FDF4;
-  --forest-green-border: #BBF7D0;
-  --slate-badge-bg: #F1F5F9;
-  --slate-badge-text: #0F172A;
-  --border-contrast: #E2E8F0;
-  --surface-cream: #FDFBF7;
-  --surface-cream-border: #F3ECE3;
+  /* Osmida Deep Heritage Teal & Saffron Amber Design System */
+  --primary: #0C6266;
+  --primary-hover: #095054;
+  --primary-dark: #072426;
+  --primary-light: #EBF4F5;
+  --primary-border: #B6D7D8;
+
+  /* Primary Action CTA & Payouts (Reserved strictly for high-priority actions) */
+  --accent: #E68A00;
+  --accent-hover: #CC7A00;
+  --accent-light: #FEF7EC;
+  --accent-text: #B45309;
+
+  /* Distinct Rating Gold (Separated from action CTA) */
+  --rating-gold: #F5A623;
+
+  /* Surfaces & Neutrals */
+  --surface-bg: #F4F8F8;
+  --surface-card: #FFFFFF;
+  --surface-border: #DFE8E8;
+
+  /* High-Contrast Typography (WCAG AAA Compliant on #F4F8F8) */
+  --text-primary: #0F171A;
+  --text-muted: #475559; /* 7.24:1 Contrast Ratio (Exceeds WCAG AAA 7:1) */
+
+  /* Semantic Status: Strictly isolated meanings */
+  --success: #16A34A;
+  --success-light: #F0FDF4;
+  
+  /* Crimson strictly for real errors & critical alerts */
+  --error: #DC2626;
+  --error-light: #FEF2F2;
+
+  /* Informational scope exclusions (neutral, non-alarming) */
+  --scope-excluded-bg: #F1F5F5;
+  --scope-excluded-border: #DFE8E8;
+  --scope-excluded-text: #475559;
+
+  --radius-card: 14px;
+  --radius-btn: 10px;
 }
 
 body {
-  background-color: #FFFFFF;
-  color: #0F172A;
-  font-family: var(--font-geist-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background-color: var(--surface-bg);
+  color: var(--text-primary);
+  font-family: var(--font-plus-jakarta-sans), -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   -webkit-tap-highlight-color: transparent;
 }
 
-/* Custom smooth subtle transitions under 200ms */
+/* Custom smooth transitions under 180ms */
 button, a {
   transition: all 0.18s ease-in-out;
 }
 
-/* Hide scrollbar for Chrome, Safari, Opera and Firefox */
+/* Hide scrollbar */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
@@ -38,4 +63,3 @@ button, a {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-

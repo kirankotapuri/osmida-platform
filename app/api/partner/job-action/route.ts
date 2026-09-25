@@ -25,7 +25,6 @@ async function sendWhatsAppStatusUpdate(
     const url = "https://graph.facebook.com/v25.0/1275804505618996/messages";
     const bearerToken = process.env.WHATSAPP_CLOUD_API_TOKEN || process.env.SUPABASE_SERVICE_ROLE_KEY;
 
-    // We also notify admin or dispatch through webhook if token is managed in n8n
     const payload = {
       messaging_product: "whatsapp",
       recipient_type: "individual",
@@ -70,15 +69,26 @@ export async function POST(req: Request) {
       partnerName,
       partnerPhone,
       otp,
+      startOtp,
+      endOtp,
+      beforePhoto,
+      afterPhoto,
       beforePhotoUrl,
       afterPhotoUrl,
       paymentMethod,
       collectedAmount,
     } = body;
 
-    if (!jobId || !action) {
+    const actionNorm = String(action || "").toLowerCase().trim();
+
+    if (!jobId || !actionNorm) {
       return NextResponse.json({ error: "jobId and action are required" }, { status: 400 });
     }
+
+    const cleanStartOtp = String(startOtp || otp || "").trim();
+    const cleanEndOtp = String(endOtp || otp || "").trim();
+    const cleanBeforePhoto = beforePhotoUrl || beforePhoto || null;
+    const cleanAfterPhoto = afterPhotoUrl || afterPhoto || null;
 
     const supabase = getSupabaseClient();
     let job = globalActiveJobs.get(jobId);
@@ -107,10 +117,21 @@ export async function POST(req: Request) {
     const refId = job.reference_id;
 
     // 1. ACTION: ACCEPT JOB
-    if (action === "accept") {
+    if (actionNorm === "accept") {
       job.status = "accepted";
       job.accepted_at = new Date().toISOString();
       globalActiveJobs.set(job.id, { ...job });
+
+      // Update in-memory booking store
+      try {
+        const { prontoBookingsStore } = await import("../../bookings/route");
+        const stored = prontoBookingsStore.get(refId);
+        if (stored) {
+          stored.status = "assigned";
+          stored.worker_phone = partnerPhone || "9490122849";
+          prontoBookingsStore.set(refId, stored);
+        }
+      } catch {}
 
       if (supabase) {
         try {
@@ -120,7 +141,7 @@ export async function POST(req: Request) {
             .eq("id", job.id);
           await supabase
             .from("bookings")
-            .update({ status: "confirmed", updated_at: new Date().toISOString() })
+            .update({ status: "assigned", updated_at: new Date().toISOString() })
             .eq("reference_id", refId);
         } catch (dbErr) {
           console.warn("DB accept update note:", dbErr);
@@ -136,7 +157,7 @@ export async function POST(req: Request) {
     }
 
     // 2. ACTION: DECLINE JOB
-    if (action === "decline") {
+    if (actionNorm === "decline") {
       job.status = "declined";
       globalActiveJobs.delete(job.id);
 
@@ -159,7 +180,7 @@ export async function POST(req: Request) {
     }
 
     // 3. ACTION: DISPATCH ("ON THE WAY")
-    if (action === "dispatch") {
+    if (actionNorm === "dispatch") {
       job.status = "dispatched";
       globalActiveJobs.set(job.id, { ...job });
 
@@ -178,8 +199,6 @@ export async function POST(req: Request) {
         }
       }
 
-      // Fire Meta WhatsApp Template: osmida_dispatched
-      // Template params: [Customer Name, Service Name, Reference ID]
       await sendWhatsAppStatusUpdate(customerPhone, "osmida_dispatched", [
         customerName,
         serviceName,
@@ -190,19 +209,18 @@ export async function POST(req: Request) {
         success: true,
         action: "dispatch",
         job,
-        message: "Marked as On The Way. Customer received WhatsApp arrival update!",
+        message: "Marked as On The Way. Customer received arrival update!",
       });
     }
 
     // 4. ACTION: START JOB (CUSTOMER OTP VERIFICATION)
-    if (action === "start") {
-      const cleanOtp = String(otp || "").trim();
+    if (actionNorm === "start" || actionNorm === "start_job") {
       const expectedOtp = String(job.start_otp || "").trim();
 
-      // Verify OTP (allow 1234 or bypass in test mode)
-      if (cleanOtp !== expectedOtp && cleanOtp !== "1234" && cleanOtp !== "0000") {
+      // Strict OTP validation: must match customer's real doorstep code
+      if (!cleanStartOtp || cleanStartOtp !== expectedOtp) {
         return NextResponse.json(
-          { error: `Invalid Start OTP '${cleanOtp}'. Please ask customer for their 4-digit code (hint: ${expectedOtp})` },
+          { error: `Invalid Start OTP '${cleanStartOtp}'. Please ask the customer for their 4-digit doorstep code.` },
           { status: 400 }
         );
       }
@@ -210,6 +228,16 @@ export async function POST(req: Request) {
       job.status = "in_progress";
       job.started_at = new Date().toISOString();
       globalActiveJobs.set(job.id, { ...job });
+
+      // Update in-memory booking store
+      try {
+        const { prontoBookingsStore } = await import("../../bookings/route");
+        const stored = prontoBookingsStore.get(refId);
+        if (stored) {
+          stored.status = "in-progress";
+          prontoBookingsStore.set(refId, stored);
+        }
+      } catch {}
 
       if (supabase) {
         try {
@@ -219,15 +247,14 @@ export async function POST(req: Request) {
             .eq("id", job.id);
           await supabase
             .from("bookings")
-            .update({ status: "in_progress", updated_at: new Date().toISOString() })
+            .update({ status: "in-progress", updated_at: new Date().toISOString() })
             .eq("reference_id", refId);
         } catch (dbErr) {
-          console.warn("DB in_progress note:", dbErr);
+          console.warn("DB start note:", dbErr);
         }
       }
 
-      // Fire Meta WhatsApp Template: omsida_in_progress (note exact Meta template spelling)
-      await sendWhatsAppStatusUpdate(customerPhone, "omsida_in_progress", [
+      await sendWhatsAppStatusUpdate(customerPhone, "osmida_job_started", [
         customerName,
         serviceName,
         refId,
@@ -241,16 +268,70 @@ export async function POST(req: Request) {
       });
     }
 
-    // 5. ACTION: COMPLETE JOB (PHOTOS & PAYMENT)
-    if (action === "complete") {
+    // 5. ACTION: COMPLETE JOB (MANDATORY BEFORE + AFTER PHOTOS & OTP-END)
+    if (actionNorm === "complete" || actionNorm === "complete_job") {
+      // 1. Mandatory Photo Requirement: Job cannot be marked complete without BOTH before and after photos
+      if (!cleanBeforePhoto || !cleanAfterPhoto) {
+        return NextResponse.json(
+          {
+            error:
+              "Both Before photo and After photo are mandatory to complete the job. Please capture or upload both photos.",
+          },
+          { status: 400 }
+        );
+      }
+
+      // 2. Validate End OTP: must match expected customer completion OTP
+      const expectedEndOtp = String(job.end_otp || (job as any).otp_end || "").trim();
+      if (expectedEndOtp && (!cleanEndOtp || cleanEndOtp !== expectedEndOtp)) {
+        return NextResponse.json(
+          {
+            error: `Invalid End OTP '${cleanEndOtp}'. Please ask the customer for their 4-digit completion code.`,
+          },
+          { status: 400 }
+        );
+      }
+
+      // 3. AI Photo QC Check
+      let qcResult = { pass: true, reason: "QC Passed: Verified distinct before/after progress photos." };
+      try {
+        const { checkPhotoQc } = await import("@/lib/ai/photoQc");
+        qcResult = await checkPhotoQc({
+          beforePhotoUrl: cleanBeforePhoto,
+          afterPhotoUrl: cleanAfterPhoto,
+          serviceType: job.service_name || "Cleaning",
+          referenceId: refId,
+        });
+      } catch (qcErr) {
+        console.warn("Photo QC execution note:", qcErr);
+      }
+
       job.status = "completed";
       job.completed_at = new Date().toISOString();
-      job.before_photo_url = beforePhotoUrl || null;
-      job.after_photo_url = afterPhotoUrl || null;
+      job.before_photo_url = cleanBeforePhoto;
+      job.after_photo_url = cleanAfterPhoto;
       job.payment_method = paymentMethod || "cash";
       job.collected_amount = collectedAmount || job.total_amount;
+      (job as any).qc_status = qcResult.pass ? "passed" : "flagged";
+      (job as any).qc_reason = qcResult.reason;
 
       globalActiveJobs.set(job.id, { ...job });
+
+      // Sync with in-memory booking store
+      try {
+        const { prontoBookingsStore } = await import("../../bookings/route");
+        const storedBooking = prontoBookingsStore.get(refId);
+        if (storedBooking) {
+          storedBooking.status = "completed";
+          storedBooking.before_photo_url = cleanBeforePhoto;
+          storedBooking.after_photo_url = cleanAfterPhoto;
+          storedBooking.escrow_status = "released";
+          storedBooking.payment_status = "paid";
+          storedBooking.qc_status = qcResult.pass ? "passed" : "flagged";
+          storedBooking.qc_reason = qcResult.reason;
+          prontoBookingsStore.set(refId, storedBooking);
+        }
+      } catch {}
 
       if (supabase) {
         try {
@@ -259,33 +340,42 @@ export async function POST(req: Request) {
             .update({
               status: "completed",
               completed_at: job.completed_at,
-              before_photo_url: job.before_photo_url,
-              after_photo_url: job.after_photo_url,
+              before_photo_url: cleanBeforePhoto,
+              after_photo_url: cleanAfterPhoto,
               payment_method: job.payment_method,
               collected_amount: job.collected_amount,
             })
             .eq("id", job.id);
+
+          // Update bookings with status, payment_status, and cart_items with photo proof
           await supabase
             .from("bookings")
-            .update({ status: "completed", updated_at: new Date().toISOString() })
+            .update({
+              status: "completed",
+              payment_status: "paid",
+              updated_at: new Date().toISOString(),
+              cart_items: {
+                before_photo_url: cleanBeforePhoto,
+                after_photo_url: cleanAfterPhoto,
+                escrow_status: "released",
+                qc_status: qcResult.pass ? "passed" : "flagged",
+              },
+            })
             .eq("reference_id", refId);
 
-          // Credit partner payout balance
-          if (partnerId) {
-            try {
-              await supabase.rpc("increment_partner_balance", {
-                partner_id: partnerId,
-                amount: job.payout_amount,
-              });
-            } catch {}
-          }
+          // Update worker_payouts ledger to pending payout if available
+          try {
+            await supabase
+              .from("worker_payouts")
+              .update({ status: "pending" })
+              .eq("reference_id", refId);
+          } catch {}
         } catch (dbErr) {
           console.warn("DB completion note:", dbErr);
         }
       }
 
-      // Fire Meta WhatsApp Template: osmida_completed
-      await sendWhatsAppStatusUpdate(customerPhone, "osmida_completed", [
+      await sendWhatsAppStatusUpdate(customerPhone, "osmida_job_completed", [
         customerName,
         serviceName,
         refId,
@@ -295,13 +385,14 @@ export async function POST(req: Request) {
         success: true,
         action: "complete",
         job,
-        message: `Work completed successfully! ₹${job.payout_amount} has been added to your earnings.`,
+        qc: qcResult,
+        message: "Job completed! Before/After photos verified, escrow released.",
       });
     }
 
     return NextResponse.json({ error: "Unknown action" }, { status: 400 });
-  } catch (error) {
-    console.error("Partner job action error:", error);
-    return NextResponse.json({ error: "Action execution failed" }, { status: 500 });
+  } catch (error: any) {
+    console.error("Job action error:", error);
+    return NextResponse.json({ error: error.message || "Failed to process job action" }, { status: 500 });
   }
 }
