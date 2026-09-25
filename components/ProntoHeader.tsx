@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowRight,
   Menu,
@@ -93,14 +94,26 @@ export function ProntoHeader() {
       <div className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-3 sm:px-6 lg:px-8">
         {/* Left: Brand Logo & Working Nellore Locality Selector */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <Link href="/" className="flex items-center gap-1.5 focus:outline-hidden group">
-            <span className="text-xl sm:text-2xl font-black tracking-tight text-[#0C6266] group-hover:opacity-90 transition-opacity">
-              Osmida
-            </span>
-            <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-[#0C6266] bg-[#EBF4F5] border border-[#B6D7D8] px-2 py-0.5 rounded-full uppercase tracking-wider">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#16A34A] animate-pulse" />
-              Nellore
-            </span>
+          <Link href="/" className="flex items-center gap-2 focus:outline-hidden group">
+            <div className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-xl overflow-hidden shadow-xs border border-[#0C6266]/20 bg-[#095054] flex items-center justify-center shrink-0 group-hover:scale-105 transition-transform">
+              <Image
+                src="/icon.svg"
+                alt="Osmida Logo"
+                width={36}
+                height={36}
+                className="h-full w-full object-contain"
+                priority
+              />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-xl sm:text-2xl font-black tracking-tight text-[#0C6266] group-hover:opacity-90 transition-opacity">
+                Osmida
+              </span>
+              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-[#0C6266] bg-[#EBF4F5] border border-[#B6D7D8] px-2 py-0.5 rounded-full uppercase tracking-wider">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#16A34A] animate-pulse" />
+                Nellore
+              </span>
+            </div>
           </Link>
 
           {/* Interactive Working Locality Dropdown (Takes minimal space, never pushes nav) */}

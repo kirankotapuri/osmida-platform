@@ -17,6 +17,7 @@ This document details all external accounts, regulatory approvals, and manual co
 | **5. DNS Authentication** | Domain Registrar / Cloudflare | 15–30 Minutes | **Mandatory (Anti-Spam)** | Free |
 | **6. Payment Gateway & Route** | Razorpay Route | 1–2 Days (KYC) | **Mandatory for RBI Compliance** | Standard 2% payment fee |
 | **7. FCM Web Push** | Firebase Console | 10 Minutes | **Recommended for background alerts** | Free |
+| **8. Google OAuth (Sign-in with Gmail)** | Google Cloud Console & Supabase | 10 Minutes | **Recommended for 1-Click Login** | Free |
 
 ---
 
@@ -171,7 +172,38 @@ RAZORPAY_KEY_SECRET=your_razorpay_secret_here
 
 ---
 
-## 6. 🔐 Production Security Environment Variables Checklist
+## 6. 🌐 Google OAuth & 1-Click Gmail Sign-In
+
+To allow customers to sign in with their Gmail accounts with 1 click:
+
+### Step 1: Google Cloud Console Setup
+1. Visit [Google Cloud Console Credentials](https://console.cloud.google.com/apis/credentials).
+2. Create an **OAuth 2.0 Client ID**:
+   - Application Type: **Web application**
+   - Name: `Osmida Web Client`
+   - Authorized JavaScript origins:
+     - `http://localhost:3000` (for testing)
+     - `https://osmida.com`
+     - `https://www.osmida.com`
+   - Authorized redirect URIs:
+     - `https://<YOUR_SUPABASE_PROJECT_REF>.supabase.co/auth/v1/callback`
+3. Copy the **Client ID** and **Client Secret**.
+
+### Step 2: Enable in Supabase Dashboard
+1. Open your [Supabase Dashboard](https://supabase.com/dashboard) -> Your Osmida Project.
+2. Navigate to **Authentication** -> **Providers** -> **Google**.
+3. Toggle Google **ON**.
+4. Paste the **Client ID** and **Client Secret** obtained from Google Cloud Console.
+5. In **Authentication** -> **URL Configuration**:
+   - Site URL: `https://osmida.com`
+   - Redirect URLs:
+     - `https://osmida.com/**`
+     - `http://localhost:3000/**`
+     - `https://osmida.com/auth/callback`
+
+---
+
+## 7. 🔐 Production Security Environment Variables Checklist
 
 Ensure your production environment variables (on Vercel, Supabase, or AWS) contain the following secure values:
 

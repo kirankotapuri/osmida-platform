@@ -17,14 +17,14 @@ export const metadata: Metadata = {
   description: "Osmida provides verified, on-demand house help for Nellore apartments. Book bathroom cleaning, kitchen cleaning, dishwashing, and general house help at a flat ₹199/hr rate. ₹0 advance, pay after service with Before/After photo proof.",
   icons: {
     icon: [
-      { url: "/favicon.ico?v=3", sizes: "any" },
-      { url: "/icon.png?v=3", type: "image/png" },
-      { url: "/icon.svg?v=3", type: "image/svg+xml" },
+      { url: "/icon.svg?v=4", type: "image/svg+xml" },
+      { url: "/icon.png?v=4", type: "image/png" },
+      { url: "/favicon.ico?v=4", sizes: "any" },
     ],
-    shortcut: "/favicon.ico?v=3",
+    shortcut: "/icon.png?v=4",
     apple: [
-      { url: "/apple-icon.png?v=3", type: "image/png" },
-      { url: "/apple-icon.svg?v=3", type: "image/svg+xml" },
+      { url: "/icon.png?v=4", type: "image/png" },
+      { url: "/icon.svg?v=4", type: "image/svg+xml" },
     ],
   },
   keywords: [
@@ -65,7 +65,7 @@ const jsonLd = {
       alternateName: ["Osmida Nellore", "Osmida Home Services", "Osmida Facility Services"],
       url: "https://osmida.com",
       logo: "https://osmida.com/icon.png",
-      image: "https://osmida.com/osmida.jpg",
+      image: "https://osmida.com/icon.png",
       description: "Osmida is Nellore's trusted doorstep home services platform providing AC servicing & repair, odorless cockroach, termite & bed bug control, and full home deep cleaning with verified local technicians, ₹0 advance, and a 30-day rework warranty.",
       telephone: "+91-7676358162",
       email: "osmidaindia@gmail.com",

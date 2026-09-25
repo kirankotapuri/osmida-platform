@@ -346,8 +346,8 @@ export default function AdminDashboardPage() {
       <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
         <div className="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-7 shadow-2xl space-y-6">
           <div className="text-center space-y-2">
-            <div className="relative h-14 w-14 mx-auto rounded-2xl overflow-hidden border border-white/20 bg-black shadow-lg">
-              <Image src="/osmida.jpg" alt="Osmida" fill className="object-cover" />
+            <div className="relative h-14 w-14 mx-auto rounded-2xl overflow-hidden border border-white/20 bg-[#095054] shadow-lg">
+              <Image src="/icon.svg" alt="Osmida" fill className="object-contain p-1" />
             </div>
             <div className="space-y-0.5">
               <h1 className="text-lg font-black tracking-wider text-white uppercase">
@@ -418,8 +418,8 @@ export default function AdminDashboardPage() {
       <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-8 py-3.5">
         <div className="mx-auto max-w-7xl flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative h-8 w-8 rounded-xl overflow-hidden border border-white/20 bg-black">
-              <Image src="/osmida.jpg" alt="Osmida" fill className="object-cover" />
+            <div className="relative h-8 w-8 rounded-xl overflow-hidden border border-white/20 bg-[#095054]">
+              <Image src="/icon.svg" alt="Osmida" fill className="object-contain p-0.5" />
             </div>
             <div>
               <div className="flex items-center gap-2">

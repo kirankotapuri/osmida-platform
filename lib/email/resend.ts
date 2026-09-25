@@ -295,3 +295,116 @@ export async function sendAdminNewBookingAlert({
     html,
   });
 }
+
+/**
+ * 4. Customer Login & Signup Email OTP
+ */
+export async function sendCustomerEmailOtp({
+  email,
+  otp,
+  name,
+}: {
+  email: string;
+  otp: string;
+  name?: string;
+}): Promise<EmailSendResult> {
+  const greeting = name ? `Hello ${name},` : "Hello,";
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Your Osmida Verification Code</title>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F4F8F8; margin: 0; padding: 24px; color: #1F2937; }
+        .card { max-width: 500px; margin: 0 auto; background: #ffffff; border-radius: 20px; overflow: hidden; border: 1px solid #DFE8E8; box-shadow: 0 4px 16px rgba(12, 98, 102, 0.08); }
+        .header { background-color: #0C6266; padding: 28px 24px; text-align: center; color: #ffffff; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 900; letter-spacing: -0.5px; }
+        .content { padding: 32px 24px; text-align: center; }
+        .otp-box { display: inline-block; background-color: #EBF4F5; border: 2px dashed #0C6266; color: #0C6266; padding: 14px 28px; border-radius: 14px; font-size: 32px; font-weight: 900; letter-spacing: 6px; margin: 20px 0; font-family: monospace; }
+        .footer { background-color: #F9FAFB; padding: 16px 24px; text-align: center; font-size: 11px; color: #6B7280; border-top: 1px solid #E5E7EB; }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="header">
+          <h1>Osmida Nellore</h1>
+          <p style="margin: 4px 0 0 0; font-size: 12px; opacity: 0.9;">Apartment House Help &amp; Home Services</p>
+        </div>
+        <div class="content">
+          <p style="font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 8px;">${greeting}</p>
+          <p style="font-size: 13px; color: #4B5563; line-height: 1.5;">Use the following verification code to sign in or register your Osmida account.</p>
+          <div class="otp-box">${otp}</div>
+          <p style="font-size: 11px; color: #9CA3AF; margin-top: 16px;">This OTP code expires in 10 minutes. Please do not share this code with anyone.</p>
+        </div>
+        <div class="footer">
+          <p style="margin: 0;">Osmida Home Services • Nellore, Andhra Pradesh</p>
+          <p style="margin: 4px 0 0 0;">Need help? WhatsApp: +91 7676358162</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to: email,
+    subject: `Your Osmida Verification Code: ${otp}`,
+    html,
+  });
+}
+
+/**
+ * 5. Customer Password Reset Link Email
+ */
+export async function sendCustomerPasswordResetEmail({
+  email,
+  resetLink,
+  name,
+}: {
+  email: string;
+  resetLink: string;
+  name?: string;
+}): Promise<EmailSendResult> {
+  const greeting = name ? `Hello ${name},` : "Hello,";
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <title>Reset Your Osmida Password</title>
+      <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #F4F8F8; margin: 0; padding: 24px; color: #1F2937; }
+        .card { max-width: 500px; margin: 0 auto; background: #ffffff; border-radius: 20px; overflow: hidden; border: 1px solid #DFE8E8; box-shadow: 0 4px 16px rgba(12, 98, 102, 0.08); }
+        .header { background-color: #0C6266; padding: 28px 24px; text-align: center; color: #ffffff; }
+        .header h1 { margin: 0; font-size: 24px; font-weight: 900; letter-spacing: -0.5px; }
+        .content { padding: 32px 24px; text-align: center; }
+        .btn { display: inline-block; background-color: #E68A00; color: #ffffff !important; padding: 14px 28px; border-radius: 12px; font-size: 14px; font-weight: 800; text-decoration: none; margin: 20px 0; box-shadow: 0 2px 8px rgba(230, 138, 0, 0.25); }
+        .footer { background-color: #F9FAFB; padding: 16px 24px; text-align: center; font-size: 11px; color: #6B7280; border-top: 1px solid #E5E7EB; }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <div class="header">
+          <h1>Osmida Nellore</h1>
+          <p style="margin: 4px 0 0 0; font-size: 12px; opacity: 0.9;">Password Reset Request</p>
+        </div>
+        <div class="content">
+          <p style="font-size: 14px; font-weight: 600; color: #111827; margin-bottom: 8px;">${greeting}</p>
+          <p style="font-size: 13px; color: #4B5563; line-height: 1.5;">We received a request to reset your password for your Osmida account. Click the button below to choose a new password.</p>
+          <a href="${resetLink}" class="btn">Reset My Password</a>
+          <p style="font-size: 11px; color: #9CA3AF; margin-top: 16px;">This link will expire in 30 minutes. If you did not request a password reset, you can safely ignore this email.</p>
+        </div>
+        <div class="footer">
+          <p style="margin: 0;">Osmida Home Services • Nellore, Andhra Pradesh</p>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to: email,
+    subject: "Reset Your Osmida Account Password",
+    html,
+  });
+}

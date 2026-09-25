@@ -89,10 +89,10 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
             >
               <div className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-xl overflow-hidden border border-white/20 bg-black transition-transform group-hover:scale-105 shrink-0 shadow-xs">
                 <Image
-                  src="/osmida.jpg"
+                  src="/icon.svg"
                   alt="Osmida Logo"
                   fill
-                  className="object-cover"
+                  className="object-contain"
                   priority
                   sizes="36px"
                 />
