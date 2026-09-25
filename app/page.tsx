@@ -30,60 +30,34 @@ const COMMUNITY_PARTNERS = [
   "Balaji Nagar Towers",
 ];
 
-const REVIEWS = [
+const LAUNCH_GUARANTEES = [
   {
-    name: "Radha Devi",
-    apartment: "Sri Sai Towers, Haranathapuram",
-    rating: 5,
-    date: "Yesterday",
-    service: "Bathroom Cleaning (1.5 hrs)",
-    comment:
-      "Arrived exactly in 20 minutes! The sink, toilet, and floor tiles were scrubbed thoroughly. The Start OTP and photo proof make it feel so safe.",
+    icon: "₹0",
+    title: "₹0 Advance Required",
+    subtitle: "Pay Only After Service",
+    description: "You don't pay a single rupee upfront. After the helper completes your chores and uploads photos, you pay only if satisfied.",
+    badge: "Zero Risk",
   },
   {
-    name: "Suresh Varma",
-    apartment: "Green Meadows, Magunta Layout",
-    rating: 5,
-    date: "2 days ago",
-    service: "Kitchen Cleaning + Dishes (2 hrs)",
-    comment:
-      "Our gas stove and kitchen counter look brand new. Love the flat ₹199/hr pricing without hidden travel charges in Nellore.",
+    icon: "30m",
+    title: "Free 30-Min Touchup Redo",
+    subtitle: "Missed a Spot? We Rectify It",
+    description: "If any spot or standard checklist item is missed, your helper stays for up to 30 extra minutes to make it right at no extra charge.",
+    badge: "Quality Guarantee",
   },
   {
-    name: "Kavitha Reddy",
-    apartment: "Saraswathi Nilayam, Vedayapalem",
-    rating: 5,
-    date: "3 days ago",
-    service: "General House Help (1 hr)",
-    comment:
-      "Super helpful for daily sweeping, mopping, and fan dusting. The helper was polite, verified, and finished all tasks within 1 hour.",
+    icon: "📷",
+    title: "Before & After Photo Proof",
+    subtitle: "Transparent Phone Verification",
+    description: "Review timestamped before-and-after photos directly on your live booking screen before sharing your 4-digit completion code.",
+    badge: "Photo QC Proof",
   },
   {
-    name: "Kiran Kotapuri",
-    apartment: "Children's Park Road, Nellore",
-    rating: 5,
-    date: "4 days ago",
-    service: "Dishwashing + Kitchen (1.5 hrs)",
-    comment:
-      "Having a reliable helper who comes whenever our regular maid takes leave is a blessing. Escrow payment released only after we checked photos.",
-  },
-  {
-    name: "Ananya Sharma",
-    apartment: "Balaji Nagar Residency",
-    rating: 5,
-    date: "5 days ago",
-    service: "Bathroom Cleaning (1 hr)",
-    comment:
-      "Mirror, basin, and floor were spotless. The pro wore a clean uniform and brought proper disinfectant supplies. Highly recommended!",
-  },
-  {
-    name: "Venkatesh Babu",
-    apartment: "Pogathota Main Road",
-    rating: 5,
-    date: "Last week",
-    service: "General House Help (2 hrs)",
-    comment:
-      "Cleaned our 3BHK living room and bedrooms seamlessly. Professional, on-time, and polite. 5 stars for Osmida!",
+    icon: "🛡️",
+    title: "Aadhaar & Background Verified",
+    subtitle: "Safe for Nellore Apartment Families",
+    description: "Every partner undergoes government identity verification, background checks, and apartment etiquette training.",
+    badge: "Safety First",
   },
 ];
 
@@ -191,20 +165,20 @@ export default function HomePage() {
                 <AiQuickBookBar compact={true} />
               </div>
 
-              {/* Trust Rating Indicators */}
+              {/* Genuine Launch Trust Badges */}
               <div className="flex flex-wrap items-center justify-center lg:justify-start gap-4 pt-2 text-xs font-bold text-[#0F171A]">
-                <div className="flex items-center gap-1 text-[#0C6266] bg-[#EBF4F5] px-2.5 py-1 rounded-full border border-[#B6D7D8]">
-                  <Star className="h-3.5 w-3.5 fill-[#F5A623] text-[#F5A623]" />
-                  <span className="font-black text-[#0F171A]">4.8 / 5</span>
-                  <span className="text-[#475559] font-medium">• 1,200+ Reviews</span>
+                <div className="flex items-center gap-1.5 text-[#0C6266] bg-[#EBF4F5] px-3 py-1 rounded-full border border-[#B6D7D8]">
+                  <Sparkles className="h-3.5 w-3.5 text-[#E68A00]" />
+                  <span className="font-black text-[#0F171A]">Now Live in Nellore</span>
+                  <span className="text-[#475559] font-medium">• ₹0 Advance</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[#475559]">
                   <ShieldCheck className="h-4 w-4 text-[#0C6266]" />
-                  <span>Escrow Protected Payment</span>
+                  <span>Pay Only After Service</span>
                 </div>
                 <div className="flex items-center gap-1.5 text-[#475559]">
                   <Clock className="h-4 w-4 text-[#0C6266]" />
-                  <span>Dual OTP Timed</span>
+                  <span>Photo QC Verified</span>
                 </div>
               </div>
             </div>
@@ -274,28 +248,26 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* 3 Metric Cards */}
+          {/* 3 Authentic Launch Commitment Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 max-w-4xl mx-auto">
             <div className="rounded-xl bg-[#EBF4F5] border border-[#B6D7D8] p-5 sm:p-6 text-center space-y-1 shadow-2xs hover:shadow-md transition-shadow">
               <div className="flex items-center justify-center gap-1 text-[#0C6266] font-black text-2xl sm:text-3xl">
-                <Check className="h-6 w-6 stroke-[3]" />
-                <span>5,000+</span>
+                <span>₹199/hr</span>
               </div>
               <p className="text-xs font-bold text-[#0F171A] uppercase tracking-wide">
-                Happy Nellore Households
+                Flat Hourly Rate
               </p>
-              <p className="text-[11px] text-[#475559]">Recurring and on-demand apartment visits</p>
+              <p className="text-[11px] text-[#475559]">Transparent pricing with zero hidden travel charges</p>
             </div>
 
             <div className="rounded-xl bg-[#EBF4F5] border border-[#B6D7D8] p-5 sm:p-6 text-center space-y-1 shadow-2xs hover:shadow-md transition-shadow">
               <div className="flex items-center justify-center gap-1 text-[#0C6266] font-black text-2xl sm:text-3xl">
-                <Check className="h-6 w-6 stroke-[3]" />
-                <span>25,000+</span>
+                <span>₹0 Advance</span>
               </div>
               <p className="text-xs font-bold text-[#0F171A] uppercase tracking-wide">
-                Hours of Chores Completed
+                Pay After Inspection
               </p>
-              <p className="text-[11px] text-[#475559]">Dishes, bathrooms, kitchens & house help</p>
+              <p className="text-[11px] text-[#475559]">Inspect Before/After photos first before paying</p>
             </div>
 
             <div className="rounded-xl bg-[#EBF4F5] border border-[#B6D7D8] p-5 sm:p-6 text-center space-y-1 shadow-2xs hover:shadow-md transition-shadow">
@@ -304,9 +276,9 @@ export default function HomePage() {
                 <span>100%</span>
               </div>
               <p className="text-xs font-bold text-[#0F171A] uppercase tracking-wide">
-                Police & Aadhaar Verified Pros
+                Police & Aadhaar Vetted
               </p>
-              <p className="text-[11px] text-[#475559]">Strict safety and background checks</p>
+              <p className="text-[11px] text-[#475559]">Verified helpers trained for Nellore apartments</p>
             </div>
           </div>
         </div>
@@ -536,51 +508,56 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 7. CUSTOMER REVIEWS */}
-      <section id="reviews-section" className="py-16 sm:py-20 bg-white border-b border-[#DFE8E8]">
+      {/* 7. OUR LAUNCH COMMITMENT (100% HONEST - ZERO FAKE REVIEWS) */}
+      <section id="guarantee-section" className="py-16 sm:py-20 bg-white border-b border-[#DFE8E8]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-10">
           <div className="max-w-2xl mx-auto text-center space-y-2">
             <span className="text-xs font-bold text-[#0C6266] uppercase tracking-wider">
-              Real Nellore Resident Reviews
+              100% Risk-Free For Nellore Homes
             </span>
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-black text-[#0F171A] tracking-tight">
-              Loved by Osmida homes.
+              Our Launch Commitment to You.
             </h2>
-            <p className="text-xs sm:text-sm text-[#475559] font-medium">
-              Over 5,000 apartment visits delivered across Nellore communities.
+            <p className="text-xs sm:text-sm text-[#475559] font-medium leading-relaxed">
+              We are newly launching our doorstep services in Nellore. We don&apos;t use fake reviews — instead, we earn your trust on every single visit with ironclad safety and satisfaction guarantees.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {REVIEWS.map((rev, idx) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {LAUNCH_GUARANTEES.map((item, idx) => (
               <div
                 key={idx}
-                className="rounded-xl border border-[#DFE8E8] bg-white p-6 shadow-2xs hover:shadow-md transition-all space-y-3.5 flex flex-col justify-between"
+                className="rounded-xl border border-[#DFE8E8] bg-[#F4F8F8] p-6 space-y-3 flex flex-col justify-between hover:shadow-md transition-shadow"
               >
                 <div className="space-y-2.5">
-                  <div className="flex items-center gap-1">
-                    {[...Array(rev.rating)].map((_, i) => (
-                      <Star key={i} className="h-4 w-4 fill-[#F5A623] text-[#F5A623]" />
-                    ))}
-                    <span className="text-[11px] font-bold text-[#475559] ml-1.5">{rev.date}</span>
+                  <div className="flex items-center justify-between">
+                    <span className="w-10 h-10 rounded-xl bg-[#0C6266]/15 text-[#0C6266] flex items-center justify-center font-black text-sm">
+                      {item.icon}
+                    </span>
+                    <span className="text-[10px] font-bold text-[#0C6266] bg-[#EBF4F5] border border-[#B6D7D8] px-2 py-0.5 rounded-full uppercase tracking-wider">
+                      {item.badge}
+                    </span>
                   </div>
-
-                  <p className="text-xs text-[#0F171A] font-medium leading-relaxed">
-                    &ldquo;{rev.comment}&rdquo;
-                  </p>
-                </div>
-
-                <div className="pt-3 border-t border-[#DFE8E8] flex items-center justify-between text-xs">
                   <div>
-                    <h4 className="font-bold text-[#0F171A]">{rev.name}</h4>
-                    <p className="text-[11px] text-[#475559] font-medium">{rev.apartment}</p>
+                    <h3 className="font-bold text-[#0F171A] text-sm">{item.title}</h3>
+                    <p className="text-[11px] font-semibold text-[#0C6266]">{item.subtitle}</p>
                   </div>
-                  <span className="text-[10px] font-bold text-[#0C6266] bg-[#EBF4F5] px-2 py-0.5 rounded-full">
-                    Verified
-                  </span>
+                  <p className="text-xs text-[#475559] leading-relaxed">
+                    {item.description}
+                  </p>
                 </div>
               </div>
             ))}
+          </div>
+
+          {/* Founder Transparency Note */}
+          <div className="max-w-2xl mx-auto rounded-2xl bg-[#EBF4F5] border border-[#B6D7D8] p-4 sm:p-5 text-center space-y-1.5 shadow-2xs">
+            <p className="text-xs font-bold text-[#0F171A]">
+              🤝 A Note from the Osmida Nellore Team
+            </p>
+            <p className="text-[11px] text-[#475559] leading-relaxed">
+              We are starting fresh in Nellore. Because we don&apos;t fabricate reviews, you are booking with total honesty. Be among our first Nellore customers with ₹0 advance and complete Before/After photo proof!
+            </p>
           </div>
         </div>
       </section>
@@ -739,28 +716,33 @@ export default function HomePage() {
 
             <div className="space-y-2.5">
               <h4 className="font-bold text-[#E68A00] uppercase tracking-wider text-[11px]">
-                Portals & Hubs
+                Customer Support
               </h4>
               <ul className="space-y-2 text-slate-300 font-semibold">
                 <li>
-                  <Link href="/partner" className="text-white hover:text-[#E68A00] transition-colors flex items-center gap-1.5">
-                    <span>👷 Partner Dispatch</span>
+                  <Link href="/my-bookings" className="text-white hover:text-[#E68A00] transition-colors flex items-center gap-1.5">
+                    <span>📋 Track My Booking</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/admin" className="text-white hover:text-[#E68A00] transition-colors flex items-center gap-1.5">
-                    <span>🔒 Admin Console</span>
+                  <Link href="/book" className="text-white hover:text-[#E68A00] transition-colors flex items-center gap-1.5">
+                    <span>⚡ Book House Help (₹199/hr)</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="/my-bookings" className="text-slate-300 hover:text-white transition-colors">
-                    📋 Track Active Booking
+                  <Link href="/cancellation" className="text-slate-300 hover:text-white transition-colors">
+                    🛡️ Quality Guarantee &amp; Redo
                   </Link>
                 </li>
                 <li>
-                  <Link href="/book" className="text-[#E68A00] hover:underline transition-colors font-bold">
-                    ⚡ Book Now (₹199/hr)
-                  </Link>
+                  <a
+                    href="https://wa.me/917676358162"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[#E68A00] hover:underline transition-colors font-bold flex items-center gap-1"
+                  >
+                    <span>💬 WhatsApp: +91 7676358162</span>
+                  </a>
                 </li>
               </ul>
             </div>
