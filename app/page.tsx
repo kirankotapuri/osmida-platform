@@ -736,6 +736,34 @@ export default function HomePage() {
                 <li>Children&apos;s Park Road</li>
               </ul>
             </div>
+
+            <div className="space-y-2.5">
+              <h4 className="font-bold text-[#E68A00] uppercase tracking-wider text-[11px]">
+                Portals & Hubs
+              </h4>
+              <ul className="space-y-2 text-slate-300 font-semibold">
+                <li>
+                  <Link href="/partner" className="text-white hover:text-[#E68A00] transition-colors flex items-center gap-1.5">
+                    <span>👷 Partner Dispatch</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/admin" className="text-white hover:text-[#E68A00] transition-colors flex items-center gap-1.5">
+                    <span>🔒 Admin Console</span>
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/my-bookings" className="text-slate-300 hover:text-white transition-colors">
+                    📋 Track Active Booking
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/book" className="text-[#E68A00] hover:underline transition-colors font-bold">
+                    ⚡ Book Now (₹199/hr)
+                  </Link>
+                </li>
+              </ul>
+            </div>
           </div>
 
           <div className="pt-6 border-t border-[#0C4144] flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-400 font-medium">

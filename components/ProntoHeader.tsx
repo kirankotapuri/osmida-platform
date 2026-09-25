@@ -71,6 +71,13 @@ export function ProntoHeader() {
         {/* Right: Actions */}
         <div className="flex items-center gap-3">
           <Link
+            href="/partner"
+            className="hidden md:inline-flex items-center gap-1 text-xs font-bold text-[#0C6266] bg-[#0C6266]/10 hover:bg-[#0C6266]/20 transition-colors px-2.5 py-1.5 rounded-lg border border-[#0C6266]/20"
+          >
+            <span>Partner Hub</span>
+          </Link>
+
+          <Link
             href="/my-bookings"
             className="hidden sm:inline-flex text-xs font-bold text-[#0F171A] hover:text-[#0C6266] transition-colors px-2 py-1"
           >
@@ -132,9 +139,23 @@ export function ProntoHeader() {
             <Link
               href="/my-bookings"
               onClick={() => setMobileMenuOpen(false)}
-              className="text-left py-2 text-[#0C6266] font-bold"
+              className="text-left py-2 border-b border-[#F4F8F8] text-[#0C6266] font-bold"
             >
-              Track My Active Booking (OTP Login) →
+              📋 Track My Active Booking →
+            </Link>
+            <Link
+              href="/partner"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-left py-2 border-b border-[#F4F8F8] text-[#0C6266] font-bold"
+            >
+              👷 Partner / Worker Dispatch Hub →
+            </Link>
+            <Link
+              href="/admin"
+              onClick={() => setMobileMenuOpen(false)}
+              className="text-left py-2 text-slate-700 font-bold"
+            >
+              🔒 Operations Admin Console →
             </Link>
           </div>
         </div>
