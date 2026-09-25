@@ -17,7 +17,6 @@ import {
 } from "lucide-react";
 import { ProntoHeader } from "@/components/ProntoHeader";
 import { ProntoServiceDetailModal } from "@/components/ProntoServiceDetailModal";
-import { AiQuickBookBar } from "@/components/AiQuickBookBar";
 import { OsmidaSupportChat } from "@/components/OsmidaSupportChat";
 import { PRONTO_SERVICES, ProntoService } from "@/lib/prontoServices";
 

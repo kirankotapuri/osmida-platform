@@ -11,7 +11,6 @@ import {
   DURATION_OPTIONS,
   DEFAULT_APP_SETTINGS,
 } from "@/lib/prontoServices";
-import { AiQuickBookBar } from "@/components/AiQuickBookBar";
 import { OsmidaSupportChat } from "@/components/OsmidaSupportChat";
 import {
   Loader2,
@@ -263,9 +262,6 @@ function BookingContent() {
               : "Standardized residential tasks for Nellore apartments. 1 visit covers your sequence of tasks."}
           </p>
         </div>
-
-        {/* AI Quick-Fill Bar */}
-        <AiQuickBookBar onParsed={handleApplyIntent} className="mb-6" />
 
         {formError && (
           <div className="mb-6 rounded-xl bg-rose-50 border border-rose-200 p-3.5 flex items-start gap-3 text-xs text-rose-800 font-semibold animate-in fade-in">
