@@ -37,7 +37,7 @@ function BookingContent() {
 
   // Pre-fill from query or localStorage
   const [selectedServices, setSelectedServices] = useState<string[]>(["bathroom_cleaning"]);
-  const [selectedDuration, setSelectedDuration] = useState<number>(1.5);
+  const [selectedDuration, setSelectedDuration] = useState<number>(1.0);
   const [hourlyRate, setHourlyRate] = useState<number>(DEFAULT_APP_SETTINGS.hourly_rate);
 
   // Booking Type: instant | scheduled | recurring
@@ -69,22 +69,34 @@ function BookingContent() {
     tomorrow.setDate(tomorrow.getDate() + 1);
     setScheduledDate(tomorrow.toISOString().split("T")[0]);
 
-    // Read from searchParams or localStorage
+    // Read from searchParams
     const servicesParam = searchParams.get("services");
     if (servicesParam) {
-      setSelectedServices(servicesParam.split(",").filter(Boolean));
-    } else if (typeof window !== "undefined") {
-      const saved = localStorage.getItem("osmida_pronto_services");
-      if (saved) {
-        try {
-          setSelectedServices(JSON.parse(saved));
-        } catch {}
+      const ids = servicesParam.split(",").filter(Boolean);
+      setSelectedServices(ids);
+      // Auto-adjust default duration recommendation based on selected task count
+      if (!searchParams.get("duration")) {
+        if (ids.length === 1) setSelectedDuration(1.0);
+        else if (ids.length === 2) setSelectedDuration(1.5);
+        else if (ids.length >= 3) setSelectedDuration(2.0);
       }
+    } else {
+      // Default clean slate: 1 task, 1.0 hour, ₹199
+      setSelectedServices(["bathroom_cleaning"]);
+      setSelectedDuration(1.0);
     }
 
     const durationParam = searchParams.get("duration");
     if (durationParam) {
-      setSelectedDuration(Number(durationParam) || 1.5);
+      setSelectedDuration(Number(durationParam) || 1.0);
+    }
+
+    // Pre-fill phone if returning customer
+    if (typeof window !== "undefined") {
+      const savedPhone = localStorage.getItem("osmida_customer_phone");
+      if (savedPhone && !phone) {
+        setPhone(savedPhone);
+      }
     }
 
     const localityParam = searchParams.get("locality");
@@ -122,11 +134,24 @@ function BookingContent() {
 
   const toggleService = (id: string) => {
     setSelectedServices((prev) => {
+      let next: string[];
       if (prev.includes(id)) {
         if (prev.length === 1) return prev;
-        return prev.filter((item) => item !== id);
+        next = prev.filter((item) => item !== id);
+      } else {
+        next = [...prev, id];
       }
-      return [...prev, id];
+
+      // Automatically adjust duration recommendation to match task count
+      if (next.length === 1) {
+        setSelectedDuration(1.0);
+      } else if (next.length === 2) {
+        setSelectedDuration(1.5);
+      } else if (next.length >= 3) {
+        setSelectedDuration(2.0);
+      }
+
+      return next;
     });
   };
 
@@ -194,6 +219,8 @@ function BookingContent() {
       const payload = {
         selectedServices,
         durationHours: selectedDuration,
+        hourlyRate,
+        totalAmount: totalPrice,
         customerName: customerName.trim(),
         customerPhone: cleanPhone,
         locality,
@@ -225,7 +252,10 @@ function BookingContent() {
         throw new Error(data.error || "Failed to create booking");
       }
 
-      // Success: redirect to Active Booking Screen with live status and start OTP
+      // Success: save customer phone for easy tracking and redirect
+      if (typeof window !== "undefined") {
+        localStorage.setItem("osmida_customer_phone", cleanPhone);
+      }
       router.push(`/booking/${data.referenceId}`);
     } catch (err: any) {
       setFormError(err.message || "An unexpected error occurred. Please try again.");
@@ -685,11 +715,57 @@ function BookingContent() {
               </button>
             </div>
 
-            <div className="rounded-lg bg-white p-3 border border-[#B6D7D8] text-xs text-[#0F171A] space-y-1.5 font-medium">
-              <div className="flex items-center justify-between text-[#0F171A] font-bold">
-                <span>Total for {selectedDuration} hrs:</span>
-                <span className="text-base font-black text-[#0C6266]">₹{totalPrice}</span>
+            {/* Transparent Pricing Breakdown / Tally Card */}
+            <div className="rounded-xl bg-white p-4 border border-[#B6D7D8] space-y-2.5 text-xs shadow-xs">
+              <div className="flex items-center justify-between font-bold text-[#0F171A] border-b border-[#F4F8F8] pb-2">
+                <span className="font-extrabold text-[#0F171A]">Order Summary &amp; Transparent Tally</span>
+                <span className="text-[10px] text-[#16A34A] bg-[#16A34A]/10 font-black px-2 py-0.5 rounded-full">
+                  Zero Hidden Fees
+                </span>
               </div>
+
+              <div className="flex items-center justify-between text-[#475559]">
+                <span>Selected Tasks ({selectedServices.length}):</span>
+                <span className="font-bold text-[#0F171A] max-w-[220px] truncate text-right">
+                  {selectedServices
+                    .map((id) => PRONTO_SERVICES.find((s) => s.id === id)?.name)
+                    .filter(Boolean)
+                    .join(", ")}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between text-[#475559]">
+                <span>Visit Duration:</span>
+                <span className="font-bold text-[#0F171A]">{selectedDuration} {selectedDuration === 1 ? "Hour" : "Hours"}</span>
+              </div>
+
+              <div className="flex items-center justify-between text-[#475559]">
+                <span>Flat Hourly Rate:</span>
+                <span className="font-bold text-[#0F171A]">₹{hourlyRate}/hr</span>
+              </div>
+
+              <div className="flex items-center justify-between text-[#475559] bg-[#F4F8F8] px-2.5 py-1.5 rounded-lg border border-[#DFE8E8]">
+                <span>Price Calculation:</span>
+                <span className="font-mono font-bold text-[#0F171A]">
+                  {selectedDuration} hrs × ₹{hourlyRate} = ₹{totalPrice}
+                </span>
+              </div>
+
+              <div className="flex items-center justify-between text-[#16A34A] font-semibold pt-1">
+                <span>Advance Required Now:</span>
+                <span className="font-extrabold">₹0 (Pay only after service)</span>
+              </div>
+
+              <div className="pt-2 border-t border-[#DFE8E8] flex items-center justify-between text-sm font-black text-[#0F171A]">
+                <span>Total Payable After Service:</span>
+                <span className="text-lg text-[#0C6266] font-black">₹{totalPrice}</span>
+              </div>
+
+              {bookingType === "recurring" && (
+                <p className="text-[10px] text-[#475559] italic text-right">
+                  * Billed at ₹{totalPrice} per visit ({recurringFrequency}). Pay after each visit.
+                </p>
+              )}
             </div>
           </div>
 

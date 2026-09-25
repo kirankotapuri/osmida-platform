@@ -69,7 +69,19 @@ export async function POST(req: Request) {
           .order("created_at", { ascending: false });
 
         if (data && !error) {
-          customerBookings.push(...data);
+          const parsed = data.map((b) => {
+            const cart = b.cart_items && typeof b.cart_items === "object" ? b.cart_items : {};
+            return {
+              ...b,
+              total_amount: b.total_amount || b.service_price || cart.total_amount || Math.round((b.duration_hours || cart.duration_hours || 1.0) * (b.hourly_rate || cart.hourly_rate || 199)),
+              duration_hours: b.duration_hours || cart.duration_hours || 1.0,
+              hourly_rate: b.hourly_rate || cart.hourly_rate || 199,
+              payment_method: b.payment_method || cart.payment_method || "cash",
+              otp_start: b.otp_start || cart.otp_start || b.start_otp,
+              otp_end: b.otp_end || cart.otp_end || b.end_otp,
+            };
+          });
+          customerBookings.push(...parsed);
         }
       } catch (err) {
         console.warn("DB customer bookings query note:", err);

@@ -703,30 +703,48 @@ export default function ActiveBookingPage({
           </div>
         )}
 
-        {/* 6. BOOKING SUMMARY CARD */}
+        {/* 6. BOOKING SUMMARY & TRANSPARENT TALLY CARD */}
         <div className="rounded-2xl bg-white p-4 sm:p-5 border border-slate-200 shadow-2xs space-y-2.5 text-xs">
-          <span className="text-[10px] font-black uppercase tracking-wider text-slate-400">
-            Booking Breakdown
-          </span>
+          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-500">
+              Receipt &amp; Transparent Breakdown
+            </span>
+            <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              Flat ₹{booking.hourly_rate || 199}/hr Rate
+            </span>
+          </div>
+
           <div className="flex justify-between font-bold text-slate-800">
             <span>Tasks Covered:</span>
-            <span>{booking.selected_service}</span>
+            <span className="text-right max-w-[220px] truncate">{booking.selected_service}</span>
           </div>
           <div className="flex justify-between font-medium text-slate-600">
-            <span>Duration:</span>
-            <span>{booking.duration_hours || 1.5} Hours</span>
+            <span>Visit Duration:</span>
+            <span>{booking.duration_hours || 1.0} {Number(booking.duration_hours) === 1 ? "Hour" : "Hours"}</span>
           </div>
           <div className="flex justify-between font-medium text-slate-600">
             <span>Schedule / Slot:</span>
             <span>{booking.time_slot}</span>
           </div>
           <div className="flex justify-between font-medium text-slate-600">
-            <span>Apartment & Address:</span>
+            <span>Apartment &amp; Address:</span>
             <span className="text-right max-w-[200px] truncate">{booking.site_address}</span>
           </div>
+          <div className="flex justify-between font-medium text-slate-600">
+            <span>Payment Mode:</span>
+            <span className="font-bold text-slate-900">
+              {booking.payment_method === "online" ? "🛡️ Online Escrow" : "💵 Cash on Delivery (Pay After Service)"}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-slate-600 bg-slate-50 px-2.5 py-1.5 rounded-lg border border-slate-200/80">
+            <span>Price Calculation:</span>
+            <span className="font-mono font-bold text-slate-900">
+              {booking.duration_hours || 1.0} hrs × ₹{booking.hourly_rate || 199} = ₹{booking.total_amount}
+            </span>
+          </div>
           <div className="pt-2 border-t border-slate-100 flex justify-between font-black text-sm text-slate-900">
-            <span>Total Escrow Amount:</span>
-            <span>₹{booking.total_amount}</span>
+            <span>{booking.payment_method === "online" ? "Total Escrow Amount:" : "Total Payable (Cash):"}</span>
+            <span className="text-base text-[#0C6266] font-black">₹{booking.total_amount}</span>
           </div>
         </div>
 

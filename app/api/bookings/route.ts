@@ -65,10 +65,10 @@ export async function POST(req: Request) {
     const otpStart = generate4DigitOtp();
     const otpEnd = generate4DigitOtp();
 
-    // Fetch dynamic hourly rate from settings
-    const hourlyRate = DEFAULT_APP_SETTINGS.hourly_rate;
+    // Fetch dynamic hourly rate from request or settings
+    const hourlyRate = Number(body.hourlyRate) || DEFAULT_APP_SETTINGS.hourly_rate;
     const workerPayoutRate = DEFAULT_APP_SETTINGS.worker_payout_rate;
-    const totalAmount = Math.round(duration * hourlyRate);
+    const totalAmount = Number(body.totalAmount) || Math.round(duration * hourlyRate);
     const workerPayoutAmount = Math.round(duration * workerPayoutRate);
 
     const fullAddress = [
@@ -101,8 +101,8 @@ export async function POST(req: Request) {
       otp_end: otpEnd,
       status: "pending", // pending -> assigned -> in-progress -> completed
       payment_method: paymentMode,
-      escrow_status: isOnlinePayment ? "held" : "cash",
-      payment_status: isOnlinePayment ? "escrow_held" : "cash_pending",
+      escrow_status: isOnlinePayment ? "pending_deposit" : "cash",
+      payment_status: isOnlinePayment ? "online_pending" : "cash_pending",
       locality: cleanLocality,
       site_address: fullAddress,
       address: fullAddress,
@@ -151,8 +151,9 @@ export async function POST(req: Request) {
           otp_start: otpStart,
           otp_end: otpEnd,
           status: "pending",
-          escrow_status: "held",
-          payment_status: "escrow_held",
+          payment_method: paymentMode,
+          escrow_status: isOnlinePayment ? "pending_deposit" : "cash",
+          payment_status: isOnlinePayment ? "online_pending" : "cash_pending",
           locality: cleanLocality,
           site_address: fullAddress,
           address: fullAddress,
@@ -168,7 +169,10 @@ export async function POST(req: Request) {
             otp_end: otpEnd,
             duration_hours: duration,
             hourly_rate: hourlyRate,
-            escrow_status: "held",
+            total_amount: totalAmount,
+            payment_method: paymentMode,
+            payment_status: isOnlinePayment ? "online_pending" : "cash_pending",
+            escrow_status: isOnlinePayment ? "pending_deposit" : "cash",
             apartment_name: apartmentName || null,
             flat_number: flatNumber || null,
             tower_block: towerBlock || null,
@@ -190,7 +194,8 @@ export async function POST(req: Request) {
             service_price: totalAmount,
             total_amount: totalAmount,
             status: "pending",
-            payment_status: "escrow_held",
+            payment_method: paymentMode,
+            payment_status: isOnlinePayment ? "online_pending" : "cash_pending",
             locality: cleanLocality,
             site_address: fullAddress,
             address: fullAddress,
@@ -203,7 +208,10 @@ export async function POST(req: Request) {
               otp_end: otpEnd,
               duration_hours: duration,
               hourly_rate: hourlyRate,
-              escrow_status: "held",
+              total_amount: totalAmount,
+              payment_method: paymentMode,
+              payment_status: isOnlinePayment ? "online_pending" : "cash_pending",
+              escrow_status: isOnlinePayment ? "pending_deposit" : "cash",
               apartment_name: apartmentName || null,
               flat_number: flatNumber || null,
               tower_block: towerBlock || null,
@@ -314,6 +322,11 @@ export async function POST(req: Request) {
       success: true,
       referenceId,
       booking: newBooking,
+      totalAmount,
+      durationHours: duration,
+      paymentMethod: paymentMode,
+      paymentStatus: newBooking.payment_status,
+      escrowStatus: newBooking.escrow_status,
       otpStart,
       otpEnd,
       trackingUrl: `/booking/${referenceId}`,
@@ -347,19 +360,23 @@ export async function GET(req: Request) {
         if (data && !error && data.length > 0) {
           bookings = data.map((b: any) => {
             if (b.cart_items && typeof b.cart_items === "object") {
+              const cart = b.cart_items;
               return {
                 ...b,
-                otp_start: b.otp_start || b.cart_items.otp_start || b.start_otp,
-                otp_end: b.otp_end || b.cart_items.otp_end || b.end_otp,
-                start_otp: b.start_otp || b.cart_items.otp_start || b.otp_start,
-                end_otp: b.end_otp || b.cart_items.otp_end || b.end_otp,
-                duration_hours: b.duration_hours || b.cart_items.duration_hours || 1.0,
-                hourly_rate: b.hourly_rate || b.cart_items.hourly_rate || 199,
-                escrow_status: b.escrow_status || b.cart_items.escrow_status || "held",
-                apartment_name: b.apartment_name || b.cart_items.apartment_name,
-                before_photo_url: b.before_photo_url || b.cart_items.before_photo_url,
-                after_photo_url: b.after_photo_url || b.cart_items.after_photo_url,
-                qc_status: b.qc_status || b.cart_items.qc_status,
+                otp_start: b.otp_start || cart.otp_start || b.start_otp,
+                otp_end: b.otp_end || cart.otp_end || b.end_otp,
+                start_otp: b.start_otp || cart.otp_start || b.otp_start,
+                end_otp: b.end_otp || cart.otp_end || b.end_otp,
+                duration_hours: b.duration_hours || cart.duration_hours || 1.0,
+                hourly_rate: b.hourly_rate || cart.hourly_rate || 199,
+                total_amount: b.total_amount || b.service_price || cart.total_amount || Math.round((b.duration_hours || cart.duration_hours || 1.0) * (b.hourly_rate || cart.hourly_rate || 199)),
+                payment_method: b.payment_method || cart.payment_method || "cash",
+                payment_status: b.payment_status || cart.payment_status || "cash_pending",
+                escrow_status: b.escrow_status || cart.escrow_status || (b.payment_method === "online" ? "held" : "cash"),
+                apartment_name: b.apartment_name || cart.apartment_name,
+                before_photo_url: b.before_photo_url || cart.before_photo_url,
+                after_photo_url: b.after_photo_url || cart.after_photo_url,
+                qc_status: b.qc_status || cart.qc_status,
               };
             }
             return b;

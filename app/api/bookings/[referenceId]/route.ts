@@ -46,19 +46,23 @@ export async function GET(
         if (data && !error) {
           booking = data;
           if (booking.cart_items && typeof booking.cart_items === "object") {
+            const cart = booking.cart_items;
             booking = {
               ...booking,
-              otp_start: booking.otp_start || booking.cart_items.otp_start || booking.start_otp,
-              otp_end: booking.otp_end || booking.cart_items.otp_end || booking.end_otp,
-              start_otp: booking.start_otp || booking.cart_items.otp_start || booking.otp_start,
-              end_otp: booking.end_otp || booking.cart_items.otp_end || booking.end_otp,
-              duration_hours: booking.duration_hours || booking.cart_items.duration_hours || 1.0,
-              hourly_rate: booking.hourly_rate || booking.cart_items.hourly_rate || 199,
-              escrow_status: booking.escrow_status || booking.cart_items.escrow_status || "held",
-              apartment_name: booking.apartment_name || booking.cart_items.apartment_name,
-              before_photo_url: booking.before_photo_url || booking.cart_items.before_photo_url,
-              after_photo_url: booking.after_photo_url || booking.cart_items.after_photo_url,
-              qc_status: booking.qc_status || booking.cart_items.qc_status,
+              otp_start: booking.otp_start || cart.otp_start || booking.start_otp,
+              otp_end: booking.otp_end || cart.otp_end || booking.end_otp,
+              start_otp: booking.start_otp || cart.otp_start || booking.otp_start,
+              end_otp: booking.end_otp || cart.otp_end || booking.end_otp,
+              duration_hours: booking.duration_hours || cart.duration_hours || 1.0,
+              hourly_rate: booking.hourly_rate || cart.hourly_rate || 199,
+              total_amount: booking.total_amount || booking.service_price || cart.total_amount || Math.round((booking.duration_hours || cart.duration_hours || 1.0) * (booking.hourly_rate || cart.hourly_rate || 199)),
+              payment_method: booking.payment_method || cart.payment_method || "cash",
+              payment_status: booking.payment_status || cart.payment_status || "cash_pending",
+              escrow_status: booking.escrow_status || cart.escrow_status || (booking.payment_method === "online" ? "held" : "cash"),
+              apartment_name: booking.apartment_name || cart.apartment_name,
+              before_photo_url: booking.before_photo_url || cart.before_photo_url,
+              after_photo_url: booking.after_photo_url || cart.after_photo_url,
+              qc_status: booking.qc_status || cart.qc_status,
             };
           }
         }
@@ -70,6 +74,15 @@ export async function GET(
     if (!booking) {
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
+
+    // Ensure math tally fields are always resolved numbers
+    const resolvedDuration = Number(booking.duration_hours) || 1.0;
+    const resolvedRate = Number(booking.hourly_rate) || 199;
+    const resolvedTotal = Number(booking.total_amount) || Number(booking.service_price) || Math.round(resolvedDuration * resolvedRate);
+    booking.duration_hours = resolvedDuration;
+    booking.hourly_rate = resolvedRate;
+    booking.total_amount = resolvedTotal;
+    booking.payment_method = booking.payment_method || "cash";
 
     // Attach worker details if assigned or simulated
     const worker = booking.worker_id || booking.status !== "pending" ? {

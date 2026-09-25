@@ -28,7 +28,16 @@ export async function GET(req: Request) {
         }
         const { data, error } = await query;
         if (data && !error) {
-          bookings = data;
+          bookings = data.map((b: any) => {
+            const cart = b.cart_items && typeof b.cart_items === "object" ? b.cart_items : {};
+            return {
+              ...b,
+              total_amount: b.total_amount || b.service_price || cart.total_amount || Math.round((b.duration_hours || cart.duration_hours || 1.0) * (b.hourly_rate || cart.hourly_rate || 199)),
+              duration_hours: b.duration_hours || cart.duration_hours || 1.0,
+              hourly_rate: b.hourly_rate || cart.hourly_rate || 199,
+              payment_method: b.payment_method || cart.payment_method || "cash",
+            };
+          });
         }
       } catch (err) {
         console.warn("DB admin bookings note:", err);

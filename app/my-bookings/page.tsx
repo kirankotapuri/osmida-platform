@@ -350,14 +350,20 @@ export default function MyBookingsPage() {
                             </span>
                           </div>
                           <p className="text-xs font-black text-slate-900 pt-1">
-                            {b.selected_service || "Home Service"} ({b.duration_hours || 1.5} hrs)
+                            {b.selected_service || "Home Service"} ({b.duration_hours || 1.0} hrs)
                           </p>
                         </div>
 
                         <div className="text-left sm:text-right">
                           <p className="text-xs font-black text-slate-900">₹{b.total_amount}</p>
-                          <span className="text-[10px] font-semibold text-[#0C6266] bg-[#0C6266]/10 px-2 py-0.5 rounded border border-[#0C6266]/20">
-                            Escrow Held
+                          <span
+                            className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${
+                              b.payment_method === "cash"
+                                ? "text-[#E68A00] bg-[#FFF9E6] border-[#E68A00]/30"
+                                : "text-[#0C6266] bg-[#0C6266]/10 border-[#0C6266]/20"
+                            }`}
+                          >
+                            {b.payment_method === "cash" ? "Cash on Delivery" : "Escrow Held"}
                           </span>
                         </div>
                       </div>

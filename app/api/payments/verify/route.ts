@@ -40,6 +40,26 @@ export async function POST(req: Request) {
       (booking as any).paid_at = new Date().toISOString();
     }
 
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (supabaseUrl && supabaseKey) {
+      try {
+        const { createClient } = await import("@supabase/supabase-js");
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        await supabase
+          .from("bookings")
+          .update({
+            payment_method: "online",
+            payment_status: "escrow_held",
+            escrow_status: "held",
+            updated_at: new Date().toISOString(),
+          })
+          .eq("reference_id", referenceId);
+      } catch (dbErr) {
+        console.warn("DB payment status update note:", dbErr);
+      }
+    }
+
     return NextResponse.json({
       success: true,
       message: "Payment successfully verified and held securely in escrow.",
