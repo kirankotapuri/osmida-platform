@@ -28,7 +28,12 @@ import {
   AlertCircle,
   CreditCard,
   Lock,
+  Navigation,
+  Compass,
+  ExternalLink,
 } from "lucide-react";
+import { GoogleMapsLocationModal } from "@/components/GoogleMapsLocationModal";
+import { CustomerLoginModal } from "@/components/CustomerLoginModal";
 
 function BookingContent() {
   const router = useRouter();
@@ -55,6 +60,14 @@ function BookingContent() {
   const [customerName, setCustomerName] = useState<string>("");
   const [phone, setPhone] = useState<string>("");
   const [notes, setNotes] = useState<string>("");
+
+  // Customer Profile & Booking For State
+  const [bookingFor, setBookingFor] = useState<"self" | "other">("self");
+  const [savedProfile, setSavedProfile] = useState<any>(null);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [isMapsModalOpen, setIsMapsModalOpen] = useState(false);
+  const [googleMapsUrl, setGoogleMapsUrl] = useState<string | null>(null);
 
   // Payment mode state
   const [paymentMode, setPaymentMode] = useState<"cash" | "online">("cash");
@@ -91,11 +104,44 @@ function BookingContent() {
       setSelectedDuration(Number(durationParam) || 1.0);
     }
 
-    // Pre-fill phone if returning customer
+    // Pre-fill phone & load customer profile if returning customer
     if (typeof window !== "undefined") {
-      const savedPhone = localStorage.getItem("osmida_customer_phone");
-      if (savedPhone && !phone) {
-        setPhone(savedPhone);
+      const storedPhone = localStorage.getItem("osmida_customer_phone");
+      const storedProfile = localStorage.getItem("osmida_customer_profile");
+
+      if (storedProfile) {
+        try {
+          const parsed = JSON.parse(storedProfile);
+          setSavedProfile(parsed);
+          setIsLoggedIn(true);
+          if (parsed.phone && !phone) setPhone(parsed.phone);
+          if (parsed.name && !customerName) setCustomerName(parsed.name);
+          if (parsed.locality) setLocality(parsed.locality);
+          if (parsed.apartmentName) setApartmentName(parsed.apartmentName);
+          if (parsed.flatNumber) setFlatNumber(parsed.flatNumber);
+          if (parsed.towerBlock) setTowerBlock(parsed.towerBlock);
+          if (parsed.address) setStreetAddress(parsed.address);
+          if (parsed.googleMapsUrl) setGoogleMapsUrl(parsed.googleMapsUrl);
+        } catch {}
+      } else if (storedPhone) {
+        setPhone(storedPhone);
+        setIsLoggedIn(true);
+        fetch(`/api/customer/profile?phone=${storedPhone}`)
+          .then((r) => r.json())
+          .then((d) => {
+            if (d.success && d.profile) {
+              setSavedProfile(d.profile);
+              localStorage.setItem("osmida_customer_profile", JSON.stringify(d.profile));
+              if (d.profile.name) setCustomerName(d.profile.name);
+              if (d.profile.locality) setLocality(d.profile.locality);
+              if (d.profile.apartmentName) setApartmentName(d.profile.apartmentName);
+              if (d.profile.flatNumber) setFlatNumber(d.profile.flatNumber);
+              if (d.profile.towerBlock) setTowerBlock(d.profile.towerBlock);
+              if (d.profile.address) setStreetAddress(d.profile.address);
+              if (d.profile.googleMapsUrl) setGoogleMapsUrl(d.profile.googleMapsUrl);
+            }
+          })
+          .catch(() => {});
       }
     }
 
@@ -157,28 +203,56 @@ function BookingContent() {
 
   const totalPrice = Math.round(selectedDuration * hourlyRate);
 
-  const handleApplyIntent = (intent: any) => {
-    if (intent.services && intent.services.length > 0) {
-      setSelectedServices(intent.services);
+  const handleBookingForToggle = (mode: "self" | "other") => {
+    setBookingFor(mode);
+    if (mode === "other") {
+      // Clear location details so customer can enter recipient's address
+      setApartmentName("");
+      setFlatNumber("");
+      setTowerBlock("");
+      setStreetAddress("");
+      setGoogleMapsUrl(null);
+    } else {
+      // Restore from saved personal profile
+      if (savedProfile) {
+        if (savedProfile.locality) setLocality(savedProfile.locality);
+        if (savedProfile.apartmentName) setApartmentName(savedProfile.apartmentName);
+        if (savedProfile.flatNumber) setFlatNumber(savedProfile.flatNumber);
+        if (savedProfile.towerBlock) setTowerBlock(savedProfile.towerBlock);
+        if (savedProfile.address) setStreetAddress(savedProfile.address);
+        if (savedProfile.googleMapsUrl) setGoogleMapsUrl(savedProfile.googleMapsUrl);
+        if (savedProfile.name && !customerName) setCustomerName(savedProfile.name);
+      }
     }
-    if (intent.duration_hours) {
-      setSelectedDuration(Number(intent.duration_hours));
+  };
+
+  const handleLoginSuccess = (profile: any) => {
+    setIsLoggedIn(true);
+    setSavedProfile(profile);
+    if (profile.phone) setPhone(profile.phone);
+    if (profile.name) setCustomerName(profile.name);
+    if (bookingFor === "self") {
+      if (profile.locality) setLocality(profile.locality);
+      if (profile.apartmentName) setApartmentName(profile.apartmentName);
+      if (profile.flatNumber) setFlatNumber(profile.flatNumber);
+      if (profile.towerBlock) setTowerBlock(profile.towerBlock);
+      if (profile.address) setStreetAddress(profile.address);
+      if (profile.googleMapsUrl) setGoogleMapsUrl(profile.googleMapsUrl);
     }
-    if (intent.locality) {
-      setLocality(intent.locality);
-    }
-    if (intent.apartment_hint) {
-      setApartmentName(intent.apartment_hint);
-    }
-    if (intent.booking_type) {
-      setBookingType(intent.booking_type);
-    }
-    if (intent.date) {
-      setScheduledDate(intent.date);
-    }
-    if (intent.time_slot_label) {
-      setTimeSlot(intent.time_slot_label);
-    }
+  };
+
+  const handleLocationFromMap = (loc: {
+    locality: string;
+    streetAddress: string;
+    apartmentName?: string;
+    latitude?: number;
+    longitude?: number;
+    googleMapsUrl?: string;
+  }) => {
+    if (loc.locality) setLocality(loc.locality);
+    if (loc.apartmentName) setApartmentName(loc.apartmentName);
+    if (loc.streetAddress) setStreetAddress(loc.streetAddress);
+    if (loc.googleMapsUrl) setGoogleMapsUrl(loc.googleMapsUrl);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -238,6 +312,8 @@ function BookingContent() {
             : timeSlot,
         notes: notes.trim(),
         paymentMethod: paymentMode,
+        bookingFor,
+        googleMapsUrl,
       };
 
       const res = await fetch("/api/bookings", {
@@ -252,9 +328,29 @@ function BookingContent() {
         throw new Error(data.error || "Failed to create booking");
       }
 
-      // Success: save customer phone for easy tracking and redirect
+      // Success: save customer phone and profile if booking for self
       if (typeof window !== "undefined") {
         localStorage.setItem("osmida_customer_phone", cleanPhone);
+        if (bookingFor === "self") {
+          const profileData = {
+            name: customerName.trim(),
+            phone: cleanPhone,
+            locality,
+            apartmentName: apartmentName.trim(),
+            flatNumber: flatNumber.trim(),
+            towerBlock: towerBlock.trim(),
+            address: streetAddress.trim(),
+            googleMapsUrl,
+          };
+          localStorage.setItem("osmida_customer_profile", JSON.stringify(profileData));
+          localStorage.setItem("osmida_customer_name", customerName.trim());
+          // Sync with backend profile store in background
+          fetch("/api/customer/profile", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(profileData),
+          }).catch(() => {});
+        }
       }
       router.push(`/booking/${data.referenceId}`);
     } catch (err: any) {
@@ -516,12 +612,121 @@ function BookingContent() {
           </div>
 
           {/* 4. ADDRESS & APARTMENT DETAILS */}
-          <div className="rounded-2xl bg-white p-4 sm:p-5 border border-slate-200 shadow-2xs space-y-3">
-            <span className="text-xs font-black uppercase tracking-wider text-slate-500">
-              {lang === "te" ? "4. అడ్రస్ & అపార్ట్‌మెంట్ వివరాలు" : "4. Address & Apartment Details (Nellore)"}
-            </span>
+          <div className="rounded-2xl bg-white p-4 sm:p-5 border border-slate-200 shadow-2xs space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+              <div>
+                <span className="text-xs font-black uppercase tracking-wider text-slate-500">
+                  {lang === "te" ? "4. అడ్రస్ & అపార్ట్‌మెంట్ వివరాలు" : "4. Address & Apartment Details (Nellore)"}
+                </span>
+                <p className="text-[11px] text-slate-500 font-medium">
+                  {bookingFor === "self"
+                    ? "Service visit will arrive at your home"
+                    : "Service visit for recipient's apartment / address"}
+                </p>
+              </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {/* Realtime Google Maps / GPS button */}
+              <button
+                type="button"
+                onClick={() => setIsMapsModalOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0C6266]/10 hover:bg-[#0C6266]/20 text-[#0C6266] text-xs font-bold transition-all border border-[#0C6266]/30 cursor-pointer self-start sm:self-auto shadow-2xs active:scale-98"
+              >
+                <Compass className="h-3.5 w-3.5 text-[#0C6266]" />
+                <span>📍 Find on Google Maps / GPS</span>
+              </button>
+            </div>
+
+            {/* Returning Customer Login Banner if not logged in */}
+            {!isLoggedIn ? (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-xl bg-amber-50/70 border border-amber-200/80">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="h-4 w-4 text-amber-600 shrink-0" />
+                  <p className="text-xs text-amber-900 font-semibold">
+                    Already booked on Osmida? <span className="font-bold">Log in with WhatsApp</span> to autofill your saved address in 1 click.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsLoginModalOpen(true)}
+                  className="rounded-lg bg-[#0C6266] hover:bg-[#094e51] text-white px-3 py-1.5 text-xs font-bold transition-all shadow-2xs whitespace-nowrap self-start sm:self-auto cursor-pointer"
+                >
+                  👤 Log In
+                </button>
+              </div>
+            ) : (
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200">
+                <div className="flex items-center gap-2 text-xs text-emerald-900 font-semibold">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <span>
+                    Logged in as <strong className="text-emerald-950">{savedProfile?.name || phone}</strong>
+                    {savedProfile?.apartmentName && ` • ${savedProfile.apartmentName}`}
+                  </span>
+                </div>
+                <Link
+                  href="/my-bookings"
+                  className="text-[11px] font-bold text-[#0C6266] hover:underline whitespace-nowrap self-start sm:self-auto"
+                >
+                  Manage Saved Profile ↗
+                </Link>
+              </div>
+            )}
+
+            {/* Booking For Toggle: Self vs Other */}
+            <div className="space-y-1.5 pt-1">
+              <label className="block text-[11px] font-bold text-slate-700">
+                Who are you booking this service for?
+              </label>
+              <div className="grid grid-cols-2 gap-2 p-1 bg-slate-100 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => handleBookingForToggle("self")}
+                  className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    bookingFor === "self"
+                      ? "bg-white text-slate-900 shadow-2xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  🏠 Booking for My Home
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleBookingForToggle("other")}
+                  className={`py-2 px-3 rounded-lg text-xs font-bold transition-all cursor-pointer ${
+                    bookingFor === "other"
+                      ? "bg-white text-slate-900 shadow-2xs"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  🎁 Booking for Someone Else
+                </button>
+              </div>
+              {bookingFor === "other" && (
+                <p className="text-[11px] text-amber-800 font-medium bg-amber-50/80 px-2.5 py-1.5 rounded-lg border border-amber-200/70 mt-1">
+                  💡 Booking for parents, friends, or another apartment. Your personal saved address profile will not be overwritten.
+                </p>
+              )}
+            </div>
+
+            {/* Google Maps Attached Badge */}
+            {googleMapsUrl && (
+              <div className="flex items-center justify-between p-2.5 rounded-xl bg-emerald-50 border border-emerald-200 text-xs text-emerald-800 font-semibold animate-in fade-in">
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                  <span>Google Maps GPS Pin Linked</span>
+                </div>
+                <a
+                  href={googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1 text-[11px] text-[#0C6266] underline font-bold hover:text-[#094e51]"
+                >
+                  <span>Open in Google Maps</span>
+                  <ExternalLink className="h-3 w-3" />
+                </a>
+              </div>
+            )}
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
               <div>
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">
                   {lang === "te" ? "ప్రాంతం (Locality in Nellore)*" : "Nellore Locality*"}
@@ -595,21 +800,32 @@ function BookingContent() {
             </div>
           </div>
 
-          {/* 5. RESIDENT CONTACT */}
+          {/* 5. RESIDENT / RECIPIENT CONTACT */}
           <div className="rounded-2xl bg-white p-4 sm:p-5 border border-slate-200 shadow-2xs space-y-3">
-            <span className="text-xs font-black uppercase tracking-wider text-slate-500">
-              {lang === "te" ? "5. మీ వివరాలు (Resident Contact)" : "5. Resident Contact"}
-            </span>
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black uppercase tracking-wider text-slate-500">
+                {lang === "te"
+                  ? "5. సంప్రదింపు వివరాలు"
+                  : bookingFor === "self"
+                  ? "5. Resident Contact (Your Details)"
+                  : "5. Recipient Contact Details"}
+              </span>
+              {bookingFor === "other" && (
+                <span className="text-[10px] font-bold text-amber-800 bg-amber-100 px-2 py-0.5 rounded-full">
+                  Service Recipient
+                </span>
+              )}
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                  {lang === "te" ? "మీ పేరు (Full Name)*" : "Your Name*"}
+                  {bookingFor === "self" ? "Your Name*" : "Recipient's Name*"}
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g. Venkat Rao"
+                  placeholder={bookingFor === "self" ? "e.g. Venkat Rao" : "e.g. Smt. Lakshmi (Mother)"}
                   value={customerName}
                   onChange={(e) => setCustomerName(e.target.value)}
                   className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-medium focus:outline-none focus:border-slate-900"
@@ -618,7 +834,7 @@ function BookingContent() {
 
               <div>
                 <label className="block text-[11px] font-bold text-slate-600 mb-1">
-                  {lang === "te" ? "వాట్సాప్ నంబర్ (10-Digit Mobile)*" : "WhatsApp Number*"}
+                  {bookingFor === "self" ? "WhatsApp Number*" : "Recipient Mobile Number*"}
                 </label>
                 <div className="relative">
                   <span className="absolute left-3 top-2.5 text-xs font-bold text-slate-400">
@@ -791,6 +1007,21 @@ function BookingContent() {
           </button>
         </form>
       </div>
+
+      {/* Google Maps Location Modal */}
+      <GoogleMapsLocationModal
+        isOpen={isMapsModalOpen}
+        onClose={() => setIsMapsModalOpen(false)}
+        onSelectLocation={handleLocationFromMap}
+        currentLocality={locality}
+      />
+
+      {/* Customer Login Modal */}
+      <CustomerLoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
 
       {/* AI Support Chat Concierge */}
       <OsmidaSupportChat />

@@ -4,6 +4,8 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ProntoHeader } from "@/components/ProntoHeader";
 import { Language } from "@/lib/translations";
+import { DEFAULT_APP_SETTINGS } from "@/lib/prontoServices";
+import { GoogleMapsLocationModal } from "@/components/GoogleMapsLocationModal";
 import {
   Phone,
   KeyRound,
@@ -20,6 +22,9 @@ import {
   ArrowLeft,
   User,
   LogOut,
+  Building2,
+  Compass,
+  Check,
 } from "lucide-react";
 
 export default function MyBookingsPage() {
@@ -27,18 +32,57 @@ export default function MyBookingsPage() {
   const [phone, setPhone] = useState("");
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState<"phone" | "otp" | "dashboard">("phone");
+  const [activeTab, setActiveTab] = useState<"bookings" | "profile">("bookings");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [infoMsg, setInfoMsg] = useState("");
   const [bookings, setBookings] = useState<any[]>([]);
   const [savedPhone, setSavedPhone] = useState("");
 
+  // Customer Profile State
+  const [profileName, setProfileName] = useState("");
+  const [profileLocality, setProfileLocality] = useState("Pogathota");
+  const [profileApartment, setProfileApartment] = useState("");
+  const [profileFlat, setProfileFlat] = useState("");
+  const [profileTower, setProfileTower] = useState("");
+  const [profileAddress, setProfileAddress] = useState("");
+  const [profileGoogleMapsUrl, setProfileGoogleMapsUrl] = useState<string | null>(null);
+
+  // Profile Save UI State
+  const [isSavingProfile, setIsSavingProfile] = useState(false);
+  const [profileSaveSuccess, setProfileSaveSuccess] = useState("");
+  const [profileSaveError, setProfileSaveError] = useState("");
+  const [isMapsModalOpen, setIsMapsModalOpen] = useState(false);
+
+  const applyProfileData = (prof: any) => {
+    if (!prof) return;
+    if (prof.name) setProfileName(prof.name);
+    if (prof.locality) setProfileLocality(prof.locality);
+    if (prof.apartmentName) setProfileApartment(prof.apartmentName);
+    if (prof.flatNumber) setProfileFlat(prof.flatNumber);
+    if (prof.towerBlock) setProfileTower(prof.towerBlock);
+    if (prof.address) setProfileAddress(prof.address);
+    if (prof.googleMapsUrl) setProfileGoogleMapsUrl(prof.googleMapsUrl);
+  };
+
   useEffect(() => {
-    // Pre-fill phone if previously used
+    // Check if phone or profile stored
     if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("osmida_customer_phone");
-      if (stored) {
-        setPhone(stored);
+      const storedPhone = localStorage.getItem("osmida_customer_phone");
+      const storedProfile = localStorage.getItem("osmida_customer_profile");
+
+      if (storedProfile) {
+        try {
+          const parsed = JSON.parse(storedProfile);
+          applyProfileData(parsed);
+        } catch {}
+      }
+
+      if (storedPhone) {
+        setPhone(storedPhone);
+        setSavedPhone(storedPhone);
+        // Auto-fetch profile & bookings with demo code or existing session
+        fetchBookings(storedPhone, "1234", true);
       }
     }
   }, []);
@@ -74,8 +118,8 @@ export default function MyBookingsPage() {
     }
   };
 
-  const fetchBookings = async (phoneNum: string, code: string) => {
-    setIsLoading(true);
+  const fetchBookings = async (phoneNum: string, code: string, isSilent = false) => {
+    if (!isSilent) setIsLoading(true);
     setErrorMsg("");
     try {
       const res = await fetch("/api/customer/bookings", {
@@ -87,15 +131,26 @@ export default function MyBookingsPage() {
       if (data.success) {
         setBookings(data.bookings || []);
         setSavedPhone(phoneNum);
-        localStorage.setItem("osmida_customer_phone", phoneNum);
+        if (typeof window !== "undefined") {
+          localStorage.setItem("osmida_customer_phone", phoneNum);
+        }
+        if (data.profile) {
+          applyProfileData(data.profile);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("osmida_customer_profile", JSON.stringify(data.profile));
+            if (data.profile.name) {
+              localStorage.setItem("osmida_customer_name", data.profile.name);
+            }
+          }
+        }
         setStep("dashboard");
-      } else {
+      } else if (!isSilent) {
         setErrorMsg(data.error || "Invalid OTP code.");
       }
     } catch {
-      setErrorMsg("Failed to connect to Osmida server.");
+      if (!isSilent) setErrorMsg("Failed to connect to Osmida server.");
     } finally {
-      setIsLoading(false);
+      if (!isSilent) setIsLoading(false);
     }
   };
 
@@ -109,12 +164,77 @@ export default function MyBookingsPage() {
     fetchBookings(cleanPhone, otp.trim());
   };
 
+  const handleSaveProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setProfileSaveSuccess("");
+    setProfileSaveError("");
+    setIsSavingProfile(true);
+
+    const cleanPhone = (savedPhone || phone).replace(/\D/g, "").slice(-10);
+    const payload = {
+      name: profileName.trim(),
+      phone: cleanPhone,
+      locality: profileLocality,
+      apartmentName: profileApartment.trim(),
+      flatNumber: profileFlat.trim(),
+      towerBlock: profileTower.trim(),
+      address: profileAddress.trim(),
+      googleMapsUrl: profileGoogleMapsUrl,
+    };
+
+    try {
+      const res = await fetch("/api/customer/profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setProfileSaveSuccess("Profile and address saved! When booking, this will autofill in 1 click.");
+        if (typeof window !== "undefined") {
+          localStorage.setItem("osmida_customer_profile", JSON.stringify(data.profile || payload));
+          localStorage.setItem("osmida_customer_name", profileName.trim());
+        }
+      } else {
+        setProfileSaveError(data.error || "Failed to save profile.");
+      }
+    } catch {
+      setProfileSaveError("Network connection error. Could not save profile.");
+    } finally {
+      setIsSavingProfile(false);
+    }
+  };
+
+  const handleLocationFromMap = (loc: {
+    locality: string;
+    streetAddress: string;
+    apartmentName?: string;
+    latitude?: number;
+    longitude?: number;
+    googleMapsUrl?: string;
+  }) => {
+    if (loc.locality) setProfileLocality(loc.locality);
+    if (loc.apartmentName) setProfileApartment(loc.apartmentName);
+    if (loc.streetAddress) setProfileAddress(loc.streetAddress);
+    if (loc.googleMapsUrl) setProfileGoogleMapsUrl(loc.googleMapsUrl);
+  };
+
   const handleLogout = () => {
-    localStorage.removeItem("osmida_customer_phone");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("osmida_customer_phone");
+      localStorage.removeItem("osmida_customer_profile");
+      localStorage.removeItem("osmida_customer_name");
+    }
     setSavedPhone("");
     setPhone("");
     setOtp("");
     setBookings([]);
+    setProfileName("");
+    setProfileApartment("");
+    setProfileFlat("");
+    setProfileTower("");
+    setProfileAddress("");
+    setProfileGoogleMapsUrl(null);
     setStep("phone");
   };
 
@@ -140,13 +260,13 @@ export default function MyBookingsPage() {
           <div>
             <div className="inline-flex items-center gap-1.5 rounded-full bg-[#0C6266]/10 text-[#0C6266] px-3 py-0.5 text-xs font-bold mb-1">
               <ShieldCheck className="h-3.5 w-3.5 text-[#0C6266]" />
-              <span>Customer Portal • Secure OTP Login</span>
+              <span>Customer Portal • Secure WhatsApp Login</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              My Osmida Bookings
+              {profileName ? `Welcome back, ${profileName}` : "My Osmida Account"}
             </h1>
             <p className="text-xs sm:text-sm text-slate-600 font-medium">
-              View active service visits, check Start/End OTPs, and track your Nellore home help pro.
+              Check service visits, manage your saved Nellore apartment address, and track home help pros.
             </p>
           </div>
 
@@ -154,7 +274,7 @@ export default function MyBookingsPage() {
             <button
               type="button"
               onClick={handleLogout}
-              className="self-start sm:self-center flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 px-3 py-1.5 text-xs font-bold transition-all shadow-2xs"
+              className="self-start sm:self-center flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 px-3 py-1.5 text-xs font-bold transition-all shadow-2xs cursor-pointer"
             >
               <LogOut className="h-3.5 w-3.5 text-slate-500" />
               <span>Sign Out ({savedPhone.slice(-4)})</span>
@@ -171,7 +291,7 @@ export default function MyBookingsPage() {
               </div>
               <h2 className="text-base font-black text-slate-900">Enter Your Phone Number</h2>
               <p className="text-xs text-slate-500 font-medium">
-                We will verify your 10-digit WhatsApp mobile to load your bookings.
+                Enter your 10-digit WhatsApp number to access your bookings and saved address.
               </p>
             </div>
 
@@ -205,7 +325,7 @@ export default function MyBookingsPage() {
               <button
                 type="submit"
                 disabled={isLoading || phone.length < 10}
-                className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#0C6266] hover:bg-[#094e51] text-white py-2.5 text-xs font-black transition-all disabled:opacity-50 shadow-sm"
+                className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#0C6266] hover:bg-[#094e51] text-white py-2.5 text-xs font-black transition-all disabled:opacity-50 shadow-sm cursor-pointer"
               >
                 {isLoading ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -229,7 +349,7 @@ export default function MyBookingsPage() {
               </div>
               <h2 className="text-base font-black text-slate-900">Enter Verification Code</h2>
               <p className="text-xs text-slate-500 font-medium">
-                Sent to +91 {phone}. Enter the 4-digit code sent to your mobile.
+                Sent to +91 {phone}. Enter the 4-digit code (use 1234 for quick login).
               </p>
             </div>
 
@@ -265,14 +385,14 @@ export default function MyBookingsPage() {
                 <button
                   type="button"
                   onClick={() => setStep("phone")}
-                  className="w-1/3 rounded-xl border border-slate-300 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                  className="w-1/3 rounded-xl border border-slate-300 py-2.5 text-xs font-bold text-slate-700 hover:bg-slate-50 cursor-pointer"
                 >
                   Change
                 </button>
                 <button
                   type="submit"
                   disabled={isLoading || otp.length !== 4}
-                  className="w-2/3 flex items-center justify-center gap-2 rounded-xl bg-[#0C6266] hover:bg-[#094e51] text-white py-2.5 text-xs font-black transition-all disabled:opacity-50 shadow-sm"
+                  className="w-2/3 flex items-center justify-center gap-2 rounded-xl bg-[#0C6266] hover:bg-[#094e51] text-white py-2.5 text-xs font-black transition-all disabled:opacity-50 shadow-sm cursor-pointer"
                 >
                   {isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin" />
@@ -288,171 +408,430 @@ export default function MyBookingsPage() {
           </div>
         )}
 
-        {/* STEP 3: CUSTOMER BOOKINGS DASHBOARD */}
+        {/* STEP 3: CUSTOMER DASHBOARD (TABS) */}
         {step === "dashboard" && (
           <div className="space-y-6">
-            {/* Quick Action: New Booking */}
-            <div className="flex items-center justify-between bg-white rounded-2xl p-4 border border-slate-200 shadow-2xs">
+            {/* Quick Action: New Booking Banner */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white rounded-2xl p-4 border border-slate-200 shadow-2xs">
               <div>
-                <h3 className="text-sm font-black text-slate-900">Need another apartment service?</h3>
-                <p className="text-xs text-slate-500 font-medium">Flat ₹199/hr • 1 visit covers multiple tasks</p>
+                <h3 className="text-sm font-black text-slate-900">Need home cleaning or help today?</h3>
+                <p className="text-xs text-slate-500 font-medium">Flat ₹199/hr • Your saved address will autofill</p>
               </div>
               <Link
                 href="/book"
-                className="flex items-center gap-1.5 rounded-xl bg-[#E68A00] hover:bg-[#CC7A00] text-slate-950 px-4 py-2.5 text-xs font-black transition-all shadow-sm active:scale-95"
+                className="flex items-center justify-center gap-1.5 rounded-xl bg-[#E68A00] hover:bg-[#CC7A00] text-slate-950 px-4 py-2.5 text-xs font-black transition-all shadow-sm active:scale-95 whitespace-nowrap self-start sm:self-auto"
               >
                 <span>Book New Visit</span>
                 <ArrowRight className="h-3.5 w-3.5" />
               </Link>
             </div>
 
-            {/* Active Bookings Section */}
-            <div className="space-y-3">
-              <h2 className="text-sm font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                <Clock className="h-4 w-4 text-[#0C6266]" />
-                <span>Active Visits ({activeBookings.length})</span>
-              </h2>
+            {/* TAB SELECTOR */}
+            <div className="flex items-center p-1 bg-slate-200/80 rounded-2xl gap-1">
+              <button
+                type="button"
+                onClick={() => setActiveTab("bookings")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === "bookings"
+                    ? "bg-white text-slate-900 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                <Clock className="h-3.5 w-3.5 text-[#0C6266]" />
+                <span>My Visits & Bookings ({bookings.length})</span>
+              </button>
 
-              {activeBookings.length === 0 ? (
-                <div className="rounded-2xl bg-white p-6 border border-slate-200 text-center space-y-2">
-                  <p className="text-xs font-bold text-slate-600">No active visits right now.</p>
-                  <Link
-                    href="/book"
-                    className="inline-flex items-center gap-1 text-xs font-black text-[#0C6266] hover:underline"
-                  >
-                    <span>Schedule your first visit</span>
-                    <ArrowRight className="h-3 w-3" />
-                  </Link>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {activeBookings.map((b) => (
-                    <div
-                      key={b.reference_id}
-                      className="rounded-2xl bg-white border border-slate-200 p-4 sm:p-5 shadow-2xs space-y-3 hover:border-[#0C6266]/40 transition-all"
-                    >
-                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
-                        <div className="space-y-0.5">
-                          <div className="flex items-center gap-2">
-                            <span className="font-mono text-xs font-black text-[#0C6266] bg-[#0C6266]/10 px-2 py-0.5 rounded-md">
-                              {b.reference_id}
-                            </span>
-                            <span
-                              className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
-                                b.status === "in_progress" || b.status === "in-progress"
-                                  ? "bg-[#E68A00]/15 text-[#995C00] animate-pulse"
-                                  : b.status === "confirmed" || b.status === "assigned"
-                                  ? "bg-[#0C6266]/10 text-[#0C6266]"
-                                  : "bg-slate-100 text-slate-700"
-                              }`}
-                            >
-                              {b.status.replace("_", " ")}
-                            </span>
-                          </div>
-                          <p className="text-xs font-black text-slate-900 pt-1">
-                            {b.selected_service || "Home Service"} ({b.duration_hours || 1.0} hrs)
-                          </p>
-                        </div>
-
-                        <div className="text-left sm:text-right">
-                          <p className="text-xs font-black text-slate-900">₹{b.total_amount}</p>
-                          <span
-                            className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${
-                              b.payment_method === "cash"
-                                ? "text-[#E68A00] bg-[#FFF9E6] border-[#E68A00]/30"
-                                : "text-[#0C6266] bg-[#0C6266]/10 border-[#0C6266]/20"
-                            }`}
-                          >
-                            {b.payment_method === "cash" ? "Cash on Delivery" : "Escrow Held"}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Dual OTP Row */}
-                      <div className="grid grid-cols-2 gap-2 bg-slate-50 rounded-xl p-3 border border-slate-200">
-                        <div>
-                          <span className="text-[10px] font-black uppercase text-slate-500 block">
-                            Start OTP (Arrival)
-                          </span>
-                          <span className="font-mono text-sm font-black text-[#0C6266]">
-                            {b.start_otp || b.otp_start || "1234"}
-                          </span>
-                          <p className="text-[9px] text-slate-400">Share with pro at door</p>
-                        </div>
-                        <div>
-                          <span className="text-[10px] font-black uppercase text-slate-500 block">
-                            End OTP (Finish)
-                          </span>
-                          <span className="font-mono text-sm font-black text-slate-700">
-                            {b.end_otp || b.otp_end || "5678"}
-                          </span>
-                          <p className="text-[9px] text-slate-400">Share only after cleanup</p>
-                        </div>
-                      </div>
-
-                      {/* Tracking CTA */}
-                      <div className="flex items-center justify-between pt-1">
-                        <div className="flex items-center gap-1.5 text-xs text-slate-600 font-medium">
-                          <MapPin className="h-3.5 w-3.5 text-slate-400" />
-                          <span>{b.apartment_name || b.locality || "Nellore"}</span>
-                        </div>
-                        <Link
-                          href={`/booking/${b.reference_id}`}
-                          className="flex items-center gap-1.5 rounded-xl bg-[#0C6266] hover:bg-[#094e51] text-white px-3.5 py-2 text-xs font-bold transition-all shadow-xs"
-                        >
-                          <span>Open Live Tracker</span>
-                          <ExternalLink className="h-3 w-3" />
-                        </Link>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+              <button
+                type="button"
+                onClick={() => setActiveTab("profile")}
+                className={`flex-1 flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                  activeTab === "profile"
+                    ? "bg-white text-slate-900 shadow-xs"
+                    : "text-slate-600 hover:text-slate-900"
+                }`}
+              >
+                <Building2 className="h-3.5 w-3.5 text-[#0C6266]" />
+                <span>Saved Profile & Address</span>
+              </button>
             </div>
 
-            {/* Past Completed Bookings */}
-            {pastBookings.length > 0 && (
-              <div className="space-y-3 pt-4">
-                <h2 className="text-sm font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-600" />
-                  <span>Past Completed Visits ({pastBookings.length})</span>
-                </h2>
+            {/* TAB 1: BOOKINGS LIST */}
+            {activeTab === "bookings" && (
+              <div className="space-y-6">
+                {/* Active Bookings Section */}
+                <div className="space-y-3">
+                  <h2 className="text-sm font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                    <Clock className="h-4 w-4 text-[#0C6266]" />
+                    <span>Active Visits ({activeBookings.length})</span>
+                  </h2>
 
-                <div className="space-y-2.5">
-                  {pastBookings.map((b) => (
-                    <div
-                      key={b.reference_id}
-                      className="rounded-2xl bg-white border border-slate-200 p-4 shadow-2xs flex items-center justify-between gap-3 text-xs"
-                    >
-                      <div className="space-y-0.5">
-                        <div className="flex items-center gap-2">
-                          <span className="font-mono font-bold text-slate-700">{b.reference_id}</span>
-                          <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
-                            Completed & Paid
-                          </span>
-                        </div>
-                        <p className="font-bold text-slate-900">
-                          {b.selected_service} • ₹{b.total_amount}
-                        </p>
-                        <p className="text-[11px] text-slate-400">
-                          {new Date(b.created_at || Date.now()).toLocaleDateString("en-IN")}
-                        </p>
-                      </div>
-
+                  {activeBookings.length === 0 ? (
+                    <div className="rounded-2xl bg-white p-6 border border-slate-200 text-center space-y-2">
+                      <p className="text-xs font-bold text-slate-600">No active visits right now.</p>
                       <Link
-                        href={`/booking/${b.reference_id}`}
-                        className="rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-800 px-3 py-1.5 font-bold text-xs"
+                        href="/book"
+                        className="inline-flex items-center gap-1 text-xs font-black text-[#0C6266] hover:underline"
                       >
-                        Receipt & Review
+                        <span>Schedule your first visit</span>
+                        <ArrowRight className="h-3 w-3" />
                       </Link>
                     </div>
-                  ))}
+                  ) : (
+                    <div className="space-y-3">
+                      {activeBookings.map((b) => {
+                        const mapsUrl =
+                          b.google_maps_url ||
+                          (b.cart_items && b.cart_items.google_maps_url) ||
+                          `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                            (b.site_address || b.apartment_name || "Nellore") + ", Nellore, Andhra Pradesh"
+                          )}`;
+
+                        return (
+                          <div
+                            key={b.reference_id}
+                            className="rounded-2xl bg-white border border-slate-200 p-4 sm:p-5 shadow-2xs space-y-3 hover:border-[#0C6266]/40 transition-all"
+                          >
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                              <div className="space-y-0.5">
+                                <div className="flex items-center gap-2">
+                                  <span className="font-mono text-xs font-black text-[#0C6266] bg-[#0C6266]/10 px-2 py-0.5 rounded-md">
+                                    {b.reference_id}
+                                  </span>
+                                  <span
+                                    className={`text-[10px] font-black uppercase px-2 py-0.5 rounded-full ${
+                                      b.status === "in_progress" || b.status === "in-progress"
+                                        ? "bg-[#E68A00]/15 text-[#995C00] animate-pulse"
+                                        : b.status === "confirmed" || b.status === "assigned"
+                                        ? "bg-[#0C6266]/10 text-[#0C6266]"
+                                        : "bg-slate-100 text-slate-700"
+                                    }`}
+                                  >
+                                    {b.status.replace("_", " ")}
+                                  </span>
+                                </div>
+                                <p className="text-xs font-black text-slate-900 pt-1">
+                                  {b.selected_service || "Home Service"} ({b.duration_hours || 1.0} hrs)
+                                </p>
+                              </div>
+
+                              <div className="text-left sm:text-right">
+                                <p className="text-xs font-black text-slate-900">₹{b.total_amount}</p>
+                                <span
+                                  className={`text-[10px] font-semibold px-2 py-0.5 rounded border ${
+                                    b.payment_method === "cash"
+                                      ? "text-[#E68A00] bg-[#FFF9E6] border-[#E68A00]/30"
+                                      : "text-[#0C6266] bg-[#0C6266]/10 border-[#0C6266]/20"
+                                  }`}
+                                >
+                                  {b.payment_method === "cash" ? "Cash on Delivery" : "Escrow Held"}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Dual OTP Row */}
+                            <div className="grid grid-cols-2 gap-2 bg-slate-50 rounded-xl p-3 border border-slate-200">
+                              <div>
+                                <span className="text-[10px] font-black uppercase text-slate-500 block">
+                                  Start OTP (Arrival)
+                                </span>
+                                <span className="font-mono text-sm font-black text-[#0C6266]">
+                                  {b.start_otp || b.otp_start || "1234"}
+                                </span>
+                                <p className="text-[9px] text-slate-400">Share with pro at door</p>
+                              </div>
+                              <div>
+                                <span className="text-[10px] font-black uppercase text-slate-500 block">
+                                  End OTP (Finish)
+                                </span>
+                                <span className="font-mono text-sm font-black text-slate-700">
+                                  {b.end_otp || b.otp_end || "5678"}
+                                </span>
+                                <p className="text-[9px] text-slate-400">Share only after cleanup</p>
+                              </div>
+                            </div>
+
+                            {/* Tracking & Navigation CTA */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pt-1">
+                              <div className="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                                <MapPin className="h-3.5 w-3.5 text-slate-400 shrink-0" />
+                                <span className="truncate max-w-[220px]">
+                                  {b.apartment_name || b.locality || "Nellore"}
+                                </span>
+                                <a
+                                  href={mapsUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  title="View on Google Maps"
+                                  className="text-[10px] font-bold text-[#0C6266] underline hover:text-[#094e51] flex items-center gap-0.5"
+                                >
+                                  <span>Maps</span>
+                                  <ExternalLink className="h-2.5 w-2.5" />
+                                </a>
+                              </div>
+
+                              <Link
+                                href={`/booking/${b.reference_id}`}
+                                className="flex items-center justify-center gap-1.5 rounded-xl bg-[#0C6266] hover:bg-[#094e51] text-white px-3.5 py-2 text-xs font-bold transition-all shadow-xs self-start sm:self-auto cursor-pointer"
+                              >
+                                <span>Open Live Tracker</span>
+                                <ExternalLink className="h-3 w-3" />
+                              </Link>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
                 </div>
+
+                {/* Past Completed Bookings */}
+                {pastBookings.length > 0 && (
+                  <div className="space-y-3 pt-4">
+                    <h2 className="text-sm font-black uppercase tracking-wider text-slate-700 flex items-center gap-2">
+                      <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                      <span>Past Completed Visits ({pastBookings.length})</span>
+                    </h2>
+
+                    <div className="space-y-2.5">
+                      {pastBookings.map((b) => (
+                        <div
+                          key={b.reference_id}
+                          className="rounded-2xl bg-white border border-slate-200 p-4 shadow-2xs flex items-center justify-between gap-3 text-xs"
+                        >
+                          <div className="space-y-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="font-mono font-bold text-slate-700">{b.reference_id}</span>
+                              <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                                Completed & Paid
+                              </span>
+                            </div>
+                            <p className="font-bold text-slate-900">
+                              {b.selected_service} • ₹{b.total_amount}
+                            </p>
+                            <p className="text-[11px] text-slate-400">
+                              {new Date(b.created_at || Date.now()).toLocaleDateString("en-IN")}
+                            </p>
+                          </div>
+
+                          <Link
+                            href={`/booking/${b.reference_id}`}
+                            className="rounded-xl border border-slate-300 hover:bg-slate-50 text-slate-800 px-3 py-1.5 font-bold text-xs"
+                          >
+                            Receipt & Review
+                          </Link>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 2: SAVED RESIDENTIAL PROFILE & ADDRESS */}
+            {activeTab === "profile" && (
+              <div className="rounded-2xl bg-white p-5 sm:p-6 border border-slate-200 shadow-2xs space-y-5 animate-in fade-in">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+                  <div>
+                    <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
+                      <Building2 className="h-4 w-4 text-[#0C6266]" />
+                      <span>Saved Residential Address & Profile</span>
+                    </h2>
+                    <p className="text-xs text-slate-500 font-medium">
+                      This address is automatically prefilled whenever you book home help on Osmida.
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setIsMapsModalOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#0C6266]/10 hover:bg-[#0C6266]/20 text-[#0C6266] text-xs font-bold transition-all border border-[#0C6266]/30 self-start sm:self-auto cursor-pointer"
+                  >
+                    <Compass className="h-3.5 w-3.5 text-[#0C6266]" />
+                    <span>📍 Find on Google Maps / GPS</span>
+                  </button>
+                </div>
+
+                {profileSaveSuccess && (
+                  <div className="flex items-center gap-2 rounded-xl bg-emerald-50 border border-emerald-200 p-3 text-xs text-emerald-800 font-bold animate-in fade-in">
+                    <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
+                    <span>{profileSaveSuccess}</span>
+                  </div>
+                )}
+
+                {profileSaveError && (
+                  <div className="rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-800 font-semibold animate-in fade-in">
+                    {profileSaveError}
+                  </div>
+                )}
+
+                {/* Google Maps Attached Banner */}
+                {profileGoogleMapsUrl && (
+                  <div className="flex items-center justify-between p-3 rounded-xl bg-[#EBF4F5] border border-[#B6D7D8] text-xs text-[#0C6266] font-semibold">
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-[#0C6266] shrink-0" />
+                      <span>Google Maps GPS Pin Attached to Profile</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={profileGoogleMapsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[11px] font-bold text-[#0C6266] underline hover:text-[#094e51] flex items-center gap-1"
+                      >
+                        <span>Open Pin</span>
+                        <ExternalLink className="h-3 w-3" />
+                      </a>
+                      <button
+                        type="button"
+                        onClick={() => setIsMapsModalOpen(true)}
+                        className="text-[10px] font-bold px-2 py-0.5 rounded bg-white border border-[#B6D7D8] text-slate-700 hover:bg-slate-50 cursor-pointer"
+                      >
+                        Change
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <form onSubmit={handleSaveProfile} className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                        Your Full Name*
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Venkat Rao"
+                        value={profileName}
+                        onChange={(e) => setProfileName(e.target.value)}
+                        className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:outline-none focus:border-[#0C6266]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                        WhatsApp Mobile Number
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-3 top-2.5 text-xs font-bold text-slate-400">+91</span>
+                        <input
+                          type="tel"
+                          disabled
+                          value={savedPhone || phone}
+                          className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 p-2.5 text-xs font-bold text-slate-600 cursor-not-allowed"
+                        />
+                      </div>
+                      <p className="text-[10px] text-slate-400 mt-0.5">Verified WhatsApp contact</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                        Nellore Locality*
+                      </label>
+                      <select
+                        value={profileLocality}
+                        onChange={(e) => setProfileLocality(e.target.value)}
+                        className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:outline-none focus:border-[#0C6266] bg-white"
+                      >
+                        {DEFAULT_APP_SETTINGS.service_zones.map((loc) => (
+                          <option key={loc} value={loc}>
+                            {loc}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                        Apartment / Gated Community Name*
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Sri Sai Residency, Pogathota"
+                        value={profileApartment}
+                        onChange={(e) => setProfileApartment(e.target.value)}
+                        className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:outline-none focus:border-[#0C6266]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                        Flat / Door Number*
+                      </label>
+                      <input
+                        type="text"
+                        required
+                        placeholder="e.g. Flat 302"
+                        value={profileFlat}
+                        onChange={(e) => setProfileFlat(e.target.value)}
+                        className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:outline-none focus:border-[#0C6266]"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                        Tower / Block (Optional)
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Block B, 3rd Floor"
+                        value={profileTower}
+                        onChange={(e) => setProfileTower(e.target.value)}
+                        className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:outline-none focus:border-[#0C6266]"
+                      />
+                    </div>
+
+                    <div className="sm:col-span-2">
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                        Street / Landmark
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="e.g. Near Children's Park, Behind Apollo Pharmacy"
+                        value={profileAddress}
+                        onChange={(e) => setProfileAddress(e.target.value)}
+                        className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:outline-none focus:border-[#0C6266]"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-slate-100">
+                    <p className="text-[11px] text-slate-500 font-medium">
+                      💡 When you book for yourself, this address is automatically selected. If you book for someone else, you can choose another location without affecting this profile.
+                    </p>
+
+                    <button
+                      type="submit"
+                      disabled={isSavingProfile}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-[#0C6266] hover:bg-[#094e51] text-white px-5 py-2.5 text-xs font-bold transition-all shadow-sm disabled:opacity-50 cursor-pointer self-start sm:self-auto"
+                    >
+                      {isSavingProfile ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          <span>Saving Profile...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Check className="h-4 w-4 stroke-[3]" />
+                          <span>Save Profile & Address</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </form>
               </div>
             )}
           </div>
         )}
       </div>
+
+      {/* Google Maps Location Modal */}
+      <GoogleMapsLocationModal
+        isOpen={isMapsModalOpen}
+        onClose={() => setIsMapsModalOpen(false)}
+        onSelectLocation={handleLocationFromMap}
+        currentLocality={profileLocality}
+      />
     </div>
   );
 }

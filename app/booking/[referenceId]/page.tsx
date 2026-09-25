@@ -22,6 +22,8 @@ import {
   ThumbsUp,
   RefreshCw,
   Sparkles,
+  MapPin,
+  Compass,
 } from "lucide-react";
 import { OsmidaSupportChat } from "@/components/OsmidaSupportChat";
 
@@ -726,9 +728,31 @@ export default function ActiveBookingPage({
             <span>Schedule / Slot:</span>
             <span>{booking.time_slot}</span>
           </div>
-          <div className="flex justify-between font-medium text-slate-600">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 font-medium text-slate-600">
             <span>Apartment &amp; Address:</span>
-            <span className="text-right max-w-[200px] truncate">{booking.site_address}</span>
+            <div className="flex items-center gap-1.5 self-start sm:self-auto">
+              <span className="text-right max-w-[200px] truncate">{booking.site_address}</span>
+              {(() => {
+                const mapsUrl =
+                  booking.google_maps_url ||
+                  (booking.cart_items && booking.cart_items.google_maps_url) ||
+                  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+                    (booking.site_address || booking.apartment_name || "Nellore") + ", Nellore, Andhra Pradesh"
+                  )}`;
+                return (
+                  <a
+                    href={mapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title="Open location in Google Maps"
+                    className="inline-flex items-center gap-1 rounded-md bg-[#0C6266]/10 hover:bg-[#0C6266]/20 text-[#0C6266] px-2 py-0.5 text-[10px] font-bold transition-all border border-[#0C6266]/20 shrink-0"
+                  >
+                    <MapPin className="h-2.5 w-2.5" />
+                    <span>Maps ↗</span>
+                  </a>
+                );
+              })()}
+            </div>
           </div>
           <div className="flex justify-between font-medium text-slate-600">
             <span>Payment Mode:</span>

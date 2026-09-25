@@ -15,7 +15,10 @@ import {
   Calendar,
   ChevronDown,
   Check,
+  User,
+  LogOut,
 } from "lucide-react";
+import { CustomerLoginModal } from "./CustomerLoginModal";
 
 const NELLORE_LOCALITIES = [
   "Haranathapuram",
@@ -31,6 +34,37 @@ export function ProntoHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedLocality, setSelectedLocality] = useState("Haranathapuram");
   const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
+  const [loginModalOpen, setLoginModalOpen] = useState(false);
+  const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [customerName, setCustomerName] = useState("");
+
+  // Check customer login status on mount
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const phone = localStorage.getItem("osmida_customer_phone");
+      const name = localStorage.getItem("osmida_customer_name");
+      if (phone) setCustomerPhone(phone);
+      if (name) setCustomerName(name);
+    }
+  }, []);
+
+  const handleLogout = () => {
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("osmida_customer_phone");
+      localStorage.removeItem("osmida_customer_name");
+      localStorage.removeItem("osmida_customer_profile");
+    }
+    setCustomerPhone("");
+    setCustomerName("");
+    setAccountDropdownOpen(false);
+    setMobileMenuOpen(false);
+  };
+
+  const handleLoginSuccess = (profile: any) => {
+    if (profile?.phone) setCustomerPhone(profile.phone);
+    if (profile?.name) setCustomerName(profile.name);
+  };
 
   // Prevent background scroll when mobile menu is open
   useEffect(() => {
@@ -154,12 +188,66 @@ export function ProntoHeader() {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <Link
-            href="/my-bookings"
-            className="hidden md:inline-flex text-xs font-bold text-[#475559] hover:text-[#0C6266] transition-colors px-2 py-1 whitespace-nowrap"
-          >
-            Track Booking
-          </Link>
+          {/* Customer Account / Login Pill */}
+          {customerPhone ? (
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
+                className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-slate-800 transition shadow-2xs cursor-pointer"
+              >
+                <div className="h-5 w-5 rounded-full bg-[#0C6266] text-white flex items-center justify-center text-[10px] font-black shrink-0">
+                  {(customerName || "U").charAt(0).toUpperCase()}
+                </div>
+                <span className="hidden sm:inline max-w-[85px] truncate font-bold text-[#0F171A]">
+                  {customerName || `+91 ${customerPhone.slice(-4)}`}
+                </span>
+                <ChevronDown className="h-3 w-3 text-slate-400" />
+              </button>
+
+              {accountDropdownOpen && (
+                <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-white border border-slate-200 shadow-xl p-2 z-50 animate-in fade-in zoom-in-95 text-xs space-y-1">
+                  <div className="px-2.5 py-1.5 border-b border-slate-100">
+                    <p className="font-extrabold text-slate-900 truncate">{customerName || "Resident"}</p>
+                    <p className="text-[10px] text-slate-400 font-mono">+91 {customerPhone}</p>
+                  </div>
+                  <Link
+                    href="/my-bookings"
+                    onClick={() => setAccountDropdownOpen(false)}
+                    className="flex items-center gap-2 px-2.5 py-2 rounded-xl hover:bg-slate-50 text-slate-700 font-bold transition"
+                  >
+                    <Calendar className="h-3.5 w-3.5 text-[#0C6266]" />
+                    <span>My Bookings &amp; Visits</span>
+                  </Link>
+                  <Link
+                    href="/my-bookings?tab=profile"
+                    onClick={() => setAccountDropdownOpen(false)}
+                    className="flex items-center gap-2 px-2.5 py-2 rounded-xl hover:bg-slate-50 text-slate-700 font-bold transition"
+                  >
+                    <User className="h-3.5 w-3.5 text-[#0C6266]" />
+                    <span>Saved Profile &amp; Address</span>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-2 px-2.5 py-2 rounded-xl hover:bg-rose-50 text-rose-600 font-bold transition text-left cursor-pointer"
+                  >
+                    <LogOut className="h-3.5 w-3.5" />
+                    <span>Sign Out</span>
+                  </button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={() => setLoginModalOpen(true)}
+              className="flex items-center gap-1.5 text-xs font-bold text-[#0F171A] hover:text-[#0C6266] transition-colors px-2.5 py-1.5 rounded-xl border border-slate-200 hover:border-[#0C6266]/40 bg-white cursor-pointer shadow-2xs whitespace-nowrap"
+            >
+              <User className="h-3.5 w-3.5 text-[#0C6266]" />
+              <span>Login</span>
+            </button>
+          )}
 
           {/* Compact on Mobile (Book • ₹199), Full on Desktop */}
           <Link
@@ -194,6 +282,48 @@ export function ProntoHeader() {
 
           {/* Slide-Down Menu Sheet */}
           <div className="absolute top-full left-0 right-0 z-50 bg-white border-b border-[#DFE8E8] shadow-2xl px-4 pt-3.5 pb-6 space-y-3.5 animate-in fade-in slide-in-from-top-2 duration-200 lg:hidden rounded-b-3xl">
+            {/* Customer Account / Login Banner on Mobile */}
+            {customerPhone ? (
+              <div className="flex items-center justify-between p-3 rounded-2xl bg-[#0C6266]/10 border border-[#0C6266]/20">
+                <div className="flex items-center gap-2.5">
+                  <div className="h-8 w-8 rounded-full bg-[#0C6266] text-white flex items-center justify-center text-xs font-black">
+                    {(customerName || "U").charAt(0).toUpperCase()}
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-slate-900">{customerName || "Osmida Resident"}</p>
+                    <p className="text-[10px] text-slate-500 font-mono">+91 {customerPhone}</p>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleLogout}
+                  className="text-[11px] font-bold text-rose-600 hover:underline px-2 py-1"
+                >
+                  Sign Out
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setLoginModalOpen(true);
+                }}
+                className="w-full flex items-center justify-between p-3 rounded-2xl bg-white border border-[#0C6266]/30 text-left transition shadow-xs group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className="h-8 w-8 rounded-xl bg-[#0C6266]/10 text-[#0C6266] flex items-center justify-center font-bold">
+                    <User className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-black text-slate-900">Resident Login</p>
+                    <p className="text-[10px] text-slate-500">Access your saved addresses &amp; previous bookings</p>
+                  </div>
+                </div>
+                <ArrowRight className="h-4 w-4 text-[#0C6266] group-hover:translate-x-0.5 transition" />
+              </button>
+            )}
+
             {/* Quick Location Badge */}
             <div className="flex items-center justify-between text-[11px] font-semibold text-[#0C6266] bg-[#EBF4F5] px-3 py-1.5 rounded-xl border border-[#B6D7D8]">
               <div className="flex items-center gap-1.5">
@@ -312,6 +442,13 @@ export function ProntoHeader() {
           </div>
         </>
       )}
+
+      {/* CUSTOMER LOGIN MODAL */}
+      <CustomerLoginModal
+        isOpen={loginModalOpen}
+        onClose={() => setLoginModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
     </header>
   );
 }

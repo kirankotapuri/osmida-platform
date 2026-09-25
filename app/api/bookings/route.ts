@@ -38,10 +38,14 @@ export async function POST(req: Request) {
       timeSlot,
       notes,
       paymentMethod, // 'cash' or 'online'
+      googleMapsUrl,
+      bookingFor,
     } = body;
 
     const isOnlinePayment = String(paymentMethod || "").toLowerCase() === "online";
     const paymentMode = isOnlinePayment ? "online" : "cash";
+    const cleanGoogleMapsUrl = googleMapsUrl || body.google_maps_url || null;
+    const cleanBookingFor = bookingFor || body.booking_for || "self";
 
     const cleanPhone = String(customerPhone || body.phone || "").replace(/\D/g, "").slice(-10);
     const cleanName = String(customerName || body.name || "Resident").trim();
@@ -113,6 +117,8 @@ export async function POST(req: Request) {
       inspection_date: scheduledDate || new Date().toISOString().split("T")[0],
       time_slot: timeSlot || (bookingType === "instant" ? "Within 60 mins" : "Morning (9 AM - 12 PM)"),
       booking_type: bookingType || "instant",
+      booking_for: cleanBookingFor,
+      google_maps_url: cleanGoogleMapsUrl,
       notes: notes || null,
       before_photo_url: null,
       after_photo_url: null,
@@ -160,6 +166,8 @@ export async function POST(req: Request) {
           apartment_name: apartmentName || null,
           flat_number: flatNumber || null,
           tower_block: towerBlock || null,
+          google_maps_url: cleanGoogleMapsUrl,
+          booking_for: cleanBookingFor,
           inspection_date: newBooking.inspection_date,
           time_slot: newBooking.time_slot,
           booking_type: newBooking.booking_type,
@@ -176,6 +184,8 @@ export async function POST(req: Request) {
             apartment_name: apartmentName || null,
             flat_number: flatNumber || null,
             tower_block: towerBlock || null,
+            google_maps_url: cleanGoogleMapsUrl,
+            booking_for: cleanBookingFor,
           },
         };
 
@@ -215,6 +225,8 @@ export async function POST(req: Request) {
               apartment_name: apartmentName || null,
               flat_number: flatNumber || null,
               tower_block: towerBlock || null,
+              google_maps_url: cleanGoogleMapsUrl,
+              booking_for: cleanBookingFor,
             },
           });
         }

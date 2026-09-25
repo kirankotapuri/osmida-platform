@@ -98,10 +98,22 @@ export async function POST(req: Request) {
       }
     }
 
+    const latest = customerBookings[0] || null;
+    const profile = latest ? {
+      name: latest.customer_name || latest.contact_person || "",
+      phone: cleanPhone,
+      locality: latest.locality || "Pogathota",
+      apartmentName: latest.apartment_name || (latest.cart_items && latest.cart_items.apartment_name) || "",
+      flatNumber: latest.flat_number || (latest.cart_items && latest.cart_items.flat_number) || "",
+      towerBlock: latest.tower_block || (latest.cart_items && latest.cart_items.tower_block) || "",
+      address: latest.address || latest.site_address || "",
+    } : null;
+
     return NextResponse.json({
       success: true,
       phone: cleanPhone,
       bookings: customerBookings,
+      profile,
     });
   } catch (error: any) {
     console.error("Customer bookings error:", error);
