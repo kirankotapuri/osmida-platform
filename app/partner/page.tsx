@@ -468,8 +468,8 @@ export default function PartnerPortalPage() {
         <div className="w-full max-w-md bg-[#161D2F] border border-white/10 rounded-2xl p-5 sm:p-7 shadow-2xl">
           {/* Logo & Header */}
           <div className="text-center mb-6">
-            <div className="relative h-14 w-14 mx-auto mb-3 rounded-2xl overflow-hidden border border-[#0C6266]/40 bg-[#095054] shadow-lg flex items-center justify-center p-1">
-              <Image src="/icon.svg" alt="Osmida Partner" width={48} height={48} className="object-contain" priority />
+            <div className="relative h-14 w-14 mx-auto mb-3 rounded-2xl overflow-hidden border border-white/20 shadow-lg flex items-center justify-center">
+              <Image src="/icons/icon-192x192.png" alt="Osmida Partner" width={56} height={56} className="object-contain" priority />
             </div>
             <div className="inline-flex items-center gap-2 bg-[#0C6266]/15 border border-[#0C6266]/30 px-3 py-1 rounded-full mb-2 text-xs font-semibold text-[#38B2AC]">
               <Sparkles className="w-3.5 h-3.5" />
@@ -719,7 +719,7 @@ export default function PartnerPortalPage() {
                     <div>
                       <p className="text-xs font-bold text-white group-hover:text-[#0C6266] transition">{demo.name}</p>
                       <p className="text-[10px] text-gray-400">
-                        {demo.categories.join(", ").toUpperCase()} • {demo.assigned_hub} Hub ({demo.coverage_localities[0]})
+                        {(demo.categories || []).join(", ").toUpperCase() || "RESIDENTIAL HELP"} • {demo.assigned_hub} Hub ({demo.coverage_localities?.[0] || "Nellore"})
                       </p>
                     </div>
                   </div>
@@ -744,8 +744,8 @@ export default function PartnerPortalPage() {
       <header className="sticky top-0 z-40 bg-[#121826]/95 backdrop-blur-md border-b border-white/10 px-4 py-3">
         <div className="max-w-xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="relative h-9 w-9 rounded-xl overflow-hidden border border-[#0C6266]/30 bg-[#095054] flex items-center justify-center shrink-0 p-0.5 shadow-sm">
-              <Image src="/icon.svg" alt="Osmida" width={32} height={32} className="object-contain" />
+            <div className="relative h-9 w-9 rounded-xl overflow-hidden border border-white/20 shadow-sm flex items-center justify-center shrink-0">
+              <Image src="/icons/icon-192x192.png" alt="Osmida" width={36} height={36} className="object-contain" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
@@ -936,7 +936,7 @@ export default function PartnerPortalPage() {
                         <span className="text-2xl font-black text-[#E68A00]">₹{job.payout_amount}</span>
                       </div>
                       <span className="inline-block px-2.5 py-1 rounded-full bg-[#0C6266]/30 text-[#B6D7D8] font-bold text-[10px] uppercase tracking-wide border border-[#0C6266]">
-                        {job.category.toUpperCase()} • 1 VISIT
+                        {(job.category || "Residential Help").toUpperCase()} • 1 VISIT
                       </span>
                     </div>
 

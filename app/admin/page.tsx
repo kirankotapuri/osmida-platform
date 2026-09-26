@@ -346,8 +346,8 @@ export default function AdminDashboardPage() {
       <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
         <div className="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-7 shadow-2xl space-y-6">
           <div className="text-center space-y-2">
-            <div className="relative h-14 w-14 mx-auto rounded-2xl overflow-hidden border border-white/20 bg-[#095054] shadow-lg flex items-center justify-center p-1">
-              <Image src="/icon.svg" alt="Osmida" width={48} height={48} className="object-contain" priority />
+            <div className="relative h-14 w-14 mx-auto rounded-2xl overflow-hidden border border-white/20 shadow-lg flex items-center justify-center">
+              <Image src="/icons/icon-192x192.png" alt="Osmida" width={56} height={56} className="object-contain" priority />
             </div>
             <div className="space-y-0.5">
               <h1 className="text-lg font-black tracking-wider text-white uppercase">
@@ -418,8 +418,8 @@ export default function AdminDashboardPage() {
       <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-8 py-3.5">
         <div className="mx-auto max-w-7xl flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative h-9 w-9 rounded-xl overflow-hidden border border-white/20 bg-[#095054] flex items-center justify-center shrink-0 p-0.5 shadow-sm">
-              <Image src="/icon.svg" alt="Osmida" width={32} height={32} className="object-contain" priority />
+            <div className="relative h-9 w-9 rounded-xl overflow-hidden border border-white/20 shadow-sm flex items-center justify-center shrink-0">
+              <Image src="/icons/icon-192x192.png" alt="Osmida" width={36} height={36} className="object-contain" priority />
             </div>
             <div>
               <div className="flex items-center gap-2">
@@ -428,7 +428,7 @@ export default function AdminDashboardPage() {
                   Nellore Ops
                 </span>
               </div>
-              <span className="text-[10px] text-slate-400">Osmida/Snabbit Residential Dispatch</span>
+              <span className="text-[10px] text-slate-400">Osmida Residential Dispatch • Nellore</span>
             </div>
           </div>
 
@@ -931,7 +931,7 @@ export default function AdminDashboardPage() {
                           >
                             <CheckCircle2 className="h-3.5 w-3.5" />
                             <span>
-                              Approve AI Recommendation ({c.ai_recommendation.recommended_action.toUpperCase()}) in 1-Click
+                              Approve AI Recommendation ({c.ai_recommendation?.recommended_action ? c.ai_recommendation.recommended_action.toUpperCase() : "APPROVE"}) in 1-Click
                             </span>
                           </button>
                         )}
@@ -985,7 +985,7 @@ export default function AdminDashboardPage() {
                       </div>
                     ) : (
                       <p className="text-xs font-bold text-[#E68A00]">
-                        ✓ Resolved with action: {c.complaint_status.toUpperCase()}
+                        ✓ Resolved with action: {(c.complaint_status || "resolved").toUpperCase()}
                       </p>
                     )}
                   </div>
