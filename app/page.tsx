@@ -20,13 +20,14 @@ import { OsmidaFooter } from "@/components/OsmidaFooter";
 import { OsmidaServiceDetailModal } from "@/components/OsmidaServiceDetailModal";
 import { OSMIDA_SERVICES, OsmidaService } from "@/lib/osmidaServices";
 
-const COMMUNITY_PARTNERS = [
-  "Haranathapuram Enclave",
-  "Magunta Layout Heights",
-  "Sri Sai Residency",
-  "Green Meadows Apartments",
-  "Vedayapalem Central",
-  "Balaji Nagar Towers",
+const SERVICE_LOCALITIES = [
+  "Haranathapuram",
+  "Magunta Layout",
+  "Vedayapalem",
+  "Pogathota",
+  "Dargamitta",
+  "Balaji Nagar",
+  "Children's Park Road",
 ];
 
 const LAUNCH_GUARANTEES = [
@@ -209,19 +210,21 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* 3. APARTMENT COMMUNITIES BAR */}
+      {/* 3. ACTIVE LOCALITY EXPANSION STRIP */}
       <section className="bg-white py-6 border-b border-[#DFE8E8]">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center space-y-3">
-          <p className="text-[11px] font-bold uppercase tracking-widest text-[#475559]">
-            Trusted by leading Nellore apartment communities
-          </p>
-          <div className="flex flex-wrap items-center justify-center gap-4 sm:gap-8 text-xs sm:text-sm font-semibold text-[#475559]">
-            {COMMUNITY_PARTNERS.map((partner, idx) => (
+          <div className="inline-flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-wider text-[#0C6266] bg-[#EBF4F5] border border-[#B6D7D8] px-3 py-1 rounded-full">
+            <span className="h-1.5 w-1.5 rounded-full bg-[#16A34A] animate-pulse" />
+            <span>Now Expanding Across Nellore Apartment Communities</span>
+          </div>
+          <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-semibold text-[#475559]">
+            {SERVICE_LOCALITIES.map((locality, idx) => (
               <span
                 key={idx}
-                className="bg-[#F4F8F8] hover:bg-[#EBF4F5] px-3.5 py-1.5 rounded-full border border-[#DFE8E8] transition-colors"
+                className="inline-flex items-center gap-1.5 bg-[#F4F8F8] hover:bg-[#EBF4F5] px-3.5 py-1.5 rounded-full border border-[#DFE8E8] transition-colors"
               >
-                {partner}
+                <MapPin className="h-3 w-3 text-[#0C6266] shrink-0" />
+                <span>{locality}</span>
               </span>
             ))}
           </div>
