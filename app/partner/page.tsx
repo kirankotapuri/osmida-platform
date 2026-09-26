@@ -84,6 +84,9 @@ export default function PartnerPortalPage() {
 
   // Forgot PIN states
   const [resetPhone, setResetPhone] = useState("");
+  const [resetOtp, setResetOtp] = useState("");
+  const [resetStep, setResetStep] = useState<"phone" | "verify">("phone");
+  const [resetSuggestedOtp, setResetSuggestedOtp] = useState<string | null>(null);
   const [resetAadhaarLast4, setResetAadhaarLast4] = useState("");
   const [resetNewPin, setResetNewPin] = useState("");
   const [resetConfirmPin, setResetConfirmPin] = useState("");
@@ -245,7 +248,43 @@ export default function PartnerPortalPage() {
     }
   };
 
-  // Reset PIN handler
+  // Send OTP for PIN reset
+  const handleSendResetOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError("");
+    setResetSuccessMessage("");
+    setResetSuggestedOtp(null);
+
+    const clean = resetPhone.replace(/\D/g, "").slice(-10);
+    if (!clean || clean.length !== 10) {
+      setAuthError("Please enter a valid 10-digit mobile number");
+      return;
+    }
+
+    setIsResettingPin(true);
+    try {
+      const res = await fetch("/api/partner/reset-pin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "send_otp", phone: clean }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to send verification code");
+      }
+      if (data.demoCode) {
+        setResetSuggestedOtp(data.demoCode);
+      }
+      setResetSuccessMessage(data.message || `Verification code sent to +91 ${clean}`);
+      setResetStep("verify");
+    } catch (err: any) {
+      setAuthError(err.message || "Failed to send verification code");
+    } finally {
+      setIsResettingPin(false);
+    }
+  };
+
+  // Reset PIN handler with OTP verification
   const handleResetPin = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError("");
@@ -257,7 +296,9 @@ export default function PartnerPortalPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
+          action: "reset_pin",
           phone: resetPhone,
+          otp: resetOtp,
           newPin: resetNewPin,
           confirmPin: resetConfirmPin,
           aadhaarLast4: resetAadhaarLast4,
@@ -274,6 +315,8 @@ export default function PartnerPortalPage() {
       setLoginPin(resetNewPin);
       setTimeout(() => {
         setAuthMode("login");
+        setResetStep("phone");
+        setResetOtp("");
       }, 1500);
     } catch (err: any) {
       setAuthError(err.message || "Failed to reset PIN");
@@ -772,116 +815,183 @@ export default function PartnerPortalPage() {
               </button>
             </form>
           ) : (
-            /* FORGOT PIN FORM */
-            <form onSubmit={handleResetPin} className="space-y-4">
-              <div className="p-3 bg-white/5 border border-white/10 rounded-xl space-y-1">
-                <span className="text-xs font-bold text-white block">Reset Security PIN</span>
-                <span className="text-[11px] text-gray-400 block">
-                  Enter your registered phone number and set a new 4-digit security PIN.
-                </span>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">
-                  Registered Mobile Number*
-                </label>
-                <div className="relative">
-                  <span className="absolute left-3.5 top-3 text-gray-400 text-sm font-medium">+91</span>
-                  <input
-                    type="tel"
-                    maxLength={10}
-                    required
-                    value={resetPhone}
-                    onChange={(e) => setResetPhone(e.target.value.replace(/\D/g, ""))}
-                    placeholder="9848011111"
-                    className="w-full bg-[#0E131F] border border-white/15 rounded-xl pl-12 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266]"
-                  />
+            /* FORGOT PIN FORM: REAL-WORLD 2-STEP OTP FLOW */
+            resetStep === "phone" ? (
+              <form onSubmit={handleSendResetOtp} className="space-y-4">
+                <div className="p-3 bg-white/5 border border-white/10 rounded-xl space-y-1">
+                  <span className="text-xs font-bold text-white block">Step 1: Enter Registered Mobile</span>
+                  <span className="text-[11px] text-gray-400 block">
+                    We will send a 4-digit verification code to your registered mobile number via WhatsApp / SMS.
+                  </span>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">
-                  Aadhaar Last 4 Digits (Optional / Extra Security)
-                </label>
-                <input
-                  type="text"
-                  maxLength={4}
-                  value={resetAadhaarLast4}
-                  onChange={(e) => setResetAadhaarLast4(e.target.value.replace(/\D/g, ""))}
-                  placeholder="e.g. 8891"
-                  className="w-full bg-[#0E131F] border border-white/15 rounded-xl px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266] tracking-widest text-center"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-2">
                 <div>
                   <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">
-                    New 4-Digit PIN*
+                    Registered Mobile Number*
                   </label>
-                  <input
-                    type="password"
-                    maxLength={4}
-                    required
-                    value={resetNewPin}
-                    onChange={(e) => setResetNewPin(e.target.value.replace(/\D/g, ""))}
-                    placeholder="••••"
-                    className="w-full bg-[#0E131F] border border-white/15 rounded-xl px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266] tracking-widest text-center"
-                  />
+                  <div className="relative">
+                    <span className="absolute left-3.5 top-3 text-gray-400 text-sm font-medium">+91</span>
+                    <input
+                      type="tel"
+                      maxLength={10}
+                      required
+                      value={resetPhone}
+                      onChange={(e) => setResetPhone(e.target.value.replace(/\D/g, ""))}
+                      placeholder="9848011111"
+                      className="w-full bg-[#0E131F] border border-white/15 rounded-xl pl-12 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266]"
+                    />
+                  </div>
                 </div>
+
+                <div className="space-y-2 pt-2">
+                  <button
+                    type="submit"
+                    disabled={isResettingPin || resetPhone.length !== 10}
+                    className="w-full bg-[#E68A00] hover:bg-[#CC7A00] text-white font-bold py-3 rounded-xl transition shadow-lg shadow-[#E68A00]/25 flex items-center justify-center gap-2 text-xs disabled:opacity-50"
+                  >
+                    {isResettingPin ? "Sending Code..." : "Send Verification Code"}
+                    <ArrowRight className="w-4 h-4" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthMode("login");
+                      setAuthError("");
+                      setResetSuccessMessage("");
+                    }}
+                    className="w-full bg-white/5 hover:bg-white/10 text-gray-400 py-2 rounded-xl text-xs transition"
+                  >
+                    ← Back to Login
+                  </button>
+                </div>
+
+                {/* Direct WhatsApp Emergency Admin Support */}
+                <div className="pt-3 border-t border-white/10 text-center">
+                  <span className="text-[11px] text-gray-400 block mb-1.5">Need instant help from operations?</span>
+                  <a
+                    href={`https://wa.me/917981067780?text=${encodeURIComponent(
+                      `Namaste Osmida Dispatch, I am a Nellore partner (Phone: ${resetPhone || loginPhone || "..."}). I forgot my 4-digit PIN. Please help me reset it.`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-bold"
+                  >
+                    <span>Chat with Osmida Admin on WhatsApp</span>
+                    <ChevronRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </form>
+            ) : (
+              <form onSubmit={handleResetPin} className="space-y-4">
+                <div className="p-3 bg-white/5 border border-white/10 rounded-xl space-y-1">
+                  <span className="text-xs font-bold text-white block">Step 2: Enter Verification Code &amp; New PIN</span>
+                  <span className="text-[11px] text-gray-400 block">
+                    Code sent to +91 {resetPhone}.
+                  </span>
+                </div>
+
+                {resetSuggestedOtp && (
+                  <div className="p-2.5 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs flex items-center justify-between">
+                    <span>Test OTP: <strong>{resetSuggestedOtp}</strong></span>
+                    <button
+                      type="button"
+                      onClick={() => setResetOtp(resetSuggestedOtp)}
+                      className="text-[10px] bg-amber-500/20 px-2 py-0.5 rounded font-bold hover:bg-amber-500/30"
+                    >
+                      Auto-Fill
+                    </button>
+                  </div>
+                )}
+
                 <div>
                   <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">
-                    Confirm PIN*
+                    4-Digit Verification Code (OTP)*
                   </label>
                   <input
-                    type="password"
+                    type="text"
                     maxLength={4}
                     required
-                    value={resetConfirmPin}
-                    onChange={(e) => setResetConfirmPin(e.target.value.replace(/\D/g, ""))}
+                    value={resetOtp}
+                    onChange={(e) => setResetOtp(e.target.value.replace(/\D/g, ""))}
                     placeholder="••••"
-                    className="w-full bg-[#0E131F] border border-white/15 rounded-xl px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266] tracking-widest text-center"
+                    className="w-full bg-[#0E131F] border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266] tracking-widest text-center font-mono font-bold"
                   />
                 </div>
-              </div>
 
-              <div className="space-y-2 pt-2">
-                <button
-                  type="submit"
-                  disabled={isResettingPin}
-                  className="w-full bg-[#0C6266] hover:bg-[#0E757A] text-white font-bold py-2.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2 text-xs disabled:opacity-50"
-                >
-                  {isResettingPin ? "Updating PIN..." : "Update PIN & Return to Login"}
-                  <CheckCircle2 className="w-4 h-4" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setAuthMode("login");
-                    setAuthError("");
-                    setResetSuccessMessage("");
-                  }}
-                  className="w-full bg-white/5 hover:bg-white/10 text-gray-400 py-2 rounded-xl text-xs transition"
-                >
-                  ← Back to Login
-                </button>
-              </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">
+                      New 4-Digit PIN*
+                    </label>
+                    <input
+                      type="password"
+                      maxLength={4}
+                      required
+                      value={resetNewPin}
+                      onChange={(e) => setResetNewPin(e.target.value.replace(/\D/g, ""))}
+                      placeholder="••••"
+                      className="w-full bg-[#0E131F] border border-white/15 rounded-xl px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266] tracking-widest text-center"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">
+                      Confirm PIN*
+                    </label>
+                    <input
+                      type="password"
+                      maxLength={4}
+                      required
+                      value={resetConfirmPin}
+                      onChange={(e) => setResetConfirmPin(e.target.value.replace(/\D/g, ""))}
+                      placeholder="••••"
+                      className="w-full bg-[#0E131F] border border-white/15 rounded-xl px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266] tracking-widest text-center"
+                    />
+                  </div>
+                </div>
 
-              {/* Direct WhatsApp Emergency Admin Support */}
-              <div className="pt-3 border-t border-white/10 text-center">
-                <span className="text-[11px] text-gray-400 block mb-1.5">Need instant help from operations?</span>
-                <a
-                  href={`https://wa.me/917981067780?text=${encodeURIComponent(
-                    `Namaste Osmida Dispatch, I am a Nellore partner (Phone: ${resetPhone || loginPhone || "..."}). I forgot my 4-digit PIN. Please help me reset it.`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-bold"
-                >
-                  <span>Chat with Osmida Admin on WhatsApp</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
-                </a>
-              </div>
-            </form>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">
+                    Aadhaar Last 4 Digits (Optional / Extra Security)
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={4}
+                    value={resetAadhaarLast4}
+                    onChange={(e) => setResetAadhaarLast4(e.target.value.replace(/\D/g, ""))}
+                    placeholder="e.g. 8891"
+                    className="w-full bg-[#0E131F] border border-white/15 rounded-xl px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266] tracking-widest text-center"
+                  />
+                </div>
+
+                <div className="space-y-2 pt-2">
+                  <button
+                    type="submit"
+                    disabled={isResettingPin || resetOtp.length !== 4 || resetNewPin.length !== 4}
+                    className="w-full bg-[#0C6266] hover:bg-[#0E757A] text-white font-bold py-2.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2 text-xs disabled:opacity-50"
+                  >
+                    {isResettingPin ? "Verifying & Updating..." : "Verify Code & Save PIN"}
+                    <CheckCircle2 className="w-4 h-4" />
+                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setResetStep("phone")}
+                      className="w-1/2 bg-white/5 hover:bg-white/10 text-gray-400 py-2 rounded-xl text-[11px] transition"
+                    >
+                      ← Change Number
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSendResetOtp}
+                      disabled={isResettingPin}
+                      className="w-1/2 bg-white/5 hover:bg-white/10 text-[#38B2AC] py-2 rounded-xl text-[11px] font-bold transition disabled:opacity-50"
+                    >
+                      Resend Code
+                    </button>
+                  </div>
+                </div>
+              </form>
+            )
           )}
 
           {/* Quick Demo Logins for Immediate Field Testing */}
