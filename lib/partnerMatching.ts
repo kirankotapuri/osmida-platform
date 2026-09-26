@@ -44,6 +44,8 @@ export interface PartnerJob {
   after_photo_url?: string;
   collected_amount?: number;
   payment_method?: "cash" | "upi" | "prepaid";
+  payment_status?: "pending" | "cash_collected" | "paid_online";
+  at_gate_at?: string;
   matched_partner_id?: string;
   matched_partner_name?: string;
 }

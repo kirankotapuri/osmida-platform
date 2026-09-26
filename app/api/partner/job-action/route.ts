@@ -293,6 +293,36 @@ export async function POST(req: Request) {
       });
     }
 
+    // 3B. ACTION: REACHED APARTMENT GATE (NOTIFY RESIDENT FOR SECURITY ENTRY)
+    if (actionNorm === "reach_gate" || actionNorm === "at_gate") {
+      job.at_gate_at = new Date().toISOString();
+      globalActiveJobs.set(job.id, { ...job });
+
+      if (supabase) {
+        try {
+          await supabase
+            .from("partner_job_assignments")
+            .update({ notes: "Partner arrived at apartment gate" })
+            .eq("id", job.id);
+        } catch (dbErr) {
+          console.warn("DB reach_gate note:", dbErr);
+        }
+      }
+
+      await sendWhatsAppStatusUpdate(customerPhone, "osmida_at_gate", [
+        customerName,
+        partnerName || "Your Osmida Partner",
+        refId,
+      ]);
+
+      return NextResponse.json({
+        success: true,
+        action: "reach_gate",
+        job,
+        message: "Customer notified: You have arrived at the apartment gate!",
+      });
+    }
+
     // 4. ACTION: START JOB (CUSTOMER OTP VERIFICATION)
     if (actionNorm === "start" || actionNorm === "start_job") {
       const expectedOtp = String(job.start_otp || "").trim();

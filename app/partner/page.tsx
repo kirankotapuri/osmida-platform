@@ -28,8 +28,69 @@ import {
   Info,
   RotateCcw,
   MessageSquare,
+  Languages,
+  Timer,
+  Headphones,
+  Check,
+  Building2,
+  Plus,
 } from "lucide-react";
 import { ServicePartner, PartnerJob, DEFAULT_PARTNERS } from "@/lib/partnerMatching";
+import { PARTNER_STRINGS, PartnerLanguage } from "@/lib/partnerTranslations";
+
+function formatDuration(seconds: number): string {
+  const m = Math.floor(seconds / 60);
+  const s = seconds % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+// Client-side instant camera image compressor + watermark
+async function compressAndWatermarkImage(file: File): Promise<string> {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const maxDim = 1024;
+        let w = img.width;
+        let h = img.height;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) return resolve(e.target?.result as string);
+        ctx.drawImage(img, 0, 0, w, h);
+
+        // Watermark band
+        ctx.fillStyle = "rgba(0, 0, 0, 0.55)";
+        ctx.fillRect(0, h - 32, w, 32);
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "bold 13px sans-serif";
+        ctx.fillText(
+          `OSMIDA NELLORE QC • ${new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}`,
+          12,
+          h - 11
+        );
+
+        const dataUrl = canvas.toDataURL("image/jpeg", 0.82);
+        resolve(dataUrl);
+      };
+      img.onerror = () => resolve(e.target?.result as string);
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = () => resolve("");
+    reader.readAsDataURL(file);
+  });
+}
 
 export default function PartnerPortalPage() {
   // Auth state
@@ -54,6 +115,7 @@ export default function PartnerPortalPage() {
   const [isActionLoading, setIsActionLoading] = useState(false);
   const [beforePhoto, setBeforePhoto] = useState<string | null>(null);
   const [afterPhoto, setAfterPhoto] = useState<string | null>(null);
+  const [skipPhotos, setSkipPhotos] = useState<boolean>(false);
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "upi">("cash");
   const [qrData, setQrData] = useState<{ qrCodeUrl: string; paymentLink: string; amount: number } | null>(null);
   const [isGeneratingQr, setIsGeneratingQr] = useState(false);
@@ -94,9 +156,74 @@ export default function PartnerPortalPage() {
   const [resetSuccessMessage, setResetSuccessMessage] = useState("");
   const [isAppLoading, setIsAppLoading] = useState(true);
 
-  // Load saved session on mount and inject worker-specific PWA manifest
+  // Telugu / English Language State (Telugu by default for on-the-ground helpers)
+  const [lang, setLang] = useState<PartnerLanguage>("te");
+  const t = PARTNER_STRINGS[lang];
+
+  const toggleLanguage = () => {
+    const nextLang: PartnerLanguage = lang === "te" ? "en" : "te";
+    setLang(nextLang);
+    try {
+      localStorage.setItem("osmida_partner_lang", nextLang);
+    } catch {}
+  };
+
+  // Stopwatch timer for active in-progress job
+  const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
+  const [isAtGateReported, setIsAtGateReported] = useState<boolean>(false);
+
+  // Hidden native camera file inputs
+  const beforeCameraInputRef = useRef<HTMLInputElement>(null);
+  const afterCameraInputRef = useRef<HTMLInputElement>(null);
+
+  // Native camera image capture handler
+  const handleCameraCapture = async (
+    e: React.ChangeEvent<HTMLInputElement>,
+    type: "before" | "after"
+  ) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const compressedDataUrl = await compressAndWatermarkImage(file);
+      if (type === "before") {
+        setBeforePhoto(compressedDataUrl);
+      } else {
+        setAfterPhoto(compressedDataUrl);
+      }
+      setStatusMessage({
+        type: "success",
+        text: type === "before" ? "Before photo captured & QC timestamped!" : "After photo captured & QC timestamped!",
+      });
+    } catch (err) {
+      console.warn("Camera capture note:", err);
+    }
+  };
+
+  // Live stopwatch update
+  useEffect(() => {
+    if (!activeJob || activeJob.status !== "in_progress") {
+      setElapsedSeconds(0);
+      return;
+    }
+    const startMs = activeJob.started_at ? new Date(activeJob.started_at).getTime() : Date.now();
+    const updateTimer = () => {
+      const now = Date.now();
+      const diff = Math.max(0, Math.floor((now - startMs) / 1000));
+      setElapsedSeconds(diff);
+    };
+    updateTimer();
+    const interval = setInterval(updateTimer, 1000);
+    return () => clearInterval(interval);
+  }, [activeJob?.id, activeJob?.status, activeJob?.started_at]);
+
+  // Load saved session & language on mount and inject worker-specific PWA manifest
   useEffect(() => {
     try {
+      const savedLang = localStorage.getItem("osmida_partner_lang") as PartnerLanguage;
+      if (savedLang === "te" || savedLang === "en") {
+        setLang(savedLang);
+      }
+
       // Ensure worker app has its own distinct manifest and icon on home screen
       let manifestLink = document.querySelector("link[data-app='partner-manifest']") as HTMLLinkElement | null;
       if (!manifestLink) {
@@ -174,10 +301,24 @@ export default function PartnerPortalPage() {
       if (typeof navigator !== "undefined" && "vibrate" in navigator) {
         navigator.vibrate([400, 150, 400, 150, 600]);
       }
+
+      // Voice prompt cue
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        try {
+          const alertSpeech =
+            lang === "te"
+              ? "కొత్త పని ఆర్డర్ వచ్చింది. దయచేసి చూడండి."
+              : "New Osmida job order received. Please check.";
+          const utterance = new SpeechSynthesisUtterance(alertSpeech);
+          utterance.rate = 1.0;
+          utterance.lang = lang === "te" ? "te-IN" : "en-IN";
+          window.speechSynthesis.speak(utterance);
+        } catch {}
+      }
     } catch (err) {
       console.warn("Audio buzzer dispatch error:", err);
     }
-  }, []);
+  }, [lang]);
 
   // Fetch jobs for partner
   const fetchJobs = useCallback(async (partnerId: string) => {
@@ -409,13 +550,17 @@ export default function PartnerPortalPage() {
     }
   };
 
-  const [skipPhotos, setSkipPhotos] = useState(false);
-
   // Job Execution Action Handler
-  const handleJobAction = async (action: "accept" | "decline" | "dispatch" | "start" | "complete" | "add_time", jobId: string) => {
+  const handleJobAction = async (
+    action: "accept" | "decline" | "dispatch" | "reach_gate" | "start" | "complete" | "add_time",
+    jobId: string
+  ) => {
     if (!partner) return;
     setIsActionLoading(true);
     setStatusMessage(null);
+    if (action === "reach_gate") {
+      setIsAtGateReported(true);
+    }
 
     try {
       const payload: any = {
@@ -1096,8 +1241,28 @@ export default function PartnerPortalPage() {
             </div>
           </div>
 
-          {/* ONLINE / OFFLINE TOGGLE */}
-          <div className="flex items-center gap-2">
+          {/* HEADER CONTROLS */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {/* TELUGU / ENGLISH TOGGLE */}
+            <button
+              onClick={toggleLanguage}
+              className="flex items-center gap-1 px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-bold transition border border-white/20 shadow-sm cursor-pointer"
+              title="Change Language / భాష మార్చండి"
+            >
+              <Languages className="w-3.5 h-3.5 text-[#E68A00]" />
+              <span>{lang === "te" ? "తెలుగు" : "EN"}</span>
+            </button>
+
+            {/* NELLORE HUB HOTLINE */}
+            <a
+              href="tel:9490122849"
+              title="Call Nellore Hub Support (9490122849)"
+              className="p-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 rounded-full transition flex items-center justify-center cursor-pointer"
+            >
+              <Headphones className="w-3.5 h-3.5" />
+            </a>
+
+            {/* ONLINE / OFFLINE TOGGLE */}
             <button
               onClick={handleToggleOnline}
               className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition border ${
@@ -1107,14 +1272,14 @@ export default function PartnerPortalPage() {
               }`}
             >
               <Power className={`w-3.5 h-3.5 ${isOnline ? "animate-pulse" : ""}`} />
-              {isOnline ? "ONLINE" : "OFFLINE"}
+              {isOnline ? (lang === "te" ? "ఆన్‌లైన్" : "ONLINE") : (lang === "te" ? "ఆఫ్‌లైన్" : "OFFLINE")}
             </button>
             <button
               onClick={handleResetJobs}
               title="Reset test data (clear all active jobs to start clean)"
               className="px-2 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-[10px] font-bold transition flex items-center gap-1"
             >
-              <RotateCcw className="w-3 h-3" /> Reset Test
+              <RotateCcw className="w-3 h-3" />
             </button>
             <button
               onClick={handleLogout}
@@ -1132,10 +1297,10 @@ export default function PartnerPortalPage() {
         {isOnline ? (
           <span className="flex items-center justify-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-[#0C6266] animate-ping" />
-            Ready for Quick-Commerce Dispatch in {partner.coverage_localities.slice(0, 3).join(", ")}
+            {t.onlineStatus} • {partner.coverage_localities.slice(0, 3).join(", ")}
           </span>
         ) : (
-          "You are currently OFFLINE. Toggle to ONLINE above to receive job alerts."
+          t.offlineStatus
         )}
       </div>
 
@@ -1508,7 +1673,7 @@ export default function PartnerPortalPage() {
                 {/* 3-STEP EXECUTION FLOW */}
                 <div className="space-y-3 pt-2">
                   <span className="text-xs font-bold uppercase tracking-wider text-gray-300 block">
-                    Execution Steps (WhatsApp Synced):
+                    {t.executionSteps}
                   </span>
 
                   {/* STEP 1: ON THE WAY */}
@@ -1520,11 +1685,11 @@ export default function PartnerPortalPage() {
                             ? "bg-[#0C6266] text-black"
                             : "bg-white/20 text-white"
                         }`}>1</span>
-                        Step 1: On The Way
+                        {t.step1Title}
                       </span>
                       {activeJob.status === "dispatched" || activeJob.status === "in_progress" ? (
                         <span className="text-[10px] text-[#0C6266] font-bold flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3" /> Dispatched
+                          <CheckCircle2 className="w-3 h-3" /> {t.dispatchedStatus}
                         </span>
                       ) : null}
                     </div>
@@ -1536,7 +1701,7 @@ export default function PartnerPortalPage() {
                         className="w-full bg-[#E68A00] hover:bg-[#CC7A00] text-slate-950 font-extrabold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-[#E68A00]/25 cursor-pointer"
                       >
                         <Navigation className="w-3.5 h-3.5" />
-                        I am On The Way (Alert Customer)
+                        {t.onTheWayBtn}
                       </button>
                     )}
 
@@ -1546,7 +1711,7 @@ export default function PartnerPortalPage() {
                         <div className="flex items-center justify-between text-xs">
                           <span className="font-bold text-emerald-400 flex items-center gap-1.5">
                             <Navigation className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
-                            Heading to Customer Doorstep
+                            {t.headingToCustomer}
                           </span>
                           <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded">
                             Turn-by-Turn
@@ -1567,8 +1732,23 @@ export default function PartnerPortalPage() {
                           className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-2.5 rounded-lg flex items-center justify-center gap-2 text-xs transition shadow-md shadow-emerald-900/50"
                         >
                           <Navigation className="w-4 h-4" />
-                          Start Turn-by-Turn Google Maps Navigation
+                          {t.startGps}
                         </a>
+
+                        {/* 1-TAP AT APARTMENT GATE NOTIFICATION BUTTON */}
+                        <button
+                          type="button"
+                          onClick={() => handleJobAction("reach_gate", activeJob.id)}
+                          disabled={isActionLoading || isAtGateReported}
+                          className={`w-full py-2.5 px-3 rounded-lg text-xs font-bold transition flex items-center justify-center gap-2 border ${
+                            isAtGateReported
+                              ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40 cursor-default"
+                              : "bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border-amber-500/40 cursor-pointer shadow-sm"
+                          }`}
+                        >
+                          <Building2 className="w-4 h-4 text-amber-400" />
+                          {isAtGateReported ? t.gateReported : t.atGateBtn}
+                        </button>
                       </div>
                     )}
                   </div>
@@ -1580,18 +1760,58 @@ export default function PartnerPortalPage() {
                         <span className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
                           activeJob.status === "in_progress" ? "bg-[#0C6266] text-black" : "bg-white/20 text-white"
                         }`}>2</span>
-                        Step 2: Start Job (Customer OTP)
+                        {t.step2Title}
                       </span>
                       {activeJob.status === "in_progress" && (
                         <span className="text-[10px] text-[#0C6266] font-bold flex items-center gap-1">
-                          <CheckCircle2 className="w-3 h-3" /> In Progress
+                          <CheckCircle2 className="w-3 h-3" /> {t.inProgressStatus}
                         </span>
                       )}
-                      {activeJob.status === "in_progress" && (
-                        <div className="flex items-center justify-between pt-2 border-t border-white/10 text-xs">
+                    </div>
+
+                    {activeJob.status === "in_progress" && (
+                      <div className="space-y-2.5 pt-2 border-t border-white/10">
+                        {/* LIVE STOPWATCH PROGRESS CARD */}
+                        <div className="bg-black/50 border border-white/15 rounded-xl p-3 space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs text-gray-300 font-semibold flex items-center gap-1.5">
+                              <Clock className="w-3.5 h-3.5 text-[#E68A00] animate-spin" style={{ animationDuration: "6s" }} />
+                              {t.liveStopwatch}
+                            </span>
+                            <span className="font-mono text-sm font-extrabold text-white tracking-wider">
+                              {formatDuration(elapsedSeconds)} / 60:00
+                            </span>
+                          </div>
+
+                          {/* Visual Progress Bar (60 mins = 3600 secs) */}
+                          <div className="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+                            <div
+                              className={`h-full transition-all duration-500 ${
+                                elapsedSeconds > 3600
+                                  ? "bg-rose-500 animate-pulse"
+                                  : elapsedSeconds > 2700
+                                  ? "bg-amber-400"
+                                  : "bg-emerald-400"
+                              }`}
+                              style={{ width: `${Math.min(100, (elapsedSeconds / 3600) * 100)}%` }}
+                            />
+                          </div>
+
+                          <div className="flex items-center justify-between text-[11px] text-gray-400 pt-1">
+                            <span>{t.hourlyJobTime}</span>
+                            {elapsedSeconds > 3600 && (
+                              <span className="text-rose-400 font-bold flex items-center gap-1">
+                                <AlertCircle className="w-3 h-3" /> {t.overtimeAlert}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Amount & +30 Mins Overtime Extension */}
+                        <div className="flex items-center justify-between pt-1 text-xs">
                           <div>
-                            <span className="text-gray-300 font-bold block">Amount: ₹{activeJob.total_amount}</span>
-                            <span className="text-[10px] text-emerald-400">Your Share: ₹{activeJob.payout_amount}</span>
+                            <span className="text-gray-300 font-bold block">{t.bookingAmount}: ₹{activeJob.total_amount}</span>
+                            <span className="text-[10px] text-emerald-400 font-bold">{t.yourShare}: ₹{activeJob.payout_amount}</span>
                           </div>
                           <button
                             type="button"
@@ -1599,16 +1819,16 @@ export default function PartnerPortalPage() {
                             disabled={isActionLoading}
                             className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer"
                           >
-                            +30 Mins (+₹99)
+                            <Plus className="w-3 h-3" /> {t.extend30Mins}
                           </button>
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
 
                     {activeJob.status === "dispatched" && (
                       <div className="space-y-2 pt-1">
                         <p className="text-[11px] text-gray-400">
-                          Ask customer for their 4-digit code shown on their WhatsApp / booking screen:
+                          {t.askOtpPrompt}
                         </p>
                         <div className="flex gap-2">
                           <input
@@ -1622,9 +1842,9 @@ export default function PartnerPortalPage() {
                           <button
                             onClick={() => handleJobAction("start", activeJob.id)}
                             disabled={isActionLoading}
-                            className="bg-[#E68A00] hover:bg-[#CC7A00] text-white font-bold px-4 py-1.5 rounded-lg text-xs transition"
+                            className="bg-[#E68A00] hover:bg-[#CC7A00] text-slate-950 font-extrabold px-4 py-1.5 rounded-lg text-xs transition cursor-pointer"
                           >
-                            Verify & Start
+                            {t.verifyStartBtn}
                           </button>
                         </div>
                         <span className="text-[10px] text-gray-500 block">Hint for demo test: {activeJob.start_otp}</span>
@@ -1639,7 +1859,7 @@ export default function PartnerPortalPage() {
                         <span className="w-5 h-5 rounded-full bg-white/20 text-white flex items-center justify-center text-[10px] font-bold">
                           3
                         </span>
-                        Step 3: Completion Proof & End OTP
+                        {t.step3Title}
                       </span>
                     </div>
 
@@ -1648,48 +1868,112 @@ export default function PartnerPortalPage() {
                         {/* MANDATORY BEFORE & AFTER PHOTOS */}
                         <div>
                           <label className="text-[11px] text-gray-300 block mb-1.5 font-bold">
-                            Photos Before & After Work:
+                            {t.photosLabel}
                           </label>
                           <div className="grid grid-cols-2 gap-2">
-                            {/* Before Photo */}
-                            <div className="border border-dashed border-white/20 rounded-xl p-3 text-center bg-black/40 space-y-1.5">
-                              <Camera className="w-5 h-5 text-gray-400 mx-auto" />
-                              <span className="text-[10px] text-gray-300 block font-bold">1. Before Photo</span>
+                            {/* Before Photo with Real Camera + Canvas Compression */}
+                            <div className="border border-dashed border-white/20 rounded-xl p-3 text-center bg-black/40 space-y-2">
+                              <input
+                                ref={beforeCameraInputRef}
+                                type="file"
+                                accept="image/*"
+                                capture="environment"
+                                className="hidden"
+                                onChange={(e) => handleCameraCapture(e, "before")}
+                              />
+                              <Camera className="w-5 h-5 text-amber-400 mx-auto" />
+                              <span className="text-[10px] text-gray-300 block font-bold">1. {t.beforePhoto}</span>
                               {beforePhoto ? (
-                                <span className="text-[10px] text-[#0C6266] font-bold block">✓ Photo Attached</span>
+                                <div className="space-y-1">
+                                  <div className="relative w-full h-20 rounded-lg overflow-hidden border border-emerald-500/40">
+                                    <img src={beforePhoto} alt="Before work proof" className="w-full h-full object-cover" />
+                                    <div className="absolute top-1 right-1 bg-emerald-600 text-white p-0.5 rounded-full shadow">
+                                      <Check className="w-3 h-3" />
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => beforeCameraInputRef.current?.click()}
+                                    className="text-[9px] text-gray-400 hover:text-white underline block mx-auto cursor-pointer"
+                                  >
+                                    Retake Photo
+                                  </button>
+                                </div>
                               ) : (
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    setBeforePhoto(
-                                      "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400&auto=format&fit=crop&q=80"
-                                    )
-                                  }
-                                  className="text-[10px] font-bold text-[#0C6266] bg-[#0C6266]/20 px-2 py-1 rounded border border-[#0C6266]/30"
-                                >
-                                  + Capture Before
-                                </button>
+                                <div className="space-y-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => beforeCameraInputRef.current?.click()}
+                                    className="w-full text-[10px] font-bold text-slate-950 bg-[#E68A00] hover:bg-[#CC7A00] px-2 py-1.5 rounded-lg transition flex items-center justify-center gap-1 shadow cursor-pointer"
+                                  >
+                                    <Camera className="w-3 h-3" />
+                                    {t.captureBefore}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setBeforePhoto(
+                                        "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=400&auto=format&fit=crop&q=80"
+                                      )
+                                    }
+                                    className="text-[9px] text-gray-400 hover:text-gray-300 underline block mx-auto cursor-pointer"
+                                  >
+                                    Use Sample
+                                  </button>
+                                </div>
                               )}
                             </div>
 
-                            {/* After Photo */}
-                            <div className="border border-dashed border-white/20 rounded-xl p-3 text-center bg-black/40 space-y-1.5">
-                              <Camera className="w-5 h-5 text-gray-400 mx-auto" />
-                              <span className="text-[10px] text-gray-300 block font-bold">2. After Photo</span>
+                            {/* After Photo with Real Camera + Canvas Compression */}
+                            <div className="border border-dashed border-white/20 rounded-xl p-3 text-center bg-black/40 space-y-2">
+                              <input
+                                ref={afterCameraInputRef}
+                                type="file"
+                                accept="image/*"
+                                capture="environment"
+                                className="hidden"
+                                onChange={(e) => handleCameraCapture(e, "after")}
+                              />
+                              <Camera className="w-5 h-5 text-emerald-400 mx-auto" />
+                              <span className="text-[10px] text-gray-300 block font-bold">2. {t.afterPhoto}</span>
                               {afterPhoto ? (
-                                <span className="text-[10px] text-[#0C6266] font-bold block">✓ Photo Attached</span>
+                                <div className="space-y-1">
+                                  <div className="relative w-full h-20 rounded-lg overflow-hidden border border-emerald-500/40">
+                                    <img src={afterPhoto} alt="After work proof" className="w-full h-full object-cover" />
+                                    <div className="absolute top-1 right-1 bg-emerald-600 text-white p-0.5 rounded-full shadow">
+                                      <Check className="w-3 h-3" />
+                                    </div>
+                                  </div>
+                                  <button
+                                    type="button"
+                                    onClick={() => afterCameraInputRef.current?.click()}
+                                    className="text-[9px] text-gray-400 hover:text-white underline block mx-auto cursor-pointer"
+                                  >
+                                    Retake Photo
+                                  </button>
+                                </div>
                               ) : (
-                                <button
-                                  type="button"
-                                  onClick={() =>
-                                    setAfterPhoto(
-                                      "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&auto=format&fit=crop&q=80"
-                                    )
-                                  }
-                                  className="text-[10px] font-bold text-[#0C6266] bg-[#0C6266]/20 px-2 py-1 rounded border border-[#0C6266]/30"
-                                >
-                                  + Capture After
-                                </button>
+                                <div className="space-y-1">
+                                  <button
+                                    type="button"
+                                    onClick={() => afterCameraInputRef.current?.click()}
+                                    className="w-full text-[10px] font-bold text-slate-950 bg-emerald-500 hover:bg-emerald-400 px-2 py-1.5 rounded-lg transition flex items-center justify-center gap-1 shadow cursor-pointer"
+                                  >
+                                    <Camera className="w-3 h-3" />
+                                    {t.captureAfter}
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() =>
+                                      setAfterPhoto(
+                                        "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&auto=format&fit=crop&q=80"
+                                      )
+                                    }
+                                    className="text-[9px] text-gray-400 hover:text-gray-300 underline block mx-auto cursor-pointer"
+                                  >
+                                    Use Sample
+                                  </button>
+                                </div>
                               )}
                             </div>
                           </div>
@@ -1704,7 +1988,7 @@ export default function PartnerPortalPage() {
                               className="rounded border-white/20 bg-black/40 text-[#0C6266] focus:ring-0 cursor-pointer"
                             />
                             <label htmlFor="skipPhotosCheck" className="text-[11px] text-gray-400 cursor-pointer select-none">
-                              Camera unavailable / Customer directly verified work
+                              {t.skipPhotosLabel}
                             </label>
                           </div>
                         </div>
@@ -1712,7 +1996,7 @@ export default function PartnerPortalPage() {
                         {/* END OTP INPUT (FROM CUSTOMER) */}
                         <div className="bg-black/40 rounded-xl p-3 border border-white/10 space-y-1.5">
                           <label className="text-[11px] text-gray-300 block font-bold">
-                            Enter Customer&apos;s 4-Digit End OTP (Completion Code):
+                            {t.enterEndOtp}
                           </label>
                           <div className="flex gap-2">
                             <input
@@ -1730,7 +2014,7 @@ export default function PartnerPortalPage() {
                         <div className="bg-black/40 rounded-xl p-3 border border-[#0C6266]/30 space-y-2">
                           <p className="text-[11px] text-gray-300 font-bold flex items-center gap-1.5">
                             <IndianRupee className="w-3.5 h-3.5 text-[#0C6266]" />
-                            Payment: ₹{activeJob.total_amount} — QR generated on completion
+                            {t.paymentPending}: ₹{activeJob.total_amount} — QR generated on completion
                           </p>
                           <p className="text-[10px] text-gray-500">
                             After you complete the job, a Razorpay QR code will appear. Show it to the customer to scan and pay instantly via UPI / Card, or collect cash.
@@ -1746,12 +2030,12 @@ export default function PartnerPortalPage() {
                           <CheckCircle2 className="w-4 h-4" />
                           <span>
                             {!skipPhotos && (!beforePhoto || !afterPhoto)
-                              ? "Upload Both Photos to Complete"
+                              ? (lang === "te" ? "ముగించడానికి 2 ఫోటోలు అప్‌లోడ్ చేయండి" : "Upload Both Photos to Complete")
                               : !endOtpInput.trim()
-                              ? "Enter Customer End OTP to Complete"
+                              ? (lang === "te" ? "కస్టమర్ ఎండ్ OTP నమోదు చేయండి" : "Enter Customer End OTP to Complete")
                               : isActionLoading
-                              ? "Completing Job..."
-                              : "Complete Job & Settle Payment"}
+                              ? (lang === "te" ? "పని ముగింపు నమోదు అవుతోంది..." : "Completing Job...")
+                              : t.completeJobBtn}
                           </span>
                         </button>
                       </div>
@@ -1794,74 +2078,116 @@ export default function PartnerPortalPage() {
         {/* ------------------------------------------------------------- */}
         {/* TAB 2: EARNINGS & PAYOUTS                                     */}
         {/* ------------------------------------------------------------- */}
-        {activeTab === "earnings" && (
-          <div className="space-y-4">
-            {/* Wallet Balance Card */}
-            <div className="bg-gradient-to-br from-[#162138] to-[#0E1524] border border-[#0C6266]/30 rounded-2xl p-5 shadow-xl">
-              <div className="flex items-center justify-between mb-3">
-                <span className="text-xs font-semibold text-gray-400">Available Payout Balance</span>
-                <span className="text-xs bg-[#0C6266]/25 text-[#0C6266] font-bold px-2 py-0.5 rounded">
-                  Daily Settlement
-                </span>
-              </div>
-              <div className="flex items-baseline gap-1 mb-4">
-                <span className="text-3xl font-extrabold text-[#0C6266]">₹{partner.payout_balance}</span>
-                <span className="text-xs text-gray-400">INR</span>
-              </div>
+        {activeTab === "earnings" && (() => {
+          const totalEarningsToday = (completedJobs.length > 0 ? completedJobs.reduce((sum, j) => sum + (j.payout_amount || 0), 0) : 0) + (partner.payout_balance || 0);
+          const cashCollectedToday = completedJobs.filter(j => j.payment_status === "cash_collected" || (j as any).payment_method === "cash").reduce((sum, j) => sum + (j.total_amount || 0), 0);
+          const netUpiPayable = Math.max(0, totalEarningsToday - cashCollectedToday);
 
-              <div className="bg-black/40 rounded-xl p-3 text-xs flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                  <Wallet className="w-4 h-4 text-[#0C6266]" />
-                  <span className="text-gray-300">Registered UPI ID:</span>
-                </div>
-                <span className="font-mono font-bold text-white">{partner.upi_id || `${partner.phone}@upi`}</span>
-              </div>
-
-              <button
-                onClick={() => alert(`Payout request of ₹${partner.payout_balance} initiated to ${partner.upi_id || partner.phone + "@upi"}. Funds will settle within 2 hours.`)}
-                className="w-full bg-[#E68A00] hover:bg-[#CC7A00] text-white font-extrabold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5"
-              >
-                <IndianRupee className="w-4 h-4" />
-                Request Instant UPI Transfer
-              </button>
-            </div>
-
-            {/* Quick Metrics */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="bg-white/5 border border-white/10 rounded-xl p-3.5">
-                <span className="text-xs text-gray-400 block mb-1">Total Jobs Done</span>
-                <span className="text-xl font-bold text-white">{partner.completed_jobs_count}</span>
-              </div>
-              <div className="bg-white/5 border border-white/10 rounded-xl p-3.5">
-                <span className="text-xs text-gray-400 block mb-1">Partner Share</span>
-                <span className="text-xl font-bold text-[#0C6266]">70%</span>
-              </div>
-            </div>
-
-            {/* Completed Job History */}
-            <div className="space-y-2 pt-2">
-              <span className="text-xs font-bold uppercase tracking-wider text-gray-300 block">
-                Recently Completed Jobs
-              </span>
-
-              {completedJobs.length > 0 ? (
-                completedJobs.map((job) => (
-                  <div key={job.id} className="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center justify-between text-xs">
-                    <div>
-                      <p className="font-bold text-white">{job.service_name}</p>
-                      <p className="text-gray-400 text-[11px]">{job.locality} • {job.date}</p>
-                    </div>
-                    <span className="font-extrabold text-[#0C6266] text-sm">+₹{job.payout_amount}</span>
+          return (
+            <div className="space-y-4">
+              {/* Daily Settlement Card */}
+              <div className="bg-gradient-to-br from-[#121c2e] via-[#0E1524] to-[#162138] border border-emerald-500/30 rounded-2xl p-5 shadow-xl space-y-4">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <span className="text-xs font-bold text-white uppercase tracking-wider block">
+                      {t.dailySettlement}
+                    </span>
+                    <span className="text-[10px] text-gray-400">
+                      Nellore Central Hub • Today&apos;s Ledger
+                    </span>
                   </div>
-                ))
-              ) : (
-                <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center text-xs text-gray-400">
-                  Completed jobs will appear here with your payout breakdown.
+                  <span className="text-xs bg-emerald-500/20 text-emerald-400 font-bold px-2.5 py-1 rounded-full border border-emerald-500/30 flex items-center gap-1">
+                    <CheckCircle2 className="w-3.5 h-3.5" /> Auto-UPI 9:00 PM
+                  </span>
                 </div>
-              )}
+
+                {/* Balance Grid */}
+                <div className="grid grid-cols-2 gap-2.5 pt-1">
+                  <div className="bg-black/40 border border-white/10 rounded-xl p-3">
+                    <span className="text-[10px] text-gray-400 block">{t.totalEarnedToday}</span>
+                    <span className="text-xl font-black text-emerald-400">₹{totalEarningsToday}</span>
+                    <span className="text-[9px] text-gray-500 block">70% Partner Share</span>
+                  </div>
+
+                  <div className="bg-black/40 border border-white/10 rounded-xl p-3">
+                    <span className="text-[10px] text-gray-400 block">{t.cashInHand}</span>
+                    <span className="text-xl font-black text-amber-300">₹{cashCollectedToday}</span>
+                    <span className="text-[9px] text-gray-500 block">Directly in Hand</span>
+                  </div>
+                </div>
+
+                {/* Net Payout row */}
+                <div className="bg-black/50 border border-emerald-500/20 rounded-xl p-3.5 flex items-center justify-between">
+                  <div>
+                    <span className="text-xs text-gray-300 font-semibold block">{t.netUpiTransfer}</span>
+                    <span className="text-[10px] text-gray-400">{t.settledTonight}</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-2xl font-extrabold text-[#0C6266]">₹{netUpiPayable}</span>
+                    <span className="text-[9px] text-gray-400 block">via Razorpay X</span>
+                  </div>
+                </div>
+
+                {/* Verified UPI badge */}
+                <div className="bg-black/30 rounded-xl p-2.5 text-xs flex items-center justify-between border border-white/10">
+                  <div className="flex items-center gap-2">
+                    <Wallet className="w-4 h-4 text-emerald-400" />
+                    <span className="text-gray-300">{t.registeredUpi}:</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-mono font-bold text-white text-[11px]">
+                    <span>{partner.upi_id || `${partner.phone}@upi`}</span>
+                    <span className="bg-emerald-500/20 text-emerald-400 text-[9px] px-1.5 py-0.5 rounded font-sans font-semibold">
+                      {t.verifiedUpiBadge}
+                    </span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => alert(`Payout request of ₹${netUpiPayable || partner.payout_balance} initiated to ${partner.upi_id || partner.phone + "@upi"}. Funds will settle within 2 hours.`)}
+                  className="w-full bg-[#E68A00] hover:bg-[#CC7A00] text-slate-950 font-extrabold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-[#E68A00]/20 cursor-pointer"
+                >
+                  <IndianRupee className="w-4 h-4" />
+                  {t.instantTransferBtn}
+                </button>
+              </div>
+
+              {/* Quick Metrics */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="bg-white/5 border border-white/10 rounded-xl p-3.5">
+                  <span className="text-xs text-gray-400 block mb-1">Total Jobs Done</span>
+                  <span className="text-xl font-bold text-white">{partner.completed_jobs_count}</span>
+                </div>
+                <div className="bg-white/5 border border-white/10 rounded-xl p-3.5">
+                  <span className="text-xs text-gray-400 block mb-1">Partner Share</span>
+                  <span className="text-xl font-bold text-[#0C6266]">70%</span>
+                </div>
+              </div>
+
+              {/* Completed Job History */}
+              <div className="space-y-2 pt-2">
+                <span className="text-xs font-bold uppercase tracking-wider text-gray-300 block">
+                  {t.completedJobsHistory}
+                </span>
+
+                {completedJobs.length > 0 ? (
+                  completedJobs.map((job) => (
+                    <div key={job.id} className="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center justify-between text-xs">
+                      <div>
+                        <p className="font-bold text-white">{job.service_name}</p>
+                        <p className="text-gray-400 text-[11px]">{job.locality} • {job.date}</p>
+                      </div>
+                      <span className="font-extrabold text-[#0C6266] text-sm">+₹{job.payout_amount}</span>
+                    </div>
+                  ))
+                ) : (
+                  <div className="bg-white/5 border border-white/10 rounded-xl p-4 text-center text-xs text-gray-400">
+                    {t.noCompletedJobs}
+                  </div>
+                )}
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* ------------------------------------------------------------- */}
         {/* TAB 3: PROFILE & COVERAGE                                     */}
@@ -1943,7 +2269,7 @@ export default function PartnerPortalPage() {
                 </span>
               )}
             </div>
-            <span>Live Jobs</span>
+            <span>{t.navJobs}</span>
           </button>
 
           <button
@@ -1953,7 +2279,7 @@ export default function PartnerPortalPage() {
             }`}
           >
             <Wallet className="w-5 h-5" />
-            <span>Earnings</span>
+            <span>{t.navEarnings}</span>
           </button>
 
           <button
@@ -1963,7 +2289,7 @@ export default function PartnerPortalPage() {
             }`}
           >
             <User className="w-5 h-5" />
-            <span>Profile</span>
+            <span>{t.navProfile}</span>
           </button>
         </div>
       </nav>
