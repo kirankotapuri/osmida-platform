@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { ProntoHeader } from "@/components/ProntoHeader";
+import { ProntoFooter } from "@/components/ProntoFooter";
 import { Language } from "@/lib/translations";
 import { DEFAULT_APP_SETTINGS } from "@/lib/prontoServices";
 import { GoogleMapsLocationModal } from "@/components/GoogleMapsLocationModal";
@@ -947,6 +948,11 @@ export default function MyBookingsPage() {
         onSelectLocation={handleLocationFromMap}
         currentLocality={profileLocality}
       />
+
+      {/* Pronto Global Footer */}
+      <div className="mt-16">
+        <ProntoFooter />
+      </div>
     </div>
   );
 }

@@ -16,6 +16,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { ProntoHeader } from "@/components/ProntoHeader";
+import { ProntoFooter } from "@/components/ProntoFooter";
 import { ProntoServiceDetailModal } from "@/components/ProntoServiceDetailModal";
 import { OsmidaSupportChat } from "@/components/OsmidaSupportChat";
 import { PRONTO_SERVICES, ProntoService } from "@/lib/prontoServices";
@@ -764,119 +765,7 @@ export default function HomePage() {
       </section>
 
       {/* 10. CLEAN DARK FOOTER */}
-      <footer className="bg-[#072426] text-white pt-14 pb-10 border-t border-[#0C4144]">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8 text-xs">
-            <div className="col-span-2 space-y-3">
-              <span className="text-2xl font-black tracking-tight text-[#E68A00] font-sans">
-                Osmida
-              </span>
-              <p className="text-slate-300 text-xs font-medium max-w-xs leading-relaxed">
-                Nellore&apos;s apartment-first residential home support. Verified helpers, flat ₹199 hourly rate, and dual OTP security.
-              </p>
-              <div className="text-[11px] text-slate-400 font-medium">
-                Operating across Haranathapuram, Magunta Layout, Vedayapalem, Pogathota, and all Nellore apartments.
-              </div>
-            </div>
-
-            <div className="space-y-2.5">
-              <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[11px]">
-                Services
-              </h4>
-              <ul className="space-y-1.5 text-slate-300 font-medium">
-                {PRONTO_SERVICES.map((s) => (
-                  <li key={s.id}>
-                    <button
-                      type="button"
-                      onClick={() => handleOpenModal(s)}
-                      className="hover:text-white transition-colors cursor-pointer text-left"
-                    >
-                      {s.name}
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="space-y-2.5">
-              <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[11px]">
-                Standards
-              </h4>
-              <ul className="space-y-1.5 text-slate-300 font-medium">
-                <li>Fixed Scopes</li>
-                <li>Dual OTP Protection</li>
-                <li>Photo QC Verification</li>
-                <li>Escrow Held Payment</li>
-                <li>Free 30-min Touchup Redo</li>
-              </ul>
-            </div>
-
-            <div className="space-y-2.5">
-              <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[11px]">
-                Nellore Localities
-              </h4>
-              <ul className="space-y-1.5 text-slate-300 font-medium">
-                <li>Haranathapuram</li>
-                <li>Magunta Layout</li>
-                <li>Vedayapalem</li>
-                <li>Pogathota</li>
-                <li>Balaji Nagar</li>
-                <li>Children&apos;s Park Road</li>
-              </ul>
-            </div>
-
-            <div className="space-y-2.5">
-              <h4 className="font-bold text-[#E68A00] uppercase tracking-wider text-[11px]">
-                Customer Support
-              </h4>
-              <ul className="space-y-2 text-slate-300 font-semibold">
-                <li>
-                  <Link href="/my-bookings" className="text-white hover:text-[#E68A00] transition-colors flex items-center gap-1.5">
-                    <span>📋 Track My Booking</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/book" className="text-white hover:text-[#E68A00] transition-colors flex items-center gap-1.5">
-                    <span>⚡ Book House Help (₹199/hr)</span>
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/cancellation" className="text-slate-300 hover:text-white transition-colors">
-                    🛡️ Quality Guarantee &amp; Redo
-                  </Link>
-                </li>
-                <li>
-                  <a
-                    href="https://wa.me/917676358162"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-[#E68A00] hover:underline transition-colors font-bold flex items-center gap-1"
-                  >
-                    <span>💬 WhatsApp: +91 7676358162</span>
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className="pt-6 border-t border-[#0C4144] flex flex-col sm:flex-row items-center justify-between gap-4 text-[11px] text-slate-400 font-medium">
-            <p>© {new Date().getFullYear()} Osmida Home Services Nellore. All rights reserved.</p>
-            <div className="flex items-center gap-4">
-              <Link href="/terms" className="hover:text-slate-200">
-                Terms of Service
-              </Link>
-              <span>•</span>
-              <Link href="/privacy" className="hover:text-slate-200">
-                Privacy Policy
-              </Link>
-              <span>•</span>
-              <Link href="/cancellation" className="hover:text-slate-200">
-                Cancellation & Refund
-              </Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <ProntoFooter />
 
       {/* 11. SERVICE DETAIL MODAL */}
       <ProntoServiceDetailModal

@@ -53,6 +53,31 @@ const nextConfig: NextConfig = {
         destination: "/admin",
         permanent: false,
       },
+      {
+        source: "/terms-of-service",
+        destination: "/terms",
+        permanent: true,
+      },
+      {
+        source: "/cancellation-policy",
+        destination: "/cancellation",
+        permanent: true,
+      },
+      {
+        source: "/refund-policy",
+        destination: "/cancellation",
+        permanent: true,
+      },
+      {
+        source: "/refunds",
+        destination: "/cancellation",
+        permanent: true,
+      },
+      {
+        source: "/refund",
+        destination: "/cancellation",
+        permanent: true,
+      },
     ];
   },
 };

@@ -2,144 +2,180 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { Header } from "@/components/Header";
-import { FloatingContactBar } from "@/components/FloatingContactBar";
+import { ProntoHeader } from "@/components/ProntoHeader";
+import { ProntoFooter } from "@/components/ProntoFooter";
 import { Language } from "@/lib/translations";
-import { ArrowLeft, ShieldCheck, CheckCircle2, FileText, AlertCircle } from "lucide-react";
+import {
+  ArrowLeft,
+  ShieldCheck,
+  CheckCircle2,
+  FileText,
+  AlertCircle,
+  Clock,
+  MapPin,
+  Globe,
+  Sparkles,
+  Banknote,
+} from "lucide-react";
 
 export default function TermsPage() {
   const [lang, setLang] = useState<Language>("en");
 
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#111111] pt-16 lg:pt-20 pb-20 lg:pb-0 selection:bg-[#1E6FFF] selection:text-white">
-      {/* 1. FIXED HEADER */}
-      <Header lang={lang} onLanguageChange={setLang} />
+    <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-[#0C6266] selection:text-white flex flex-col justify-between">
+      {/* 1. PRONTO HEADER */}
+      <ProntoHeader />
 
-      {/* 2. BREADCRUMB */}
-      <div className="border-b border-[#E5E7EB] bg-white px-4 py-3">
+      {/* 2. BREADCRUMB & LANGUAGE TOGGLE */}
+      <div className="border-b border-slate-200 bg-white px-4 py-3">
         <div className="mx-auto max-w-4xl flex items-center justify-between text-xs font-bold">
-          <Link href="/" className="flex items-center gap-1.5 text-[#555555] hover:text-[#1E6FFF]">
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{lang === "te" ? "హోమ్ పేజీ" : "Back to Home"}</span>
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 text-slate-600 hover:text-[#0C6266] transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>{lang === "te" ? "హోమ్ పేజీకి తిరిగి వెళ్ళు" : "Back to Home"}</span>
           </Link>
-          <span className="text-[#1E6FFF] flex items-center gap-1">
-            <FileText className="h-3.5 w-3.5" />
-            <span>{lang === "te" ? "సేవా నిబంధనలు" : "Terms of Service"}</span>
-          </span>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setLang(lang === "en" ? "te" : "en")}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            >
+              <Globe className="h-3.5 w-3.5 text-[#0C6266]" />
+              <span>{lang === "en" ? "తెలుగు లో చదవండి" : "Read in English"}</span>
+            </button>
+            <span className="text-[#0C6266] hidden sm:flex items-center gap-1">
+              <FileText className="h-3.5 w-3.5" />
+              <span>User Agreement</span>
+            </span>
+          </div>
         </div>
       </div>
 
-      {/* 3. MAIN CONTENT */}
-      <div className="px-4 py-10 sm:py-14">
-        <article className="mx-auto max-w-3xl space-y-8 text-left">
+      {/* 3. MAIN ARTICLE */}
+      <main className="flex-1 px-4 py-8 sm:py-12">
+        <article className="mx-auto max-w-3xl space-y-6 text-left">
+          {/* Header Title */}
           <div>
-            <span className="text-[10px] font-black uppercase tracking-widest text-[#1E6FFF] bg-[#1E6FFF]/10 border border-[#1E6FFF]/20 px-3 py-1 rounded-full">
-              {lang === "te" ? "చట్టపరమైన నిబంధనలు" : "Terms & Conditions"}
-            </span>
-            <h1 className="text-2xl sm:text-3xl font-black text-[#111111] mt-3">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#0C6266]/10 text-[#0C6266] border border-[#0C6266]/20 px-3 py-1 text-xs font-black uppercase tracking-wider">
+              <FileText className="h-3.5 w-3.5 text-[#0C6266]" />
+              <span>{lang === "te" ? "చట్టపరమైన నిబంధనలు" : "Terms & Conditions"}</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 mt-3 tracking-tight">
               {lang === "te" ? "సేవా నిబంధనలు (Terms of Service)" : "Terms of Service"}
             </h1>
-            <p className="text-xs text-[#555555] mt-1">
-              Last Updated: September 17, 2026 • Osmida Facility Services (Operated by Finkfold)
+            <p className="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
+              Effective Date: September 2026 • Osmida Facility Services (Operated by Finkfold, Nellore)
             </p>
           </div>
 
-          <div className="rounded-3xl border border-[#E5E7EB] bg-white p-6 sm:p-8 space-y-6 text-xs sm:text-sm text-[#444444] leading-relaxed shadow-xs">
-            {/* Clause 1 */}
+          {/* Clauses Card */}
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 sm:p-8 space-y-7 text-xs sm:text-sm text-slate-700 leading-relaxed shadow-sm">
+            {/* Clause 1: Scope */}
             <section className="space-y-2">
-              <h2 className="text-base font-black text-[#111111] flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[#1E6FFF]" />
+              <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
+                <CheckCircle2 className="h-4 w-4 text-[#0C6266]" />
                 <span>1. {lang === "te" ? "సేవల పరిధి (Scope of Services)" : "Scope of Services"}</span>
               </h2>
               <p>
                 {lang === "te"
-                  ? "ఆస్మిడా (ఫింక్‌ఫోల్డ్ సంస్థ ఆధ్వర్యంలో) నెల్లూరు నగరంలో పెస్ట్ కంట్రోల్ (బొద్దింకలు, నల్లులు, చెదలు), ఏసీ సర్వీస్ (జెట్ పంప్ వాష్, లీకేజ్ రిపేర్), మరియు హోమ్ డీప్ క్లీనింగ్ సేవలను నిర్వహిస్తుంది. ప్రతి సర్వీస్ ప్రారంభానికి ముందు స్పష్టమైన స్కోప్ వివరించబడుతుంది."
-                  : "Osmida Facility Services (operated by Finkfold) manages professional pest control, air conditioning servicing, and residential/commercial deep cleaning across designated localities in Nellore, Andhra Pradesh. Service scopes are confirmed before commencement."}
+                  ? "ఆస్మిడా (ఫింక్‌ఫోల్డ్ ఆధ్వర్యంలో) నెల్లూరు నగరంలో అపార్ట్‌మెంట్-కేంద్రీకృత గృహ సహాయ సేవలను (గిన్నెల క్లీనింగ్, ఇల్లు తుడవడం, దుమ్ము దులపడం, బట్టలు ఉతకడం, వంట సహాయం) ఫ్లాట్ ₹199/గంట రేటుతో అందిస్తుంది. అలాగే ప్రొఫెషనల్ డీప్ క్లీనింగ్, ఏసీ జెట్ సర్వీస్ మరియు హెర్బల్ పెస్ట్ కంట్రోల్ సేవలను అందిస్తుంది."
+                  : "Osmida Facility Services (operated by Finkfold) provides apartment-first residential support across Nellore. Services include on-demand hourly house help (dishwashing, floor mopping, dusting, clothes washing, kitchen assistance) at transparent hourly rates (flat ₹199/hr), full-home deep cleaning, AC jet foam servicing, and herbal pest control."}
               </p>
             </section>
 
-            {/* Clause 2 */}
+            {/* Clause 2: ₹0 Advance & Payment */}
             <section className="space-y-2">
-              <h2 className="text-base font-black text-[#111111] flex items-center gap-2">
-                <ShieldCheck className="h-4 w-4 text-[#25D366]" />
-                <span>2. {lang === "te" ? "₹0 ముందస్తు చెల్లింపు విధానం (Zero Advance Payment)" : "Transparent Pricing & ₹0 Advance Policy"}</span>
+              <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
+                <Banknote className="h-4 w-4 text-emerald-600" />
+                <span>2. {lang === "te" ? "₹0 ముందస్తు చెల్లింపు - పని పూర్తయ్యాకే చెల్లించండి" : "Transparent Pricing & ₹0 Advance Policy"}</span>
               </h2>
               <p>
                 {lang === "te"
-                  ? "మా దగ్గర ఎలాంటి ముందస్తు బుకింగ్ ఫీజు ఉండదు. మా టెక్నీషియన్ మీ ఇంటికి వచ్చి పని పూర్తయిన తర్వాత, మీ సంతృప్తి చూసుకున్న తర్వాత మాత్రమే మీరు UPI లేదా నగదు రూపంలో చెల్లించాలి. ఎలాంటి దాచిన ఛార్జీలు ఉండవు."
-                  : "Osmida charges ₹0 advance fee for inspection visits and standard home service bookings. Final payment is due only upon completion of service and customer sign-off. Accepted payment methods include UPI (Google Pay, PhonePe, Paytm) and cash directly to the service coordinator."}
+                  ? "మా వద్ద ఎటువంటి ముందస్తు బుకింగ్ ఫీజు లేదా డిపాజిట్ ఉండదు. మా సహాయకులు మీ నివాసానికి వచ్చి పని పూర్తి చేసిన తర్వాత, మీ పూర్తి సంతృప్తి చూసుకున్న తర్వాత మాత్రమే మీరు నగదు లేదా UPI (Google Pay, PhonePe, Paytm) ద్వారా చెల్లించాలి."
+                  : "Osmida collects ₹0 advance fees for on-demand bookings or site inspections. You pay strictly upon completion of the service and after your physical verification and satisfaction. Payment can be made directly via UPI QR code or cash to the Osmida supervisor."}
               </p>
             </section>
 
-            {/* Clause 3 */}
+            {/* Clause 3: Quality Guarantee & Rework */}
             <section className="space-y-2">
-              <h2 className="text-base font-black text-[#111111] flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[#1E6FFF]" />
-                <span>3. {lang === "te" ? "సర్వీస్ వారంటీ & రీ-విజిట్ నిబంధనలు" : "Service Warranty & Rework Terms"}</span>
+              <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-[#0C6266]" />
+                <span>3. {lang === "te" ? "నాణ్యత హామీ మరియు ఉచిత రీ-విజిట్ నిబంధనలు" : "Quality Guarantee & Free Rework Policy"}</span>
               </h2>
               <p>
                 {lang === "te"
-                  ? "పురుగుల నివారణ సేవలకు 30 రోజుల ఉచిత రీవిజిట్ వారంటీ ఉంటుంది (ట్రీట్ చేసిన గదుల్లో అదే రకమైన పురుగుల సమస్యకు వర్తిస్తుంది). ఏసీ ఫోమ్ జెట్ సర్వీస్‌పై 15 రోజుల కూలింగ్ మరియు లీక్ వారంటీ ఉంటుంది; భర్తీ చేసిన కొత్త స్పేర్ పార్ట్సుపై 30 రోజుల వారంటీ ఉంటుంది. హోమ్ డీప్ క్లీనింగ్ పూర్తయ్యాక 24 గంటల లోపు తనిఖీ నిర్వహించబడుతుంది."
-                  : "General pest control includes a 30-day rework warranty covering the same pest type within treated premises. AC Foam Jet servicing carries a 15-day cooling & water leakage warranty, with a 30-day warranty on newly replaced genuine spare parts. Home deep cleaning includes a 24-hour customer sign-off & corrective touch-up window. Warranty does not apply if treated premises suffer subsequent water flooding, structural construction alterations, or cross-contamination from untreated external zones."}
+                  ? "మీరు పొందిన సేవలో ఏదైనా లోపం ఉంటే, సేవ పూర్తయిన 24 గంటల లోపు మాకు తెలియజేయండి. ఉచిత రీ-విజిట్ లేదా సరిచేత వెంటనే కల్పించబడుతుంది. పెస్ట్ కంట్రోల్ సేవలకు 30 రోజుల రీవర్క్ వారంటీ మరియు ఏసీ ఫోమ్ వాష్‌కు 15 రోజుల కూలింగ్ వారంటీ వర్తిస్తుంది."
+                  : "We stand behind the quality of our helpers and technicians. Customers have a 24-hour review window for hourly house help to report any oversight for a free touch-up visit. General pest control includes a 30-day rework warranty covering treated zones. AC servicing carries a 15-day cooling and leakage warranty."}
               </p>
             </section>
 
-            {/* Clause 4 */}
+            {/* Clause 4: Customer Responsibilities */}
             <section className="space-y-2">
-              <h2 className="text-base font-black text-[#111111] flex items-center gap-2">
-                <AlertCircle className="h-4 w-4 text-amber-500" />
-                <span>4. {lang === "te" ? "కస్టమర్ సహకారం & విద్యుత్ / నీటి సదుపాయం" : "Customer Responsibilities & Utilities"}</span>
+              <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 text-amber-600" />
+                <span>4. {lang === "te" ? "కస్టమర్ బాధ్యతలు & భద్రత" : "Customer Responsibilities & Household Safety"}</span>
+              </h2>
+              <ul className="list-disc pl-5 space-y-1 text-slate-600">
+                <li>
+                  {lang === "te"
+                    ? "సర్వీస్ సమయంలో అవసరమైన నీరు మరియు విద్యుత్ సౌకర్యాన్ని కస్టమర్ అందించాలి."
+                    : "Customers must provide necessary running water and electrical points for vacuum machines or cleaning tools."}
+                </li>
+                <li>
+                  {lang === "te"
+                    ? "విలువైన నగలు, నగదు మరియు ముఖ్యమైన పత్రాలను సహాయకుడు రాకముందే సురక్షితమైన లాకర్‌లో భద్రపరుచుకోవాలి."
+                    : "Residents are strongly advised to secure high-value cash, jewelry, and delicate items prior to the worker's arrival."}
+                </li>
+                <li>
+                  {lang === "te"
+                    ? "మా సిబ్బందితో గౌరవప్రదంగా మరియు మర్యాదపూర్వకంగా ప్రవర్తించాలి. భద్రమైన పని వాతావరణం కల్పించాలి."
+                    : "Workers and technicians must be treated with dignity and provided a safe, harassment-free working environment."}
+                </li>
+              </ul>
+            </section>
+
+            {/* Clause 5: Verification & Safety */}
+            <section className="space-y-2">
+              <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
+                <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                <span>5. {lang === "te" ? "సిబ్బంది ధృవీకరణ మరియు యూనిఫాం" : "Helper Background Verification & Identity"}</span>
               </h2>
               <p>
                 {lang === "te"
-                  ? "సర్వీస్ సమయంలో అవసరమైన విద్యుత్ మరియు నల్లా నీటి సదుపాయాన్ని కస్టమర్ అందించాలి. విలువైన ఆభరణాలు మరియు నగదును ముందుగానే సురక్షిత ప్రదేశంలో ఉంచుకోవాలని కోరడమైనది."
-                  : "Customers are requested to provide running water and electrical connection necessary for jet pumps and vacuum equipment. Customers are advised to secure cash and high-value jewelry in advance of any service crew arrival."}
+                  ? "ఆస్మిడా ప్రతి సహాయకుడి యొక్క ఆధార్ కార్డ్, స్థానిక చిరునామా మరియు నైపుణ్యాలను వ్యక్తిగతంగా ధృవీకరిస్తుంది. మా సిబ్బంది అధికారిక యూనిఫాం మరియు ఫోటో ఐడీ బ్యాడ్జ్ ధరించి మాత్రమే మీ నివాసానికి చేరుకుంటారు."
+                  : "All Osmida workers are locally onboarded in Nellore, background-checked via Aadhaar verification, and issued official Osmida uniforms and photo identification cards. Customers may verify helper credentials directly from their tracking dashboard."}
               </p>
             </section>
 
-            {/* Clause 5 */}
+            {/* Clause 6: Governing Law */}
             <section className="space-y-2">
-              <h2 className="text-base font-black text-[#111111] flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-[#1E6FFF]" />
-                <span>5. {lang === "te" ? "చట్టపరమైన పరిధి (Jurisdiction)" : "Governing Law & Legal Jurisdiction"}</span>
+              <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
+                <MapPin className="h-4 w-4 text-[#0C6266]" />
+                <span>6. {lang === "te" ? "చట్టపరమైన పరిధి (Jurisdiction)" : "Governing Law & Legal Jurisdiction"}</span>
               </h2>
               <p>
                 {lang === "te"
-                  ? "ఈ నిబంధనలు భారతీయ చట్టాలకు లోబడి ఉంటాయి. ఏవైనా వివాదాలు తలెత్తితే అవి నెల్లూరు జిల్లా న్యాయస్థానాల పరిధికి మాత్రమే వర్తిస్తాయి."
-                  : "These terms are governed by the laws of India. Any disputes arising out of services rendered shall be subject to the exclusive jurisdiction of the courts in Nellore, Andhra Pradesh."}
+                  ? "ఈ నిబంధనలు భారతీయ చట్టాలకు లోబడి ఉంటాయి. సేవలకు సంబంధించి ఏవైనా వివాదాలు తలెత్తితే అవి కేవలం నెల్లూరు జిల్లా న్యాయస్థానాల పరిధికి మాత్రమే వర్తిస్తాయి."
+                  : "These Terms of Service are governed by the laws of India. Any disputes arising out of or related to services booked through Osmida shall be subject to the exclusive jurisdiction of the competent courts in Nellore, Andhra Pradesh."}
               </p>
             </section>
 
-            {/* Entity info */}
-            <div className="border-t border-[#E5E7EB] pt-6 space-y-1.5 text-xs text-[#666666]">
-              <p><strong className="text-[#111111]">Operating Legal Entity:</strong> Finkfold</p>
-              <p><strong className="text-[#111111]">Brand:</strong> Osmida Facility Services</p>
-              <p><strong className="text-[#111111]">Registered Office:</strong> Fathekhanpet, Pendemvari Street, Nellore, Andhra Pradesh - 524003</p>
-              <p><strong className="text-[#111111]">Customer Helplines:</strong> +91 76763 58162 | +91 62815 33239</p>
-              <p><strong className="text-[#111111]">Email:</strong> osmidaindia@gmail.com</p>
+            {/* Entity Info Box */}
+            <div className="border-t border-slate-200 pt-6 space-y-1.5 text-xs text-slate-600">
+              <p><strong className="text-slate-900">Legal Operating Entity:</strong> Finkfold</p>
+              <p><strong className="text-slate-900">Consumer Brand:</strong> Osmida Facility Services</p>
+              <p><strong className="text-slate-900">Registered Office:</strong> Fathekhanpet, Pendemvari Street, Nellore, Andhra Pradesh - 524003</p>
+              <p><strong className="text-slate-900">Helpline:</strong> +91 76763 58162 | +91 62815 33239</p>
+              <p><strong className="text-slate-900">Customer Support:</strong> support@osmida.com / osmidaindia@gmail.com</p>
             </div>
           </div>
         </article>
-      </div>
+      </main>
 
-      {/* 4. FOOTER */}
-      <footer className="border-t border-white/10 bg-[#0B0B0F] px-4 sm:px-6 py-12 text-slate-400">
-        <div className="mx-auto max-w-4xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-          <Link href="/" className="text-white font-black tracking-widest text-sm">
-            OSMIDA NELLORE
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/terms" className="text-white font-bold">Terms of Service</Link>
-            <span>•</span>
-            <Link href="/privacy" className="hover:text-white">Privacy Policy</Link>
-            <span>•</span>
-            <Link href="/cancellation" className="hover:text-white">Cancellation Policy</Link>
-          </div>
-        </div>
-      </footer>
-
-      {/* Mobile Sticky Bar */}
-      <FloatingContactBar lang={lang} selectedServiceName="Terms Inquiry" />
-    </main>
+      {/* 4. PRONTO FOOTER */}
+      <ProntoFooter />
+    </div>
   );
 }

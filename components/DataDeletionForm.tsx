@@ -29,15 +29,68 @@ export function DataDeletionForm() {
   };
 
   return (
-    <form onSubmit={submit} className="space-y-3 rounded-2xl border border-white/10 bg-white/[0.02] p-5">
-      <h2 className="text-lg font-bold text-white">Request Data Deletion</h2>
-      <p className="text-xs text-slate-400">Submit your details so Finkfold can verify your identity and remove eligible Osmida records. Legal, payment, or transaction records may need to be retained where required.</p>
-      {(["businessName", "contactPerson", "whatsappNumber", "email", "referenceId"] as const).map((field) => (
-        <input key={field} required={field === "businessName" || field === "contactPerson" || field === "whatsappNumber"} type={field === "email" ? "email" : "text"} placeholder={{ businessName: "Business name", contactPerson: "Contact person", whatsappNumber: "WhatsApp number", email: "Email (optional)", referenceId: "Inspection reference (optional)" }[field]} value={form[field]} onChange={(event) => setForm({ ...form, [field]: event.target.value })} className="w-full rounded-xl border border-white/15 bg-black/60 px-4 py-3 text-sm text-white placeholder:text-slate-600 outline-none focus:border-emerald-400" />
-      ))}
-      <textarea placeholder="Reason or records you want deleted (optional)" value={form.reason} onChange={(event) => setForm({ ...form, reason: event.target.value })} rows={3} className="w-full resize-none rounded-xl border border-white/15 bg-black/60 px-4 py-3 text-sm text-white placeholder:text-slate-600 outline-none focus:border-emerald-400" />
-      {message && <p className={`text-xs ${status === "error" ? "text-red-400" : "text-emerald-400"}`}>{message}</p>}
-      <button type="submit" disabled={status === "submitting"} className="rounded-xl bg-white px-5 py-3 text-xs font-bold text-black hover:bg-emerald-400 disabled:opacity-50">{status === "submitting" ? "Submitting..." : "Submit Deletion Request"}</button>
+    <form onSubmit={submit} className="space-y-3 rounded-2xl border border-[#0C6266]/20 bg-[#F0FDF4]/50 p-5 sm:p-6 text-left">
+      <div>
+        <h3 className="text-base font-black text-slate-900 flex items-center gap-1.5">
+          <span>Request Data Deletion</span>
+        </h3>
+        <p className="text-xs text-slate-600 mt-1">
+          Submit your registered details so Finkfold can verify your identity and delete eligible Osmida records in compliance with DPDP regulations.
+        </p>
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <input
+          required
+          type="text"
+          placeholder="Full Name / Resident Name *"
+          value={form.contactPerson}
+          onChange={(e) => setForm({ ...form, contactPerson: e.target.value })}
+          className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#0C6266] focus:ring-1 focus:ring-[#0C6266]"
+        />
+        <input
+          required
+          type="tel"
+          placeholder="WhatsApp Number *"
+          value={form.whatsappNumber}
+          onChange={(e) => setForm({ ...form, whatsappNumber: e.target.value })}
+          className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#0C6266] focus:ring-1 focus:ring-[#0C6266]"
+        />
+      </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <input
+          type="email"
+          placeholder="Email Address (Optional)"
+          value={form.email}
+          onChange={(e) => setForm({ ...form, email: e.target.value })}
+          className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#0C6266] focus:ring-1 focus:ring-[#0C6266]"
+        />
+        <input
+          type="text"
+          placeholder="Booking Reference (e.g. OSM-XXXX, optional)"
+          value={form.referenceId}
+          onChange={(e) => setForm({ ...form, referenceId: e.target.value })}
+          className="w-full rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#0C6266] focus:ring-1 focus:ring-[#0C6266]"
+        />
+      </div>
+      <textarea
+        placeholder="Reason or specific records you want removed (optional)"
+        value={form.reason}
+        onChange={(e) => setForm({ ...form, reason: e.target.value })}
+        rows={2}
+        className="w-full resize-none rounded-xl border border-slate-300 bg-white px-3.5 py-2.5 text-xs text-slate-900 placeholder:text-slate-400 outline-none focus:border-[#0C6266] focus:ring-1 focus:ring-[#0C6266]"
+      />
+      {message && (
+        <p className={`text-xs font-semibold ${status === "error" ? "text-rose-600" : "text-emerald-700"}`}>
+          {message}
+        </p>
+      )}
+      <button
+        type="submit"
+        disabled={status === "submitting"}
+        className="w-full sm:w-auto rounded-xl bg-[#0C6266] hover:bg-[#095054] px-5 py-2.5 text-xs font-bold text-white transition-colors disabled:opacity-50 cursor-pointer shadow-xs"
+      >
+        {status === "submitting" ? "Submitting..." : "Submit Deletion Request"}
+      </button>
     </form>
   );
 }

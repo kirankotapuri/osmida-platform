@@ -2,48 +2,74 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
-import { Header } from "@/components/Header";
-import { FloatingContactBar } from "@/components/FloatingContactBar";
+import { ProntoHeader } from "@/components/ProntoHeader";
+import { ProntoFooter } from "@/components/ProntoFooter";
 import { Language, UI_TEXT } from "@/lib/translations";
-import { Phone, ArrowLeft, ShieldCheck, MapPin, Award, CheckCircle2 } from "lucide-react";
+import {
+  ArrowLeft,
+  ShieldCheck,
+  MapPin,
+  Award,
+  CheckCircle2,
+  Sparkles,
+  Clock,
+  Phone,
+  Globe,
+  HeartHandshake,
+} from "lucide-react";
 
 export default function AboutPage() {
   const [lang, setLang] = useState<Language>("en");
-  const t = UI_TEXT[lang];
 
   return (
-    <main className="min-h-screen bg-[#F7F8FA] text-[#111111] pt-16 lg:pt-20 pb-20 lg:pb-0 selection:bg-[#1E6FFF] selection:text-white">
-      {/* 1. FIXED HEADER */}
-      <Header lang={lang} onLanguageChange={setLang} />
+    <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-[#0C6266] selection:text-white flex flex-col justify-between">
+      {/* 1. PRONTO HEADER */}
+      <ProntoHeader />
 
-      {/* 2. BREADCRUMB */}
-      <div className="border-b border-[#E5E7EB] bg-white px-4 py-3">
+      {/* 2. BREADCRUMB & LANGUAGE TOGGLE */}
+      <div className="border-b border-slate-200 bg-white px-4 py-3">
         <div className="mx-auto max-w-4xl flex items-center justify-between text-xs font-bold">
-          <Link href="/" className="flex items-center gap-1.5 text-[#555555] hover:text-[#1E6FFF]">
-            <ArrowLeft className="h-3.5 w-3.5" />
-            <span>{lang === "te" ? "హోమ్ పేజీ" : "Back to Home"}</span>
+          <Link
+            href="/"
+            className="flex items-center gap-1.5 text-slate-600 hover:text-[#0C6266] transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>{lang === "te" ? "హోమ్ పేజీకి తిరిగి వెళ్ళు" : "Back to Home"}</span>
           </Link>
-          <span className="text-[#1E6FFF]">
-            📍 Fathekhanpet, Nellore
-          </span>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setLang(lang === "en" ? "te" : "en")}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1 text-xs font-bold text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+            >
+              <Globe className="h-3.5 w-3.5 text-[#0C6266]" />
+              <span>{lang === "en" ? "తెలుగు లో చదవండి" : "Read in English"}</span>
+            </button>
+            <span className="text-[#0C6266] hidden sm:flex items-center gap-1">
+              <MapPin className="h-3.5 w-3.5 text-[#E68A00]" />
+              <span>Fathekhanpet, Nellore</span>
+            </span>
+          </div>
         </div>
       </div>
 
       {/* 3. CONTENT BODY */}
-      <div className="px-4 py-10 sm:py-14">
+      <main className="flex-1 px-4 py-8 sm:py-12">
         <div className="mx-auto max-w-3xl space-y-8 text-left">
           <div>
-            <span className="text-xs font-black uppercase tracking-widest text-[#1E6FFF] bg-[#1E6FFF]/10 border border-[#1E6FFF]/20 px-3 py-1 rounded-full">
-              {lang === "te" ? "మా గురించి" : "Our Story & Mission"}
-            </span>
-            <h1 className="text-3xl sm:text-4xl font-black text-[#111111] mt-3">
-              {lang === "te" ? "నెల్లూరు ప్రజల కోసం నమ్మకమైన హోమ్ సర్వీసెస్" : "Nellore's Most Trusted Home Services Platform"}
-            </h1>
-            <p className="mt-3 text-sm sm:text-base text-[#555555] leading-relaxed">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#0C6266]/10 text-[#0C6266] border border-[#0C6266]/20 px-3 py-1 text-xs font-black uppercase tracking-wider">
+              <Sparkles className="h-3.5 w-3.5 text-[#0C6266]" />
+              <span>{lang === "te" ? "మా కథ & లక్ష్యం" : "Our Story & Mission"}</span>
+            </div>
+            <h1 className="text-3xl sm:text-4xl font-black text-slate-900 mt-3 tracking-tight">
               {lang === "te"
-                ? "ఆస్మిడా (Osmida) నెల్లూరులో సరికొత్తగా ప్రారంభమైన ఆధునిక హోమ్ సర్వీస్ ప్లాట్‌ఫామ్. నగరంలో ఇప్పటికే ఏళ్ల అనుభవం ఉన్న ప్రముఖ స్థానిక టెక్నీషియన్లతో భాగస్వామ్యం కుదుర్చుకుని, పర్యవేక్షణ నాణ్యత, అధికారిక బ్లాక్ యూనిఫాం, నిర్ణీత ధరలు మరియు 30 రోజుల వారంటీ అందిస్తున్నాము."
-                : "Osmida is a new managed home services platform launched in Nellore. We partner directly with Nellore's established, top-rated local technicians — bringing their years of field experience under Osmida's supervised standards, official black uniform, transparent pricing, and 30-day rework guarantee."}
+                ? "నెల్లూరు ప్రజల కోసం నమ్మకమైన ఆధునిక హోమ్ సర్వీసెస్"
+                : "Nellore's Most Trusted Managed Home Services"}
+            </h1>
+            <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed font-medium">
+              {lang === "te"
+                ? "ఆస్మిడా (ఫింక్‌ఫోల్డ్ ఆధ్వర్యంలో) నెల్లూరులో అపార్ట్‌మెంట్లు మరియు గృహాల కోసం ప్రత్యేకంగా రూపొందించబడిన ఆధునిక హోమ్ సర్వీస్ ప్లాట్‌ఫామ్. స్థానిక అనుభవజ్ఞులైన సహాయకులతో, నిర్ణీత ₹199/గంట రేటుతో, అధికారిక యూనిఫాం మరియు వారంటీ రక్షణతో నాణ్యమైన సేవలను అందిస్తున్నాము."
+                : "Osmida (operated by Finkfold) is Nellore's apartment-first residential support platform. We partner directly with verified, top-rated local helpers and technicians — bringing transparent hourly pricing (flat ₹199/hr), supervised standards, official Osmida uniforms, and escrow-protected post-service payment."}
             </p>
           </div>
 
@@ -51,83 +77,85 @@ export default function AboutPage() {
           <div className="grid gap-4 sm:grid-cols-2">
             {[
               {
-                titleEn: "Partnered with Established Local Pros",
-                titleTe: "స్థానిక ప్రముఖ నిపుణులతో భాగస్వామ్యం",
-                descEn: "We collaborate with Nellore's trusted local technicians, onboarded with official uniform, photo ID cards, and quality supervision.",
-                descTe: "నెల్లూరులో ఇప్పటికే గుర్తింపు పొందిన అనుభవజ్ఞులైన స్థానిక నిపుణులతో భాగస్వామ్యం. అధికారిక యూనిఫాం, ఐడీ కార్డ్ మరియు పర్యవేక్షణ నాణ్యత."
+                titleEn: "Verified Local Nellore Helpers",
+                titleTe: "ధృవీకరించబడిన స్థానిక నిపుణులు",
+                descEn: "Background-checked with Aadhaar identity verification, official uniforms, and quality standards.",
+                descTe: "ఆధార్ కార్డు ద్వారా ధృవీకరించబడిన స్థానిక అనుభవజ్ఞులు, అధికారిక యూనిఫాం మరియు పర్యవేక్షిత నాణ్యత.",
               },
               {
                 titleEn: "Zero Advance • Pay After Service",
-                titleTe: "₹0 అడ్వాన్స్ • పని అయ్యాకే పేమెంట్",
-                descEn: "You never pay a single rupee upfront. Only pay via UPI or cash after inspecting the completed job.",
-                descTe: "ముందుగా ఎలాంటి అడ్వాన్స్ ఇవ్వక్కర్లేదు. పని చూసి సంతృప్తి చెందిన తర్వాతే చెల్లించండి."
+                titleTe: "₹0 అడ్వాన్స్ • పని పూర్తయ్యాకే పేమెంట్",
+                descEn: "No advance payment ever. Inspect the service in person and pay only when fully satisfied via UPI or cash.",
+                descTe: "ఎలాంటి ముందస్తు చెల్లింపు లేదు. పనిని స్వయంగా చూసి సంతృప్తి చెందిన తర్వాత మాత్రమే UPI లేదా నగదు చెల్లించండి.",
               },
               {
-                titleEn: "30-Day Free Revisit Guarantee",
-                titleTe: "30 రోజుల ఉచిత రీవిజిట్ వారంటీ",
-                descEn: "If pests return or AC leaks within 30 days, we come back and fix it completely free of cost.",
-                descTe: "30 రోజుల్లో సమస్య మళ్లీ కనిపిస్తే ఉచితంగా రీ-ట్రీట్మెంట్ చేస్తాము."
+                titleEn: "30-Day Warranty Protection",
+                titleTe: "ఉచిత రీవర్క్ & వారంటీ రక్షణ",
+                descEn: "24-hr rework window for home help, 30 days for pest control, and 15 days for AC servicing.",
+                descTe: "గృహ సహాయ సేవలకు 24 గంటల సమీక్ష, పురుగుల నివారణకు 30 రోజుల రీవర్క్ వారంటీ మరియు ఏసీ సర్వీస్‌కు 15 రోజుల కూలింగ్ వారంటీ.",
               },
               {
-                titleEn: "Nellore-First Support",
-                titleTe: "స్థానిక నెల్లూరు సపోర్ట్",
-                descEn: "Our team speaks fluent Telugu and English. Reach our local coordinator directly on phone or WhatsApp.",
-                descTe: "మా స్థానిక బృందం మీతో తెలుగులో మాట్లాడి మీ సమస్యను పరిష్కరిస్తుంది."
-              }
+                titleEn: "Apartment & Community First",
+                titleTe: "అపార్ట్‌మెంట్ల కోసం ప్రత్యేక వేగం",
+                descEn: "Quick 15-minute response in top Nellore localities like Haranathapuram, Magunta Layout, and Vedayapalem.",
+                descTe: "హరనాథపురం, మాగుంట లేఅవుట్, వేదాయపాలెం మరియు నెల్లూరు ప్రధాన ప్రాంతాలలో వేగవంతమైన సహాయం.",
+              },
             ].map((v, i) => (
-              <div key={i} className="rounded-2xl border border-[#E5E7EB] bg-white p-5 space-y-2 shadow-xs">
-                <CheckCircle2 className="h-5 w-5 text-[#25D366]" />
-                <h3 className="font-black text-[#111111] text-base">
-                  {lang === "te" ? v.titleTe : v.titleEn}
-                </h3>
-                <p className="text-xs text-[#555555] leading-relaxed">
+              <div
+                key={i}
+                className="rounded-2xl border border-slate-200 bg-white p-5 space-y-2 shadow-xs"
+              >
+                <div className="flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-[#0C6266] shrink-0" />
+                  <h3 className="font-bold text-sm text-slate-900">
+                    {lang === "te" ? v.titleTe : v.titleEn}
+                  </h3>
+                </div>
+                <p className="text-xs text-slate-600 leading-relaxed">
                   {lang === "te" ? v.descTe : v.descEn}
                 </p>
               </div>
             ))}
           </div>
 
-          {/* Operating details */}
-          <div className="rounded-3xl border border-[#E5E7EB] bg-white p-6 space-y-3 text-xs text-[#555555]">
-            <h3 className="text-sm font-black text-[#111111]">
-              Legal & Operating Identity
-            </h3>
-            <p>• Brand: Osmida Facility Services</p>
-            <p>• Operating Entity: Finkfold</p>
-            <p>• Registered Operating Address: Fathekhanpet, Pendemvari Street, Nellore, Andhra Pradesh - 524003, India</p>
-            <p>• Customer Support: +91 76763 58162 | osmidaindia@gmail.com</p>
-            <p>• Working Hours: 8:00 AM – 8:00 PM (All 7 Days)</p>
+          {/* Operating Entity Details */}
+          <div className="rounded-3xl border border-slate-200 bg-white p-6 space-y-3 text-xs sm:text-sm text-slate-700 shadow-xs">
+            <h2 className="text-base font-black text-slate-900 flex items-center gap-2">
+              <HeartHandshake className="h-4 w-4 text-[#0C6266]" />
+              <span>{lang === "te" ? "కార్పొరేట్ మరియు ఆపరేషన్స్ వివరాలు" : "Operations & Corporate Entity"}</span>
+            </h2>
+            <p>
+              Osmida is the consumer services brand operated by <strong>Finkfold</strong>, legally registered and operating out of Nellore, Andhra Pradesh.
+            </p>
+            <div className="grid sm:grid-cols-2 gap-2 pt-2 text-xs text-slate-600">
+              <p><strong className="text-slate-900">Registered Office:</strong> Fathekhanpet, Pendemvari Street, Nellore - 524003</p>
+              <p><strong className="text-slate-900">Operating Hours:</strong> 8:00 AM – 8:00 PM Daily</p>
+              <p><strong className="text-slate-900">Customer Helpline:</strong> +91 76763 58162</p>
+              <p><strong className="text-slate-900">Business Inquiry:</strong> +91 62815 33239</p>
+            </div>
           </div>
 
-          <div className="pt-2">
+          <div className="pt-2 flex flex-col sm:flex-row gap-3">
             <Link
               href="/book"
-              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#1E6FFF] hover:bg-[#0F4BD6] py-3.5 px-6 text-sm font-black text-white transition-all shadow-md active:scale-[0.97]"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-[#0C6266] hover:bg-[#095054] py-3.5 px-6 text-sm font-black text-white transition-all shadow-md active:scale-[0.98]"
             >
-              <span>{lang === "te" ? "సర్వీస్ బుక్ చేయండి" : "Book a Service Now"}</span>
+              <span>{lang === "te" ? "సర్వీస్ బుక్ చేయండి (₹199/గంట)" : "Book House Help (₹199/hr)"}</span>
             </Link>
+            <a
+              href="https://wa.me/917676358162?text=Hello%20Osmida,%20I%20would%20like%20to%20know%20more%20about%20your%20services."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 bg-white hover:bg-slate-50 py-3.5 px-6 text-sm font-bold text-slate-800 transition-all shadow-xs"
+            >
+              <span>💬 Chat on WhatsApp (+91 76763 58162)</span>
+            </a>
           </div>
         </div>
-      </div>
+      </main>
 
-      {/* 4. FOOTER */}
-      <footer className="border-t border-white/10 bg-[#0B0B0F] px-4 sm:px-6 py-12 text-slate-400 mt-12">
-        <div className="mx-auto max-w-4xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
-          <Link href="/" className="text-white font-black tracking-widest text-sm">
-            OSMIDA NELLORE
-          </Link>
-          <div className="flex items-center gap-4">
-            <Link href="/terms" className="hover:text-white">Terms of Service</Link>
-            <span>•</span>
-            <Link href="/privacy" className="hover:text-white">Privacy Policy</Link>
-            <span>•</span>
-            <Link href="/cancellation" className="hover:text-white">Cancellation Policy</Link>
-          </div>
-        </div>
-      </footer>
-
-      {/* Mobile Sticky Bar */}
-      <FloatingContactBar lang={lang} selectedServiceName="Osmida Nellore" />
-    </main>
+      {/* 4. PRONTO FOOTER */}
+      <ProntoFooter />
+    </div>
   );
 }

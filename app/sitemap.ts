@@ -40,6 +40,18 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.7,
     },
     {
+      url: 'https://osmida.com/book',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: 'https://osmida.com/privacy',
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
       url: 'https://osmida.com/privacy-policy',
       lastModified: now,
       changeFrequency: 'monthly',
@@ -49,7 +61,19 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: 'https://osmida.com/terms',
       lastModified: now,
       changeFrequency: 'monthly',
-      priority: 0.5,
+      priority: 0.6,
+    },
+    {
+      url: 'https://osmida.com/cancellation',
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    {
+      url: 'https://osmida.com/my-bookings',
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.7,
     },
   ];
 }
