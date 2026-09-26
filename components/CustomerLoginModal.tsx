@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   Phone,
   Mail,
@@ -30,6 +31,23 @@ export function CustomerLoginModal({
   onClose,
   onLoginSuccess,
 }: CustomerLoginModalProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+
   // Primary auth channel: 'email' (Gmail) vs 'phone' (WhatsApp)
   const [authMethod, setAuthMethod] = useState<"email" | "phone">("email");
 
@@ -50,7 +68,7 @@ export function CustomerLoginModal({
   const [errorMsg, setErrorMsg] = useState("");
   const [infoMsg, setInfoMsg] = useState("");
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   // ----------------------------------------------------------------
   // GOOGLE 1-CLICK AUTH
@@ -341,10 +359,17 @@ export function CustomerLoginModal({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-xs p-3 sm:p-4 overflow-y-auto">
-      <div className="relative my-auto bg-white rounded-3xl max-w-md w-full shadow-2xl p-5 sm:p-6 space-y-4 max-h-[92vh] overflow-y-auto animate-in fade-in zoom-in-95 border border-slate-100">
-        {/* Header */}
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[99999] overflow-y-auto bg-black/70 backdrop-blur-xs transition-opacity"
+      onClick={onClose}
+    >
+      <div className="flex min-h-full items-center justify-center p-3 sm:p-4 text-center">
+        <div
+          className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl p-5 sm:p-6 space-y-4 border border-slate-100 text-left my-6 sm:my-8 animate-in fade-in zoom-in-95 transition-all"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0C6266]/10 text-[#0C6266]">
@@ -781,5 +806,7 @@ export function CustomerLoginModal({
         </div>
       </div>
     </div>
-  );
+  </div>,
+  document.body
+);
 }

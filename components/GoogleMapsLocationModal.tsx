@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import {
   MapPin,
   Search,
@@ -53,6 +54,7 @@ export function GoogleMapsLocationModal({
   onSelectLocation,
   currentLocality = "Pogathota",
 }: GoogleMapsLocationModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [selectedLocality, setSelectedLocality] = useState(currentLocality);
   const [searchQuery, setSearchQuery] = useState("");
   const [detectedAddress, setDetectedAddress] = useState("");
@@ -63,6 +65,10 @@ export function GoogleMapsLocationModal({
   const [gpsError, setGpsError] = useState("");
   const [gpsSuccess, setGpsSuccess] = useState(false);
 
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   // Sync with current locality on open
   useEffect(() => {
     if (currentLocality && NELLORE_AREAS.includes(currentLocality)) {
@@ -70,7 +76,7 @@ export function GoogleMapsLocationModal({
     }
   }, [currentLocality, isOpen]);
 
-  if (!isOpen) return null;
+  if (!isOpen || !mounted) return null;
 
   // Realtime GPS Locator
   const handleUseCurrentGpsLocation = () => {
@@ -167,10 +173,17 @@ export function GoogleMapsLocationModal({
     gpsSuccess ? `${lat},${lng}` : mapSearchTerm
   )}&z=15&output=embed`;
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-3 sm:p-4">
-      <div className="bg-white rounded-3xl max-w-xl w-full shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 flex flex-col max-h-[92vh]">
-        {/* Header */}
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[99999] overflow-y-auto bg-black/70 backdrop-blur-xs transition-opacity"
+      onClick={onClose}
+    >
+      <div className="flex min-h-full items-center justify-center p-3 sm:p-4 text-center">
+        <div
+          className="relative w-full max-w-xl bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-100 flex flex-col max-h-[92vh] text-left my-6 sm:my-8 animate-in fade-in zoom-in-95 transition-all"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header */}
         <div className="p-4 sm:p-5 border-b border-slate-100 flex items-center justify-between bg-white shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0C6266]/10 text-[#0C6266] shrink-0">
@@ -357,5 +370,7 @@ export function GoogleMapsLocationModal({
         </div>
       </div>
     </div>
-  );
+  </div>,
+  document.body
+);
 }

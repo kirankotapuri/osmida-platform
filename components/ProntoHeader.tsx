@@ -90,7 +90,8 @@ export function ProntoHeader() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-[#E1EBEB] transition-all shadow-xs">
+    <>
+      <header className="sticky top-0 z-50 w-full bg-white/95 backdrop-blur-md border-b border-[#E1EBEB] transition-all shadow-xs">
       <div className="mx-auto flex h-14 sm:h-16 max-w-7xl items-center justify-between px-3 sm:px-6 lg:px-8">
         {/* Left: Brand Logo & Working Nellore Locality Selector */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
@@ -455,13 +456,14 @@ export function ProntoHeader() {
           </div>
         </>
       )}
-
-      {/* CUSTOMER LOGIN MODAL */}
-      <CustomerLoginModal
-        isOpen={loginModalOpen}
-        onClose={() => setLoginModalOpen(false)}
-        onLoginSuccess={handleLoginSuccess}
-      />
     </header>
+
+    {/* CUSTOMER LOGIN MODAL */}
+    <CustomerLoginModal
+      isOpen={loginModalOpen}
+      onClose={() => setLoginModalOpen(false)}
+      onLoginSuccess={handleLoginSuccess}
+    />
+  </>
   );
 }
