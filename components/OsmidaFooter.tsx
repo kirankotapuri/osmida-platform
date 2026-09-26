@@ -27,25 +27,14 @@ export function OsmidaFooter() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 text-xs">
           {/* Column 1 & 2: Brand Information */}
           <div className="sm:col-span-2 space-y-4">
-            <Link href="/" className="inline-flex items-center gap-2.5 group">
-              <div className="relative h-9 w-9 rounded-xl overflow-hidden border border-[#0C6266]/40 bg-[#095054] shadow-sm flex items-center justify-center p-1 group-hover:scale-105 transition-transform">
-                <Image
-                  src="/icon.svg"
-                  alt="Osmida Logo"
-                  width={36}
-                  height={36}
-                  className="object-contain"
-                />
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="text-2xl font-black tracking-tight text-white font-sans">
-                  Osmida
-                </span>
-                <span className="inline-flex items-center gap-1 text-[10px] font-black text-[#E68A00] bg-[#E68A00]/15 border border-[#E68A00]/30 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#16A34A] animate-pulse" />
-                  Nellore
-                </span>
-              </div>
+            <Link href="/" className="inline-flex items-center gap-2.5 group" aria-label="Osmida Home">
+              <span className="text-2xl sm:text-[28px] font-black tracking-tight text-white group-hover:opacity-90 transition-opacity select-none">
+                Osmida
+              </span>
+              <span className="inline-flex items-center gap-1 text-[10px] font-black text-[#E68A00] bg-[#E68A00]/15 border border-[#E68A00]/30 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#16A34A] animate-pulse" />
+                Nellore
+              </span>
             </Link>
 
             <p className="text-slate-300 text-xs font-medium max-w-sm leading-relaxed">
