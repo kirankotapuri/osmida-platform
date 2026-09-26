@@ -836,13 +836,24 @@ export default function AdminDashboardPage() {
                           )}
                         </td>
                         <td className="p-3">
-                          {p.status !== "paid" && (
-                            <button
-                              onClick={() => handleMarkPayoutPaid(p.id, p.reference_id)}
-                              className="rounded-lg bg-[#E68A00] hover:bg-[#CC7A00] text-white px-3 py-1 font-bold text-[11px] transition shadow-xs"
-                            >
-                              Mark as Paid
-                            </button>
+                          {p.status !== "paid" ? (
+                            <div className="flex items-center gap-1.5">
+                              <a
+                                href={`upi://pay?pa=${encodeURIComponent(p.partner_upi || "9490122849@okaxis")}&pn=${encodeURIComponent(p.partner_name || "Osmida Partner")}&am=${p.amount}&cu=INR&tn=${encodeURIComponent(`Osmida Payout ${p.reference_id}`)}`}
+                                className="rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white px-2.5 py-1 font-bold text-[11px] transition inline-flex items-center gap-1 shadow-xs"
+                                title="Open Google Pay / PhonePe with pre-filled amount and UPI ID"
+                              >
+                                <span>⚡ Pay UPI</span>
+                              </a>
+                              <button
+                                onClick={() => handleMarkPayoutPaid(p.id, p.reference_id)}
+                                className="rounded-lg bg-[#E68A00] hover:bg-[#CC7A00] text-white px-2.5 py-1 font-bold text-[11px] transition shadow-xs"
+                              >
+                                Mark Paid
+                              </button>
+                            </div>
+                          ) : (
+                            <span className="text-[10px] font-bold text-emerald-400">✓ Settled</span>
                           )}
                         </td>
                       </tr>

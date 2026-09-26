@@ -66,7 +66,7 @@ export default function PartnerPortalPage() {
   } | null>(null);
 
   // Registration states (Screen 1: Worker Registration)
-  const [authMode, setAuthMode] = useState<"login" | "register">("login");
+  const [authMode, setAuthMode] = useState<"login" | "register" | "forgot_pin">("login");
   const [regName, setRegName] = useState("");
   const [regPhone, setRegPhone] = useState("");
   const [regAadhaar, setRegAadhaar] = useState("");
@@ -81,6 +81,14 @@ export default function PartnerPortalPage() {
     "Dishwashing",
     "General House Help",
   ]);
+
+  // Forgot PIN states
+  const [resetPhone, setResetPhone] = useState("");
+  const [resetAadhaarLast4, setResetAadhaarLast4] = useState("");
+  const [resetNewPin, setResetNewPin] = useState("");
+  const [resetConfirmPin, setResetConfirmPin] = useState("");
+  const [isResettingPin, setIsResettingPin] = useState(false);
+  const [resetSuccessMessage, setResetSuccessMessage] = useState("");
 
   // Load saved session on mount and inject worker-specific PWA manifest
   useEffect(() => {
@@ -234,6 +242,43 @@ export default function PartnerPortalPage() {
       setAuthError(err.message || "Invalid credentials");
     } finally {
       setIsLoggingIn(false);
+    }
+  };
+
+  // Reset PIN handler
+  const handleResetPin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAuthError("");
+    setResetSuccessMessage("");
+    setIsResettingPin(true);
+
+    try {
+      const res = await fetch("/api/partner/reset-pin", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          phone: resetPhone,
+          newPin: resetNewPin,
+          confirmPin: resetConfirmPin,
+          aadhaarLast4: resetAadhaarLast4,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Failed to reset PIN");
+      }
+
+      setResetSuccessMessage("PIN reset successful! Please log in with your new PIN.");
+      setLoginPhone(resetPhone);
+      setLoginPin(resetNewPin);
+      setTimeout(() => {
+        setAuthMode("login");
+      }, 1500);
+    } catch (err: any) {
+      setAuthError(err.message || "Failed to reset PIN");
+    } finally {
+      setIsResettingPin(false);
     }
   };
 
@@ -485,18 +530,26 @@ export default function PartnerPortalPage() {
           <div className="grid grid-cols-2 gap-1 bg-black/40 p-1 rounded-xl mb-5 border border-white/10 text-xs font-bold">
             <button
               type="button"
-              onClick={() => setAuthMode("login")}
+              onClick={() => {
+                setAuthMode("login");
+                setAuthError("");
+                setResetSuccessMessage("");
+              }}
               className={`py-2 rounded-lg transition ${
-                authMode === "login"
+                authMode === "login" || authMode === "forgot_pin"
                   ? "bg-[#0C6266] text-white shadow-sm"
                   : "text-gray-400 hover:text-white"
               }`}
             >
-              Partner Login
+              {authMode === "forgot_pin" ? "Reset PIN" : "Partner Login"}
             </button>
             <button
               type="button"
-              onClick={() => setAuthMode("register")}
+              onClick={() => {
+                setAuthMode("register");
+                setAuthError("");
+                setResetSuccessMessage("");
+              }}
               className={`py-2 rounded-lg transition ${
                 authMode === "register"
                   ? "bg-[#0C6266] text-white shadow-sm"
@@ -511,6 +564,13 @@ export default function PartnerPortalPage() {
             <div className="mb-4 p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-red-400 text-xs flex items-center gap-2">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{authError}</span>
+            </div>
+          )}
+
+          {resetSuccessMessage && (
+            <div className="mb-4 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>{resetSuccessMessage}</span>
             </div>
           )}
 
@@ -651,7 +711,7 @@ export default function PartnerPortalPage() {
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
-          ) : (
+          ) : authMode === "login" ? (
             /* LOGIN FORM */
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
@@ -685,7 +745,21 @@ export default function PartnerPortalPage() {
                   placeholder="••••"
                   className="w-full bg-[#0E131F] border border-white/15 rounded-xl px-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266] tracking-widest text-center"
                 />
-                <span className="block text-[11px] text-gray-400 mt-1">Enter your registered 4-digit partner security PIN</span>
+                <div className="flex items-center justify-between mt-1.5">
+                  <span className="text-[11px] text-gray-400">Registered 4-digit security PIN</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAuthMode("forgot_pin");
+                      setAuthError("");
+                      setResetSuccessMessage("");
+                      setResetPhone(loginPhone);
+                    }}
+                    className="text-[11px] font-bold text-[#38B2AC] hover:underline"
+                  >
+                    Forgot PIN?
+                  </button>
+                </div>
               </div>
 
               <button
@@ -696,6 +770,117 @@ export default function PartnerPortalPage() {
                 {isLoggingIn ? "Authenticating..." : "Login to Dispatch Hub"}
                 <ArrowRight className="w-4 h-4" />
               </button>
+            </form>
+          ) : (
+            /* FORGOT PIN FORM */
+            <form onSubmit={handleResetPin} className="space-y-4">
+              <div className="p-3 bg-white/5 border border-white/10 rounded-xl space-y-1">
+                <span className="text-xs font-bold text-white block">Reset Security PIN</span>
+                <span className="text-[11px] text-gray-400 block">
+                  Enter your registered phone number and set a new 4-digit security PIN.
+                </span>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">
+                  Registered Mobile Number*
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3.5 top-3 text-gray-400 text-sm font-medium">+91</span>
+                  <input
+                    type="tel"
+                    maxLength={10}
+                    required
+                    value={resetPhone}
+                    onChange={(e) => setResetPhone(e.target.value.replace(/\D/g, ""))}
+                    placeholder="9848011111"
+                    className="w-full bg-[#0E131F] border border-white/15 rounded-xl pl-12 pr-4 py-2.5 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">
+                  Aadhaar Last 4 Digits (Optional / Extra Security)
+                </label>
+                <input
+                  type="text"
+                  maxLength={4}
+                  value={resetAadhaarLast4}
+                  onChange={(e) => setResetAadhaarLast4(e.target.value.replace(/\D/g, ""))}
+                  placeholder="e.g. 8891"
+                  className="w-full bg-[#0E131F] border border-white/15 rounded-xl px-4 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266] tracking-widest text-center"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">
+                    New 4-Digit PIN*
+                  </label>
+                  <input
+                    type="password"
+                    maxLength={4}
+                    required
+                    value={resetNewPin}
+                    onChange={(e) => setResetNewPin(e.target.value.replace(/\D/g, ""))}
+                    placeholder="••••"
+                    className="w-full bg-[#0E131F] border border-white/15 rounded-xl px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266] tracking-widest text-center"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-gray-300 uppercase tracking-wider mb-1">
+                    Confirm PIN*
+                  </label>
+                  <input
+                    type="password"
+                    maxLength={4}
+                    required
+                    value={resetConfirmPin}
+                    onChange={(e) => setResetConfirmPin(e.target.value.replace(/\D/g, ""))}
+                    placeholder="••••"
+                    className="w-full bg-[#0E131F] border border-white/15 rounded-xl px-3 py-2 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-[#0C6266] tracking-widest text-center"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2 pt-2">
+                <button
+                  type="submit"
+                  disabled={isResettingPin}
+                  className="w-full bg-[#0C6266] hover:bg-[#0E757A] text-white font-bold py-2.5 rounded-xl transition shadow-lg flex items-center justify-center gap-2 text-xs disabled:opacity-50"
+                >
+                  {isResettingPin ? "Updating PIN..." : "Update PIN & Return to Login"}
+                  <CheckCircle2 className="w-4 h-4" />
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setAuthMode("login");
+                    setAuthError("");
+                    setResetSuccessMessage("");
+                  }}
+                  className="w-full bg-white/5 hover:bg-white/10 text-gray-400 py-2 rounded-xl text-xs transition"
+                >
+                  ← Back to Login
+                </button>
+              </div>
+
+              {/* Direct WhatsApp Emergency Admin Support */}
+              <div className="pt-3 border-t border-white/10 text-center">
+                <span className="text-[11px] text-gray-400 block mb-1.5">Need instant help from operations?</span>
+                <a
+                  href={`https://wa.me/917981067780?text=${encodeURIComponent(
+                    `Namaste Osmida Dispatch, I am a Nellore partner (Phone: ${resetPhone || loginPhone || "..."}). I forgot my 4-digit PIN. Please help me reset it.`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 text-xs text-emerald-400 hover:text-emerald-300 font-bold"
+                >
+                  <span>Chat with Osmida Admin on WhatsApp</span>
+                  <ChevronRight className="w-3.5 h-3.5" />
+                </a>
+              </div>
             </form>
           )}
 
