@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { DEFAULT_APP_SETTINGS, PRONTO_SERVICES } from "@/lib/prontoServices";
+import { DEFAULT_APP_SETTINGS, OSMIDA_SERVICES } from "@/lib/osmidaServices";
 
 export const runtime = "nodejs";
 
@@ -48,12 +48,12 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       settings: cachedSettings,
-      services: PRONTO_SERVICES,
+      services: OSMIDA_SERVICES,
     });
   } catch (error) {
     console.error("Settings GET error:", error);
     return NextResponse.json(
-      { success: true, settings: cachedSettings, services: PRONTO_SERVICES },
+      { success: true, settings: cachedSettings, services: OSMIDA_SERVICES },
       { status: 200 }
     );
   }

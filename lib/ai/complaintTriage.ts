@@ -6,7 +6,7 @@
 // Admin approves in one click
 // ==============================================================================
 
-import { PRONTO_SERVICES } from "../prontoServices";
+import { OSMIDA_SERVICES } from "../osmidaServices";
 
 export interface ComplaintJobRecord {
   referenceId: string;
@@ -52,7 +52,7 @@ export async function triageComplaint(
 
   if (apiKey) {
     try {
-      const scopeSummary = PRONTO_SERVICES.map(
+      const scopeSummary = OSMIDA_SERVICES.map(
         (s) => `Service: ${s.name}
 Included: ${s.included.join(", ")}
 Not Included: ${s.notIncluded.join(", ")}`

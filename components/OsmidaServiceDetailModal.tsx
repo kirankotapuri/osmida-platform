@@ -4,10 +4,10 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { X, Check, ArrowRight, ShieldCheck } from "lucide-react";
-import { ProntoService } from "@/lib/prontoServices";
+import { OsmidaService } from "@/lib/osmidaServices";
 
-interface ProntoServiceDetailModalProps {
-  service: ProntoService | null;
+interface OsmidaServiceDetailModalProps {
+  service: OsmidaService | null;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -30,11 +30,11 @@ const NELLORE_AREAS = [
   "Children's Park Road",
 ];
 
-export function ProntoServiceDetailModal({
+export function OsmidaServiceDetailModal({
   service,
   isOpen,
   onClose,
-}: ProntoServiceDetailModalProps) {
+}: OsmidaServiceDetailModalProps) {
   if (!isOpen || !service) return null;
 
   const imageSrc = SERVICE_IMAGES[service.id] || "/images/isometric_bathroom_mini.jpg";
@@ -175,3 +175,6 @@ export function ProntoServiceDetailModal({
     </div>
   );
 }
+
+export const ProntoServiceDetailModal = OsmidaServiceDetailModal;
+

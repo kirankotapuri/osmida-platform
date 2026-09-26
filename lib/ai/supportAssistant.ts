@@ -1,11 +1,11 @@
 // ==============================================================================
 // OSMIDA AI: CUSTOMER SUPPORT & CONCIERGE ASSISTANT (PHASE C)
-// Answers queries about Pronto services, scope inclusions/exclusions, live booking status,
+// Answers queries about Osmida services, scope inclusions/exclusions, live booking status,
 // Start/End OTPs, worker arrival, and complaint policies in Nellore.
 // ==============================================================================
 
-import { PRONTO_SERVICES } from "../prontoServices";
-import { prontoBookingsStore } from "@/app/api/bookings/route";
+import { OSMIDA_SERVICES } from "../osmidaServices";
+import { osmidaBookingsStore } from "@/app/api/bookings/route";
 import { createClient } from "@supabase/supabase-js";
 
 export interface ChatMessage {
@@ -43,7 +43,7 @@ function getSupabaseClient() {
  */
 async function lookupBooking(referenceId?: string, customerPhone?: string): Promise<any | null> {
   if (referenceId) {
-    const mem = prontoBookingsStore.get(referenceId);
+    const mem = osmidaBookingsStore.get(referenceId);
     if (mem) return mem;
   }
 
@@ -69,7 +69,7 @@ async function lookupBooking(referenceId?: string, customerPhone?: string): Prom
   // Scan memory store for phone if referenceId wasn't given
   if (customerPhone) {
     const cleanPhone = customerPhone.replace(/\D/g, "").slice(-10);
-    for (const [_, b] of prontoBookingsStore.entries()) {
+    for (const [_, b] of osmidaBookingsStore.entries()) {
       if (String(b.phone || b.customer_phone).includes(cleanPhone)) {
         return b;
       }
@@ -99,7 +99,7 @@ export async function handleSupportChat(
 
   if (apiKey) {
     try {
-      const servicesContext = PRONTO_SERVICES.map(
+      const servicesContext = OSMIDA_SERVICES.map(
         (s) => `### ${s.name} (ID: ${s.id})
 - Included: ${s.included.join(", ")}
 - NOT Included: ${s.notIncluded.join(", ")}`

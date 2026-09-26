@@ -11,7 +11,7 @@ function getSupabaseClient() {
 }
 
 // In-memory workers store for demo / local execution
-export const prontoWorkersStore: Map<string, any> = new Map([
+export const osmidaWorkersStore: Map<string, any> = new Map([
   [
     "9490122849",
     {
@@ -37,6 +37,7 @@ export const prontoWorkersStore: Map<string, any> = new Map([
     },
   ],
 ]);
+export const prontoWorkersStore = osmidaWorkersStore;
 
 export async function POST(req: Request) {
   try {
@@ -95,7 +96,7 @@ export async function POST(req: Request) {
       updated_at: new Date().toISOString(),
     };
 
-    prontoWorkersStore.set(cleanPhone, newWorker);
+    osmidaWorkersStore.set(cleanPhone, newWorker);
 
     const supabase = getSupabaseClient();
     if (supabase) {

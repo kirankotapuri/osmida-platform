@@ -28,7 +28,7 @@ import {
   KeyRound,
   ShieldAlert,
 } from "lucide-react";
-import { PRONTO_SERVICES, DEFAULT_APP_SETTINGS } from "@/lib/prontoServices";
+import { OSMIDA_SERVICES, DEFAULT_APP_SETTINGS } from "@/lib/osmidaServices";
 
 export default function AdminDashboardPage() {
   // Admin Auth Gate State
@@ -723,7 +723,7 @@ export default function AdminDashboardPage() {
                       Assigned Skills:
                     </span>
                     <div className="flex flex-wrap gap-1">
-                      {(w.skills || PRONTO_SERVICES.map((s) => s.name)).map((sk: string) => (
+                      {(w.skills || OSMIDA_SERVICES.map((s) => s.name)).map((sk: string) => (
                         <span
                           key={sk}
                           className="text-[10px] bg-white/10 text-slate-200 px-2 py-0.5 rounded-md"

@@ -1,10 +1,10 @@
 // ==============================================================================
 // OSMIDA AI: BOOKING INTENT PARSER (PHASE C)
 // Converts free-text customer requests (e.g. "need bathroom & dishes cleaned tomorrow 10am in Haranathapuram")
-// into structured Pronto booking payloads. Supports English, Hinglish & Telugu keywords.
+// into structured Osmida booking payloads. Supports English, Hinglish & Telugu keywords.
 // ==============================================================================
 
-import { PRONTO_SERVICES } from "../prontoServices";
+import { OSMIDA_SERVICES } from "../osmidaServices";
 
 export interface ParsedBookingIntent {
   services: string[]; // ['bathroom_cleaning', 'kitchen_cleaning', 'dishwashing', 'general_house_help']
@@ -46,7 +46,7 @@ const NELLORE_LOCALITIES = [
 ];
 
 /**
- * Parses freeform user text into a structured Osmida Pronto booking configuration.
+ * Parses freeform user text into a structured Osmida booking configuration.
  */
 export async function parseBookingIntent(
   input: ParseIntentInput
@@ -127,7 +127,7 @@ Respond ONLY with valid JSON strictly matching:
           const parsed = JSON.parse(jsonMatch[0]);
           const serviceNames = (parsed.services || []).map(
             (id: string) =>
-              PRONTO_SERVICES.find((s) => s.id === id)?.name || id
+              OSMIDA_SERVICES.find((s) => s.id === id)?.name || id
           );
           return {
             services: parsed.services?.length ? parsed.services : ["general_house_help"],
@@ -139,7 +139,7 @@ Respond ONLY with valid JSON strictly matching:
             locality: parsed.locality || undefined,
             apartment_hint: parsed.apartment_hint || undefined,
             booking_type: parsed.booking_type || "instant",
-            summary: parsed.summary || "Custom Osmida Pronto Booking",
+            summary: parsed.summary || "Custom Osmida Booking",
             confidence: parsed.confidence || 0.9,
             clarifications_needed: parsed.clarifications_needed || [],
           };
@@ -225,7 +225,7 @@ function parseIntentHeuristic(text: string): ParsedBookingIntent {
 
   const finalServices = detectedServices.length > 0 ? detectedServices : ["general_house_help"];
   const serviceNames = finalServices.map(
-    (id) => PRONTO_SERVICES.find((s) => s.id === id)?.name || id
+    (id) => OSMIDA_SERVICES.find((s) => s.id === id)?.name || id
   );
 
   // Duration Detection

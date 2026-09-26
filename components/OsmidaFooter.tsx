@@ -13,12 +13,11 @@ import {
   Lock,
   FileText,
   CheckCircle2,
-  Sparkles,
   ExternalLink,
 } from "lucide-react";
-import { PRONTO_SERVICES } from "@/lib/prontoServices";
+import { OSMIDA_SERVICES } from "@/lib/osmidaServices";
 
-export function ProntoFooter() {
+export function OsmidaFooter() {
   const currentYear = new Date().getFullYear();
 
   return (
@@ -75,7 +74,7 @@ export function ProntoFooter() {
               Services
             </h4>
             <ul className="space-y-2 text-slate-300 font-medium">
-              {PRONTO_SERVICES.map((s) => (
+              {OSMIDA_SERVICES.map((s) => (
                 <li key={s.id}>
                   <Link
                     href={`/book?services=${s.id}`}
@@ -279,3 +278,6 @@ export function ProntoFooter() {
     </footer>
   );
 }
+
+export const ProntoFooter = OsmidaFooter;
+

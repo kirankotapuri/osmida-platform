@@ -1,6 +1,6 @@
 // ==============================================================================
 // OSMIDA AI: PHOTO QUALITY CONTROL CHECK (PHASE B)
-// Evaluates Before vs After photo pairs against Pronto service scope using Claude API
+// Evaluates Before vs After photo pairs against Osmida service scope using Claude API
 // Input: { beforePhotoUrl, afterPhotoUrl, serviceType }
 // Output: { pass: boolean, reason: string }
 // ==============================================================================

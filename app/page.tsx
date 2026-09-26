@@ -15,11 +15,10 @@ import {
   MapPin,
   Sparkles,
 } from "lucide-react";
-import { ProntoHeader } from "@/components/ProntoHeader";
-import { ProntoFooter } from "@/components/ProntoFooter";
-import { ProntoServiceDetailModal } from "@/components/ProntoServiceDetailModal";
-import { OsmidaSupportChat } from "@/components/OsmidaSupportChat";
-import { PRONTO_SERVICES, ProntoService } from "@/lib/prontoServices";
+import { OsmidaHeader } from "@/components/OsmidaHeader";
+import { OsmidaFooter } from "@/components/OsmidaFooter";
+import { OsmidaServiceDetailModal } from "@/components/OsmidaServiceDetailModal";
+import { OSMIDA_SERVICES, OsmidaService } from "@/lib/osmidaServices";
 
 const COMMUNITY_PARTNERS = [
   "Haranathapuram Enclave",
@@ -89,11 +88,11 @@ const FAQS = [
 ];
 
 export default function HomePage() {
-  const [selectedModalService, setSelectedModalService] = useState<ProntoService | null>(null);
+  const [selectedModalService, setSelectedModalService] = useState<OsmidaService | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
 
-  const handleOpenModal = (service: ProntoService) => {
+  const handleOpenModal = (service: OsmidaService) => {
     setSelectedModalService(service);
     setIsModalOpen(true);
   };
@@ -105,7 +104,7 @@ export default function HomePage() {
   return (
     <main className="min-h-screen bg-[#F4F8F8] text-[#0F171A] font-sans selection:bg-[#0C6266]/20 selection:text-[#0C6266]">
       {/* 1. OSMIDA HEADER */}
-      <ProntoHeader />
+      <OsmidaHeader />
 
       {/* 2. HERO SECTION (Deep Heritage Teal & Warm Saffron Amber) */}
       <section className="relative overflow-hidden bg-linear-to-b from-[#EBF4F5] via-[#F4F8F8] to-white pt-8 pb-12 sm:pt-14 sm:pb-20 border-b border-[#DFE8E8]">
@@ -297,7 +296,7 @@ export default function HomePage() {
 
           {/* Snabbit-Style Scope Cards Grid (4 Core Services with visible Included & Not Included) */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            {PRONTO_SERVICES.map((s) => {
+            {OSMIDA_SERVICES.map((s) => {
               const imageMap: Record<string, string> = {
                 bathroom_cleaning: "/images/isometric_bathroom_mini.jpg",
                 kitchen_cleaning: "/images/isometric_kitchen_mini.jpg",
@@ -765,17 +764,14 @@ export default function HomePage() {
       </section>
 
       {/* 10. CLEAN DARK FOOTER */}
-      <ProntoFooter />
+      <OsmidaFooter />
 
       {/* 11. SERVICE DETAIL MODAL */}
-      <ProntoServiceDetailModal
+      <OsmidaServiceDetailModal
         service={selectedModalService}
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
       />
-
-      {/* 12. FLOATING CONCIERGE SUPPORT */}
-      <OsmidaSupportChat />
     </main>
   );
 }

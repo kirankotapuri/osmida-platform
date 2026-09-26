@@ -4,14 +4,13 @@ import React, { Suspense, useState, useEffect } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { ProntoHeader } from "@/components/ProntoHeader";
+import { OsmidaHeader } from "@/components/OsmidaHeader";
 import { Language } from "@/lib/translations";
 import {
-  PRONTO_SERVICES,
+  OSMIDA_SERVICES,
   DURATION_OPTIONS,
   DEFAULT_APP_SETTINGS,
-} from "@/lib/prontoServices";
-import { OsmidaSupportChat } from "@/components/OsmidaSupportChat";
+} from "@/lib/osmidaServices";
 import {
   Loader2,
   ArrowLeft,
@@ -392,7 +391,7 @@ function BookingContent() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
-      <ProntoHeader />
+      <OsmidaHeader />
 
       <div className="mx-auto max-w-3xl px-4 sm:px-6 py-6 sm:py-8">
         {/* Top Back Link */}
@@ -446,7 +445,7 @@ function BookingContent() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              {PRONTO_SERVICES.map((s) => {
+              {OSMIDA_SERVICES.map((s) => {
                 const isChecked = selectedServices.includes(s.id);
                 const imageMap: Record<string, string> = {
                   bathroom_cleaning: "/images/isometric_bathroom_mini.jpg",
@@ -981,7 +980,7 @@ function BookingContent() {
                 <span>Selected Tasks ({selectedServices.length}):</span>
                 <span className="font-bold text-[#0F171A] max-w-[220px] truncate text-right">
                   {selectedServices
-                    .map((id) => PRONTO_SERVICES.find((s) => s.id === id)?.name)
+                    .map((id) => OSMIDA_SERVICES.find((s) => s.id === id)?.name)
                     .filter(Boolean)
                     .join(", ")}
                 </span>
@@ -1059,9 +1058,6 @@ function BookingContent() {
         onClose={() => setIsLoginModalOpen(false)}
         onLoginSuccess={handleLoginSuccess}
       />
-
-      {/* AI Support Chat Concierge */}
-      <OsmidaSupportChat />
     </div>
   );
 }

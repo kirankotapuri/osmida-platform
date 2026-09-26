@@ -2,10 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { ProntoHeader } from "@/components/ProntoHeader";
-import { ProntoFooter } from "@/components/ProntoFooter";
+import { OsmidaHeader } from "@/components/OsmidaHeader";
+import { OsmidaFooter } from "@/components/OsmidaFooter";
 import { Language } from "@/lib/translations";
-import { DEFAULT_APP_SETTINGS } from "@/lib/prontoServices";
+import { DEFAULT_APP_SETTINGS } from "@/lib/osmidaServices";
 import { GoogleMapsLocationModal } from "@/components/GoogleMapsLocationModal";
 import { CustomerLoginModal } from "@/components/CustomerLoginModal";
 import {
@@ -313,7 +313,7 @@ export default function MyBookingsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
-      <ProntoHeader />
+      <OsmidaHeader />
 
       <div className="mx-auto max-w-3xl px-4 sm:px-6 py-6 sm:py-8">
         {/* Top Back Link */}
@@ -1015,9 +1015,9 @@ export default function MyBookingsPage() {
         currentLocality={profileLocality}
       />
 
-      {/* Pronto Global Footer */}
+      {/* Osmida Global Footer */}
       <div className="mt-16">
-        <ProntoFooter />
+        <OsmidaFooter />
       </div>
     </div>
   );

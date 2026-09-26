@@ -4,7 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
-import { ProntoHeader } from "@/components/ProntoHeader";
+import { OsmidaHeader } from "@/components/OsmidaHeader";
 import {
   KeyRound,
   ShieldCheck,
@@ -90,7 +90,7 @@ function ResetPasswordContent() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
-      <ProntoHeader />
+      <OsmidaHeader />
 
       <div className="mx-auto max-w-md px-4 sm:px-6 py-10 sm:py-16">
         <div className="bg-white rounded-3xl p-6 sm:p-8 border border-slate-200 shadow-xl space-y-6">

@@ -31,7 +31,7 @@ const NELLORE_LOCALITIES = [
   "Nellore Central",
 ];
 
-export function ProntoHeader() {
+export function OsmidaHeader() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedLocality, setSelectedLocality] = useState("Haranathapuram");
   const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
@@ -543,3 +543,6 @@ export function ProntoHeader() {
   </>
   );
 }
+
+export const ProntoHeader = OsmidaHeader;
+

@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
-import { DEFAULT_APP_SETTINGS } from "@/lib/prontoServices";
+import { DEFAULT_APP_SETTINGS } from "@/lib/osmidaServices";
 import { globalActiveJobs } from "../partner/jobs/route";
 
 export const runtime = "nodejs";
@@ -13,7 +13,8 @@ function getSupabaseClient() {
 }
 
 // In-memory store for instant zero-latency demo / local fallback
-export const prontoBookingsStore: Map<string, any> = new Map();
+export const osmidaBookingsStore: Map<string, any> = new Map();
+export const prontoBookingsStore = osmidaBookingsStore;
 
 // Helper to generate 4-digit numeric OTP
 function generate4DigitOtp(): string {

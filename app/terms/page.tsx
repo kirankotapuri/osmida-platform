@@ -2,8 +2,8 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
-import { ProntoHeader } from "@/components/ProntoHeader";
-import { ProntoFooter } from "@/components/ProntoFooter";
+import { OsmidaHeader } from "@/components/OsmidaHeader";
+import { OsmidaFooter } from "@/components/OsmidaFooter";
 import { Language } from "@/lib/translations";
 import {
   ArrowLeft,
@@ -23,8 +23,8 @@ export default function TermsPage() {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 selection:bg-[#0C6266] selection:text-white flex flex-col justify-between">
-      {/* 1. PRONTO HEADER */}
-      <ProntoHeader />
+      {/* 1. OSMIDA HEADER */}
+      <OsmidaHeader />
 
       {/* 2. BREADCRUMB & LANGUAGE TOGGLE */}
       <div className="border-b border-slate-200 bg-white px-4 py-3">
@@ -174,8 +174,8 @@ export default function TermsPage() {
         </article>
       </main>
 
-      {/* 4. PRONTO FOOTER */}
-      <ProntoFooter />
+      {/* 4. OSMIDA FOOTER */}
+      <OsmidaFooter />
     </div>
   );
 }

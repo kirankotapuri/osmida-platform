@@ -2,11 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import {
-  PRONTO_SERVICES,
+  OSMIDA_SERVICES,
   DURATION_OPTIONS,
   DEFAULT_APP_SETTINGS,
-  ProntoService,
-} from "@/lib/prontoServices";
+  OsmidaService,
+} from "@/lib/osmidaServices";
 import { Language } from "@/lib/translations";
 import {
   Bath,
@@ -26,11 +26,11 @@ import {
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
-interface ProntoServiceCatalogProps {
+interface OsmidaServiceCatalogProps {
   lang: Language;
 }
 
-export function ProntoServiceCatalog({ lang }: ProntoServiceCatalogProps) {
+export function OsmidaServiceCatalog({ lang }: OsmidaServiceCatalogProps) {
   const router = useRouter();
   const [hourlyRate, setHourlyRate] = useState<number>(DEFAULT_APP_SETTINGS.hourly_rate);
   const [selectedDuration, setSelectedDuration] = useState<number>(1.5);
@@ -71,10 +71,10 @@ export function ProntoServiceCatalog({ lang }: ProntoServiceCatalogProps) {
   const handleProceedToBooking = () => {
     // Save selections in localStorage for seamless booking prefill
     if (typeof window !== "undefined") {
-      localStorage.setItem("osmida_pronto_services", JSON.stringify(selectedServices));
-      localStorage.setItem("osmida_pronto_duration", String(selectedDuration));
-      localStorage.setItem("osmida_pronto_rate", String(hourlyRate));
-      localStorage.setItem("osmida_pronto_total", String(totalPrice));
+      localStorage.setItem("osmida_booking_services", JSON.stringify(selectedServices));
+      localStorage.setItem("osmida_booking_duration", String(selectedDuration));
+      localStorage.setItem("osmida_booking_rate", String(hourlyRate));
+      localStorage.setItem("osmida_booking_total", String(totalPrice));
     }
     const query = new URLSearchParams({
       services: selectedServices.join(","),
@@ -193,7 +193,7 @@ export function ProntoServiceCatalog({ lang }: ProntoServiceCatalogProps) {
 
         {/* 4 SERVICE CARDS (STRICTLY THESE 4, WITH FIXED INCLUDED/NOT INCLUDED BLOCKS) */}
         <div className="mt-4 grid grid-cols-1 md:grid-cols-2 gap-5 sm:gap-6">
-          {PRONTO_SERVICES.map((svc) => {
+          {OSMIDA_SERVICES.map((svc) => {
             const isSelected = selectedServices.includes(svc.id);
             return (
               <div
@@ -364,3 +364,6 @@ export function ProntoServiceCatalog({ lang }: ProntoServiceCatalogProps) {
     </section>
   );
 }
+
+export const ProntoServiceCatalog = OsmidaServiceCatalog;
+

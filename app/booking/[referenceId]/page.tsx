@@ -3,7 +3,7 @@
 import React, { useState, useEffect, use } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { ProntoHeader } from "@/components/ProntoHeader";
+import { OsmidaHeader } from "@/components/OsmidaHeader";
 import { Language } from "@/lib/translations";
 import {
   ShieldCheck,
@@ -25,7 +25,6 @@ import {
   MapPin,
   Compass,
 } from "lucide-react";
-import { OsmidaSupportChat } from "@/components/OsmidaSupportChat";
 
 export default function ActiveBookingPage({
   params,
@@ -245,7 +244,7 @@ export default function ActiveBookingPage({
   if (errorMsg || !booking) {
     return (
       <div className="min-h-screen bg-slate-50 px-4">
-        <ProntoHeader />
+        <OsmidaHeader />
         <div className="max-w-md mx-auto bg-white p-6 rounded-2xl border border-slate-200 text-center space-y-4">
           <AlertCircle className="h-10 w-10 text-rose-500 mx-auto" />
           <h2 className="text-lg font-black text-slate-900">Booking Not Found</h2>
@@ -267,7 +266,7 @@ export default function ActiveBookingPage({
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
-      <ProntoHeader />
+      <OsmidaHeader />
 
       <div className="mx-auto max-w-2xl px-4 sm:px-6 py-6 sm:py-8 space-y-6">
         {/* Top Reference & Live Status Pill */}
@@ -835,9 +834,6 @@ export default function ActiveBookingPage({
           </div>
         </div>
       )}
-
-      {/* AI Concierge Chat with live booking context */}
-      <OsmidaSupportChat referenceId={referenceId} />
     </div>
   );
 }
