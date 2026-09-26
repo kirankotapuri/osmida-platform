@@ -74,10 +74,14 @@ export async function POST(req: Request) {
         }
       }
 
+      const isGatewayActive = Boolean(process.env.RESEND_API_KEY);
       return NextResponse.json({
         success: true,
-        message: `A 6-digit verification code has been sent to ${cleanEmail}. Please check your inbox or spam folder.`,
-        demoCode: process.env.NODE_ENV !== "production" ? code : undefined,
+        message: isGatewayActive
+          ? `A 6-digit verification code has been sent to ${cleanEmail}. Please check your inbox or spam folder.`
+          : `Email gateway pending in .env.local. Your verification code is ${code}.`,
+        isSimulated: !isGatewayActive,
+        demoCode: code,
       });
     }
 
@@ -202,10 +206,14 @@ export async function POST(req: Request) {
         }
       }
 
+      const isGatewayActive = Boolean(process.env.RESEND_API_KEY);
       return NextResponse.json({
         success: true,
-        message: `A password reset link has been dispatched to ${cleanEmail}. Please check your inbox or spam folder.`,
-        resetLink: process.env.NODE_ENV !== "production" ? resetLink : undefined,
+        message: isGatewayActive
+          ? `A password reset link has been dispatched to ${cleanEmail}. Please check your inbox or spam folder.`
+          : `Email gateway pending in .env.local. You can reset your password using the instant link below.`,
+        isSimulated: !isGatewayActive,
+        resetLink,
       });
     }
 

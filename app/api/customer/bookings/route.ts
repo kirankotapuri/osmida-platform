@@ -40,6 +40,8 @@ export async function POST(req: Request) {
         success: true,
         message: sendResult.message,
         channel: sendResult.channel,
+        demoCode: sendResult.demoCode,
+        isSimulated: sendResult.isSimulated,
       });
     }
 

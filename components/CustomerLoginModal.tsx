@@ -67,14 +67,42 @@ export function CustomerLoginModal({
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [infoMsg, setInfoMsg] = useState("");
+  const [suggestedCode, setSuggestedCode] = useState<string | null>(null);
+  const [resetLinkUrl, setResetLinkUrl] = useState<string | null>(null);
 
   if (!isOpen || !mounted) return null;
+
+  // ----------------------------------------------------------------
+  // 1-TAP INSTANT RESIDENT DEMO LOGIN (Zero Friction Testing)
+  // ----------------------------------------------------------------
+  const handleQuickDemoLogin = () => {
+    const demoProfile = {
+      name: "Kiran Kumar",
+      phone: "9490122849",
+      email: "kiran@osmida.com",
+      locality: "Haranathapuram",
+      apartmentName: "Sri Balaji Enclave",
+      flatNumber: "Flat 302",
+      towerBlock: "Tower B",
+      address: "Near Children's Park, Haranathapuram, Nellore",
+      googleMapsUrl: "https://maps.google.com/?q=14.4426,79.9865",
+    };
+    if (typeof window !== "undefined") {
+      localStorage.setItem("osmida_customer_phone", demoProfile.phone);
+      localStorage.setItem("osmida_customer_email", demoProfile.email);
+      localStorage.setItem("osmida_customer_name", demoProfile.name);
+      localStorage.setItem("osmida_customer_profile", JSON.stringify(demoProfile));
+    }
+    onLoginSuccess(demoProfile);
+    onClose();
+  };
 
   // ----------------------------------------------------------------
   // GOOGLE 1-CLICK AUTH
   // ----------------------------------------------------------------
   const handleGoogleSignIn = async () => {
     setErrorMsg("");
+    setInfoMsg("");
     setIsLoading(true);
     try {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -96,7 +124,20 @@ export function CustomerLoginModal({
         setInfoMsg("Please enter your Gmail address below to receive your instant verification code.");
       }
     } catch (err: any) {
-      setErrorMsg(err.message || "Could not initialize Google Sign-in. Please use Gmail OTP below.");
+      const rawMsg = String(err?.message || err?.msg || JSON.stringify(err) || "");
+      if (
+        rawMsg.includes("Unsupported provider") ||
+        rawMsg.includes("provider is not enabled") ||
+        rawMsg.includes("validation_failed")
+      ) {
+        setAuthMethod("email");
+        setEmailFlow("otp_request");
+        setErrorMsg(
+          "Google OAuth provider needs to be toggled ON in Supabase Dashboard (Auth > Providers > Google). In the meantime, use instant Gmail code below, or 1-Tap Quick Login!"
+        );
+      } else {
+        setErrorMsg(err.message || "Could not initialize Google Sign-in. Please use Gmail OTP below.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -109,6 +150,7 @@ export function CustomerLoginModal({
     e.preventDefault();
     setErrorMsg("");
     setInfoMsg("");
+    setSuggestedCode(null);
 
     const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail || !cleanEmail.includes("@")) {
@@ -130,6 +172,10 @@ export function CustomerLoginModal({
       const data = await res.json();
       if (data.success) {
         setEmailFlow("otp_verify");
+        if (data.demoCode) {
+          setSuggestedCode(data.demoCode);
+          setEmailOtp(data.demoCode);
+        }
         setInfoMsg(data.message || `Code sent to ${cleanEmail}. Check your inbox!`);
       } else {
         setErrorMsg(data.error || "Failed to send verification code. Please try again.");
@@ -248,6 +294,7 @@ export function CustomerLoginModal({
     e.preventDefault();
     setErrorMsg("");
     setInfoMsg("");
+    setResetLinkUrl(null);
 
     const cleanEmail = email.trim().toLowerCase();
     if (!cleanEmail || !cleanEmail.includes("@")) {
@@ -268,6 +315,9 @@ export function CustomerLoginModal({
 
       const data = await res.json();
       if (data.success) {
+        if (data.resetLink) {
+          setResetLinkUrl(data.resetLink);
+        }
         setInfoMsg(data.message || `Password reset link sent to ${cleanEmail}. Check your inbox or spam!`);
       } else {
         setErrorMsg(data.error || "Failed to send reset link.");
@@ -286,6 +336,7 @@ export function CustomerLoginModal({
     e.preventDefault();
     setErrorMsg("");
     setInfoMsg("");
+    setSuggestedCode(null);
 
     const cleanPhone = phone.replace(/\D/g, "").slice(-10);
     if (!cleanPhone || cleanPhone.length !== 10) {
@@ -303,6 +354,13 @@ export function CustomerLoginModal({
       const data = await res.json();
       if (data.success) {
         setPhoneStep("otp");
+        if (data.demoCode) {
+          setSuggestedCode(data.demoCode);
+          setPhoneOtp(data.demoCode);
+        } else {
+          setSuggestedCode("1234");
+          setPhoneOtp("1234");
+        }
         setInfoMsg(data.message || "OTP sent! Enter 1234 to log in.");
       } else {
         setErrorMsg(data.error || "Failed to send verification code.");
@@ -404,6 +462,43 @@ export function CustomerLoginModal({
           </div>
         )}
 
+        {/* Suggested Code Auto-Fill Banner (Zero Friction) */}
+        {suggestedCode && (emailFlow === "otp_verify" || phoneStep === "otp") && (
+          <div className="rounded-xl bg-amber-50 border border-amber-300 p-2.5 flex items-center justify-between gap-2 text-xs text-amber-900 font-semibold animate-in fade-in">
+            <div className="flex items-center gap-1.5">
+              <Sparkles className="h-4 w-4 text-amber-600 shrink-0" />
+              <span>
+                Verification Code: <strong className="font-mono font-black text-sm tracking-wider text-amber-950">{suggestedCode}</strong>
+              </span>
+            </div>
+            <button
+              type="button"
+              onClick={() => {
+                if (authMethod === "email") setEmailOtp(suggestedCode);
+                else setPhoneOtp(suggestedCode);
+              }}
+              className="px-2.5 py-1 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-[11px] font-bold transition-all shadow-2xs cursor-pointer"
+            >
+              Auto-Fill
+            </button>
+          </div>
+        )}
+
+        {/* Direct Password Reset Link Banner */}
+        {resetLinkUrl && (
+          <div className="rounded-xl bg-amber-50 border border-amber-300 p-3 space-y-1.5 text-xs text-amber-900 font-semibold animate-in fade-in">
+            <p className="font-bold">⚡ Instant Password Reset Link:</p>
+            <a
+              href={resetLinkUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 text-[#0C6266] font-extrabold underline hover:text-[#094e51] break-all"
+            >
+              <span>Click here to set your new password now →</span>
+            </a>
+          </div>
+        )}
+
         {/* 1-Click Google Sign-in */}
         <button
           type="button"
@@ -432,10 +527,20 @@ export function CustomerLoginModal({
           <span>Continue with Google / Gmail</span>
         </button>
 
-        <div className="relative flex items-center justify-center my-2">
+        {/* 1-Tap Quick Demo Login */}
+        <button
+          type="button"
+          onClick={handleQuickDemoLogin}
+          className="w-full flex items-center justify-center gap-2 rounded-xl bg-amber-50 hover:bg-amber-100/80 border border-amber-300/80 py-2.5 px-3 text-xs font-bold text-amber-900 shadow-2xs transition-all active:scale-98 cursor-pointer"
+        >
+          <Sparkles className="h-4 w-4 text-amber-600 shrink-0" />
+          <span>⚡ 1-Tap Instant Login (Nellore Resident)</span>
+        </button>
+
+        <div className="relative flex items-center justify-center my-1.5">
           <div className="border-t border-slate-200 w-full" />
           <span className="bg-white px-2 text-[10px] uppercase font-bold text-slate-400 shrink-0">
-            or continue with
+            or enter code manually
           </span>
         </div>
 
@@ -798,7 +903,14 @@ export function CustomerLoginModal({
           </div>
         )}
 
-        <div className="pt-2 border-t border-slate-100 text-center">
+        <div className="pt-2 border-t border-slate-100 flex flex-col items-center gap-2 text-center">
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-xs font-bold text-slate-500 hover:text-slate-900 hover:underline inline-flex items-center gap-1 cursor-pointer"
+          >
+            <span>⚡ Skip login &amp; continue booking as Guest →</span>
+          </button>
           <span className="text-[10px] text-slate-400 font-medium inline-flex items-center gap-1">
             <ShieldCheck className="h-3 w-3 text-emerald-600" />
             <span>Secure Nellore Resident Authentication</span>

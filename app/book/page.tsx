@@ -395,9 +395,15 @@ function BookingContent() {
 
         {/* Page Title */}
         <div className="space-y-1 mb-6">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 text-emerald-900 px-3 py-0.5 text-xs font-bold">
-            <ShieldCheck className="h-3.5 w-3.5 text-emerald-700" />
-            <span>Escrow Protected • Pay After Service</span>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 text-emerald-900 px-3 py-0.5 text-xs font-bold">
+              <ShieldCheck className="h-3.5 w-3.5 text-emerald-700" />
+              <span>Escrow Protected • Pay After Service</span>
+            </div>
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#EBF4F5] text-[#0C6266] px-3 py-0.5 text-xs font-bold border border-[#B6D7D8]">
+              <Sparkles className="h-3.5 w-3.5" />
+              <span>Instant Guest Booking • No Account Needed</span>
+            </div>
           </div>
           <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
             {lang === "te" ? "మీ ఇంటి సహాయాన్ని బుక్ చేసుకోండి" : "Book Your Home Help Visit"}
@@ -658,11 +664,11 @@ function BookingContent() {
 
             {/* Returning Customer Login Banner if not logged in */}
             {!isLoggedIn ? (
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-xl bg-amber-50/70 border border-amber-200/80">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 rounded-xl bg-[#EBF4F5] border border-[#B6D7D8]">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="h-4 w-4 text-amber-600 shrink-0" />
-                  <p className="text-xs text-amber-900 font-semibold">
-                    Already booked on Osmida? <span className="font-bold">Log in with Google, Gmail, or WhatsApp</span> to autofill your saved address in 1 click.
+                  <Sparkles className="h-4 w-4 text-[#0C6266] shrink-0" />
+                  <p className="text-xs text-slate-800 font-medium">
+                    <span className="font-bold text-[#0C6266]">⚡ Guest Booking Active:</span> No account needed. Saved address from previous visit?
                   </p>
                 </div>
                 <button
@@ -670,7 +676,7 @@ function BookingContent() {
                   onClick={() => setIsLoginModalOpen(true)}
                   className="rounded-lg bg-[#0C6266] hover:bg-[#094e51] text-white px-3 py-1.5 text-xs font-bold transition-all shadow-2xs whitespace-nowrap self-start sm:self-auto cursor-pointer"
                 >
-                  👤 Log In
+                  👤 Log In (Optional)
                 </button>
               </div>
             ) : (

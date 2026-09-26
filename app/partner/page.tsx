@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback, useRef } from "react";
+import Image from "next/image";
 import {
   Power,
   MapPin,
@@ -382,7 +383,10 @@ export default function PartnerPortalPage() {
         <div className="w-full max-w-md bg-[#161D2F] border border-white/10 rounded-2xl p-5 sm:p-7 shadow-2xl">
           {/* Logo & Header */}
           <div className="text-center mb-6">
-            <div className="inline-flex items-center gap-2 bg-[#0C6266]/15 border border-[#0C6266]/30 px-3 py-1 rounded-full mb-2 text-xs font-semibold text-[#0C6266]">
+            <div className="relative h-14 w-14 mx-auto mb-3 rounded-2xl overflow-hidden border border-[#0C6266]/40 bg-[#095054] shadow-lg flex items-center justify-center p-1">
+              <Image src="/icon.svg" alt="Osmida Partner" width={48} height={48} className="object-contain" priority />
+            </div>
+            <div className="inline-flex items-center gap-2 bg-[#0C6266]/15 border border-[#0C6266]/30 px-3 py-1 rounded-full mb-2 text-xs font-semibold text-[#38B2AC]">
               <Sparkles className="w-3.5 h-3.5" />
               OSMIDA WORKER PORTAL • NELLORE
             </div>
@@ -655,8 +659,8 @@ export default function PartnerPortalPage() {
       <header className="sticky top-0 z-40 bg-[#121826]/95 backdrop-blur-md border-b border-white/10 px-4 py-3">
         <div className="max-w-xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[#0C6266]/25 border border-[#0C6266]/30 flex items-center justify-center font-black text-[#0C6266] text-sm">
-              {partner.name[0]}
+            <div className="relative h-9 w-9 rounded-xl overflow-hidden border border-[#0C6266]/30 bg-[#095054] flex items-center justify-center shrink-0 p-0.5 shadow-sm">
+              <Image src="/icon.svg" alt="Osmida" width={32} height={32} className="object-contain" />
             </div>
             <div>
               <div className="flex items-center gap-1.5">
@@ -666,7 +670,7 @@ export default function PartnerPortalPage() {
                 </span>
               </div>
               <p className="text-[11px] text-gray-400">
-                {partner.assigned_hub} Hub • {partner.completed_jobs_count} Jobs Done
+                Osmida Partner • {partner.assigned_hub} Hub
               </p>
             </div>
           </div>

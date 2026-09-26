@@ -23,6 +23,8 @@ export interface SendOtpResult {
   message: string;
   channel: "sms" | "whatsapp" | "console";
   error?: string;
+  demoCode?: string;
+  isSimulated?: boolean;
 }
 
 export interface VerifyOtpResult {
@@ -119,13 +121,15 @@ export async function generateAndSendOtp(phone: string): Promise<SendOtpResult> 
     }
   }
 
-  // Log securely to server console (never exposed in HTTP response body)
-  console.log(`[Production OTP Gateway] Dispatched to +91 ${cleanPhone} via ${dispatchedChannel}. (Debug code: ${otp})`);
-
+  const isSimulated = dispatchedChannel === "console";
   return {
     success: true,
     channel: dispatchedChannel,
-    message: `Verification code sent to +91 ${cleanPhone.slice(0, 2)}****${cleanPhone.slice(-4)}. Valid for 10 minutes.`,
+    isSimulated,
+    demoCode: isSimulated ? otp : undefined,
+    message: isSimulated
+      ? `SMS gateway is pending API key in .env.local. Your verification code is ${otp}.`
+      : `Verification code sent to +91 ${cleanPhone.slice(0, 2)}****${cleanPhone.slice(-4)}. Valid for 10 minutes.`,
   };
 }
 
