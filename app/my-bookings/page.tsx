@@ -6,6 +6,7 @@ import { ProntoHeader } from "@/components/ProntoHeader";
 import { Language } from "@/lib/translations";
 import { DEFAULT_APP_SETTINGS } from "@/lib/prontoServices";
 import { GoogleMapsLocationModal } from "@/components/GoogleMapsLocationModal";
+import { CustomerLoginModal } from "@/components/CustomerLoginModal";
 import {
   Phone,
   KeyRound,
@@ -25,6 +26,7 @@ import {
   Building2,
   Compass,
   Check,
+  Mail,
 } from "lucide-react";
 
 export default function MyBookingsPage() {
@@ -38,6 +40,8 @@ export default function MyBookingsPage() {
   const [infoMsg, setInfoMsg] = useState("");
   const [bookings, setBookings] = useState<any[]>([]);
   const [savedPhone, setSavedPhone] = useState("");
+  const [profileEmail, setProfileEmail] = useState("");
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
   // Customer Profile State
   const [profileName, setProfileName] = useState("");
@@ -57,6 +61,11 @@ export default function MyBookingsPage() {
   const applyProfileData = (prof: any) => {
     if (!prof) return;
     if (prof.name) setProfileName(prof.name);
+    if (prof.email) setProfileEmail(prof.email);
+    if (prof.phone) {
+      setPhone(prof.phone);
+      setSavedPhone(prof.phone);
+    }
     if (prof.locality) setProfileLocality(prof.locality);
     if (prof.apartmentName) setProfileApartment(prof.apartmentName);
     if (prof.flatNumber) setProfileFlat(prof.flatNumber);
@@ -66,23 +75,32 @@ export default function MyBookingsPage() {
   };
 
   useEffect(() => {
-    // Check if phone or profile stored
+    // Check if phone, email, or profile stored
     if (typeof window !== "undefined") {
       const storedPhone = localStorage.getItem("osmida_customer_phone");
+      const storedEmail = localStorage.getItem("osmida_customer_email");
       const storedProfile = localStorage.getItem("osmida_customer_profile");
 
       if (storedProfile) {
         try {
           const parsed = JSON.parse(storedProfile);
           applyProfileData(parsed);
+          setStep("dashboard");
         } catch {}
       }
 
-      if (storedPhone) {
-        setPhone(storedPhone);
-        setSavedPhone(storedPhone);
+      if (storedEmail) {
+        setProfileEmail(storedEmail);
+      }
+
+      if (storedPhone || storedEmail) {
+        if (storedPhone) {
+          setPhone(storedPhone);
+          setSavedPhone(storedPhone);
+        }
+        setStep("dashboard");
         // Auto-fetch profile & bookings with demo code or existing session
-        fetchBookings(storedPhone, "1234", true);
+        fetchBookings(storedPhone || "", storedEmail || "", "1234", true);
       }
     }
   }, []);
@@ -118,21 +136,36 @@ export default function MyBookingsPage() {
     }
   };
 
-  const fetchBookings = async (phoneNum: string, code: string, isSilent = false) => {
+  const fetchBookings = async (
+    phoneNum: string,
+    emailStr: string,
+    code: string,
+    isSilent = false
+  ) => {
     if (!isSilent) setIsLoading(true);
     setErrorMsg("");
     try {
+      const payload: Record<string, any> = { otp: code };
+      if (phoneNum) payload.phone = phoneNum;
+      if (emailStr) payload.email = emailStr;
+      if (emailStr && !phoneNum) payload.action = "fetch_by_email";
+
       const res = await fetch("/api/customer/bookings", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: phoneNum, otp: code }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (data.success) {
         setBookings(data.bookings || []);
-        setSavedPhone(phoneNum);
-        if (typeof window !== "undefined") {
-          localStorage.setItem("osmida_customer_phone", phoneNum);
+        if (phoneNum) {
+          setSavedPhone(phoneNum);
+          if (typeof window !== "undefined") {
+            localStorage.setItem("osmida_customer_phone", phoneNum);
+          }
+        }
+        if (emailStr && typeof window !== "undefined") {
+          localStorage.setItem("osmida_customer_email", emailStr);
         }
         if (data.profile) {
           applyProfileData(data.profile);
@@ -161,7 +194,22 @@ export default function MyBookingsPage() {
       return;
     }
     const cleanPhone = phone.replace(/\D/g, "").slice(-10);
-    fetchBookings(cleanPhone, otp.trim());
+    fetchBookings(cleanPhone, profileEmail, otp.trim());
+  };
+
+  const handleLoginModalSuccess = (profile: any) => {
+    applyProfileData(profile);
+    setStep("dashboard");
+    if (profile.email) {
+      setProfileEmail(profile.email);
+      if (typeof window !== "undefined") localStorage.setItem("osmida_customer_email", profile.email);
+    }
+    if (profile.phone) {
+      setPhone(profile.phone);
+      setSavedPhone(profile.phone);
+      if (typeof window !== "undefined") localStorage.setItem("osmida_customer_phone", profile.phone);
+    }
+    fetchBookings(profile.phone || "", profile.email || "", "1234", true);
   };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
@@ -171,9 +219,11 @@ export default function MyBookingsPage() {
     setIsSavingProfile(true);
 
     const cleanPhone = (savedPhone || phone).replace(/\D/g, "").slice(-10);
+    const cleanEmail = profileEmail.trim().toLowerCase();
     const payload = {
       name: profileName.trim(),
       phone: cleanPhone,
+      email: cleanEmail,
       locality: profileLocality,
       apartmentName: profileApartment.trim(),
       flatNumber: profileFlat.trim(),
@@ -194,6 +244,8 @@ export default function MyBookingsPage() {
         if (typeof window !== "undefined") {
           localStorage.setItem("osmida_customer_profile", JSON.stringify(data.profile || payload));
           localStorage.setItem("osmida_customer_name", profileName.trim());
+          if (cleanPhone) localStorage.setItem("osmida_customer_phone", cleanPhone);
+          if (cleanEmail) localStorage.setItem("osmida_customer_email", cleanEmail);
         }
       } else {
         setProfileSaveError(data.error || "Failed to save profile.");
@@ -222,11 +274,13 @@ export default function MyBookingsPage() {
   const handleLogout = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("osmida_customer_phone");
+      localStorage.removeItem("osmida_customer_email");
       localStorage.removeItem("osmida_customer_profile");
       localStorage.removeItem("osmida_customer_name");
     }
     setSavedPhone("");
     setPhone("");
+    setProfileEmail("");
     setOtp("");
     setBookings([]);
     setProfileName("");
@@ -260,7 +314,7 @@ export default function MyBookingsPage() {
           <div>
             <div className="inline-flex items-center gap-1.5 rounded-full bg-[#0C6266]/10 text-[#0C6266] px-3 py-0.5 text-xs font-bold mb-1">
               <ShieldCheck className="h-3.5 w-3.5 text-[#0C6266]" />
-              <span>Customer Portal • Secure WhatsApp Login</span>
+              <span>Customer Portal • Google & WhatsApp Login</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
               {profileName ? `Welcome back, ${profileName}` : "My Osmida Account"}
@@ -277,22 +331,56 @@ export default function MyBookingsPage() {
               className="self-start sm:self-center flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 px-3 py-1.5 text-xs font-bold transition-all shadow-2xs cursor-pointer"
             >
               <LogOut className="h-3.5 w-3.5 text-slate-500" />
-              <span>Sign Out ({savedPhone.slice(-4)})</span>
+              <span>Sign Out ({profileEmail ? profileEmail.split("@")[0] : savedPhone ? savedPhone.slice(-4) : "Account"})</span>
             </button>
           )}
         </div>
 
-        {/* STEP 1: PHONE LOGIN FORM */}
+        {/* STEP 1: PHONE & GOOGLE LOGIN FORM */}
         {step === "phone" && (
           <div className="mx-auto max-w-md rounded-2xl bg-white p-6 border border-slate-200 shadow-sm space-y-4">
             <div className="text-center space-y-1">
               <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-[#0C6266]/10 text-[#0C6266]">
-                <Phone className="h-6 w-6" />
+                <ShieldCheck className="h-6 w-6" />
               </div>
-              <h2 className="text-base font-black text-slate-900">Enter Your Phone Number</h2>
+              <h2 className="text-base font-black text-slate-900">Sign In to Osmida</h2>
               <p className="text-xs text-slate-500 font-medium">
-                Enter your 10-digit WhatsApp number to access your bookings and saved address.
+                Log in to check previous bookings, track assigned helpers, and autofill saved addresses.
               </p>
+            </div>
+
+            {/* 1-Click Google Sign-in */}
+            <button
+              type="button"
+              onClick={() => setIsLoginModalOpen(true)}
+              className="w-full flex items-center justify-center gap-3 py-2.5 px-4 rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold transition-all shadow-2xs hover:shadow-xs cursor-pointer active:scale-98"
+            >
+              <svg className="h-4 w-4 shrink-0" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"
+                />
+              </svg>
+              <span>Continue with Google / Gmail</span>
+            </button>
+
+            <div className="relative flex items-center justify-center">
+              <div className="border-t border-slate-200 w-full" />
+              <span className="bg-white px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider shrink-0">
+                or sign in with whatsapp
+              </span>
             </div>
 
             {errorMsg && (
@@ -709,18 +797,38 @@ export default function MyBookingsPage() {
 
                     <div>
                       <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                        WhatsApp Mobile Number
+                        WhatsApp Mobile Number*
                       </label>
                       <div className="relative">
                         <span className="absolute left-3 top-2.5 text-xs font-bold text-slate-400">+91</span>
                         <input
                           type="tel"
-                          disabled
+                          maxLength={10}
+                          placeholder="94901 22849"
                           value={savedPhone || phone}
-                          className="w-full rounded-xl border border-slate-200 bg-slate-50 pl-11 p-2.5 text-xs font-bold text-slate-600 cursor-not-allowed"
+                          onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, "");
+                            setPhone(val);
+                            setSavedPhone(val);
+                          }}
+                          className="w-full rounded-xl border border-slate-300 pl-11 p-2.5 text-xs font-bold text-slate-900 focus:outline-none focus:border-[#0C6266]"
                         />
                       </div>
-                      <p className="text-[10px] text-slate-400 mt-0.5">Verified WhatsApp contact</p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">Used for helper arrival updates & OTPs</p>
+                    </div>
+
+                    <div>
+                      <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                        Email Address (Gmail)
+                      </label>
+                      <input
+                        type="email"
+                        placeholder="yourname@gmail.com"
+                        value={profileEmail}
+                        onChange={(e) => setProfileEmail(e.target.value)}
+                        className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-medium focus:outline-none focus:border-[#0C6266]"
+                      />
+                      <p className="text-[10px] text-slate-400 mt-0.5">For digital receipts & password recovery</p>
                     </div>
 
                     <div>
@@ -824,6 +932,13 @@ export default function MyBookingsPage() {
           </div>
         )}
       </div>
+
+      {/* Customer Login Modal */}
+      <CustomerLoginModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onLoginSuccess={handleLoginModalSuccess}
+      />
 
       {/* Google Maps Location Modal */}
       <GoogleMapsLocationModal

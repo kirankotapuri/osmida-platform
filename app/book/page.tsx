@@ -107,6 +107,7 @@ function BookingContent() {
     // Pre-fill phone & load customer profile if returning customer
     if (typeof window !== "undefined") {
       const storedPhone = localStorage.getItem("osmida_customer_phone");
+      const storedEmail = localStorage.getItem("osmida_customer_email");
       const storedProfile = localStorage.getItem("osmida_customer_profile");
 
       if (storedProfile) {
@@ -123,15 +124,17 @@ function BookingContent() {
           if (parsed.address) setStreetAddress(parsed.address);
           if (parsed.googleMapsUrl) setGoogleMapsUrl(parsed.googleMapsUrl);
         } catch {}
-      } else if (storedPhone) {
-        setPhone(storedPhone);
+      } else if (storedPhone || storedEmail) {
+        if (storedPhone) setPhone(storedPhone);
         setIsLoggedIn(true);
-        fetch(`/api/customer/profile?phone=${storedPhone}`)
+        const query = storedPhone ? `phone=${storedPhone}` : `email=${encodeURIComponent(storedEmail || "")}`;
+        fetch(`/api/customer/profile?${query}`)
           .then((r) => r.json())
           .then((d) => {
             if (d.success && d.profile) {
               setSavedProfile(d.profile);
               localStorage.setItem("osmida_customer_profile", JSON.stringify(d.profile));
+              if (d.profile.phone && !phone) setPhone(d.profile.phone);
               if (d.profile.name) setCustomerName(d.profile.name);
               if (d.profile.locality) setLocality(d.profile.locality);
               if (d.profile.apartmentName) setApartmentName(d.profile.apartmentName);
@@ -206,22 +209,25 @@ function BookingContent() {
   const handleBookingForToggle = (mode: "self" | "other") => {
     setBookingFor(mode);
     if (mode === "other") {
-      // Clear location details so customer can enter recipient's address
+      // Clear location & recipient details so customer can enter recipient's address & phone
       setApartmentName("");
       setFlatNumber("");
       setTowerBlock("");
       setStreetAddress("");
       setGoogleMapsUrl(null);
+      setCustomerName("");
+      setPhone("");
     } else {
       // Restore from saved personal profile
       if (savedProfile) {
+        if (savedProfile.name) setCustomerName(savedProfile.name);
+        if (savedProfile.phone) setPhone(savedProfile.phone);
         if (savedProfile.locality) setLocality(savedProfile.locality);
         if (savedProfile.apartmentName) setApartmentName(savedProfile.apartmentName);
         if (savedProfile.flatNumber) setFlatNumber(savedProfile.flatNumber);
         if (savedProfile.towerBlock) setTowerBlock(savedProfile.towerBlock);
         if (savedProfile.address) setStreetAddress(savedProfile.address);
         if (savedProfile.googleMapsUrl) setGoogleMapsUrl(savedProfile.googleMapsUrl);
-        if (savedProfile.name && !customerName) setCustomerName(savedProfile.name);
       }
     }
   };
@@ -229,9 +235,11 @@ function BookingContent() {
   const handleLoginSuccess = (profile: any) => {
     setIsLoggedIn(true);
     setSavedProfile(profile);
-    if (profile.phone) setPhone(profile.phone);
-    if (profile.name) setCustomerName(profile.name);
+    if (profile.phone && !phone) setPhone(profile.phone);
+    if (profile.name && !customerName) setCustomerName(profile.name);
     if (bookingFor === "self") {
+      if (profile.phone) setPhone(profile.phone);
+      if (profile.name) setCustomerName(profile.name);
       if (profile.locality) setLocality(profile.locality);
       if (profile.apartmentName) setApartmentName(profile.apartmentName);
       if (profile.flatNumber) setFlatNumber(profile.flatNumber);
@@ -290,6 +298,11 @@ function BookingContent() {
     setIsSubmitting(true);
 
     try {
+      const customerEmail =
+        savedProfile?.email ||
+        (typeof window !== "undefined" ? localStorage.getItem("osmida_customer_email") : "") ||
+        "";
+
       const payload = {
         selectedServices,
         durationHours: selectedDuration,
@@ -297,6 +310,7 @@ function BookingContent() {
         totalAmount: totalPrice,
         customerName: customerName.trim(),
         customerPhone: cleanPhone,
+        customerEmail: customerEmail || undefined,
         locality,
         apartmentName: apartmentName.trim(),
         flatNumber: flatNumber.trim(),
@@ -310,7 +324,9 @@ function BookingContent() {
             : bookingType === "recurring"
             ? `${recurringFrequency} • ${timeSlot}`
             : timeSlot,
-        notes: notes.trim(),
+        notes: customerEmail
+          ? `${notes.trim()}${notes.trim() ? " • " : ""}[Email: ${customerEmail}]`
+          : notes.trim(),
         paymentMethod: paymentMode,
         bookingFor,
         googleMapsUrl,
@@ -328,13 +344,17 @@ function BookingContent() {
         throw new Error(data.error || "Failed to create booking");
       }
 
-      // Success: save customer phone and profile if booking for self
+      // Success: save customer phone, email, and profile if booking for self
       if (typeof window !== "undefined") {
         localStorage.setItem("osmida_customer_phone", cleanPhone);
+        if (customerEmail) {
+          localStorage.setItem("osmida_customer_email", customerEmail);
+        }
         if (bookingFor === "self") {
           const profileData = {
             name: customerName.trim(),
             phone: cleanPhone,
+            email: customerEmail || undefined,
             locality,
             apartmentName: apartmentName.trim(),
             flatNumber: flatNumber.trim(),
@@ -642,7 +662,7 @@ function BookingContent() {
                 <div className="flex items-center gap-2">
                   <Sparkles className="h-4 w-4 text-amber-600 shrink-0" />
                   <p className="text-xs text-amber-900 font-semibold">
-                    Already booked on Osmida? <span className="font-bold">Log in with WhatsApp</span> to autofill your saved address in 1 click.
+                    Already booked on Osmida? <span className="font-bold">Log in with Google, Gmail, or WhatsApp</span> to autofill your saved address in 1 click.
                   </p>
                 </div>
                 <button
