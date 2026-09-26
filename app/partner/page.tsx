@@ -156,14 +156,15 @@ export default function PartnerPortalPage() {
   const [resetSuccessMessage, setResetSuccessMessage] = useState("");
   const [isAppLoading, setIsAppLoading] = useState(true);
 
-  // Telugu / English Language State (Telugu by default for on-the-ground helpers)
-  const [lang, setLang] = useState<PartnerLanguage>("te");
+  // Language State (Defaults to English when opening; partner can toggle to Telugu at any time)
+  const [lang, setLang] = useState<PartnerLanguage>("en");
   const t = PARTNER_STRINGS[lang];
 
   const toggleLanguage = () => {
-    const nextLang: PartnerLanguage = lang === "te" ? "en" : "te";
+    const nextLang: PartnerLanguage = lang === "en" ? "te" : "en";
     setLang(nextLang);
     try {
+      sessionStorage.setItem("osmida_partner_lang", nextLang);
       localStorage.setItem("osmida_partner_lang", nextLang);
     } catch {}
   };
@@ -219,9 +220,15 @@ export default function PartnerPortalPage() {
   // Load saved session & language on mount and inject worker-specific PWA manifest
   useEffect(() => {
     try {
-      const savedLang = localStorage.getItem("osmida_partner_lang") as PartnerLanguage;
-      if (savedLang === "te" || savedLang === "en") {
-        setLang(savedLang);
+      // Start with English by default when opening; partner can toggle to Telugu
+      const sessionLang = sessionStorage.getItem("osmida_partner_lang") as PartnerLanguage;
+      if (sessionLang === "te") {
+        setLang("te");
+      } else {
+        setLang("en");
+        try {
+          localStorage.removeItem("osmida_partner_lang");
+        } catch {}
       }
 
       // Ensure worker app has its own distinct manifest and icon on home screen
@@ -734,7 +741,18 @@ export default function PartnerPortalPage() {
       <main className="min-h-screen bg-[#0E131F] text-white flex flex-col justify-center items-center px-4 py-8">
         <div className="w-full max-w-md bg-[#161D2F] border border-white/10 rounded-2xl p-5 sm:p-7 shadow-2xl">
           {/* Logo & Header */}
-          <div className="text-center mb-6">
+          <div className="relative text-center mb-6">
+            <div className="flex justify-end mb-2">
+              <button
+                type="button"
+                onClick={toggleLanguage}
+                className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-bold transition border border-white/20 shadow-sm cursor-pointer"
+                title={lang === "en" ? "తెలుగులోకి మార్చండి (Switch to Telugu)" : "Switch to English"}
+              >
+                <Languages className="w-3.5 h-3.5 text-[#E68A00]" />
+                <span>{lang === "en" ? "తెలుగు" : "EN"}</span>
+              </button>
+            </div>
             <div className="relative h-11 w-44 mx-auto mb-3 flex items-center justify-center">
               <Image
                 src="/assets/branding/osmida-wordmark-white.png"
@@ -749,9 +767,9 @@ export default function PartnerPortalPage() {
               <Sparkles className="w-3.5 h-3.5" />
               OSMIDA WORKER PORTAL • NELLORE
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">Partner Portal</h1>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight">{t.portalTitle}</h1>
             <p className="text-xs text-gray-400 mt-1">
-              Standardized Residential Services in Nellore Apartments
+              {t.subtitle}
             </p>
           </div>
 
@@ -1246,11 +1264,11 @@ export default function PartnerPortalPage() {
             {/* TELUGU / ENGLISH TOGGLE */}
             <button
               onClick={toggleLanguage}
-              className="flex items-center gap-1 px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-bold transition border border-white/20 shadow-sm cursor-pointer"
-              title="Change Language / భాష మార్చండి"
+              className="flex items-center gap-1.5 px-3 py-1 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-bold transition border border-white/20 shadow-sm cursor-pointer"
+              title={lang === "en" ? "తెలుగులోకి మార్చండి (Switch to Telugu)" : "Switch to English"}
             >
               <Languages className="w-3.5 h-3.5 text-[#E68A00]" />
-              <span>{lang === "te" ? "తెలుగు" : "EN"}</span>
+              <span>{lang === "en" ? "తెలుగు" : "EN"}</span>
             </button>
 
             {/* NELLORE HUB HOTLINE */}
