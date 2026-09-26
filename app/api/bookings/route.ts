@@ -245,12 +245,30 @@ export async function POST(req: Request) {
     }
 
     // ── INTELLIGENT MATCHING & HUB DISPATCH ──
-    const { getHubForLocality, matchPartnersForBooking } = await import("@/lib/partnerMatching");
+    const { getHubForLocality, matchPartnersForBooking, DEFAULT_PARTNERS } = await import("@/lib/partnerMatching");
     const serviceCategory = cleanServices[0] || "bathroom_cleaning";
     const targetHub = getHubForLocality(cleanLocality);
-    const { primaryMatch } = matchPartnersForBooking(serviceCategory, cleanLocality);
 
-    const isSameHub = primaryMatch?.assigned_hub === targetHub;
+    // Fetch live online partners from Supabase to match the real-time operational roster
+    let candidatePartners = DEFAULT_PARTNERS;
+    if (supabase) {
+      try {
+        const { data: dbPartners } = await supabase
+          .from("service_partners")
+          .select("*")
+          .eq("status", "online");
+        if (dbPartners && dbPartners.length > 0) {
+          candidatePartners = dbPartners as any;
+        }
+      } catch (err) {
+        console.warn("DB online partners query note:", err);
+      }
+    }
+
+    const { primaryMatch } = matchPartnersForBooking(serviceCategory, cleanLocality, candidatePartners);
+    const assignedPartner = primaryMatch || candidatePartners[0] || DEFAULT_PARTNERS[0];
+
+    const isSameHub = assignedPartner?.assigned_hub === targetHub;
     const estDistance = isSameHub ? 1.5 : 3.2;
     const estTravelMins = isSameHub ? 8 : 14;
 
@@ -260,9 +278,9 @@ export async function POST(req: Request) {
       id: `job-${referenceId}`,
       reference_id: referenceId,
       booking_id: newBooking.id,
-      partner_id: "default-partner-pogathota", // Available to all online eligible in Nellore
-      matched_partner_id: primaryMatch?.id || null,
-      matched_partner_name: primaryMatch?.name || null,
+      partner_id: assignedPartner?.id || "default-partner-pogathota",
+      matched_partner_id: assignedPartner?.id || null,
+      matched_partner_name: assignedPartner?.name || null,
       status: "offered",
       service_name: cleanServices.map((s: string) => s.replace(/_/g, " ")).join(" + "),
       category: serviceCategory,
@@ -287,29 +305,19 @@ export async function POST(req: Request) {
 
     if (supabase) {
       try {
-        let validPartnerId: string | null = null;
-        const { data: partnerRows } = await supabase
-          .from("service_partners")
-          .select("id")
-          .limit(1);
-        if (partnerRows && partnerRows.length > 0) {
-          validPartnerId = partnerRows[0].id;
-        }
-
-        if (validPartnerId) {
-          await supabase.from("partner_job_assignments").insert({
-            reference_id: referenceId,
-            partner_id: validPartnerId,
-            status: "offered",
-            service_name: offeredJob.service_name,
-            customer_name: cleanName,
-            customer_phone: cleanPhone,
-            customer_address: fullAddress,
-            locality: cleanLocality,
-            payout_amount: workerPayoutAmount,
-            start_otp: otpStart,
-          });
-        }
+        await supabase.from("partner_job_assignments").insert({
+          reference_id: referenceId,
+          partner_id: assignedPartner?.id || null,
+          status: "offered",
+          service_name: offeredJob.service_name,
+          customer_name: cleanName,
+          customer_phone: cleanPhone,
+          customer_address: fullAddress,
+          locality: cleanLocality,
+          payout_amount: workerPayoutAmount,
+          start_otp: otpStart,
+          end_otp: otpEnd,
+        });
       } catch (assignErr) {
         console.warn("Non-fatal job assignment creation:", assignErr);
       }

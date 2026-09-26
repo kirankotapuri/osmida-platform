@@ -128,6 +128,8 @@ export async function POST(req: Request) {
         const stored = prontoBookingsStore.get(refId);
         if (stored) {
           stored.status = "assigned";
+          stored.worker_id = partnerId;
+          stored.worker_name = partnerName || job.matched_partner_name || "Assigned Partner";
           stored.worker_phone = partnerPhone || "9490122849";
           prontoBookingsStore.set(refId, stored);
         }
@@ -137,11 +139,22 @@ export async function POST(req: Request) {
         try {
           await supabase
             .from("partner_job_assignments")
-            .update({ status: "accepted", accepted_at: job.accepted_at })
+            .update({
+              status: "accepted",
+              partner_id: partnerId,
+              accepted_at: job.accepted_at,
+            })
             .eq("id", job.id);
+
           await supabase
             .from("bookings")
-            .update({ status: "assigned", updated_at: new Date().toISOString() })
+            .update({
+              status: "assigned",
+              worker_id: partnerId,
+              worker_name: partnerName || job.matched_partner_name || "Assigned Partner",
+              worker_phone: partnerPhone || "9490122849",
+              updated_at: new Date().toISOString(),
+            })
             .eq("reference_id", refId);
         } catch (dbErr) {
           console.warn("DB accept update note:", dbErr);
@@ -161,13 +174,31 @@ export async function POST(req: Request) {
       const { matchPartnersForBooking, DEFAULT_PARTNERS } = await import("@/lib/partnerMatching");
       const currentPartnerId = partnerId || job.partner_id;
 
+      // Query live online partners from Supabase to prioritize real-time field staff
+      let livePartners = DEFAULT_PARTNERS;
+      if (supabase) {
+        try {
+          const { data: dbPartners } = await supabase
+            .from("service_partners")
+            .select("*")
+            .eq("status", "online");
+          if (dbPartners && dbPartners.length > 0) {
+            livePartners = dbPartners as any;
+          }
+        } catch (err) {
+          console.warn("DB partner cascade query note:", err);
+        }
+      }
+
       // Find candidate partners excluding the one who declined
-      const otherPartners = DEFAULT_PARTNERS.filter((p) => p.id !== currentPartnerId && p.status === "online");
+      const otherPartners = livePartners.filter((p) => p.id !== currentPartnerId && p.status === "online");
       const matchResult = matchPartnersForBooking(job.category || "cleaning", job.locality || "Pogathota", otherPartners);
       const nextPartner = matchResult.primaryMatch || otherPartners[0] || null;
 
       if (nextPartner) {
         job.partner_id = nextPartner.id;
+        job.matched_partner_id = nextPartner.id;
+        job.matched_partner_name = nextPartner.name;
         job.status = "offered";
         job.offered_at = new Date().toISOString();
         globalActiveJobs.set(job.id, { ...job });
