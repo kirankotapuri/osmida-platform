@@ -1,5 +1,5 @@
 // Osmida Production Service Worker (PWA Offline Cache & Web Push)
-const CACHE_NAME = 'osmida-static-v2';
+const CACHE_NAME = 'osmida-static-v3';
 const STATIC_ASSETS = [
   '/',
   '/manifest.webmanifest',
