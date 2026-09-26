@@ -1,5 +1,5 @@
 // Osmida Production Service Worker (PWA Offline Cache & Web Push)
-const CACHE_NAME = 'osmida-static-v1';
+const CACHE_NAME = 'osmida-static-v2';
 const STATIC_ASSETS = [
   '/',
   '/manifest.webmanifest',
@@ -24,13 +24,14 @@ self.addEventListener('install', (event) => {
   self.skipWaiting();
 });
 
-// Activate: Clean up old caches
+// Activate: Immediately clean up all older cache versions
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     caches.keys().then((keys) => {
       return Promise.all(
         keys.map((key) => {
           if (key !== CACHE_NAME) {
+            console.log('SW deleting legacy cache:', key);
             return caches.delete(key);
           }
         })
@@ -40,7 +41,7 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
-// Fetch: Stale-while-revalidate for static assets, Network-first for APIs/pages
+// Fetch: Stale-while-revalidate for static assets, strictly Network-first for navigations and portals
 self.addEventListener('fetch', (event) => {
   const url = new URL(event.request.url);
 
@@ -49,8 +50,33 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Network-first for API routes and dynamic pages
-  if (url.pathname.startsWith('/api/') || url.pathname.startsWith('/booking/') || url.pathname.startsWith('/admin')) {
+  // 1. Navigation requests (Opening pages in the browser):
+  // Always fetch live from network first so portals (partner, admin, booking) never fail or hang
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request).catch(async () => {
+        const cached = await caches.match(event.request);
+        if (cached) return cached;
+        const rootCached = await caches.match('/');
+        if (rootCached) return rootCached;
+        return new Response('Network error. Please check your connection and reload.', {
+          status: 503,
+          statusText: 'Service Unavailable',
+          headers: { 'Content-Type': 'text/plain' },
+        });
+      })
+    );
+    return;
+  }
+
+  // 2. Network-first for API routes and dynamic portals
+  if (
+    url.pathname.startsWith('/api/') ||
+    url.pathname.startsWith('/partner') ||
+    url.pathname.startsWith('/admin') ||
+    url.pathname.startsWith('/booking/') ||
+    url.pathname.startsWith('/book')
+  ) {
     event.respondWith(
       fetch(event.request).catch(() => {
         return caches.match(event.request);
@@ -59,7 +85,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Stale-while-revalidate for static assets (images, icons, fonts)
+  // 3. Stale-while-revalidate for static assets (images, icons, fonts)
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
       const fetchPromise = fetch(event.request)
