@@ -13,42 +13,65 @@ export async function sendWhatsAppOtp(phone: string, otpCode: string): Promise<b
     return false;
   }
 
+  const endpoint = `https://graph.facebook.com/v21.0/${phoneId}/messages`;
+
+  // 1. Try sending via approved WhatsApp Template
   try {
-    const url = `https://graph.facebook.com/v25.0/${phoneId}/messages`;
-    const payload = {
+    const templateName = process.env.WHATSAPP_OTP_TEMPLATE_NAME || "osmida_verification_code";
+    const templatePayload = {
       messaging_product: "whatsapp",
       recipient_type: "individual",
       to: `91${cleanPhone}`,
       type: "template",
       template: {
-        name: "osmida_verification_code",
+        name: templateName,
         language: { code: "en" },
         components: [
           {
             type: "body",
             parameters: [{ type: "text", text: otpCode }],
           },
-          {
-            type: "button",
-            sub_type: "url",
-            index: "0",
-            parameters: [{ type: "text", text: otpCode }],
-          },
         ],
       },
     };
 
-    const res = await fetch(url, {
+    const res = await fetch(endpoint, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(payload),
+      body: JSON.stringify(templatePayload),
     });
 
     const data = await res.json();
-    return res.ok && !!data.messages;
+    if (res.ok && !!data.messages) {
+      return true;
+    }
+
+    // 2. Direct text message fallback if template is not registered or approved yet
+    console.warn("WhatsApp template send note:", data, "- attempting direct WhatsApp text fallback");
+    const textPayload = {
+      messaging_product: "whatsapp",
+      recipient_type: "individual",
+      to: `91${cleanPhone}`,
+      type: "text",
+      text: {
+        body: `Your Osmida login verification code is: ${otpCode}. Valid for 10 minutes. Welcome to Osmida Residential Services, Nellore!`,
+      },
+    };
+
+    const textRes = await fetch(endpoint, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(textPayload),
+    });
+
+    const textData = await textRes.json();
+    return textRes.ok && !!textData.messages;
   } catch (err) {
     console.warn("WhatsApp OTP dispatch exception:", err);
     return false;

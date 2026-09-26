@@ -84,32 +84,10 @@ export async function generateAndSendOtp(phone: string): Promise<SendOtpResult> 
     lastRequestedAt: now,
   });
 
-  let dispatchedChannel: "sms" | "whatsapp" | "console" = "console";
+  let dispatchedChannel: "whatsapp" | "sms" | "console" = "console";
 
-  // 1. Dispatch via MSG91 SMS if configured
-  const msg91AuthKey = process.env.MSG91_AUTH_KEY;
-  const msg91TemplateId = process.env.MSG91_OTP_TEMPLATE_ID;
-  const msg91SenderId = process.env.MSG91_SENDER_ID || "OSMIDA";
-
-  if (msg91AuthKey && msg91TemplateId) {
-    try {
-      const msg91Url = `https://control.msg91.com/api/v5/otp?template_id=${encodeURIComponent(
-        msg91TemplateId
-      )}&mobile=91${cleanPhone}&authkey=${encodeURIComponent(msg91AuthKey)}&otp=${otp}&sender=${encodeURIComponent(
-        msg91SenderId
-      )}`;
-      const res = await fetch(msg91Url, { method: "POST" });
-      const data = await res.json();
-      if (data.type === "success") {
-        dispatchedChannel = "sms";
-      }
-    } catch (smsErr) {
-      console.warn("MSG91 SMS dispatch note:", smsErr);
-    }
-  }
-
-  // 2. Dispatch via WhatsApp Business API if MSG91 is not active or as secondary channel
-  if (dispatchedChannel === "console" && process.env.WHATSAPP_CLOUD_API_TOKEN) {
+  // 1. PRIMARY DISPATCH: WhatsApp Cloud API (Dedicated SIM API)
+  if (process.env.WHATSAPP_CLOUD_API_TOKEN) {
     try {
       const { sendWhatsAppOtp } = await import("./whatsapp");
       const waSuccess = await sendWhatsAppOtp(cleanPhone, otp);
@@ -121,6 +99,30 @@ export async function generateAndSendOtp(phone: string): Promise<SendOtpResult> 
     }
   }
 
+  // 2. SECONDARY / FALLBACK DISPATCH: MSG91 SMS (if configured)
+  if (dispatchedChannel === "console") {
+    const msg91AuthKey = process.env.MSG91_AUTH_KEY;
+    const msg91TemplateId = process.env.MSG91_OTP_TEMPLATE_ID;
+    const msg91SenderId = process.env.MSG91_SENDER_ID || "OSMIDA";
+
+    if (msg91AuthKey && msg91TemplateId) {
+      try {
+        const msg91Url = `https://control.msg91.com/api/v5/otp?template_id=${encodeURIComponent(
+          msg91TemplateId
+        )}&mobile=91${cleanPhone}&authkey=${encodeURIComponent(msg91AuthKey)}&otp=${otp}&sender=${encodeURIComponent(
+          msg91SenderId
+        )}`;
+        const res = await fetch(msg91Url, { method: "POST" });
+        const data = await res.json();
+        if (data.type === "success") {
+          dispatchedChannel = "sms";
+        }
+      } catch (smsErr) {
+        console.warn("MSG91 SMS dispatch note:", smsErr);
+      }
+    }
+  }
+
   const isSimulated = dispatchedChannel === "console";
   return {
     success: true,
@@ -128,8 +130,8 @@ export async function generateAndSendOtp(phone: string): Promise<SendOtpResult> 
     isSimulated,
     demoCode: isSimulated ? otp : undefined,
     message: isSimulated
-      ? `SMS gateway is pending API key in .env.local. Your verification code is ${otp}.`
-      : `Verification code sent to +91 ${cleanPhone.slice(0, 2)}****${cleanPhone.slice(-4)}. Valid for 10 minutes.`,
+      ? `WhatsApp verification code is ${otp}. Valid for 10 minutes.`
+      : `Verification code sent to your WhatsApp at +91 ${cleanPhone.slice(0, 2)}****${cleanPhone.slice(-4)}. Valid for 10 minutes.`,
   };
 }
 
