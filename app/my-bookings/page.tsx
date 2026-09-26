@@ -8,6 +8,7 @@ import { Language } from "@/lib/translations";
 import { DEFAULT_APP_SETTINGS } from "@/lib/osmidaServices";
 import { GoogleMapsLocationModal } from "@/components/GoogleMapsLocationModal";
 import { CustomerLoginModal } from "@/components/CustomerLoginModal";
+import { createClient } from "@supabase/supabase-js";
 import {
   Phone,
   KeyRound,
@@ -109,8 +110,48 @@ export default function MyBookingsPage() {
           setSavedPhone(storedPhone);
         }
         setStep("dashboard");
-        // Auto-fetch profile & bookings with demo code or existing session
         fetchBookings(storedPhone || "", storedEmail || "", "1234", true);
+      }
+
+      // Check active Supabase OAuth session directly
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      if (supabaseUrl && supabaseKey) {
+        try {
+          const supabase = createClient(supabaseUrl, supabaseKey);
+          supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session?.user) {
+              const u = session.user;
+              const uEmail = u.email || "";
+              const uName = u.user_metadata?.full_name || u.user_metadata?.name || (uEmail ? uEmail.split("@")[0] : "");
+              const uAvatar = u.user_metadata?.avatar_url || u.user_metadata?.picture || "";
+              const uPhone = u.phone || u.user_metadata?.phone || "";
+
+              if (uEmail) {
+                setProfileEmail(uEmail);
+                localStorage.setItem("osmida_customer_email", uEmail);
+              }
+              if (uName) {
+                setProfileName(uName);
+                localStorage.setItem("osmida_customer_name", uName);
+              }
+              if (uAvatar) {
+                setProfileAvatar(uAvatar);
+                localStorage.setItem("osmida_customer_avatar", uAvatar);
+              }
+              if (uPhone) {
+                setPhone(uPhone);
+                setSavedPhone(uPhone);
+                localStorage.setItem("osmida_customer_phone", uPhone);
+              }
+
+              setStep("dashboard");
+              fetchBookings(uPhone || storedPhone || "", uEmail || storedEmail || "", "1234", true);
+            }
+          });
+        } catch (e) {
+          console.warn("Supabase session check note:", e);
+        }
       }
     }
   }, []);

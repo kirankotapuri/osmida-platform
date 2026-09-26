@@ -20,6 +20,7 @@ import {
   LogOut,
 } from "lucide-react";
 import { CustomerLoginModal } from "./CustomerLoginModal";
+import { createClient } from "@supabase/supabase-js";
 
 const NELLORE_LOCALITIES = [
   "Haranathapuram",
@@ -61,18 +62,104 @@ export function OsmidaHeader() {
     }
   };
 
-  // Check customer login status on mount & listen to auth changes
+  // Check customer login status on mount & listen to auth changes (Local + Supabase OAuth)
   useEffect(() => {
     syncAuth();
     window.addEventListener("storage", syncAuth);
     window.addEventListener("osmida_auth_change", syncAuth);
+
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    let authSubscription: any = null;
+
+    if (supabaseUrl && supabaseKey) {
+      try {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+
+        // Check active session immediately on mount
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user) {
+            const user = session.user;
+            const uEmail = user.email || "";
+            const uName =
+              user.user_metadata?.full_name ||
+              user.user_metadata?.name ||
+              (uEmail ? uEmail.split("@")[0] : "Resident");
+            const uAvatar =
+              user.user_metadata?.avatar_url ||
+              user.user_metadata?.picture ||
+              "";
+            const uPhone = user.phone || user.user_metadata?.phone || "";
+
+            setCustomerEmail(uEmail);
+            setCustomerName(uName);
+            setCustomerAvatar(uAvatar);
+            if (uPhone) setCustomerPhone(uPhone);
+
+            if (typeof window !== "undefined") {
+              if (uEmail) localStorage.setItem("osmida_customer_email", uEmail);
+              if (uName) localStorage.setItem("osmida_customer_name", uName);
+              if (uAvatar) localStorage.setItem("osmida_customer_avatar", uAvatar);
+            }
+          }
+        });
+
+        // Listen for live login / logout events
+        const { data } = supabase.auth.onAuthStateChange((event, session) => {
+          if ((event === "SIGNED_IN" || event === "TOKEN_REFRESHED" || event === "USER_UPDATED") && session?.user) {
+            const user = session.user;
+            const uEmail = user.email || "";
+            const uName =
+              user.user_metadata?.full_name ||
+              user.user_metadata?.name ||
+              (uEmail ? uEmail.split("@")[0] : "Resident");
+            const uAvatar =
+              user.user_metadata?.avatar_url ||
+              user.user_metadata?.picture ||
+              "";
+            const uPhone = user.phone || user.user_metadata?.phone || "";
+
+            setCustomerEmail(uEmail);
+            setCustomerName(uName);
+            setCustomerAvatar(uAvatar);
+            if (uPhone) setCustomerPhone(uPhone);
+
+            if (typeof window !== "undefined") {
+              if (uEmail) localStorage.setItem("osmida_customer_email", uEmail);
+              if (uName) localStorage.setItem("osmida_customer_name", uName);
+              if (uAvatar) localStorage.setItem("osmida_customer_avatar", uAvatar);
+            }
+          } else if (event === "SIGNED_OUT") {
+            setCustomerEmail("");
+            setCustomerName("");
+            setCustomerAvatar("");
+            setCustomerPhone("");
+          }
+        });
+        authSubscription = data?.subscription;
+      } catch (err) {
+        console.warn("Supabase auth sync notice:", err);
+      }
+    }
+
     return () => {
       window.removeEventListener("storage", syncAuth);
       window.removeEventListener("osmida_auth_change", syncAuth);
+      authSubscription?.unsubscribe();
     };
   }, []);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+    if (supabaseUrl && supabaseKey) {
+      try {
+        const supabase = createClient(supabaseUrl, supabaseKey);
+        await supabase.auth.signOut();
+      } catch (err) {
+        console.warn("Signout notice:", err);
+      }
+    }
     if (typeof window !== "undefined") {
       localStorage.removeItem("osmida_customer_phone");
       localStorage.removeItem("osmida_customer_email");
