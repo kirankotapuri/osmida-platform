@@ -149,6 +149,7 @@ export async function POST(req: Request) {
       name: String(name || "").trim(),
       phone: cleanPhone || "",
       email: cleanEmail || "",
+      avatar: body.avatar || null,
       locality: String(locality || "Pogathota").trim(),
       apartmentName: String(apartmentName || "").trim(),
       flatNumber: String(flatNumber || "").trim(),

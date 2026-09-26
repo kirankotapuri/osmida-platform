@@ -46,6 +46,7 @@ export default function MyBookingsPage() {
 
   // Customer Profile State
   const [profileName, setProfileName] = useState("");
+  const [profileAvatar, setProfileAvatar] = useState("");
   const [profileLocality, setProfileLocality] = useState("Pogathota");
   const [profileApartment, setProfileApartment] = useState("");
   const [profileFlat, setProfileFlat] = useState("");
@@ -63,6 +64,7 @@ export default function MyBookingsPage() {
     if (!prof) return;
     if (prof.name) setProfileName(prof.name);
     if (prof.email) setProfileEmail(prof.email);
+    if (prof.avatar) setProfileAvatar(prof.avatar);
     if (prof.phone) {
       setPhone(prof.phone);
       setSavedPhone(prof.phone);
@@ -78,9 +80,20 @@ export default function MyBookingsPage() {
   useEffect(() => {
     // Check if phone, email, or profile stored
     if (typeof window !== "undefined") {
+      const searchParams = new URLSearchParams(window.location.search);
+      if (searchParams.get("tab") === "profile") {
+        setActiveTab("profile");
+      }
+
       const storedPhone = localStorage.getItem("osmida_customer_phone");
       const storedEmail = localStorage.getItem("osmida_customer_email");
+      const storedName = localStorage.getItem("osmida_customer_name");
+      const storedAvatar = localStorage.getItem("osmida_customer_avatar");
       const storedProfile = localStorage.getItem("osmida_customer_profile");
+
+      if (storedAvatar) setProfileAvatar(storedAvatar);
+      if (storedName) setProfileName(storedName);
+      if (storedEmail) setProfileEmail(storedEmail);
 
       if (storedProfile) {
         try {
@@ -88,10 +101,6 @@ export default function MyBookingsPage() {
           applyProfileData(parsed);
           setStep("dashboard");
         } catch {}
-      }
-
-      if (storedEmail) {
-        setProfileEmail(storedEmail);
       }
 
       if (storedPhone || storedEmail) {
@@ -225,6 +234,7 @@ export default function MyBookingsPage() {
       name: profileName.trim(),
       phone: cleanPhone,
       email: cleanEmail,
+      avatar: profileAvatar || null,
       locality: profileLocality,
       apartmentName: profileApartment.trim(),
       flatNumber: profileFlat.trim(),
@@ -247,6 +257,8 @@ export default function MyBookingsPage() {
           localStorage.setItem("osmida_customer_name", profileName.trim());
           if (cleanPhone) localStorage.setItem("osmida_customer_phone", cleanPhone);
           if (cleanEmail) localStorage.setItem("osmida_customer_email", cleanEmail);
+          if (profileAvatar) localStorage.setItem("osmida_customer_avatar", profileAvatar);
+          window.dispatchEvent(new CustomEvent("osmida_auth_change", { detail: data.profile || payload }));
         }
       } else {
         setProfileSaveError(data.error || "Failed to save profile.");
@@ -276,12 +288,15 @@ export default function MyBookingsPage() {
     if (typeof window !== "undefined") {
       localStorage.removeItem("osmida_customer_phone");
       localStorage.removeItem("osmida_customer_email");
-      localStorage.removeItem("osmida_customer_profile");
       localStorage.removeItem("osmida_customer_name");
+      localStorage.removeItem("osmida_customer_avatar");
+      localStorage.removeItem("osmida_customer_profile");
+      window.dispatchEvent(new CustomEvent("osmida_auth_change"));
     }
     setSavedPhone("");
     setPhone("");
     setProfileEmail("");
+    setProfileAvatar("");
     setOtp("");
     setBookings([]);
     setProfileName("");
@@ -312,17 +327,32 @@ export default function MyBookingsPage() {
 
         {/* Header Title */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
-          <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#0C6266]/10 text-[#0C6266] px-3 py-0.5 text-xs font-bold mb-1">
-              <ShieldCheck className="h-3.5 w-3.5 text-[#0C6266]" />
-              <span>Customer Portal • Google & WhatsApp Login</span>
+          <div className="flex items-center gap-3">
+            {profileAvatar ? (
+              <img
+                src={profileAvatar}
+                alt={profileName || "User"}
+                className="h-12 w-12 rounded-2xl object-cover border-2 border-[#0C6266]/30 shadow-xs shrink-0"
+              />
+            ) : (
+              <div className="h-12 w-12 rounded-2xl bg-[#0C6266] text-white flex items-center justify-center text-lg font-black shrink-0 shadow-xs">
+                {(profileName || profileEmail || "U").charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div>
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-[#0C6266]/10 text-[#0C6266] px-3 py-0.5 text-xs font-bold mb-1">
+                <ShieldCheck className="h-3.5 w-3.5 text-[#0C6266]" />
+                <span>
+                  {profileEmail ? `Google Verified (${profileEmail})` : "Customer Portal • WhatsApp Login"}
+                </span>
+              </div>
+              <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
+                {profileName ? `Welcome back, ${profileName}` : "My Osmida Account"}
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-600 font-medium">
+                Check service visits, manage your saved Nellore apartment address, and track home help pros.
+              </p>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">
-              {profileName ? `Welcome back, ${profileName}` : "My Osmida Account"}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-600 font-medium">
-              Check service visits, manage your saved Nellore apartment address, and track home help pros.
-            </p>
           </div>
 
           {step === "dashboard" && (
@@ -749,6 +779,42 @@ export default function MyBookingsPage() {
                 {profileSaveError && (
                   <div className="rounded-xl bg-rose-50 border border-rose-200 p-3 text-xs text-rose-800 font-semibold animate-in fade-in">
                     {profileSaveError}
+                  </div>
+                )}
+
+                {/* Connected Google Account Banner */}
+                {profileEmail && (
+                  <div className="flex items-center justify-between p-3.5 rounded-2xl bg-[#F0FDF4] border border-emerald-200/80 shadow-2xs">
+                    <div className="flex items-center gap-3 min-w-0">
+                      {profileAvatar ? (
+                        <img
+                          src={profileAvatar}
+                          alt={profileName || "Google Account"}
+                          className="h-10 w-10 rounded-full object-cover border border-emerald-300 shadow-2xs shrink-0"
+                        />
+                      ) : (
+                        <div className="h-10 w-10 rounded-full bg-[#0C6266] text-white flex items-center justify-center font-black text-sm shrink-0">
+                          {(profileName || profileEmail || "G").charAt(0).toUpperCase()}
+                        </div>
+                      )}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="font-extrabold text-slate-900 text-xs truncate">
+                            {profileName || "Google Resident"}
+                          </p>
+                          <span className="text-[10px] font-black text-emerald-700 bg-white border border-emerald-200 px-2 py-0.5 rounded-full">
+                            Google Connected
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-slate-600 font-mono truncate mt-0.5">
+                          {profileEmail}
+                        </p>
+                      </div>
+                    </div>
+                    <span className="hidden sm:inline-flex items-center gap-1 text-[10px] font-black text-emerald-800 bg-emerald-100/60 border border-emerald-300 px-2.5 py-1 rounded-full shrink-0">
+                      <CheckCircle2 className="h-3 w-3 text-emerald-600" />
+                      <span>Verified Profile</span>
+                    </span>
                   </div>
                 )}
 

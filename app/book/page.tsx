@@ -105,48 +105,55 @@ function BookingContent() {
     }
 
     // Pre-fill phone & load customer profile if returning customer
-    if (typeof window !== "undefined") {
-      const storedPhone = localStorage.getItem("osmida_customer_phone");
-      const storedEmail = localStorage.getItem("osmida_customer_email");
-      const storedProfile = localStorage.getItem("osmida_customer_profile");
+    const loadCustomerData = () => {
+      if (typeof window !== "undefined") {
+        const storedPhone = localStorage.getItem("osmida_customer_phone");
+        const storedEmail = localStorage.getItem("osmida_customer_email");
+        const storedName = localStorage.getItem("osmida_customer_name");
+        const storedProfile = localStorage.getItem("osmida_customer_profile");
 
-      if (storedProfile) {
-        try {
-          const parsed = JSON.parse(storedProfile);
-          setSavedProfile(parsed);
+        if (storedProfile) {
+          try {
+            const parsed = JSON.parse(storedProfile);
+            setSavedProfile(parsed);
+            setIsLoggedIn(true);
+            if (parsed.phone) setPhone(parsed.phone);
+            if (parsed.name) setCustomerName(parsed.name);
+            if (parsed.locality) setLocality(parsed.locality);
+            if (parsed.apartmentName) setApartmentName(parsed.apartmentName);
+            if (parsed.flatNumber) setFlatNumber(parsed.flatNumber);
+            if (parsed.towerBlock) setTowerBlock(parsed.towerBlock);
+            if (parsed.address) setStreetAddress(parsed.address);
+            if (parsed.googleMapsUrl) setGoogleMapsUrl(parsed.googleMapsUrl);
+          } catch {}
+        } else if (storedPhone || storedEmail || storedName) {
+          if (storedPhone) setPhone(storedPhone);
+          if (storedName) setCustomerName(storedName);
           setIsLoggedIn(true);
-          if (parsed.phone && !phone) setPhone(parsed.phone);
-          if (parsed.name && !customerName) setCustomerName(parsed.name);
-          if (parsed.locality) setLocality(parsed.locality);
-          if (parsed.apartmentName) setApartmentName(parsed.apartmentName);
-          if (parsed.flatNumber) setFlatNumber(parsed.flatNumber);
-          if (parsed.towerBlock) setTowerBlock(parsed.towerBlock);
-          if (parsed.address) setStreetAddress(parsed.address);
-          if (parsed.googleMapsUrl) setGoogleMapsUrl(parsed.googleMapsUrl);
-        } catch {}
-      } else if (storedPhone || storedEmail) {
-        if (storedPhone) setPhone(storedPhone);
-        setIsLoggedIn(true);
-        const query = storedPhone ? `phone=${storedPhone}` : `email=${encodeURIComponent(storedEmail || "")}`;
-        fetch(`/api/customer/profile?${query}`)
-          .then((r) => r.json())
-          .then((d) => {
-            if (d.success && d.profile) {
-              setSavedProfile(d.profile);
-              localStorage.setItem("osmida_customer_profile", JSON.stringify(d.profile));
-              if (d.profile.phone && !phone) setPhone(d.profile.phone);
-              if (d.profile.name) setCustomerName(d.profile.name);
-              if (d.profile.locality) setLocality(d.profile.locality);
-              if (d.profile.apartmentName) setApartmentName(d.profile.apartmentName);
-              if (d.profile.flatNumber) setFlatNumber(d.profile.flatNumber);
-              if (d.profile.towerBlock) setTowerBlock(d.profile.towerBlock);
-              if (d.profile.address) setStreetAddress(d.profile.address);
-              if (d.profile.googleMapsUrl) setGoogleMapsUrl(d.profile.googleMapsUrl);
-            }
-          })
-          .catch(() => {});
+          const query = storedPhone ? `phone=${storedPhone}` : `email=${encodeURIComponent(storedEmail || "")}`;
+          fetch(`/api/customer/profile?${query}`)
+            .then((r) => r.json())
+            .then((d) => {
+              if (d.success && d.profile) {
+                setSavedProfile(d.profile);
+                localStorage.setItem("osmida_customer_profile", JSON.stringify(d.profile));
+                if (d.profile.phone) setPhone(d.profile.phone);
+                if (d.profile.name) setCustomerName(d.profile.name);
+                if (d.profile.locality) setLocality(d.profile.locality);
+                if (d.profile.apartmentName) setApartmentName(d.profile.apartmentName);
+                if (d.profile.flatNumber) setFlatNumber(d.profile.flatNumber);
+                if (d.profile.towerBlock) setTowerBlock(d.profile.towerBlock);
+                if (d.profile.address) setStreetAddress(d.profile.address);
+                if (d.profile.googleMapsUrl) setGoogleMapsUrl(d.profile.googleMapsUrl);
+              }
+            })
+            .catch(() => {});
+        }
       }
-    }
+    };
+
+    loadCustomerData();
+    window.addEventListener("osmida_auth_change", loadCustomerData);
 
     const localityParam = searchParams.get("locality");
     if (localityParam) setLocality(localityParam);
@@ -179,6 +186,10 @@ function BookingContent() {
         }
       })
       .catch(() => {});
+
+    return () => {
+      window.removeEventListener("osmida_auth_change", loadCustomerData);
+    };
   }, [searchParams]);
 
   const toggleService = (id: string) => {

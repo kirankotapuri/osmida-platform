@@ -39,25 +39,52 @@ export function ProntoHeader() {
   const [accountDropdownOpen, setAccountDropdownOpen] = useState(false);
   const [customerPhone, setCustomerPhone] = useState("");
   const [customerName, setCustomerName] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [customerAvatar, setCustomerAvatar] = useState("");
 
-  // Check customer login status on mount
-  useEffect(() => {
+  const syncAuth = () => {
     if (typeof window !== "undefined") {
-      const phone = localStorage.getItem("osmida_customer_phone");
-      const name = localStorage.getItem("osmida_customer_name");
-      if (phone) setCustomerPhone(phone);
-      if (name) setCustomerName(name);
+      const phone = localStorage.getItem("osmida_customer_phone") || "";
+      const email = localStorage.getItem("osmida_customer_email") || "";
+      const name = localStorage.getItem("osmida_customer_name") || "";
+      const avatar = localStorage.getItem("osmida_customer_avatar") || "";
+      const profStr = localStorage.getItem("osmida_customer_profile");
+      let prof: any = null;
+      try {
+        if (profStr) prof = JSON.parse(profStr);
+      } catch {}
+
+      setCustomerPhone(phone || prof?.phone || "");
+      setCustomerEmail(email || prof?.email || "");
+      setCustomerName(name || prof?.name || (email ? email.split("@")[0] : ""));
+      setCustomerAvatar(avatar || prof?.avatar || "");
     }
+  };
+
+  // Check customer login status on mount & listen to auth changes
+  useEffect(() => {
+    syncAuth();
+    window.addEventListener("storage", syncAuth);
+    window.addEventListener("osmida_auth_change", syncAuth);
+    return () => {
+      window.removeEventListener("storage", syncAuth);
+      window.removeEventListener("osmida_auth_change", syncAuth);
+    };
   }, []);
 
   const handleLogout = () => {
     if (typeof window !== "undefined") {
       localStorage.removeItem("osmida_customer_phone");
+      localStorage.removeItem("osmida_customer_email");
       localStorage.removeItem("osmida_customer_name");
+      localStorage.removeItem("osmida_customer_avatar");
       localStorage.removeItem("osmida_customer_profile");
+      window.dispatchEvent(new CustomEvent("osmida_auth_change"));
     }
     setCustomerPhone("");
     setCustomerName("");
+    setCustomerEmail("");
+    setCustomerAvatar("");
     setAccountDropdownOpen(false);
     setMobileMenuOpen(false);
   };
@@ -65,6 +92,9 @@ export function ProntoHeader() {
   const handleLoginSuccess = (profile: any) => {
     if (profile?.phone) setCustomerPhone(profile.phone);
     if (profile?.name) setCustomerName(profile.name);
+    if (profile?.email) setCustomerEmail(profile.email);
+    if (profile?.avatar) setCustomerAvatar(profile.avatar);
+    syncAuth();
   };
 
   // Prevent background scroll when mobile menu is open
@@ -203,27 +233,52 @@ export function ProntoHeader() {
         {/* Right: Actions */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           {/* Customer Account / Login Pill */}
-          {customerPhone ? (
+          {customerPhone || customerEmail || customerName ? (
             <div className="relative">
               <button
                 type="button"
                 onClick={() => setAccountDropdownOpen(!accountDropdownOpen)}
                 className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 px-2.5 sm:px-3 py-1.5 text-xs font-bold text-slate-800 transition shadow-2xs cursor-pointer"
               >
-                <div className="h-5 w-5 rounded-full bg-[#0C6266] text-white flex items-center justify-center text-[10px] font-black shrink-0">
-                  {(customerName || "U").charAt(0).toUpperCase()}
-                </div>
-                <span className="hidden sm:inline max-w-[85px] truncate font-bold text-[#0F171A]">
-                  {customerName || `+91 ${customerPhone.slice(-4)}`}
+                {customerAvatar ? (
+                  <img
+                    src={customerAvatar}
+                    alt={customerName || "Profile"}
+                    className="h-5 w-5 rounded-full object-cover shrink-0 border border-[#0C6266]/30"
+                  />
+                ) : (
+                  <div className="h-5 w-5 rounded-full bg-[#0C6266] text-white flex items-center justify-center text-[10px] font-black shrink-0">
+                    {(customerName || customerEmail || "U").charAt(0).toUpperCase()}
+                  </div>
+                )}
+                <span className="hidden sm:inline max-w-[90px] truncate font-bold text-[#0F171A]">
+                  {customerName || (customerEmail ? customerEmail.split("@")[0] : `+91 ${customerPhone.slice(-4)}`)}
                 </span>
                 <ChevronDown className="h-3 w-3 text-slate-400" />
               </button>
 
               {accountDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-52 rounded-2xl bg-white border border-slate-200 shadow-xl p-2 z-50 animate-in fade-in zoom-in-95 text-xs space-y-1">
-                  <div className="px-2.5 py-1.5 border-b border-slate-100">
-                    <p className="font-extrabold text-slate-900 truncate">{customerName || "Resident"}</p>
-                    <p className="text-[10px] text-slate-400 font-mono">+91 {customerPhone}</p>
+                <div className="absolute right-0 mt-2 w-56 rounded-2xl bg-white border border-slate-200 shadow-xl p-2 z-50 animate-in fade-in zoom-in-95 text-xs space-y-1">
+                  <div className="flex items-center gap-2.5 px-2.5 py-2 border-b border-slate-100">
+                    {customerAvatar ? (
+                      <img
+                        src={customerAvatar}
+                        alt={customerName}
+                        className="h-8 w-8 rounded-full object-cover shrink-0 border border-[#0C6266]/20 shadow-2xs"
+                      />
+                    ) : (
+                      <div className="h-8 w-8 rounded-full bg-[#0C6266] text-white flex items-center justify-center text-xs font-black shrink-0">
+                        {(customerName || customerEmail || "U").charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="font-extrabold text-slate-900 truncate leading-tight">
+                        {customerName || "Resident"}
+                      </p>
+                      <p className="text-[10px] text-slate-500 truncate font-mono mt-0.5">
+                        {customerEmail || (customerPhone ? `+91 ${customerPhone}` : "Customer")}
+                      </p>
+                    </div>
                   </div>
                   <Link
                     href="/my-bookings"
@@ -297,24 +352,45 @@ export function ProntoHeader() {
           {/* Slide-Down Menu Sheet */}
           <div className="absolute top-full left-0 right-0 z-50 bg-white border-b border-[#DFE8E8] shadow-2xl px-4 pt-3.5 pb-6 space-y-3.5 animate-in fade-in slide-in-from-top-2 duration-200 lg:hidden rounded-b-3xl">
             {/* Customer Account / Login Banner on Mobile */}
-            {customerPhone ? (
+            {customerPhone || customerEmail || customerName ? (
               <div className="flex items-center justify-between p-3 rounded-2xl bg-[#0C6266]/10 border border-[#0C6266]/20">
-                <div className="flex items-center gap-2.5">
-                  <div className="h-8 w-8 rounded-full bg-[#0C6266] text-white flex items-center justify-center text-xs font-black">
-                    {(customerName || "U").charAt(0).toUpperCase()}
-                  </div>
-                  <div>
-                    <p className="text-xs font-black text-slate-900">{customerName || "Osmida Resident"}</p>
-                    <p className="text-[10px] text-slate-500 font-mono">+91 {customerPhone}</p>
+                <div className="flex items-center gap-2.5 min-w-0">
+                  {customerAvatar ? (
+                    <img
+                      src={customerAvatar}
+                      alt={customerName || "Profile"}
+                      className="h-8 w-8 rounded-full object-cover shrink-0 border border-[#0C6266]/30 shadow-2xs"
+                    />
+                  ) : (
+                    <div className="h-8 w-8 rounded-full bg-[#0C6266] text-white flex items-center justify-center text-xs font-black shrink-0">
+                      {(customerName || customerEmail || "U").charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <p className="text-xs font-black text-slate-900 truncate">
+                      {customerName || "Osmida Resident"}
+                    </p>
+                    <p className="text-[10px] text-slate-500 font-mono truncate">
+                      {customerEmail || (customerPhone ? `+91 ${customerPhone}` : "Customer")}
+                    </p>
                   </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={handleLogout}
-                  className="text-[11px] font-bold text-rose-600 hover:underline px-2 py-1"
-                >
-                  Sign Out
-                </button>
+                <div className="flex items-center gap-1 shrink-0">
+                  <Link
+                    href="/my-bookings"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="text-[11px] font-bold text-[#0C6266] hover:bg-[#0C6266]/15 px-2 py-1 rounded-lg transition"
+                  >
+                    Portal
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={handleLogout}
+                    className="text-[11px] font-bold text-rose-600 hover:bg-rose-50 px-2 py-1 rounded-lg transition cursor-pointer"
+                  >
+                    Sign Out
+                  </button>
+                </div>
               </div>
             ) : (
               <button

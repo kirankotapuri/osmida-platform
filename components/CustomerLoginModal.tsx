@@ -92,6 +92,7 @@ export function CustomerLoginModal({
       localStorage.setItem("osmida_customer_email", demoProfile.email);
       localStorage.setItem("osmida_customer_name", demoProfile.name);
       localStorage.setItem("osmida_customer_profile", JSON.stringify(demoProfile));
+      window.dispatchEvent(new CustomEvent("osmida_auth_change", { detail: demoProfile }));
     }
     onLoginSuccess(demoProfile);
     onClose();
@@ -226,6 +227,7 @@ export function CustomerLoginModal({
               localStorage.setItem("osmida_customer_phone", data.profile.phone);
             }
           }
+          window.dispatchEvent(new CustomEvent("osmida_auth_change", { detail: data.profile || { email: cleanEmail } }));
         }
         onLoginSuccess(data.profile || { email: cleanEmail });
         onClose();
@@ -274,6 +276,7 @@ export function CustomerLoginModal({
               localStorage.setItem("osmida_customer_name", data.profile.name);
             }
           }
+          window.dispatchEvent(new CustomEvent("osmida_auth_change", { detail: data.profile || { email: cleanEmail } }));
         }
         onLoginSuccess(data.profile || { email: cleanEmail });
         onClose();
@@ -404,6 +407,7 @@ export function CustomerLoginModal({
               localStorage.setItem("osmida_customer_name", data.profile.name);
             }
           }
+          window.dispatchEvent(new CustomEvent("osmida_auth_change", { detail: data.profile || { phone: cleanPhone } }));
         }
         onLoginSuccess(data.profile || { phone: cleanPhone });
         onClose();
