@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { verifyRazorpaySignature } from "@/lib/payments/razorpay";
-import { prontoBookingsStore } from "@/app/api/bookings/route";
 
 export const runtime = "nodejs";
 
@@ -30,16 +29,21 @@ export async function POST(req: Request) {
     }
 
     // Update in-memory booking
-    const booking = prontoBookingsStore.get(referenceId);
-    if (booking) {
-      booking.payment_method = "online";
-      booking.payment_status = "escrow_held";
-      booking.escrow_status = "held";
-      (booking as any).razorpay_payment_id = paymentId;
-      (booking as any).razorpay_order_id = orderId;
-      (booking as any).paid_at = new Date().toISOString();
-    }
+    try {
+      const { prontoBookingsStore } = await import("@/app/api/bookings/route");
+      const booking = prontoBookingsStore.get(referenceId);
+      if (booking) {
+        booking.payment_method = "online";
+        booking.payment_status = "paid";
+        booking.escrow_status = "released";
+        (booking as any).razorpay_payment_id = paymentId;
+        (booking as any).razorpay_order_id = orderId;
+        (booking as any).paid_at = new Date().toISOString();
+        prontoBookingsStore.set(referenceId, booking);
+      }
+    } catch {}
 
+    // Update booking payment status in Supabase
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
     const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
     if (supabaseUrl && supabaseKey) {
@@ -50,8 +54,8 @@ export async function POST(req: Request) {
           .from("bookings")
           .update({
             payment_method: "online",
-            payment_status: "escrow_held",
-            escrow_status: "held",
+            payment_status: "paid",
+            escrow_status: "released",
             updated_at: new Date().toISOString(),
           })
           .eq("reference_id", referenceId);
@@ -62,9 +66,9 @@ export async function POST(req: Request) {
 
     return NextResponse.json({
       success: true,
-      message: "Payment successfully verified and held securely in escrow.",
-      paymentStatus: "escrow_held",
-      escrowStatus: "held",
+      message: "Payment successfully verified and settled.",
+      paymentStatus: "paid",
+      escrowStatus: "released",
     });
   } catch (err: any) {
     console.error("Payment verification route error:", err);

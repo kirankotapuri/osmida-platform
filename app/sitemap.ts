@@ -10,19 +10,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1.0,
     },
     {
-      url: 'https://osmida.com/ac-services',
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: 'https://osmida.com/pest-control',
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: 'https://osmida.com/home-deep-cleaning',
+      url: 'https://osmida.com/book',
       lastModified: now,
       changeFrequency: 'weekly',
       priority: 0.9,
@@ -39,12 +27,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'monthly',
       priority: 0.7,
     },
-    {
-      url: 'https://osmida.com/book',
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
+
     {
       url: 'https://osmida.com/privacy',
       lastModified: now,

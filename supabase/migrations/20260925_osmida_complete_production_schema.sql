@@ -244,17 +244,39 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO service_role;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO anon, authenticated;
 
 -- Service role bypass policies
+DROP POLICY IF EXISTS "service_role_all_admin_settings" ON public.admin_settings;
 CREATE POLICY "service_role_all_admin_settings" ON public.admin_settings FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "service_role_all_partners" ON public.service_partners;
 CREATE POLICY "service_role_all_partners" ON public.service_partners FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "service_role_all_bookings" ON public.bookings;
 CREATE POLICY "service_role_all_bookings" ON public.bookings FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "service_role_all_pja" ON public.partner_job_assignments;
 CREATE POLICY "service_role_all_pja" ON public.partner_job_assignments FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "service_role_all_payouts" ON public.worker_payouts;
 CREATE POLICY "service_role_all_payouts" ON public.worker_payouts FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "service_role_all_ratings" ON public.ratings_complaints;
 CREATE POLICY "service_role_all_ratings" ON public.ratings_complaints FOR ALL TO service_role USING (true) WITH CHECK (true);
 
 -- Anon / Public policies
+DROP POLICY IF EXISTS "anon_select_admin_settings" ON public.admin_settings;
 CREATE POLICY "anon_select_admin_settings" ON public.admin_settings FOR SELECT TO anon, authenticated USING (true);
+
+DROP POLICY IF EXISTS "anon_all_bookings" ON public.bookings;
 CREATE POLICY "anon_all_bookings" ON public.bookings FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "anon_all_partners" ON public.service_partners;
 CREATE POLICY "anon_all_partners" ON public.service_partners FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "anon_all_pja" ON public.partner_job_assignments;
 CREATE POLICY "anon_all_pja" ON public.partner_job_assignments FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "anon_all_payouts" ON public.worker_payouts;
 CREATE POLICY "anon_all_payouts" ON public.worker_payouts FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "anon_all_ratings" ON public.ratings_complaints;
 CREATE POLICY "anon_all_ratings" ON public.ratings_complaints FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);

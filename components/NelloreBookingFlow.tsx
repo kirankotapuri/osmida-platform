@@ -55,14 +55,14 @@ export function NelloreBookingFlow({
   // Infer initial property size if specified in plan (e.g. 1bhk, 2bhk)
   const defaultSize = initialSubtypeId && initialSubtypeId.includes("1bhk") ? "1bhk" : "2bhk";
 
-  // Screen steps: 1 = Choose Service, 2 = Service Details & Subtype, 3 = Minimal 6-Field Form, 4 = Confirmation
+  // Steps: 1=Service, 2=Details, 3=Form, 4=Confirmation
   const [currentStep, setCurrentStep] = useState<1 | 2 | 3 | 4>(initialServiceId ? 2 : 1);
   const [selectedService, setSelectedService] = useState<ServiceDefinition>(matchedService);
   const [selectedSubtype, setSelectedSubtype] = useState<string>(matchedSubtype);
   const [propertySize, setPropertySize] = useState<string>(defaultSize);
   const [timeSlot, setTimeSlot] = useState<string>("morning");
 
-  // Form Fields (Minimal 6 fields)
+  // Form Fields
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [locality, setLocality] = useState(NELLORE_AREAS[0].en);
@@ -73,6 +73,7 @@ export function NelloreBookingFlow({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [referenceId, setReferenceId] = useState("");
+
 
   const handleSelectService = (service: ServiceDefinition) => {
     setSelectedService(service);
@@ -147,10 +148,9 @@ export function NelloreBookingFlow({
       }
 
       setReferenceId(generatedRef);
-      setCurrentStep(4);
+      setCurrentStep(4); // Confirmation
     } catch (err: any) {
       console.error("Booking submission handled:", err);
-      // Fallback: show confirmation so coordinator can follow up or user taps WhatsApp
       setReferenceId(generatedRef);
       setCurrentStep(4);
     } finally {
@@ -664,7 +664,7 @@ export function NelloreBookingFlow({
         )}
 
         {/* ============================================================ */}
-        {/* SCREEN 4: CONFIRMATION & FAMILY SHARE                        */}
+        {/* SCREEN 4: CONFIRMATION & SHARE                               */}
         {/* ============================================================ */}
         {currentStep === 4 && (
           <div className="space-y-5 text-center py-2">
@@ -681,7 +681,7 @@ export function NelloreBookingFlow({
               </p>
             </div>
 
-            {/* Receipt Card (Ready to share with family) */}
+            {/* Receipt Card */}
             <div className="rounded-2xl border border-[#E5E7EB] bg-[#F7F8FA] p-4 text-left space-y-2.5 text-xs shadow-inner">
               <div className="flex items-center justify-between border-b border-[#E5E7EB] pb-2">
                 <span className="text-[#555555]">{t.refId}:</span>
@@ -689,9 +689,7 @@ export function NelloreBookingFlow({
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-[#555555]">{t.serviceBooked}:</span>
-                <span className="font-bold text-[#111111]">
-                  {lang === "te" ? selectedService.titleTe : selectedService.titleEn}
-                </span>
+                <span className="font-bold text-[#111111]">{lang === "te" ? selectedService.titleTe : selectedService.titleEn}</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-[#555555]">{t.areaBooked}:</span>
@@ -703,11 +701,11 @@ export function NelloreBookingFlow({
               </div>
               <div className="flex items-center justify-between pt-1 border-t border-[#E5E7EB] text-[11px]">
                 <span className="text-[#555555]">Payment:</span>
-                <span className="font-bold text-[#25D366]">Pay after service (UPI / Cash)</span>
+                <span className="font-bold text-[#25D366]">Pay after service via QR / Cash</span>
               </div>
             </div>
 
-            {/* Action Buttons: WhatsApp Forward + Direct Call */}
+            {/* Action Buttons */}
             <div className="space-y-2.5">
               <button
                 type="button"
@@ -717,7 +715,6 @@ export function NelloreBookingFlow({
                 <Share2 className="h-4 w-4" />
                 <span>{t.saveOnWhatsApp}</span>
               </button>
-
               <a
                 href={`tel:${t.callNumber}`}
                 className="w-full flex items-center justify-center gap-2 rounded-2xl border border-[#D1D5DB] bg-white hover:bg-[#F7F8FA] py-3 text-xs font-bold text-[#111111] transition-all active:scale-[0.97]"
@@ -741,7 +738,7 @@ export function NelloreBookingFlow({
             </button>
 
             <div className="pt-2 text-[10px] text-[#999999] border-t border-[#E5E7EB]">
-              <p>Osmida Facility Services • {t.localAddress}</p>
+              <p>Osmida Facility Services &bull; {t.localAddress}</p>
             </div>
           </div>
         )}

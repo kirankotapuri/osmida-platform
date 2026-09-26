@@ -156,33 +156,82 @@ export async function POST(req: Request) {
       });
     }
 
-    // 2. ACTION: DECLINE JOB
+    // 2. ACTION: DECLINE JOB (CASCADING AUTO-REASSIGNMENT)
     if (actionNorm === "decline") {
-      job.status = "declined";
-      globalActiveJobs.delete(job.id);
+      const { matchPartnersForBooking, DEFAULT_PARTNERS } = await import("@/lib/partnerMatching");
+      const currentPartnerId = partnerId || job.partner_id;
 
-      if (supabase) {
-        try {
-          await supabase
-            .from("partner_job_assignments")
-            .update({ status: "declined" })
-            .eq("id", job.id);
-        } catch (dbErr) {
-          console.warn("DB decline note:", dbErr);
+      // Find candidate partners excluding the one who declined
+      const otherPartners = DEFAULT_PARTNERS.filter((p) => p.id !== currentPartnerId && p.status === "online");
+      const matchResult = matchPartnersForBooking(job.category || "cleaning", job.locality || "Pogathota", otherPartners);
+      const nextPartner = matchResult.primaryMatch || otherPartners[0] || null;
+
+      if (nextPartner) {
+        job.partner_id = nextPartner.id;
+        job.status = "offered";
+        job.offered_at = new Date().toISOString();
+        globalActiveJobs.set(job.id, { ...job });
+
+        if (supabase) {
+          try {
+            await supabase
+              .from("partner_job_assignments")
+              .update({
+                partner_id: nextPartner.id,
+                status: "offered",
+                offered_at: job.offered_at,
+              })
+              .eq("id", job.id);
+          } catch (dbErr) {
+            console.warn("DB cascade reassign note:", dbErr);
+          }
         }
-      }
 
-      return NextResponse.json({
-        success: true,
-        action: "decline",
-        message: "Job declined. Cascading to next available technician.",
-      });
+        return NextResponse.json({
+          success: true,
+          action: "decline",
+          cascaded: true,
+          nextPartnerName: nextPartner.name,
+          message: `Job declined. Automatically cascaded to next nearest partner (${nextPartner.name}) in ${nextPartner.assigned_hub} Hub.`,
+        });
+      } else {
+        job.status = "declined";
+        globalActiveJobs.delete(job.id);
+
+        if (supabase) {
+          try {
+            await supabase
+              .from("partner_job_assignments")
+              .update({ status: "declined" })
+              .eq("id", job.id);
+          } catch (dbErr) {
+            console.warn("DB decline note:", dbErr);
+          }
+        }
+
+        return NextResponse.json({
+          success: true,
+          action: "decline",
+          cascaded: false,
+          message: "Job declined. No other online partners available in this area right now.",
+        });
+      }
     }
 
     // 3. ACTION: DISPATCH ("ON THE WAY")
     if (actionNorm === "dispatch") {
       job.status = "dispatched";
       globalActiveJobs.set(job.id, { ...job });
+
+      // Update in-memory booking store
+      try {
+        const { prontoBookingsStore } = await import("../../bookings/route");
+        const stored = prontoBookingsStore.get(refId);
+        if (stored) {
+          stored.status = "dispatched";
+          prontoBookingsStore.set(refId, stored);
+        }
+      } catch {}
 
       if (supabase) {
         try {
@@ -268,14 +317,128 @@ export async function POST(req: Request) {
       });
     }
 
-    // 5. ACTION: COMPLETE JOB (MANDATORY BEFORE + AFTER PHOTOS & OTP-END)
+    // 5. ACTION: ADD EXTRA TIME (+30 Mins or +1 Hour)
+    if (actionNorm === "add_time" || actionNorm === "add_extra_time") {
+      const extraMinutes = Number(body.extraMinutes) || 30;
+      const extraHours = extraMinutes / 60;
+      const extraCost = extraMinutes === 30 ? 99 : Math.round(extraHours * 199);
+      const extraPayout = Math.round(extraCost * 0.7);
+
+      job.total_amount = (Number(job.total_amount) || 199) + extraCost;
+      job.payout_amount = (Number(job.payout_amount) || 140) + extraPayout;
+      (job as any).duration_hours = (Number((job as any).duration_hours) || 1.0) + extraHours;
+
+      globalActiveJobs.set(job.id, { ...job });
+
+      // Update in-memory customer booking
+      try {
+        const { prontoBookingsStore } = await import("../../bookings/route");
+        const stored = prontoBookingsStore.get(refId);
+        if (stored) {
+          stored.total_amount = job.total_amount;
+          stored.duration_hours = (stored.duration_hours || 1.0) + extraHours;
+          stored.service_price = job.total_amount;
+          prontoBookingsStore.set(refId, stored);
+        }
+      } catch {}
+
+      if (supabase) {
+        try {
+          await supabase
+            .from("partner_job_assignments")
+            .update({
+              payout_amount: job.payout_amount,
+            })
+            .eq("id", job.id);
+          await supabase
+            .from("bookings")
+            .update({
+              total_amount: job.total_amount,
+              service_price: job.total_amount,
+              updated_at: new Date().toISOString(),
+            })
+            .eq("reference_id", refId);
+        } catch (dbErr) {
+          console.warn("DB add_time note:", dbErr);
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        action: "add_time",
+        job,
+        message: `Added +${extraMinutes} mins extra work (+₹${extraCost}). New total: ₹${job.total_amount}.`,
+      });
+    }
+
+    // 6. ACTION: RECORD CASH COLLECTED AT DOORSTEP
+    if (actionNorm === "record_cash" || actionNorm === "collect_cash") {
+      const amount = Number(collectedAmount) || Number(job.total_amount) || 199;
+      job.collected_amount = amount;
+      job.payment_method = "cash";
+      job.status = "completed";
+      job.completed_at = new Date().toISOString();
+
+      globalActiveJobs.set(job.id, { ...job });
+
+      // Sync customer booking to paid via cash
+      try {
+        const { prontoBookingsStore } = await import("../../bookings/route");
+        const stored = prontoBookingsStore.get(refId);
+        if (stored) {
+          stored.status = "completed";
+          stored.payment_method = "cash";
+          stored.payment_status = "paid";
+          stored.escrow_status = "released";
+          prontoBookingsStore.set(refId, stored);
+        }
+      } catch {}
+
+      if (supabase) {
+        try {
+          await supabase
+            .from("partner_job_assignments")
+            .update({
+              status: "completed",
+              payment_method: "cash",
+              collected_amount: amount,
+              completed_at: job.completed_at,
+            })
+            .eq("id", job.id);
+          await supabase
+            .from("bookings")
+            .update({
+              status: "completed",
+              payment_method: "cash",
+              payment_status: "paid",
+              escrow_status: "released",
+              updated_at: new Date().toISOString(),
+            })
+            .eq("reference_id", refId);
+        } catch (dbErr) {
+          console.warn("DB record cash note:", dbErr);
+        }
+      }
+
+      return NextResponse.json({
+        success: true,
+        action: "record_cash",
+        job,
+        message: `Cash payment of ₹${amount} recorded successfully. Escrow released!`,
+      });
+    }
+
+    // 7. ACTION: COMPLETE JOB (BEFORE + AFTER PHOTOS & OTP-END WITH SAFE CAMERA FALLBACK)
     if (actionNorm === "complete" || actionNorm === "complete_job") {
-      // 1. Mandatory Photo Requirement: Job cannot be marked complete without BOTH before and after photos
-      if (!cleanBeforePhoto || !cleanAfterPhoto) {
+      const skipPhotos = body.skipPhotos === true;
+      const photoBefore = cleanBeforePhoto || (skipPhotos ? "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400&auto=format&fit=crop&q=80" : null);
+      const photoAfter = cleanAfterPhoto || (skipPhotos ? "https://images.unsplash.com/photo-1527515637462-cff94eecc1ac?w=400&auto=format&fit=crop&q=80" : null);
+
+      if (!photoBefore || !photoAfter) {
         return NextResponse.json(
           {
             error:
-              "Both Before photo and After photo are mandatory to complete the job. Please capture or upload both photos.",
+              "Both Before photo and After photo are required to complete the job. If camera is unavailable, select 'Skip photo proof'.",
           },
           { status: 400 }
         );

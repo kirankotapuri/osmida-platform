@@ -24,6 +24,8 @@ import {
   Sparkles,
   MapPin,
   Compass,
+  IndianRupee,
+  Navigation,
 } from "lucide-react";
 
 export default function ActiveBookingPage({
@@ -53,6 +55,59 @@ export default function ActiveBookingPage({
   const [complaintText, setComplaintText] = useState("");
   const [complaintSubmitted, setComplaintSubmitted] = useState(false);
   const [isSubmittingComplaint, setIsSubmittingComplaint] = useState(false);
+
+  // Cancellation states
+  const [showCancelModal, setShowCancelModal] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState("Change of plans");
+  const [isCancelling, setIsCancelling] = useState(false);
+
+  // Extra time state
+  const [isAddingExtraTime, setIsAddingExtraTime] = useState(false);
+
+  const handleCancelBooking = async () => {
+    setIsCancelling(true);
+    try {
+      const res = await fetch(`/api/bookings/${encodeURIComponent(referenceId)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "cancel_booking",
+          cancellationReason,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setBooking(data.booking);
+        setShowCancelModal(false);
+      }
+    } catch (err) {
+      console.error("Cancel booking error:", err);
+    } finally {
+      setIsCancelling(false);
+    }
+  };
+
+  const handleAddExtraTime = async () => {
+    setIsAddingExtraTime(true);
+    try {
+      const res = await fetch(`/api/bookings/${encodeURIComponent(referenceId)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "add_extra_time",
+          extraMinutes: 30,
+        }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setBooking(data.booking);
+      }
+    } catch (err) {
+      console.error("Add extra time error:", err);
+    } finally {
+      setIsAddingExtraTime(false);
+    }
+  };
 
   const fetchBooking = async () => {
     try {
@@ -260,9 +315,11 @@ export default function ActiveBookingPage({
     );
   }
 
+  const isCancelled = booking.status === "cancelled";
   const isCompleted = booking.status === "completed";
-  const isInProgress = booking.status === "in_progress";
-  const isAssigned = booking.status === "assigned" || worker !== null;
+  const isInProgress = (booking.status === "in_progress" || booking.status === "in-progress") && !isCancelled;
+  const isDispatched = booking.status === "dispatched" && !isCancelled;
+  const isAssigned = (booking.status === "assigned" || isDispatched || isInProgress || isCompleted || worker !== null) && !isCancelled;
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-20">
@@ -282,19 +339,74 @@ export default function ActiveBookingPage({
 
           <div
             className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black border ${
-              isCompleted
+              isCancelled
+                ? "bg-rose-50 text-rose-700 border-rose-300"
+                : isCompleted
                 ? "bg-[#0C6266]/10 text-[#0C6266] border-[#0C6266]/30"
                 : isInProgress
                 ? "bg-[#E68A00]/15 text-[#995C00] border-[#E68A00]/40 animate-pulse"
+                : isDispatched
+                ? "bg-emerald-600/15 text-emerald-800 border-emerald-400 animate-pulse"
                 : "bg-slate-100 text-slate-800 border-slate-300"
             }`}
           >
             <span className="h-2 w-2 rounded-full bg-current" />
             <span className="uppercase">
-              {isCompleted ? "Completed" : isInProgress ? "Work In Progress" : "Confirmed"}
+              {isCancelled
+                ? "Cancelled"
+                : isCompleted
+                ? "Completed"
+                : isInProgress
+                ? "Work In Progress"
+                : isDispatched
+                ? "Pro On The Way 🛵"
+                : "Confirmed"}
             </span>
           </div>
         </div>
+
+        {/* CANCELLED BOOKING BANNER */}
+        {isCancelled && (
+          <div className="bg-rose-50 border border-rose-200 rounded-2xl p-6 text-center space-y-3 shadow-2xs">
+            <div className="w-12 h-12 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center mx-auto">
+              <AlertCircle className="w-6 h-6" />
+            </div>
+            <h2 className="text-base font-black text-rose-900">This Booking Has Been Cancelled</h2>
+            <p className="text-xs text-rose-700 max-w-sm mx-auto">
+              {booking.cancellation_reason
+                ? `Reason: "${booking.cancellation_reason}". Zero cancellation fee was charged.`
+                : "Zero cancellation fee was charged. Your helper assignment has been cancelled."}
+            </p>
+            <Link
+              href="/book"
+              className="inline-flex items-center gap-1.5 bg-[#0C6266] hover:bg-[#095054] text-white px-5 py-2.5 rounded-xl text-xs font-bold shadow-sm transition"
+            >
+              Book a New Visit
+            </Link>
+          </div>
+        )}
+
+        {/* EXTRA TIME BANNER DURING ACTIVE WORK */}
+        {isInProgress && !isCancelled && (
+          <div className="bg-amber-50/80 border border-amber-200 rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs">
+            <div>
+              <h4 className="text-xs font-black text-amber-900 flex items-center gap-1.5">
+                <Clock className="w-4 h-4 text-amber-600" /> Need Extra Help with Helper?
+              </h4>
+              <p className="text-[11px] text-amber-700">
+                Add 30 extra minutes (+₹99) for extra dishes or balcony touch-up.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={handleAddExtraTime}
+              disabled={isAddingExtraTime}
+              className="bg-[#E68A00] hover:bg-[#CC7A00] text-white px-4 py-2 rounded-xl text-xs font-black shrink-0 transition shadow-sm disabled:opacity-50"
+            >
+              {isAddingExtraTime ? "Updating..." : "+30 Mins (₹99)"}
+            </button>
+          </div>
+        )}
 
         {/* 1. PROGRESS STEPPER */}
         <div className="rounded-2xl bg-white p-4 border border-slate-200 shadow-2xs">
@@ -421,6 +533,7 @@ export default function ActiveBookingPage({
                     src={worker.photo}
                     alt={worker.name}
                     fill
+                    unoptimized
                     className="object-cover"
                   />
                 </div>
@@ -460,6 +573,44 @@ export default function ActiveBookingPage({
           </div>
         )}
 
+        {/* ── LIVE EN ROUTE / PRO TRAVELING CARD (PRONTO / SNAPIT STYLE) ── */}
+        {isDispatched && (
+          <div className="rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-cyan-50 border border-emerald-300 p-4 sm:p-5 shadow-sm space-y-3 animate-in fade-in duration-300">
+            <div className="flex items-center justify-between">
+              <span className="inline-flex items-center gap-1.5 text-xs font-black text-emerald-800 bg-emerald-100/80 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                <Navigation className="h-3.5 w-3.5 animate-pulse text-emerald-600" />
+                Pro is Traveling to Your Door
+              </span>
+              <span className="text-xs font-bold text-emerald-900 bg-white px-2.5 py-1 rounded-full border border-emerald-200 shadow-2xs">
+                ETA: ~8–12 Mins
+              </span>
+            </div>
+
+            <div className="space-y-1">
+              <h3 className="text-sm sm:text-base font-black text-slate-900">
+                {worker?.name || "Your Osmida Pro"} is on the way via two-wheeler
+              </h3>
+              <p className="text-xs text-slate-600">
+                Destination: <span className="font-semibold text-slate-900">{booking.site_address || booking.address || booking.locality}</span>
+              </p>
+            </div>
+
+            <div className="flex items-center justify-between pt-1 border-t border-emerald-200/60 text-xs text-slate-700">
+              <span className="text-[11px] text-slate-600">
+                Keep Doorstep Start OTP ready: <strong className="text-slate-950 font-mono font-bold text-xs bg-white px-2 py-0.5 rounded border border-emerald-200">{booking.otp_start}</strong>
+              </span>
+              {worker?.phone && (
+                <a
+                  href={`tel:${worker.phone}`}
+                  className="inline-flex items-center gap-1 font-bold text-emerald-700 hover:text-emerald-800 bg-emerald-100/70 px-2.5 py-1 rounded-lg"
+                >
+                  <Phone className="h-3.5 w-3.5" /> Call Pro
+                </a>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* 4. POST-SERVICE SCREEN: BEFORE / AFTER PHOTOS INSPECTOR */}
         {(isInProgress || isCompleted || booking.before_photo_url || booking.after_photo_url) && (
           <div className="rounded-2xl bg-white p-4 sm:p-5 border border-slate-200 shadow-2xs space-y-4">
@@ -487,6 +638,7 @@ export default function ActiveBookingPage({
                       src={booking.before_photo_url}
                       alt="Before service"
                       fill
+                      unoptimized
                       className="object-cover"
                     />
                   </div>
@@ -508,6 +660,7 @@ export default function ActiveBookingPage({
                       src={booking.after_photo_url}
                       alt="After service"
                       fill
+                      unoptimized
                       className="object-cover"
                     />
                   </div>
@@ -552,90 +705,59 @@ export default function ActiveBookingPage({
               </div>
             )}
 
-            {/* Payment & Completion Action: Distinct Online Escrow vs Cash on Delivery */}
-            {booking.payment_method === "online" ? (
-              <div className="space-y-3">
-                {/* Step 1: Deposit into Escrow via Razorpay if not yet paid */}
-                {booking.payment_status !== "escrow_held" && !isCompleted && (
-                  <div className="rounded-xl bg-[#F4F8F8] border border-[#0C6266]/30 p-3.5 space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#0C6266] flex items-center gap-1.5">
-                        <ShieldCheck className="h-4 w-4" />
-                        Online Escrow Deposit Pending
-                      </span>
-                      <span className="text-xs font-black text-slate-900">₹{booking.total_amount}</span>
+            {/* Unified Post-Service Payment Card */}
+            <div className="space-y-3">
+              {isCompleted ? (
+                booking.payment_status === "paid" ? (
+                  <div className="rounded-xl bg-[#0C6266]/10 border border-[#0C6266]/30 p-3.5 flex items-center justify-between text-xs text-[#0C6266] font-semibold">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-[#0C6266] shrink-0" />
+                      <div>
+                        <span className="font-bold block text-[#0C6266]">Payment Completed: ₹{booking.total_amount}</span>
+                        <span className="text-[11px] text-slate-500">Thank you for trusting Osmida Facility Services!</span>
+                      </div>
                     </div>
-                    <p className="text-[11px] text-slate-600 font-medium leading-relaxed">
-                      Pay via UPI / Card. Funds are held safely in escrow via Razorpay Route and will only be released to the worker after you verify the finished service.
-                    </p>
-                    <button
-                      type="button"
-                      onClick={handlePayOnlineEscrow}
-                      disabled={isPayingOnline}
-                      className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#0C6266] hover:bg-[#094e51] text-white p-3 text-xs font-bold transition shadow-sm"
-                    >
-                      <Lock className="h-3.5 w-3.5" />
-                      <span>{isPayingOnline ? "Opening Payment..." : `Deposit ₹${booking.total_amount} into Escrow (UPI/Card)`}</span>
-                    </button>
-                  </div>
-                )}
-
-                {/* Step 2: Escrow Held Badge */}
-                {booking.payment_status === "escrow_held" && !isCompleted && (
-                  <div className="rounded-xl bg-[#0C6266]/10 border border-[#0C6266]/30 p-3 flex items-center gap-2.5 text-xs text-[#0C6266] font-semibold">
-                    <ShieldCheck className="h-4 w-4 text-[#0C6266] shrink-0" />
-                    <span>
-                      ₹{booking.total_amount} Held in Escrow (Razorpay Route). Release button unlocks once pro uploads finished work photos.
-                    </span>
-                  </div>
-                )}
-
-                {/* Step 3: Release Payment Button (Once after photo uploaded) */}
-                {!isCompleted && booking.after_photo_url && (
-                  <button
-                    type="button"
-                    onClick={handleReleasePayment}
-                    disabled={isReleasing}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#E68A00] hover:bg-[#CC7A00] text-slate-950 p-3.5 text-xs font-black transition-all shadow-sm active:scale-95"
-                  >
-                    <Check className="h-4 w-4 stroke-[3]" />
-                    <span>
-                      {isReleasing ? "Releasing Escrow..." : "Photos Look Great! Release Payment to Worker"}
-                    </span>
-                  </button>
-                )}
-
-                {isCompleted && (
-                  <div className="rounded-xl bg-[#0C6266]/10 border border-[#0C6266]/30 p-3 flex items-center gap-2.5 text-xs text-[#0C6266] font-semibold">
-                    <CheckCircle2 className="h-4 w-4 text-[#0C6266] shrink-0" />
-                    <span>
-                      Escrow payment released to worker&apos;s payout queue. Thank you for using Osmida!
-                    </span>
-                  </div>
-                )}
-              </div>
-            ) : (
-              /* Cash on Delivery Flow */
-              <>
-                {!isCompleted ? (
-                  <div className="rounded-xl bg-[#FFF9E6] border border-[#E68A00]/30 p-3.5 text-xs text-slate-900 space-y-1.5">
-                    <div className="flex items-center gap-2 font-bold text-slate-900">
-                      <span>💵 Cash on Delivery (Pay After Service)</span>
-                    </div>
-                    <p className="text-[11px] text-slate-600 font-medium leading-relaxed">
-                      Please hand over <strong className="text-slate-950 font-bold">₹{booking.total_amount}</strong> in cash directly to {worker?.name || "your pro"} once you have inspected their work and shared the End OTP. The worker will confirm cash receipt on their app.
-                    </p>
+                    <span className="text-[10px] font-black uppercase tracking-wider bg-[#0C6266]/20 px-2.5 py-1 rounded">Paid ✓</span>
                   </div>
                 ) : (
-                  <div className="rounded-xl bg-[#0C6266]/10 border border-[#0C6266]/30 p-3 flex items-center gap-2.5 text-xs text-[#0C6266] font-semibold">
-                    <CheckCircle2 className="h-4 w-4 text-[#0C6266] shrink-0" />
-                    <span>
-                      Cash payment of ₹{booking.total_amount} confirmed received by {worker?.name || "your pro"}. Visit completed!
-                    </span>
+                  <div className="rounded-xl bg-gradient-to-br from-[#F4F8F8] to-slate-50 border border-[#0C6266]/40 p-4 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-black uppercase tracking-wider text-[#0C6266] flex items-center gap-1.5">
+                        <IndianRupee className="h-4 w-4" /> Bill Due: ₹{booking.total_amount}
+                      </span>
+                      <span className="text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200">
+                        Pending Payment
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-600 font-medium">
+                      Your service is complete! Pay instantly online with UPI / Cards or scan the QR code on {worker?.name || "your pro"}&apos;s phone.
+                    </p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
+                      <button
+                        type="button"
+                        onClick={handlePayOnlineEscrow}
+                        disabled={isPayingOnline}
+                        className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#0C6266] hover:bg-[#094e51] text-white p-3 text-xs font-bold transition shadow-sm"
+                      >
+                        <Lock className="h-3.5 w-3.5" />
+                        <span>{isPayingOnline ? "Opening Gateway..." : `Pay ₹${booking.total_amount} Online (UPI / Card)`}</span>
+                      </button>
+                      <div className="flex items-center justify-center p-3 rounded-xl border border-slate-300 bg-white text-xs text-slate-700 font-semibold text-center">
+                        Or scan QR on {worker?.name || "pro"}&apos;s phone / Cash
+                      </div>
+                    </div>
                   </div>
-                )}
-              </>
-            )}
+                )
+              ) : (
+                <div className="rounded-xl bg-slate-50 border border-slate-200 p-3.5 text-xs text-slate-700 flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <span className="font-bold block text-slate-900">Total Bill: ₹{booking.total_amount}</span>
+                    <span className="text-[11px] text-slate-500">Pay after completion via UPI QR or Cash</span>
+                  </div>
+                  <span className="text-[10px] font-bold text-slate-500 bg-slate-200 px-2 py-1 rounded">No advance needed</span>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
@@ -771,8 +893,21 @@ export default function ActiveBookingPage({
           </div>
         </div>
 
+        {/* Cancel Booking Action Trigger */}
+        {!isCompleted && !isCancelled && (
+          <div className="text-center pt-2">
+            <button
+              type="button"
+              onClick={() => setShowCancelModal(true)}
+              className="text-xs font-semibold text-slate-400 hover:text-rose-600 transition-colors cursor-pointer"
+            >
+              Need to cancel this booking?
+            </button>
+          </div>
+        )}
+
         {/* Bottom Back Button */}
-        <div className="text-center pt-2">
+        <div className="text-center pt-1">
           <Link
             href="/"
             className="text-xs font-bold text-slate-500 hover:text-slate-900 transition-colors"
@@ -781,6 +916,66 @@ export default function ActiveBookingPage({
           </Link>
         </div>
       </div>
+
+      {/* CANCELLATION MODAL */}
+      {showCancelModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="bg-white rounded-2xl p-5 max-w-md w-full shadow-2xl space-y-4 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-black text-rose-700 flex items-center gap-1.5">
+                <AlertCircle className="h-4 w-4" />
+                Cancel Booking #{booking.reference_id}
+              </h3>
+              <button
+                type="button"
+                onClick={() => setShowCancelModal(false)}
+                className="text-slate-400 hover:text-slate-700 text-sm font-black"
+              >
+                ✕
+              </button>
+            </div>
+
+            <p className="text-xs text-slate-600">
+              Are you sure you want to cancel? No advance was charged, so your cancellation is <strong>100% free of charge</strong>.
+            </p>
+
+            <div className="space-y-2">
+              <label className="text-[11px] font-bold text-slate-700 block">
+                Reason for cancellation:
+              </label>
+              <select
+                value={cancellationReason}
+                onChange={(e) => setCancellationReason(e.target.value)}
+                className="w-full rounded-xl border border-slate-300 p-2.5 text-xs font-semibold focus:outline-none focus:border-[#0C6266]"
+              >
+                <option value="Change of plans / Not needed today">Change of plans / Not needed today</option>
+                <option value="Booked wrong time or address">Booked wrong time or address</option>
+                <option value="Found alternative help locally">Found alternative help locally</option>
+                <option value="Accidental booking">Accidental booking</option>
+                <option value="Other reason">Other reason</option>
+              </select>
+            </div>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowCancelModal(false)}
+                className="px-3 py-2 text-xs font-bold text-slate-600 hover:text-slate-900"
+              >
+                Keep Booking
+              </button>
+              <button
+                type="button"
+                onClick={handleCancelBooking}
+                disabled={isCancelling}
+                className="rounded-xl bg-rose-600 hover:bg-rose-500 text-white px-4 py-2 text-xs font-black transition-all disabled:opacity-50"
+              >
+                {isCancelling ? "Cancelling..." : "Confirm Cancellation"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* COMPLAINT MODAL */}
       {isComplaintModalOpen && (

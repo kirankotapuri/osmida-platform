@@ -309,6 +309,103 @@ export async function PATCH(
       });
     }
 
+    // 5. ACTION: Cancel Booking (by Customer)
+    if (action === "cancel_booking") {
+      const reason = body.cancellationReason || "Customer requested cancellation";
+      updates.status = "cancelled";
+      updates.cancellation_reason = reason;
+      updates.cancelled_at = new Date().toISOString();
+
+      booking.status = "cancelled";
+      booking.cancellation_reason = reason;
+      booking.cancelled_at = updates.cancelled_at;
+
+      // Free up partner job assignment if active
+      try {
+        const { globalActiveJobs } = await import("../../partner/jobs/route");
+        for (const [id, job] of globalActiveJobs.entries()) {
+          if (job.reference_id === referenceId) {
+            job.status = "declined";
+            globalActiveJobs.delete(id);
+          }
+        }
+      } catch {}
+
+      if (supabase) {
+        try {
+          await supabase.from("bookings").update(updates).eq("reference_id", referenceId);
+          await supabase
+            .from("partner_job_assignments")
+            .update({ status: "declined" })
+            .eq("reference_id", referenceId);
+        } catch (dbErr) {
+          console.warn("DB cancel booking error:", dbErr);
+        }
+      }
+
+      prontoBookingsStore.set(referenceId, { ...booking, ...updates });
+
+      return NextResponse.json({
+        success: true,
+        action: "cancel_booking",
+        message: "Booking cancelled successfully. Zero cancellation fee applied.",
+        booking: { ...booking, ...updates },
+      });
+    }
+
+    // 6. ACTION: Add Extra Time (+30 Mins / +1 Hour)
+    if (action === "add_extra_time" || action === "add_time") {
+      const extraMinutes = Number(body.extraMinutes) || 30;
+      const extraHours = extraMinutes / 60;
+      const extraCost = extraMinutes === 30 ? 99 : Math.round(extraHours * 199);
+      const extraPayout = Math.round(extraCost * 0.7);
+
+      const newTotal = (Number(booking.total_amount) || 199) + extraCost;
+      const newDuration = (Number(booking.duration_hours) || 1.0) + extraHours;
+
+      updates.total_amount = newTotal;
+      updates.duration_hours = newDuration;
+      updates.service_price = newTotal;
+
+      booking.total_amount = newTotal;
+      booking.duration_hours = newDuration;
+      booking.service_price = newTotal;
+
+      // Sync active job feed for partner
+      try {
+        const { globalActiveJobs } = await import("../../partner/jobs/route");
+        for (const [id, job] of globalActiveJobs.entries()) {
+          if (job.reference_id === referenceId) {
+            job.total_amount = newTotal;
+            job.payout_amount = (Number(job.payout_amount) || 140) + extraPayout;
+            (job as any).duration_hours = newDuration;
+            globalActiveJobs.set(id, { ...job });
+          }
+        }
+      } catch {}
+
+      if (supabase) {
+        try {
+          await supabase.from("bookings").update(updates).eq("reference_id", referenceId);
+          await supabase
+            .from("partner_job_assignments")
+            .update({ payout_amount: Math.round(newTotal * 0.7) })
+            .eq("reference_id", referenceId);
+        } catch (dbErr) {
+          console.warn("DB add_extra_time error:", dbErr);
+        }
+      }
+
+      prontoBookingsStore.set(referenceId, { ...booking, ...updates });
+
+      return NextResponse.json({
+        success: true,
+        action: "add_extra_time",
+        message: `Added +${extraMinutes} mins extra work (+₹${extraCost}). New total: ₹${newTotal}.`,
+        booking: { ...booking, ...updates },
+      });
+    }
+
     return NextResponse.json({ error: "Invalid action" }, { status: 400 });
   } catch (error) {
     console.error("Booking detail PATCH error:", error);

@@ -22,16 +22,16 @@ function seedSampleJob(partnerId: string): PartnerJob {
     reference_id: ref,
     partner_id: partnerId,
     status: "offered",
-    service_name: "Split AC Foam Jet Deep Clean (x2 Units)",
-    category: "ac",
+    service_name: "Bathroom Deep Clean & Kitchen Sanitization",
+    category: "cleaning",
     customer_name: "Kiran Kotapuri",
     customer_phone: "7981067780",
     customer_address: "House #14/2, Near Gandhi Statue, Pogathota",
     locality: "Pogathota, Nellore",
     date: new Date().toISOString().split("T")[0],
-    time_slot: "Today, 3:00 PM - 5:30 PM",
-    total_amount: 1198,
-    payout_amount: 840, // 70% share for partner
+    time_slot: "Today, 3:00 PM - 5:00 PM",
+    total_amount: 398, // 2 hrs @ ₹199/hr
+    payout_amount: 280, // 70% share for partner (₹140/hr)
     start_otp: "4826",
     offered_at: new Date().toISOString(),
   };
@@ -72,8 +72,9 @@ export async function GET(req: Request) {
       }
     }
 
-    // If partner has zero jobs, seed 1 live interactive job for immediate test experience
-    if (jobs.length === 0) {
+    // Only seed sample job if explicitly requested with ?seed=true (prevent unwanted zombie jobs)
+    const shouldSeed = searchParams.get("seed") === "true";
+    if (jobs.length === 0 && shouldSeed) {
       const sample = seedSampleJob(partnerId);
       globalActiveJobs.set(sample.id, sample);
       jobs.push(sample);

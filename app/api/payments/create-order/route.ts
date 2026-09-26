@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
 import { createRazorpayOrder } from "@/lib/payments/razorpay";
-import { prontoBookingsStore } from "@/app/api/bookings/route";
 
 export const runtime = "nodejs";
 
@@ -28,12 +27,6 @@ export async function POST(req: Request) {
         { error: orderResult.error || "Order creation failed" },
         { status: 500 }
       );
-    }
-
-    // Attach orderId to in-memory booking if exists
-    const booking = prontoBookingsStore.get(referenceId);
-    if (booking) {
-      (booking as any).razorpay_order_id = orderResult.orderId;
     }
 
     return NextResponse.json({

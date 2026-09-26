@@ -84,22 +84,6 @@ export function OsmidaFooter() {
                   </Link>
                 </li>
               ))}
-              <li>
-                <Link
-                  href="/home-deep-cleaning"
-                  className="hover:text-white transition-colors block text-[#38B2AC]"
-                >
-                  ✨ Full Home Deep Cleaning
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href="/pest-control"
-                  className="hover:text-white transition-colors block text-[#38B2AC]"
-                >
-                  🛡️ Herbal Pest Control
-                </Link>
-              </li>
             </ul>
           </div>
 

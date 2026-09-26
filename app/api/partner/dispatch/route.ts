@@ -51,8 +51,8 @@ export async function POST(req: Request) {
       }
     }
 
-    // Run the Tree-Matching Algorithm
-    const targetCat = category || (selectedService?.toLowerCase().includes("ac") ? "ac" : selectedService?.toLowerCase().includes("clean") ? "cleaning" : "pest");
+    // Run the Tree-Matching Algorithm for Residential House Help & Cleaning
+    const targetCat = category || "cleaning";
     const matchResult = matchPartnersForBooking(targetCat, locality, partners);
     const assignedPartner = matchResult.primaryMatch;
 
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
       });
     }
 
-    const price = typeof totalAmount === "number" ? totalAmount : 999;
+    const price = typeof totalAmount === "number" ? totalAmount : 199;
     const payout = Math.round(price * 0.7); // 70% partner payout
     const startOtp = String(Math.floor(1000 + Math.random() * 9000));
 
@@ -72,8 +72,8 @@ export async function POST(req: Request) {
       reference_id: referenceId,
       partner_id: assignedPartner.id,
       status: "offered",
-      service_name: selectedService || "Home Service",
-      category: targetCat as any,
+      service_name: selectedService || "Bathroom Cleaning & House Help",
+      category: targetCat,
       customer_name: customerName || "Customer",
       customer_phone: customerPhone || "",
       customer_address: customerAddress || `${locality}, Nellore`,

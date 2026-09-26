@@ -26,6 +26,8 @@ import {
   Volume2,
   Bell,
   Info,
+  RotateCcw,
+  MessageSquare,
 } from "lucide-react";
 import { ServicePartner, PartnerJob, DEFAULT_PARTNERS } from "@/lib/partnerMatching";
 
@@ -53,6 +55,15 @@ export default function PartnerPortalPage() {
   const [beforePhoto, setBeforePhoto] = useState<string | null>(null);
   const [afterPhoto, setAfterPhoto] = useState<string | null>(null);
   const [paymentMethod, setPaymentMethod] = useState<"cash" | "upi">("cash");
+  const [qrData, setQrData] = useState<{ qrCodeUrl: string; paymentLink: string; amount: number } | null>(null);
+  const [isGeneratingQr, setIsGeneratingQr] = useState(false);
+  const [completedJobModal, setCompletedJobModal] = useState<{
+    job: PartnerJob;
+    payoutAmount: number;
+    platformFee: number;
+    paymentMode: "cash" | "upi";
+    qrData?: { qrCodeUrl: string; paymentLink: string; amount: number } | null;
+  } | null>(null);
 
   // Registration states (Screen 1: Worker Registration)
   const [authMode, setAuthMode] = useState<"login" | "register">("login");
@@ -192,7 +203,7 @@ export default function PartnerPortalPage() {
   useEffect(() => {
     if (partner) {
       fetchJobs(partner.id);
-      const interval = setInterval(() => fetchJobs(partner.id), 10000); // 10s live polling
+      const interval = setInterval(() => fetchJobs(partner.id), 4000); // 4s live polling for instant dispatch
       return () => clearInterval(interval);
     }
   }, [partner, fetchJobs]);
@@ -307,8 +318,10 @@ export default function PartnerPortalPage() {
     }
   };
 
+  const [skipPhotos, setSkipPhotos] = useState(false);
+
   // Job Execution Action Handler
-  const handleJobAction = async (action: "accept" | "decline" | "dispatch" | "start" | "complete", jobId: string) => {
+  const handleJobAction = async (action: "accept" | "decline" | "dispatch" | "start" | "complete" | "add_time", jobId: string) => {
     if (!partner) return;
     setIsActionLoading(true);
     setStatusMessage(null);
@@ -329,10 +342,14 @@ export default function PartnerPortalPage() {
         payload.otp = startOtpInput.trim();
       }
 
+      if (action === "add_time") {
+        payload.extraMinutes = 30;
+      }
+
       if (action === "complete") {
-        // Enforce mandatory Before and After photos (core to PRD)
-        if (!beforePhoto || !afterPhoto) {
-          throw new Error("Both Before Photo and After Photo are strictly mandatory before marking job complete.");
+        // Enforce mandatory Before and After photos unless skipped due to camera error
+        if (!skipPhotos && (!beforePhoto || !afterPhoto)) {
+          throw new Error("Both Before Photo and After Photo are required. If camera is unavailable, check 'Camera unavailable / Customer directly verified work'.");
         }
         if (!endOtpInput.trim()) {
           throw new Error("Please enter the customer's 4-digit End OTP to finalize the job.");
@@ -341,6 +358,7 @@ export default function PartnerPortalPage() {
         payload.beforePhotoUrl = beforePhoto;
         payload.afterPhotoUrl = afterPhoto;
         payload.endOtp = endOtpInput.trim();
+        payload.skipPhotos = skipPhotos;
       }
 
       const res = await fetch("/api/partner/job-action", {
@@ -354,23 +372,90 @@ export default function PartnerPortalPage() {
         throw new Error(data.error || "Action failed");
       }
 
+      const finishedJob = activeJob;
       setStatusMessage({ type: "success", text: data.message });
       setStartOtpInput("");
       setEndOtpInput("");
       setBeforePhoto(null);
       setAfterPhoto(null);
 
+      // Trigger Instant Earnings Celebration Card & Razorpay QR
+      if (action === "complete" && finishedJob) {
+        const total = finishedJob.total_amount;
+        const payout = finishedJob.payout_amount || Math.round(total * 0.70);
+        const fee = total - payout;
+
+        setPartner((prev) => (prev ? { ...prev, payout_balance: prev.payout_balance + payout } : null));
+
+        setCompletedJobModal({
+          job: finishedJob,
+          payoutAmount: payout,
+          platformFee: fee,
+          paymentMode: paymentMethod,
+          qrData: null,
+        });
+
+        generatePaymentQr(finishedJob);
+      }
+
       // Refresh partner job state
       await fetchJobs(partner.id);
-
-      // Update partner balance if completed
-      if (action === "complete") {
-        setPartner((prev) => (prev ? { ...prev, payout_balance: prev.payout_balance + (activeJob?.payout_amount || 0) } : null));
-      }
     } catch (err: any) {
       setStatusMessage({ type: "error", text: err.message || "Failed to execute action" });
     } finally {
       setIsActionLoading(false);
+    }
+  };
+
+  // Generate Razorpay Payment QR after job completion
+  const generatePaymentQr = async (job: PartnerJob) => {
+    setIsGeneratingQr(true);
+    try {
+      const res = await fetch("/api/payments/generate-link", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          referenceId: job.reference_id,
+          amount: job.total_amount,
+          customerName: job.customer_name,
+          customerPhone: job.customer_phone,
+          description: `Osmida ${job.service_name} - ${job.reference_id}`,
+        }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        const qrInfo = {
+          qrCodeUrl: data.qrCodeUrl,
+          paymentLink: data.paymentLink,
+          amount: job.total_amount,
+        };
+        setQrData(qrInfo);
+        setCompletedJobModal((prev) => (prev ? { ...prev, qrData: qrInfo } : null));
+      } else {
+        setStatusMessage({ type: "error", text: data.error || "Failed to generate QR" });
+      }
+    } catch (err: any) {
+      setStatusMessage({ type: "error", text: err.message || "QR generation failed" });
+    } finally {
+      setIsGeneratingQr(false);
+    }
+  };
+
+  // Reset all test jobs and bookings for clean testing
+  const handleResetJobs = async () => {
+    if (!confirm("Clear all test jobs and bookings to start fresh from Step 1?")) return;
+    try {
+      const res = await fetch("/api/partner/reset", { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        setStatusMessage({ type: "success", text: "Cleared! Ready to test fresh customer booking." });
+        setQrData(null);
+        if (partner) {
+          await fetchJobs(partner.id);
+        }
+      }
+    } catch {
+      setStatusMessage({ type: "error", text: "Failed to reset test jobs" });
     }
   };
 
@@ -689,6 +774,13 @@ export default function PartnerPortalPage() {
               {isOnline ? "ONLINE" : "OFFLINE"}
             </button>
             <button
+              onClick={handleResetJobs}
+              title="Reset test data (clear all active jobs to start clean)"
+              className="px-2 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-[10px] font-bold transition flex items-center gap-1"
+            >
+              <RotateCcw className="w-3 h-3" /> Reset Test
+            </button>
+            <button
               onClick={handleLogout}
               title="Logout"
               className="p-1.5 text-gray-400 hover:text-red-400 transition"
@@ -888,6 +980,130 @@ export default function PartnerPortalPage() {
               </div>
             )}
 
+            {/* ── JOB COMPLETED CELEBRATION & POST-SERVICE PAYMENT SCREEN (PRONTO + SNAPIT INSPIRATION) ── */}
+            {completedJobModal && (
+              <div className="bg-gradient-to-br from-[#121E2C] to-[#0A101D] border-2 border-[#0C6266] rounded-2xl p-5 space-y-4 shadow-2xl animate-in fade-in duration-300">
+                <div className="text-center space-y-1">
+                  <div className="w-12 h-12 rounded-full bg-[#0C6266]/20 text-[#0C6266] flex items-center justify-center mx-auto mb-2 border border-[#0C6266]/40">
+                    <Sparkles className="w-6 h-6 animate-pulse" />
+                  </div>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-[#0C6266] bg-[#0C6266]/10 px-2.5 py-0.5 rounded-full border border-[#0C6266]/30">
+                    Work Completed &amp; Verified
+                  </span>
+                  <h3 className="text-lg font-black text-white">{completedJobModal.job.service_name}</h3>
+                  <p className="text-xs text-gray-400">
+                    Ref: {completedJobModal.job.reference_id} &bull; {completedJobModal.job.customer_name} ({completedJobModal.job.locality})
+                  </p>
+                </div>
+
+                {/* Instant Earnings Card (Snapit style) */}
+                <div className="grid grid-cols-2 gap-2 bg-black/40 rounded-xl p-3 border border-white/10 text-center">
+                  <div className="border-r border-white/10 pr-2">
+                    <span className="text-[10px] text-gray-400 uppercase font-semibold block">Your Payout (70%)</span>
+                    <span className="text-xl font-extrabold text-[#0C6266] block mt-0.5">
+                      +₹{completedJobModal.payoutAmount}
+                    </span>
+                    <span className="text-[9px] text-[#0C6266] block font-medium">Added to 9:00 PM settlement</span>
+                  </div>
+                  <div className="pl-2">
+                    <span className="text-[10px] text-gray-400 uppercase font-semibold block">Total Bill</span>
+                    <span className="text-xl font-extrabold text-white block mt-0.5">
+                      ₹{completedJobModal.job.total_amount}
+                    </span>
+                    <span className="text-[9px] text-gray-400 block font-medium">Osmida Platform Fee: ₹{completedJobModal.platformFee}</span>
+                  </div>
+                </div>
+
+                {/* Dynamic Razorpay QR presentation */}
+                {completedJobModal.qrData ? (
+                  <div className="border border-[#0C6266]/60 rounded-xl p-4 bg-black/50 text-center space-y-3">
+                    <div className="flex items-center justify-center gap-1.5 text-sm font-bold text-[#0C6266]">
+                      <IndianRupee className="w-4 h-4" />
+                      Show QR to Customer to Pay ₹{completedJobModal.qrData.amount}
+                    </div>
+                    <div className="bg-white rounded-xl p-2.5 inline-block mx-auto shadow-md">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={completedJobModal.qrData.qrCodeUrl}
+                        alt="Razorpay Payment QR"
+                        width={210}
+                        height={210}
+                        className="rounded"
+                      />
+                    </div>
+                    <p className="text-[10px] text-gray-400 max-w-xs mx-auto">
+                      Customer scans via PhonePe / Google Pay / Paytm &bull; 100% secure Razorpay payment
+                    </p>
+                    <div className="flex flex-col sm:flex-row gap-2 pt-1">
+                      <a
+                        href={`https://wa.me/91${completedJobModal.job.customer_phone}?text=${encodeURIComponent(
+                          `Hello ${completedJobModal.job.customer_name}, your Osmida ${completedJobModal.job.service_name} (Ref: ${completedJobModal.job.reference_id}) is completed! Please tap here to pay ₹${completedJobModal.job.total_amount}: ${completedJobModal.qrData.paymentLink}`
+                        )}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5"
+                      >
+                        <MessageSquare className="w-3.5 h-3.5" />
+                        Send Bill on WhatsApp
+                      </a>
+                      <a
+                        href={completedJobModal.qrData.paymentLink}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="bg-white/10 hover:bg-white/20 text-gray-300 font-semibold py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1"
+                      >
+                        Open Link <ArrowRight className="w-3.5 h-3.5" />
+                      </a>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-center gap-2 py-4 text-[#0C6266] text-xs font-semibold">
+                    <RefreshCw className="w-4 h-4 animate-spin" />
+                    Generating Dynamic Razorpay QR...
+                  </div>
+                )}
+
+                {/* Cash Alternative */}
+                <div className="bg-white/5 border border-white/10 rounded-xl p-3 flex items-center justify-between text-xs">
+                  <div>
+                    <span className="font-semibold text-gray-300 block">Customer Paid Paper Cash?</span>
+                    <span className="text-[10px] text-gray-400">If customer gave ₹{completedJobModal.job.total_amount} in cash directly</span>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      try {
+                        await fetch("/api/partner/job-action", {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({
+                            action: "record_cash",
+                            jobId: completedJobModal.job.id,
+                            collectedAmount: completedJobModal.job.total_amount,
+                          }),
+                        });
+                        alert(`Cash of ₹${completedJobModal.job.total_amount} confirmed received. Osmida platform fee of ₹${completedJobModal.platformFee} will be offset in today's 9:00 PM settlement.`);
+                        setCompletedJobModal(null);
+                        fetchJobs(partner.id);
+                      } catch {
+                        setCompletedJobModal(null);
+                      }
+                    }}
+                    className="px-3 py-1.5 bg-amber-500/15 hover:bg-amber-500/25 border border-amber-500/40 text-amber-300 rounded-lg font-bold text-xs cursor-pointer"
+                  >
+                    Confirm Cash Received
+                  </button>
+                </div>
+
+                <button
+                  onClick={() => setCompletedJobModal(null)}
+                  className="w-full bg-[#0C6266] hover:bg-[#094e51] text-white font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-lg shadow-[#0C6266]/30 cursor-pointer"
+                >
+                  <CheckCircle2 className="w-4 h-4" />
+                  Done &amp; Ready for Next Job
+                </button>
+              </div>
+            )}
+
             {/* B. ACTIVE JOB IN EXECUTION (URBAN COMPANY 3-STEP FLOW) */}
             {activeJob ? (
               <div className="bg-[#141B2B] border border-white/15 rounded-2xl p-5 space-y-4">
@@ -916,30 +1132,44 @@ export default function PartnerPortalPage() {
                     </div>
                   </div>
 
-                  {/* 1-Tap Call & 1-Tap Navigate */}
-                  <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/10">
+                  {/* 1-Tap Call, WhatsApp & Two-Wheeler GPS Navigation */}
+                  <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/10">
                     <a
                       href={`tel:${activeJob.customer_phone}`}
-                      className="bg-white/10 hover:bg-white/15 text-white font-semibold py-2 rounded-lg flex items-center justify-center gap-1.5 text-xs transition"
+                      className="bg-white/10 hover:bg-white/15 text-white font-semibold py-2 rounded-lg flex items-center justify-center gap-1 text-[11px] transition"
                     >
-                      <Phone className="w-3.5 h-3.5 text-[#0C6266]" />
-                      Call Customer
+                      <Phone className="w-3 h-3 text-[#0C6266]" />
+                      Call
                     </a>
                     <a
-                      href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
-                        `${activeJob.customer_address}, Nellore`
+                      href={`https://wa.me/91${activeJob.customer_phone}?text=${encodeURIComponent(
+                        `Namaste ${activeJob.customer_name}, I am your Osmida partner ${partner.name}. I have accepted your ${activeJob.service_name} booking (Ref: ${activeJob.reference_id}) and will be arriving shortly.`
                       )}`}
                       target="_blank"
                       rel="noreferrer"
-                      className="bg-blue-600/30 hover:bg-blue-600/40 text-blue-300 font-semibold py-2 rounded-lg flex items-center justify-center gap-1.5 text-xs transition border border-blue-500/30"
+                      className="bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 font-semibold py-2 rounded-lg flex items-center justify-center gap-1 text-[11px] transition border border-emerald-500/20"
                     >
-                      <Navigation className="w-3.5 h-3.5" />
-                      Google Maps
+                      <MessageSquare className="w-3 h-3" />
+                      WhatsApp
+                    </a>
+                    <a
+                      href={
+                        (activeJob as any).google_maps_url ||
+                        `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+                          `${activeJob.customer_address}, Nellore, Andhra Pradesh`
+                        )}&travelmode=two_wheeler`
+                      }
+                      target="_blank"
+                      rel="noreferrer"
+                      className="bg-[#0C6266]/25 hover:bg-[#0C6266]/35 text-[#38B2AC] font-semibold py-2 rounded-lg flex items-center justify-center gap-1 text-[11px] transition border border-[#0C6266]/30"
+                    >
+                      <Navigation className="w-3 h-3" />
+                      Two-Wheeler GPS
                     </a>
                   </div>
                 </div>
 
-                {/* 3-STEP URBAN COMPANY EXECUTION */}
+                {/* 3-STEP EXECUTION FLOW */}
                 <div className="space-y-3 pt-2">
                   <span className="text-xs font-bold uppercase tracking-wider text-gray-300 block">
                     Execution Steps (WhatsApp Synced):
@@ -967,11 +1197,43 @@ export default function PartnerPortalPage() {
                       <button
                         onClick={() => handleJobAction("dispatch", activeJob.id)}
                         disabled={isActionLoading}
-                        className="w-full bg-[#E68A00] hover:bg-[#CC7A00] text-white font-bold py-2 rounded-lg text-xs transition flex items-center justify-center gap-1.5"
+                        className="w-full bg-[#E68A00] hover:bg-[#CC7A00] text-slate-950 font-extrabold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-[#E68A00]/25 cursor-pointer"
                       >
                         <Navigation className="w-3.5 h-3.5" />
                         I am On The Way (Alert Customer)
                       </button>
+                    )}
+
+                    {/* TURN-BY-TURN GOOGLE MAPS NAVIGATION BANNER */}
+                    {activeJob.status === "dispatched" && (
+                      <div className="bg-gradient-to-r from-emerald-950/60 to-[#0C6266]/30 border border-emerald-500/40 rounded-xl p-3 space-y-2 pt-2.5">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="font-bold text-emerald-400 flex items-center gap-1.5">
+                            <Navigation className="w-3.5 h-3.5 animate-pulse text-emerald-400" />
+                            Heading to Customer Doorstep
+                          </span>
+                          <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded">
+                            Turn-by-Turn
+                          </span>
+                        </div>
+                        <p className="text-[11px] text-gray-300 leading-tight">
+                          {activeJob.customer_address}
+                        </p>
+                        <a
+                          href={
+                            (activeJob as any).google_maps_url ||
+                            `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(
+                              `${activeJob.customer_address}, Nellore, Andhra Pradesh`
+                            )}&travelmode=two_wheeler`
+                          }
+                          target="_blank"
+                          rel="noreferrer"
+                          className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-2.5 rounded-lg flex items-center justify-center gap-2 text-xs transition shadow-md shadow-emerald-900/50"
+                        >
+                          <Navigation className="w-4 h-4" />
+                          Start Turn-by-Turn Google Maps Navigation
+                        </a>
+                      </div>
                     )}
                   </div>
 
@@ -988,6 +1250,22 @@ export default function PartnerPortalPage() {
                         <span className="text-[10px] text-[#0C6266] font-bold flex items-center gap-1">
                           <CheckCircle2 className="w-3 h-3" /> In Progress
                         </span>
+                      )}
+                      {activeJob.status === "in_progress" && (
+                        <div className="flex items-center justify-between pt-2 border-t border-white/10 text-xs">
+                          <div>
+                            <span className="text-gray-300 font-bold block">Amount: ₹{activeJob.total_amount}</span>
+                            <span className="text-[10px] text-emerald-400">Your Share: ₹{activeJob.payout_amount}</span>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleJobAction("add_time", activeJob.id)}
+                            disabled={isActionLoading}
+                            className="bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1 cursor-pointer"
+                          >
+                            +30 Mins (+₹99)
+                          </button>
+                        </div>
                       )}
                     </div>
 
@@ -1034,7 +1312,7 @@ export default function PartnerPortalPage() {
                         {/* MANDATORY BEFORE & AFTER PHOTOS */}
                         <div>
                           <label className="text-[11px] text-gray-300 block mb-1.5 font-bold">
-                            Mandatory Photos (Both Required to Close Job):
+                            Photos Before & After Work:
                           </label>
                           <div className="grid grid-cols-2 gap-2">
                             {/* Before Photo */}
@@ -1079,6 +1357,20 @@ export default function PartnerPortalPage() {
                               )}
                             </div>
                           </div>
+
+                          {/* CAMERA BYPASS OPTION */}
+                          <div className="flex items-center gap-2 pt-2">
+                            <input
+                              type="checkbox"
+                              id="skipPhotosCheck"
+                              checked={skipPhotos}
+                              onChange={(e) => setSkipPhotos(e.target.checked)}
+                              className="rounded border-white/20 bg-black/40 text-[#0C6266] focus:ring-0 cursor-pointer"
+                            />
+                            <label htmlFor="skipPhotosCheck" className="text-[11px] text-gray-400 cursor-pointer select-none">
+                              Camera unavailable / Customer directly verified work
+                            </label>
+                          </div>
                         </div>
 
                         {/* END OTP INPUT (FROM CUSTOMER) */}
@@ -1098,50 +1390,32 @@ export default function PartnerPortalPage() {
                           </div>
                         </div>
 
-                        {/* Payment Collection Mode */}
-                        <div>
-                          <label className="text-[11px] text-gray-400 block mb-1 font-semibold">Payment Collection Mode:</label>
-                          <div className="grid grid-cols-2 gap-2">
-                            <button
-                              type="button"
-                              onClick={() => setPaymentMethod("cash")}
-                              className={`py-2 text-xs font-bold rounded-lg border transition ${
-                                paymentMethod === "cash"
-                                  ? "bg-[#0C6266]/25 border-[#0C6266] text-[#0C6266]"
-                                  : "bg-white/5 border-white/10 text-gray-400"
-                              }`}
-                            >
-                              💵 Cash (₹{activeJob.total_amount})
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => setPaymentMethod("upi")}
-                              className={`py-2 text-xs font-bold rounded-lg border transition ${
-                                paymentMethod === "upi"
-                                  ? "bg-[#0C6266]/25 border-[#0C6266] text-[#0C6266]"
-                                  : "bg-white/5 border-white/10 text-gray-400"
-                              }`}
-                            >
-                              🛡️ Online Escrow
-                            </button>
-                          </div>
+                        {/* ── PAYMENT VIA RAZORPAY QR ── */}
+                        <div className="bg-black/40 rounded-xl p-3 border border-[#0C6266]/30 space-y-2">
+                          <p className="text-[11px] text-gray-300 font-bold flex items-center gap-1.5">
+                            <IndianRupee className="w-3.5 h-3.5 text-[#0C6266]" />
+                            Payment: ₹{activeJob.total_amount} — QR generated on completion
+                          </p>
+                          <p className="text-[10px] text-gray-500">
+                            After you complete the job, a Razorpay QR code will appear. Show it to the customer to scan and pay instantly via UPI / Card, or collect cash.
+                          </p>
                         </div>
 
-                        {/* Submit Button - Enforces Both Photos, End OTP, and Cash/Escrow confirmation */}
+                        {/* Submit Button */}
                         <button
                           onClick={() => handleJobAction("complete", activeJob.id)}
-                          disabled={isActionLoading || !beforePhoto || !afterPhoto || !endOtpInput.trim()}
+                          disabled={isActionLoading || (!skipPhotos && (!beforePhoto || !afterPhoto)) || !endOtpInput.trim()}
                           className="w-full bg-[#E68A00] hover:bg-[#CC7A00] text-slate-950 font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-lg shadow-[#E68A00]/25 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                         >
                           <CheckCircle2 className="w-4 h-4" />
                           <span>
-                            {!beforePhoto || !afterPhoto
+                            {!skipPhotos && (!beforePhoto || !afterPhoto)
                               ? "Upload Both Photos to Complete"
                               : !endOtpInput.trim()
                               ? "Enter Customer End OTP to Complete"
-                              : paymentMethod === "cash"
-                              ? `Confirm Cash Received (₹${activeJob.total_amount}) & Complete Job`
-                              : "Submit & Complete Job (Release Payout)"}
+                              : isActionLoading
+                              ? "Completing Job..."
+                              : "Complete Job & Settle Payment"}
                           </span>
                         </button>
                       </div>
@@ -1150,6 +1424,7 @@ export default function PartnerPortalPage() {
                 </div>
               </div>
             ) : null}
+
 
             {/* If no jobs at all */}
             {offeredJobs.length === 0 && !activeJob && (
@@ -1161,12 +1436,20 @@ export default function PartnerPortalPage() {
                 <p className="text-xs text-gray-400 max-w-xs mx-auto mb-4">
                   Keep your status ONLINE. As soon as a customer books in {partner.assigned_hub} Nellore, you will receive an alert.
                 </p>
-                <button
-                  onClick={() => fetchJobs(partner.id)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-xs font-semibold text-gray-300 transition"
-                >
-                  <RefreshCw className="w-3.5 h-3.5" /> Refresh Dispatch Feed
-                </button>
+                <div className="flex items-center justify-center gap-2">
+                  <button
+                    onClick={() => fetchJobs(partner.id)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-xs font-semibold text-gray-300 transition"
+                  >
+                    <RefreshCw className="w-3.5 h-3.5" /> Refresh Dispatch Feed
+                  </button>
+                  <button
+                    onClick={handleResetJobs}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-xs font-semibold text-amber-400 border border-amber-500/20 transition"
+                  >
+                    <RotateCcw className="w-3.5 h-3.5" /> Reset Test Data
+                  </button>
+                </div>
               </div>
             )}
           </div>

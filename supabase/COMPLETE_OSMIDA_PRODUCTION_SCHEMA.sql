@@ -1,7 +1,36 @@
 -- ==============================================================================
--- OSMIDA COMPLETE PRODUCTION SCHEMA & DATABASE SYNC
--- Run this complete script in your Supabase SQL Editor (Dashboard > SQL Editor)
--- 100% Safe & Idempotent: Uses IF NOT EXISTS, alters existing tables safely.
+-- OSMIDA COMPLETE PRODUCTION SCHEMA - CLEAN REBUILD
+-- Step 1: Drops ALL existing Osmida tables, triggers, and functions.
+-- Step 2: Creates everything fresh from scratch.
+-- Run this entire script in: Supabase Dashboard -> SQL Editor -> Run
+-- ==============================================================================
+
+-- ==============================================================================
+-- TEARDOWN: DROP EVERYTHING CLEANLY (CASCADE handles FK order)
+-- ==============================================================================
+
+-- Drop trigger first (before dropping the function it references)
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
+-- Drop function
+DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
+
+-- Drop tables in reverse FK dependency order
+DROP TABLE IF EXISTS public.ratings_complaints      CASCADE;
+DROP TABLE IF EXISTS public.worker_payouts          CASCADE;
+DROP TABLE IF EXISTS public.partner_job_assignments CASCADE;
+DROP TABLE IF EXISTS public.bookings                CASCADE;
+DROP TABLE IF EXISTS public.service_partners        CASCADE;
+DROP TABLE IF EXISTS public.admin_settings          CASCADE;
+DROP TABLE IF EXISTS public.customer_profiles       CASCADE;
+
+-- Drop legacy / renamed tables if they exist
+DROP TABLE IF EXISTS public.pronto_processed_refs   CASCADE;
+DROP TABLE IF EXISTS public.osmida_processed_refs   CASCADE;
+DROP TABLE IF EXISTS public.leads                   CASCADE;
+
+-- ==============================================================================
+-- REBUILD: FRESH SCHEMA BELOW
 -- ==============================================================================
 
 -- ------------------------------------------------------------------------------
@@ -348,19 +377,45 @@ GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO service_role;
 GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA public TO anon, authenticated;
 
 -- Service role bypass policies
+DROP POLICY IF EXISTS "service_role_customer_profiles" ON public.customer_profiles;
 CREATE POLICY "service_role_customer_profiles" ON public.customer_profiles FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "service_role_admin_settings" ON public.admin_settings;
 CREATE POLICY "service_role_admin_settings" ON public.admin_settings FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "service_role_service_partners" ON public.service_partners;
 CREATE POLICY "service_role_service_partners" ON public.service_partners FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "service_role_bookings" ON public.bookings;
 CREATE POLICY "service_role_bookings" ON public.bookings FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "service_role_pja" ON public.partner_job_assignments;
 CREATE POLICY "service_role_pja" ON public.partner_job_assignments FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "service_role_payouts" ON public.worker_payouts;
 CREATE POLICY "service_role_payouts" ON public.worker_payouts FOR ALL TO service_role USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "service_role_ratings" ON public.ratings_complaints;
 CREATE POLICY "service_role_ratings" ON public.ratings_complaints FOR ALL TO service_role USING (true) WITH CHECK (true);
 
 -- Public / Authenticated user policies
+DROP POLICY IF EXISTS "public_customer_profiles" ON public.customer_profiles;
 CREATE POLICY "public_customer_profiles" ON public.customer_profiles FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "public_admin_settings" ON public.admin_settings;
 CREATE POLICY "public_admin_settings" ON public.admin_settings FOR SELECT TO anon, authenticated USING (true);
+
+DROP POLICY IF EXISTS "public_bookings" ON public.bookings;
 CREATE POLICY "public_bookings" ON public.bookings FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "public_service_partners" ON public.service_partners;
 CREATE POLICY "public_service_partners" ON public.service_partners FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "public_pja" ON public.partner_job_assignments;
 CREATE POLICY "public_pja" ON public.partner_job_assignments FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "public_payouts" ON public.worker_payouts;
 CREATE POLICY "public_payouts" ON public.worker_payouts FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "public_ratings" ON public.ratings_complaints;
 CREATE POLICY "public_ratings" ON public.ratings_complaints FOR ALL TO anon, authenticated USING (true) WITH CHECK (true);

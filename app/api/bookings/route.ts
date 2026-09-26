@@ -244,20 +244,36 @@ export async function POST(req: Request) {
       }
     }
 
+    // ── INTELLIGENT MATCHING & HUB DISPATCH ──
+    const { getHubForLocality, matchPartnersForBooking } = await import("@/lib/partnerMatching");
+    const serviceCategory = cleanServices[0] || "bathroom_cleaning";
+    const targetHub = getHubForLocality(cleanLocality);
+    const { primaryMatch } = matchPartnersForBooking(serviceCategory, cleanLocality);
+
+    const isSameHub = primaryMatch?.assigned_hub === targetHub;
+    const estDistance = isSameHub ? 1.5 : 3.2;
+    const estTravelMins = isSameHub ? 8 : 14;
+
     // Automatically create a job offer in the Worker Job Feed (`partner_job_assignments`)
-    // so any online worker in Nellore sees it immediately in their Job Feed
+    // so online workers with matching skill see it immediately in their Job Feed
     const offeredJob = {
       id: `job-${referenceId}`,
       reference_id: referenceId,
       booking_id: newBooking.id,
-      partner_id: "default-partner-pogathota", // Available to all nearby
+      partner_id: "default-partner-pogathota", // Available to all online eligible in Nellore
+      matched_partner_id: primaryMatch?.id || null,
+      matched_partner_name: primaryMatch?.name || null,
       status: "offered",
       service_name: cleanServices.map((s: string) => s.replace(/_/g, " ")).join(" + "),
-      category: "cleaning",
+      category: serviceCategory,
       customer_name: cleanName,
       customer_phone: cleanPhone,
       customer_address: fullAddress,
       locality: cleanLocality,
+      assigned_hub: targetHub,
+      google_maps_url: cleanGoogleMapsUrl,
+      distance_km: estDistance,
+      est_travel_mins: estTravelMins,
       date: newBooking.inspection_date,
       time_slot: newBooking.time_slot,
       duration_hours: duration,
