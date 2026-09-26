@@ -27,10 +27,16 @@ export function OsmidaFooter() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-10 text-xs">
           {/* Column 1 & 2: Brand Information */}
           <div className="sm:col-span-2 space-y-4">
-            <Link href="/" className="inline-flex items-center gap-2.5 group" aria-label="Osmida Home">
-              <span className="text-2xl sm:text-[28px] font-black tracking-tight text-white group-hover:opacity-90 transition-opacity select-none">
-                Osmida
-              </span>
+            <Link href="/" className="inline-flex items-center gap-3 group" aria-label="Osmida Home">
+              <div className="relative h-8 w-32 shrink-0 group-hover:opacity-90 transition-opacity">
+                <Image
+                  src="/assets/branding/osmida-wordmark-white.png"
+                  alt="Osmida"
+                  width={128}
+                  height={33}
+                  className="h-full w-auto object-contain object-left"
+                />
+              </div>
               <span className="inline-flex items-center gap-1 text-[10px] font-black text-[#E68A00] bg-[#E68A00]/15 border border-[#E68A00]/30 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#16A34A] animate-pulse" />
                 Nellore

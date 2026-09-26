@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Image from "next/image";
 import { createPortal } from "react-dom";
 import {
   Phone,
@@ -431,15 +432,23 @@ export function CustomerLoginModal({
           className="relative w-full max-w-md bg-white rounded-3xl shadow-2xl p-5 sm:p-6 space-y-4 border border-slate-100 text-left my-6 sm:my-8 animate-in fade-in zoom-in-95 transition-all"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
+        {/* Header with Osmida Wordmark */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#0C6266]/10 text-[#0C6266]">
-              <User className="h-5 w-5" />
+          <div className="flex items-center gap-3">
+            <div className="relative h-6 w-24 shrink-0">
+              <Image
+                src="/assets/branding/osmida-wordmark-dark.png"
+                alt="Osmida"
+                width={96}
+                height={25}
+                className="h-full w-auto object-contain object-left"
+                priority
+              />
             </div>
+            <div className="h-4 w-px bg-slate-200" />
             <div>
-              <h3 className="text-sm font-black text-slate-900 leading-tight">Customer Login</h3>
-              <p className="text-[10px] text-slate-500 font-medium">Access saved addresses &amp; visits</p>
+              <h3 className="text-xs font-bold text-slate-800 leading-tight">Resident Portal</h3>
+              <p className="text-[10px] text-slate-400 font-medium">OTP Verification • Nellore</p>
             </div>
           </div>
           <button

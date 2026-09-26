@@ -213,9 +213,16 @@ export function OsmidaHeader() {
         {/* Left: Brand Logo & Working Nellore Locality Selector */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <Link href="/" className="flex items-center gap-2 focus:outline-hidden group" aria-label="Osmida Home">
-            <span className="text-2xl sm:text-[28px] font-black tracking-tight text-[#0C6266] group-hover:opacity-90 transition-opacity select-none">
-              Osmida
-            </span>
+            <div className="relative h-7 sm:h-8 w-28 sm:w-32 shrink-0 group-hover:opacity-90 transition-opacity">
+              <Image
+                src="/assets/branding/osmida-wordmark-dark.png"
+                alt="Osmida"
+                width={124}
+                height={32}
+                className="h-full w-auto object-contain object-left"
+                priority
+              />
+            </div>
             <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-[#0C6266] bg-[#EBF4F5] border border-[#B6D7D8] px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
               <span className="h-1.5 w-1.5 rounded-full bg-[#16A34A] animate-pulse" />
               Nellore

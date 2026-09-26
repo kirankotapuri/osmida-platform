@@ -92,6 +92,7 @@ export default function PartnerPortalPage() {
   const [resetConfirmPin, setResetConfirmPin] = useState("");
   const [isResettingPin, setIsResettingPin] = useState(false);
   const [resetSuccessMessage, setResetSuccessMessage] = useState("");
+  const [isAppLoading, setIsAppLoading] = useState(true);
 
   // Load saved session on mount and inject worker-specific PWA manifest
   useEffect(() => {
@@ -113,7 +114,9 @@ export default function PartnerPortalPage() {
         setPartner(parsed);
         setIsOnline(parsed.status !== "offline");
       }
-    } catch {}
+    } catch {} finally {
+      setTimeout(() => setIsAppLoading(false), 250);
+    }
   }, []);
 
   const prevJobIdsRef = useRef<Set<string>>(new Set());
@@ -548,6 +551,37 @@ export default function PartnerPortalPage() {
   };
 
   // -------------------------------------------------------------
+  // VIEW: SPLASH / LOADING SCREEN
+  // -------------------------------------------------------------
+  if (isAppLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0E131F] text-white">
+        <div className="flex flex-col items-center space-y-4 animate-in fade-in zoom-in-95 duration-200">
+          <div className="relative h-12 w-48">
+            <Image
+              src="/assets/branding/osmida-wordmark-white.png"
+              alt="Osmida Worker Portal"
+              width={192}
+              height={49}
+              className="h-full w-auto object-contain mx-auto"
+              priority
+            />
+          </div>
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-[11px] font-semibold text-[#38B2AC]">
+            <Sparkles className="w-3.5 h-3.5 text-[#38B2AC]" />
+            <span>WORKER DISPATCH • NELLORE</span>
+          </div>
+          <div className="flex items-center space-x-2 pt-2">
+            <div className="w-2 h-2 rounded-full bg-[#0C6266] animate-bounce [animation-delay:-0.3s]" />
+            <div className="w-2 h-2 rounded-full bg-[#FB7D28] animate-bounce [animation-delay:-0.15s]" />
+            <div className="w-2 h-2 rounded-full bg-[#0C6266] animate-bounce" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------
   // VIEW: LOGIN & REGISTRATION SCREENS (if not authenticated)
   // -------------------------------------------------------------
   if (!partner) {
@@ -556,8 +590,15 @@ export default function PartnerPortalPage() {
         <div className="w-full max-w-md bg-[#161D2F] border border-white/10 rounded-2xl p-5 sm:p-7 shadow-2xl">
           {/* Logo & Header */}
           <div className="text-center mb-6">
-            <div className="relative h-14 w-14 mx-auto mb-3 rounded-2xl overflow-hidden border border-white/20 shadow-lg flex items-center justify-center">
-              <Image src="/icons/icon-192x192.png" alt="Osmida Partner" width={56} height={56} className="object-contain" priority />
+            <div className="relative h-11 w-44 mx-auto mb-3 flex items-center justify-center">
+              <Image
+                src="/assets/branding/osmida-wordmark-white.png"
+                alt="Osmida Partner"
+                width={176}
+                height={45}
+                className="h-full w-auto object-contain"
+                priority
+              />
             </div>
             <div className="inline-flex items-center gap-2 bg-[#0C6266]/15 border border-[#0C6266]/30 px-3 py-1 rounded-full mb-2 text-xs font-semibold text-[#38B2AC]">
               <Sparkles className="w-3.5 h-3.5" />

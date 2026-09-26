@@ -346,8 +346,15 @@ export default function AdminDashboardPage() {
       <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4">
         <div className="w-full max-w-md rounded-2xl bg-slate-900 border border-slate-800 p-7 shadow-2xl space-y-6">
           <div className="text-center space-y-2">
-            <div className="relative h-14 w-14 mx-auto rounded-2xl overflow-hidden border border-white/20 shadow-lg flex items-center justify-center">
-              <Image src="/icons/icon-192x192.png" alt="Osmida" width={56} height={56} className="object-contain" priority />
+            <div className="relative h-11 w-44 mx-auto mb-3 flex items-center justify-center">
+              <Image
+                src="/assets/branding/osmida-wordmark-white.png"
+                alt="Osmida"
+                width={176}
+                height={45}
+                className="h-full w-auto object-contain"
+                priority
+              />
             </div>
             <div className="space-y-0.5">
               <h1 className="text-lg font-black tracking-wider text-white uppercase">
@@ -418,17 +425,21 @@ export default function AdminDashboardPage() {
       <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800 px-4 sm:px-8 py-3.5">
         <div className="mx-auto max-w-7xl flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="relative h-9 w-9 rounded-xl overflow-hidden border border-white/20 shadow-sm flex items-center justify-center shrink-0">
-              <Image src="/icons/icon-192x192.png" alt="Osmida" width={36} height={36} className="object-contain" priority />
+            <div className="relative h-7 w-28 shrink-0">
+              <Image
+                src="/assets/branding/osmida-wordmark-white.png"
+                alt="Osmida"
+                width={120}
+                height={31}
+                className="h-full w-auto object-contain object-left"
+                priority
+              />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-base font-black tracking-wide text-white">OSMIDA ADMIN</span>
-                <span className="text-[10px] font-bold bg-[#0C6266]/30 text-[#E68A00] border border-[#0C6266]/50 px-2 py-0.5 rounded-full">
-                  Nellore Ops
-                </span>
-              </div>
-              <span className="text-[10px] text-slate-400">Osmida Residential Dispatch • Nellore</span>
+            <div className="h-4 w-px bg-slate-700 hidden sm:block" />
+            <div className="hidden sm:flex items-center gap-2">
+              <span className="text-[10px] font-bold bg-[#0C6266]/30 text-[#38B2AC] border border-[#0C6266]/50 px-2 py-0.5 rounded-full">
+                Operations Control • Nellore
+              </span>
             </div>
           </div>
 
