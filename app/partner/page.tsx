@@ -1696,17 +1696,16 @@ export default function PartnerPortalPage() {
   return (
     <main className="min-h-screen bg-[#0A0E17] text-white pb-24">
       {/* 1. TOP STATUS BAR & HEADER */}
-      <header className="sticky top-0 z-40 bg-[#101624]/98 backdrop-blur-lg border-b border-white/10 px-3.5 sm:px-4 py-2.5 shadow-lg">
-        <div className="max-w-xl mx-auto space-y-2">
+      <header className="sticky top-0 z-40 bg-[#101624]/98 backdrop-blur-lg border-b border-white/10 px-3 sm:px-4 py-2.5 shadow-lg">
+        <div className="max-w-md mx-auto space-y-2">
           {/* ROW 1: PARTNER PROFILE & PRIMARY DISPATCH STATUS */}
           <div className="flex items-center justify-between gap-2">
             {/* Left: Partner Identity with Live Status Indicator */}
-            <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex items-center gap-2 min-w-0">
               <div className="relative shrink-0">
                 <div className="h-9 w-9 rounded-xl overflow-hidden border border-white/20 shadow-md bg-[#0A0E17] flex items-center justify-center">
-                  <Image src="/icons/icon-192x192.png" alt="Osmida" width={34} height={34} className="object-contain" />
+                  <Image src="/icons/icon-192x192.png" alt="Osmida" width={32} height={32} className="object-contain" />
                 </div>
-                {/* Live Online Dot */}
                 <span
                   className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#101624] ${
                     isOnline ? "bg-emerald-400" : "bg-gray-500"
@@ -1714,23 +1713,22 @@ export default function PartnerPortalPage() {
                 />
               </div>
               <div className="min-w-0">
-                <div className="flex items-center gap-1.5 flex-wrap">
-                  <h2 className="text-sm font-bold text-white leading-tight truncate max-w-[120px] sm:max-w-[180px]">
+                <div className="flex items-center gap-1.5">
+                  <h2 className="text-xs sm:text-sm font-bold text-white leading-tight truncate">
                     {partner.name}
                   </h2>
-                  <span className="inline-flex items-center gap-0.5 text-[10px] font-bold bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full border border-amber-500/30">
+                  <span className="inline-flex items-center gap-0.5 text-[9px] font-bold bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full border border-amber-500/30 shrink-0">
                     <Star className="w-2.5 h-2.5 fill-amber-300 text-amber-300" /> {partner.rating}
                   </span>
                 </div>
-                <p className="text-[11px] text-gray-400 truncate">
+                <p className="text-[10px] text-gray-400 truncate">
                   {partner.assigned_hub} Hub
                 </p>
               </div>
             </div>
 
-            {/* Right: Language Pill & Main Online/Offline Switch */}
+            {/* Right: Dual-Language Pill & Main ONLINE/OFFLINE Switch */}
             <div className="flex items-center gap-1.5 shrink-0">
-              {/* Dual-Language Segmented Pill */}
               <div className="flex items-center bg-black/60 p-0.5 rounded-full border border-white/15 shadow-inner">
                 <button
                   type="button"
@@ -1741,7 +1739,7 @@ export default function PartnerPortalPage() {
                       localStorage.setItem("osmida_partner_lang", "en");
                     } catch {}
                   }}
-                  className={`px-2 py-0.5 rounded-full text-[11px] font-bold transition cursor-pointer ${
+                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold transition cursor-pointer ${
                     lang === "en"
                       ? "bg-[#0C6266] text-white shadow-sm"
                       : "text-gray-400 hover:text-white"
@@ -1758,7 +1756,7 @@ export default function PartnerPortalPage() {
                       localStorage.setItem("osmida_partner_lang", "te");
                     } catch {}
                   }}
-                  className={`px-2 py-0.5 rounded-full text-[11px] font-bold transition cursor-pointer ${
+                  className={`px-2 py-0.5 rounded-full text-[10px] font-bold transition cursor-pointer ${
                     lang === "te"
                       ? "bg-[#E68A00] text-slate-950 font-black shadow-sm"
                       : "text-gray-400 hover:text-white"
@@ -1768,11 +1766,10 @@ export default function PartnerPortalPage() {
                 </button>
               </div>
 
-              {/* High-Contrast ONLINE/OFFLINE Toggle */}
               <button
                 type="button"
                 onClick={handleToggleOnline}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black tracking-wide transition border cursor-pointer ${
+                className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-black tracking-wide transition border cursor-pointer active:scale-95 ${
                   isOnline
                     ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 shadow-sm shadow-emerald-500/30 ring-1 ring-emerald-500/30"
                     : "bg-gray-800/90 border-gray-600/60 text-gray-300 hover:bg-gray-700/90"
@@ -1784,71 +1781,55 @@ export default function PartnerPortalPage() {
             </div>
           </div>
 
-          {/* ROW 2: QUICK ACTION UTILITY SUB-BAR */}
-          <div className="flex items-center justify-between pt-1 border-t border-white/5 text-xs">
-            {/* Left: Locality Badge, Battery & Dispatch Live Indicator */}
-            <div className="flex items-center gap-2 text-[11px] text-gray-400">
-              <div className="flex items-center gap-1 truncate">
-                <MapPin className="w-3 h-3 text-[#38B2AC] shrink-0" />
-                <span className="truncate">{partner.coverage_localities?.[0] || "Nellore Central"}</span>
-              </div>
-              <div className="flex items-center gap-1.5 shrink-0 pl-1.5 border-l border-white/10">
-                <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                <span className="text-[10px] text-emerald-400 font-bold">GPS Live</span>
-              </div>
+          {/* ROW 2: STATUS STRIP & FAST SHORTCUTS */}
+          <div className="flex items-center justify-between pt-1 border-t border-white/5 text-[11px]">
+            {/* Left: Locality & GPS */}
+            <div className="flex items-center gap-1.5 text-gray-400 min-w-0 truncate">
+              <MapPin className="w-3 h-3 text-[#38B2AC] shrink-0" />
+              <span className="truncate">{partner.coverage_localities?.[0] || "Nellore"}</span>
+              <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+              <span className="text-[10px] text-emerald-400 font-bold shrink-0">GPS Live</span>
               {batteryLevel !== null && (
-                <div className="hidden sm:flex items-center gap-1 text-[10px] text-gray-400 shrink-0">
-                  <span>⚡</span>
-                  <span>{batteryLevel}%</span>
-                </div>
-              )}
-              {isWakeLockActive && (
-                <div className="hidden xs:flex items-center gap-1 text-[9px] text-emerald-400/80 bg-emerald-500/10 px-1.5 py-0.2 rounded shrink-0">
-                  <span>Screen Awake</span>
-                </div>
+                <span className="text-[9px] text-gray-400 hidden xs:inline shrink-0">⚡{batteryLevel}%</span>
               )}
             </div>
 
-            {/* Right: Hotline, SOS, Reset, Logout */}
-            <div className="flex items-center gap-1.5 shrink-0">
-              {/* Nellore Hub Hotline */}
+            {/* Right: Hub Call, SOS, Reset, Logout */}
+            <div className="flex items-center gap-1 shrink-0">
               <a
                 href="tel:9490122849"
                 title="Call Nellore Hub Support (9490122849)"
-                className="flex items-center gap-1 px-2 py-1 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 rounded-lg text-[10px] font-bold transition cursor-pointer"
+                className="flex items-center gap-1 px-2 py-0.5 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 rounded-lg text-[10px] font-bold transition cursor-pointer"
               >
-                <Headphones className="w-3 h-3 text-emerald-400" />
+                <Headphones className="w-2.5 h-2.5 text-emerald-400" />
                 <span>Hub</span>
               </a>
 
-              {/* Emergency SOS Button */}
               <button
                 type="button"
                 onClick={handleEmergencySos}
                 disabled={isSendingSos}
-                className="flex items-center gap-1 px-2.5 py-1 bg-red-600/25 hover:bg-red-600/40 text-red-300 border border-red-500/50 rounded-lg text-[10px] font-black transition shadow-sm shadow-red-500/20 cursor-pointer animate-pulse"
+                className="flex items-center gap-1 px-2 py-0.5 bg-red-600/25 hover:bg-red-600/40 text-red-300 border border-red-500/50 rounded-lg text-[10px] font-black transition cursor-pointer animate-pulse"
                 title={t.emergencySos}
               >
-                <Siren className="w-3 h-3 text-red-400" />
+                <Siren className="w-2.5 h-2.5 text-red-400" />
                 <span>SOS</span>
               </button>
 
-              {/* Reset Test Jobs */}
               <button
                 type="button"
                 onClick={handleResetJobs}
-                title="Reset test data (clear all active jobs to start clean)"
-                className="p-1.5 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-amber-300 border border-white/10 rounded-lg text-[10px] font-bold transition flex items-center justify-center cursor-pointer"
+                title="Reset test data"
+                className="p-1 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-amber-300 border border-white/10 rounded-lg transition flex items-center justify-center cursor-pointer"
               >
                 <RotateCcw className="w-3 h-3" />
               </button>
 
-              {/* Sign Out */}
               <button
                 type="button"
                 onClick={handleLogout}
                 title="Logout"
-                className="p-1.5 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 border border-white/10 rounded-lg transition flex items-center justify-center cursor-pointer"
+                className="p-1 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 border border-white/10 rounded-lg transition flex items-center justify-center cursor-pointer"
               >
                 <LogOut className="w-3 h-3" />
               </button>
@@ -1857,206 +1838,106 @@ export default function PartnerPortalPage() {
         </div>
       </header>
 
-      {/* OFFLINE RESILIENCE WARNING BANNER */}
+      {/* OFFLINE DEVICE WARNING BANNER */}
       {!isDeviceOnline && (
-        <div className="bg-amber-600/25 text-amber-200 border-b border-amber-500/40 px-4 py-2 text-center text-xs font-bold flex items-center justify-center gap-2 animate-pulse">
-          <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+        <div className="bg-amber-600/25 text-amber-200 border-b border-amber-500/40 px-3 py-1.5 text-center text-xs font-bold flex items-center justify-center gap-2 animate-pulse">
+          <AlertTriangle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
           <span>{t.offlineBanner}</span>
         </div>
       )}
 
-      {/* ONLINE STATUS BANNER */}
-      <div className={`px-4 py-2 text-center text-xs font-medium ${isOnline ? "bg-[#0C6266]/15 text-[#0C6266] border-b border-[#0C6266]/20" : "bg-gray-800 text-gray-400 border-b border-gray-700"}`}>
+      {/* ONLINE / OFFLINE STATUS PILL */}
+      <div className={`px-3 py-1.5 text-center text-[11px] font-medium ${isOnline ? "bg-[#0C6266]/15 text-[#38B2AC] border-b border-[#0C6266]/20" : "bg-gray-800 text-gray-400 border-b border-gray-700"}`}>
         {isOnline ? (
           <span className="flex items-center justify-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-[#0C6266] animate-ping" />
-            {t.onlineStatus} • {partner.coverage_localities.slice(0, 3).join(", ")}
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+            <span>{t.onlineStatus} • {partner.coverage_localities.slice(0, 2).join(", ")}</span>
           </span>
         ) : (
-          t.offlineStatus
+          <span>{t.offlineStatus}</span>
         )}
       </div>
 
-      <div className="max-w-xl mx-auto px-4 py-4 space-y-4">
-        {/* BUZZER TEST & SOUND CONTROLS BAR */}
-        <div className="bg-[#121826] border border-white/10 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-md">
-          <div className="flex items-center gap-2.5">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${buzzerPlaying ? "bg-[#E68A00] text-white animate-bounce" : "bg-[#0C6266]/20 text-[#0C6266]"}`}>
+      <div className="max-w-md mx-auto px-3 sm:px-4 py-3 space-y-3">
+        {/* COMPACT DISPATCH AUDIO & PUSH ALERT TOOLBAR */}
+        <div className="bg-[#121826] border border-white/10 rounded-2xl p-2.5 flex items-center justify-between gap-2 shadow-sm">
+          <div className="flex items-center gap-2 min-w-0">
+            <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${buzzerPlaying ? "bg-[#E68A00] text-white animate-bounce" : "bg-[#0C6266]/20 text-[#38B2AC]"}`}>
               <Volume2 className="w-4 h-4" />
             </div>
-            <div>
-              <p className="text-xs font-bold text-white">{lang === "te" ? "డిస్పాచ్ అలర్ట్ & వాయిస్ గైడ్" : "Dispatch Buzzer & Voice Guide"}</p>
-              <p className="text-[10px] text-gray-400">
-                {lang === "te" ? "అలర్ట్ సైరన్ మరియు తెలుగు వాయిస్ మార్గదర్శకత్వం" : "Loud chime + siren + spoken audio guidance"}
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-white truncate leading-tight">
+                {lang === "te" ? "డిస్పాచ్ అలర్ట్ & వాయిస్" : "Dispatch Buzzer & Voice"}
+              </p>
+              <p className="text-[10px] text-gray-400 truncate">
+                {isOnline ? (lang === "te" ? "కొత్త ఆర్డర్ వస్తే మోగుతుంది" : "Siren + Voice guidance active") : (lang === "te" ? "ఆఫ్‌లైన్ - అలర్ట్‌లు లేవు" : "Offline - Alerts paused")}
               </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={() => {
-              playJobAlertBuzzer();
-              setTimeout(() => {
-                speakVoiceGuide(lang === "te" ? "కొత్త పని ఆర్డర్ వచ్చింది. దయచేసి చూడండి." : "New Osmida job order received. Please check.");
-              }, 1200);
-            }}
-            disabled={buzzerPlaying}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
-              buzzerPlaying
-                ? "bg-[#E68A00] text-white"
-                : "bg-white/10 hover:bg-white/20 text-gray-200 border border-white/15"
-            }`}
-          >
-            <Bell className={`w-3.5 h-3.5 ${buzzerPlaying ? "animate-spin" : ""}`} />
-            {buzzerPlaying ? (lang === "te" ? "మోగుతోంది..." : "Sounding...") : (lang === "te" ? "టెస్ట్ సౌండ్ & వాయిస్" : "Test Sound & Voice")}
-          </button>
-        </div>
 
-        {/* WEB PUSH / FCM SUBSCRIPTION CONTROLS */}
-        <div className="bg-[#121826] border border-white/10 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-sm">
-          <div className="flex items-center gap-2.5">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-              pushNotificationStatus === "granted"
-                ? "bg-emerald-500/20 text-emerald-400"
-                : pushNotificationStatus === "denied"
-                ? "bg-rose-500/20 text-rose-400"
-                : "bg-purple-500/20 text-purple-400"
-            }`}>
-              <Bell className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <p className="text-xs font-bold text-white">Background Push Notifications</p>
-                {pushNotificationStatus === "granted" && (
-                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
-                    <Check className="w-2.5 h-2.5" /> Active
-                  </span>
-                )}
-              </div>
-              <p className="text-[10px] text-gray-400">
-                {pushNotificationStatus === "granted"
-                  ? "Alerts sound even when device screen is locked"
-                  : pushNotificationStatus === "denied"
-                  ? "Blocked in browser permissions. Tap to fix."
-                  : "Tap to enable instant job notifications"}
-              </p>
-            </div>
-          </div>
-          {pushNotificationStatus === "granted" ? (
+          <div className="flex items-center gap-1.5 shrink-0">
             <button
               type="button"
               onClick={() => {
-                try {
-                  new Notification("Osmida Dispatch Test", {
-                    body: "Alerts are active! You will receive instant notifications for new bookings in Nellore.",
-                    icon: "/icons/partner-icon-192x192.png",
-                  });
-                  playJobAlertBuzzer();
-                  setStatusMessage({ type: "success", text: "Test notification sent successfully!" });
-                } catch {
-                  playJobAlertBuzzer();
-                }
+                playJobAlertBuzzer();
+                setTimeout(() => {
+                  speakVoiceGuide(lang === "te" ? "కొత్త పని ఆర్డర్ వచ్చింది. దయచేసి చూడండి." : "New Osmida job order received. Please check.");
+                }, 1200);
               }}
-              className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 transition shrink-0"
-            >
-              Test Alert
-            </button>
-          ) : (
-            <button
-              type="button"
-              disabled={isEnablingPush}
-              onClick={async () => {
-                if (typeof window === "undefined" || !("Notification" in window)) {
-                  alert("Push notifications are not supported in this browser window. On iPhone Safari, tap Share > 'Add to Home Screen' to unlock push notifications.");
-                  return;
-                }
-                if (Notification.permission === "denied") {
-                  alert("Notifications are currently blocked.\n\nTo enable:\n1. Tap the lock/tune icon next to the URL.\n2. Tap 'Permissions' or 'Site Settings'.\n3. Set 'Notifications' to 'Allow'.\n4. Reload this page.");
-                  return;
-                }
-                setIsEnablingPush(true);
-                try {
-                  const perm = await Notification.requestPermission();
-                  setPushNotificationStatus(perm as any);
-                  if (perm === "granted") {
-                    playJobAlertBuzzer();
-                    let sub: PushSubscription | null = null;
-                    if ("serviceWorker" in navigator) {
-                      try {
-                        const reg = await Promise.race([
-                          navigator.serviceWorker.ready,
-                          new Promise<null>((_, reject) => setTimeout(() => reject(new Error("timeout")), 3000)),
-                        ]).catch(() => null) as ServiceWorkerRegistration | null;
-                        if (reg && reg.pushManager) {
-                          sub = await reg.pushManager.getSubscription();
-                          if (!sub) {
-                            sub = await reg.pushManager.subscribe({ userVisibleOnly: true }).catch(() => null);
-                          }
-                        }
-                      } catch (swErr) {
-                        console.warn("SW Push note:", swErr);
-                      }
-                    }
-                    if (partner) {
-                      await fetch("/api/partner/push-token", {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ partnerId: partner.id, subscription: sub }),
-                      }).catch(() => null);
-                    }
-                    try {
-                      new Notification("Osmida Partner Dispatch Active", {
-                        body: "Nellore job dispatch alerts are now active on your device.",
-                        icon: "/icons/partner-icon-192x192.png",
-                      });
-                    } catch {}
-                    setStatusMessage({ type: "success", text: "Background notifications enabled successfully!" });
-                  } else {
-                    setStatusMessage({ type: "error", text: "Notification permission was not granted." });
-                  }
-                } catch (err: any) {
-                  console.warn("Push error:", err);
-                } finally {
-                  setIsEnablingPush(false);
-                }
-              }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow shrink-0 ${
-                pushNotificationStatus === "denied"
-                  ? "bg-rose-600/80 hover:bg-rose-600 text-white"
-                  : "bg-[#0C6266] hover:bg-[#094e51] text-white"
+              disabled={buzzerPlaying}
+              className={`px-2.5 py-1 rounded-xl text-[11px] font-bold transition flex items-center gap-1 cursor-pointer active:scale-95 ${
+                buzzerPlaying
+                  ? "bg-[#E68A00] text-slate-950 font-black"
+                  : "bg-white/10 hover:bg-white/15 text-gray-200 border border-white/15"
               }`}
             >
-              {isEnablingPush ? "Enabling..." : pushNotificationStatus === "denied" ? "Fix Settings" : "Enable Push"}
+              <Bell className={`w-3 h-3 ${buzzerPlaying ? "animate-spin" : ""}`} />
+              <span>{buzzerPlaying ? (lang === "te" ? "మోగుతోంది..." : "Playing...") : (lang === "te" ? "టెస్ట్ సౌండ్" : "Test Sound")}</span>
             </button>
-          )}
-        </div>
 
-        {/* PLATFORM NOTICE & IOS FALLBACK GUIDANCE */}
-        <div className="bg-amber-500/10 border border-amber-500/25 rounded-2xl p-3 text-xs text-amber-200/90 flex items-start gap-2.5">
-          <Info className="w-4 h-4 text-amber-400 shrink-0 mt-0.5" />
-          <div className="space-y-1">
-            <p className="font-semibold text-amber-200">
-              ⚡ Keep the app open while online to never miss a job
-            </p>
-            <p className="text-[11px] text-amber-300/80 leading-relaxed">
-              Foreground alerts chime instantly. On iPhone (iOS 16.4+), tap <span className="font-bold underline">Share &gt; Add to Home Screen</span> in Safari to receive background dispatch notifications.
-            </p>
+            {pushNotificationStatus !== "granted" && (
+              <button
+                type="button"
+                disabled={isEnablingPush}
+                onClick={async () => {
+                  if (typeof window === "undefined" || !("Notification" in window)) {
+                    alert("Push notifications are not supported in this browser window. On iPhone Safari, tap Share > 'Add to Home Screen'.");
+                    return;
+                  }
+                  setIsEnablingPush(true);
+                  try {
+                    const perm = await Notification.requestPermission();
+                    setPushNotificationStatus(perm as any);
+                    if (perm === "granted") {
+                      playJobAlertBuzzer();
+                      setStatusMessage({ type: "success", text: "Background alerts active!" });
+                    }
+                  } catch {} finally {
+                    setIsEnablingPush(false);
+                  }
+                }}
+                className="px-2 py-1 rounded-xl text-[10px] font-bold bg-[#0C6266] text-white transition cursor-pointer hover:bg-[#094e51] active:scale-95 shrink-0"
+              >
+                <span>{isEnablingPush ? "..." : "Push"}</span>
+              </button>
+            )}
           </div>
         </div>
 
         {/* Status Alert */}
         {statusMessage && (
           <div
-            className={`p-3 rounded-xl text-xs flex items-center justify-between border ${
+            className={`p-2.5 rounded-xl text-xs flex items-center justify-between border ${
               statusMessage.type === "success"
-                ? "bg-[#0C6266]/20 border-[#0C6266]/30 text-[#0C6266]"
+                ? "bg-[#0C6266]/20 border-[#0C6266]/30 text-[#38B2AC]"
                 : "bg-red-500/15 border-red-500/30 text-red-300"
             }`}
           >
-            <div className="flex items-center gap-2">
-              {statusMessage.type === "success" ? <CheckCircle2 className="w-4 h-4 shrink-0" /> : <AlertCircle className="w-4 h-4 shrink-0" />}
-              <span>{statusMessage.text}</span>
+            <div className="flex items-center gap-2 min-w-0">
+              {statusMessage.type === "success" ? <CheckCircle2 className="w-4 h-4 shrink-0 text-[#38B2AC]" /> : <AlertCircle className="w-4 h-4 shrink-0 text-red-400" />}
+              <span className="truncate">{statusMessage.text}</span>
             </div>
-            <button onClick={() => setStatusMessage(null)} className="text-xs underline opacity-80">Dismiss</button>
+            <button onClick={() => setStatusMessage(null)} className="text-[11px] underline opacity-80 cursor-pointer shrink-0 ml-2">Dismiss</button>
           </div>
         )}
 
@@ -2182,50 +2063,60 @@ export default function PartnerPortalPage() {
 
                 {/* Dynamic Razorpay QR presentation */}
                 {completedJobModal.qrData ? (
-                  <div className="border border-[#0C6266]/60 rounded-xl p-4 bg-black/50 text-center space-y-3">
-                    <div className="flex items-center justify-center gap-1.5 text-sm font-bold text-[#0C6266]">
+                  <div className="border border-emerald-500/40 rounded-2xl p-4 bg-black/60 text-center space-y-3 shadow-xl">
+                    <div className="flex items-center justify-center gap-1.5 text-sm font-black text-emerald-400">
                       <IndianRupee className="w-4 h-4" />
-                      Show QR to Customer to Pay ₹{completedJobModal.qrData.amount}
+                      <span>{lang === "te" ? `కస్టమర్ చెల్లించాల్సిన మొత్తం: ₹${completedJobModal.qrData.amount}` : `Collect Payment: ₹${completedJobModal.qrData.amount}`}</span>
                     </div>
-                    <div className="bg-white rounded-xl p-2.5 inline-block mx-auto shadow-md">
+
+                    <div className="bg-white p-3 rounded-2xl inline-block mx-auto shadow-2xl border-4 border-emerald-500/30">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={completedJobModal.qrData.qrCodeUrl}
-                        alt="Razorpay Payment QR"
-                        width={210}
-                        height={210}
-                        className="rounded"
+                        alt="Razorpay UPI QR"
+                        width={220}
+                        height={220}
+                        className="rounded-lg object-contain mx-auto"
+                        crossOrigin="anonymous"
                       />
                     </div>
-                    <p className="text-[10px] text-gray-400 max-w-xs mx-auto">
-                      Customer scans via PhonePe / Google Pay / Paytm &bull; 100% secure Razorpay payment
-                    </p>
-                    <div className="flex flex-col sm:flex-row gap-2 pt-1">
+
+                    <div className="space-y-1">
+                      <p className="text-[11px] font-bold text-slate-200">
+                        {lang === "te" ? "PhonePe / Google Pay / Paytm ద్వారా స్కాన్ చేయండి" : "Scan via PhonePe • Google Pay • Paytm • BHIM"}
+                      </p>
+                      <p className="text-[10px] text-emerald-400 font-semibold">
+                        ⚡ Real Razorpay UPI Settlement • Instant Confirmation
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1">
                       <a
                         href={`https://wa.me/91${completedJobModal.job.customer_phone}?text=${encodeURIComponent(
                           `Hello ${completedJobModal.job.customer_name}, your Osmida ${completedJobModal.job.service_name} (Ref: ${completedJobModal.job.reference_id}) is completed! Please tap here to pay ₹${completedJobModal.job.total_amount}: ${completedJobModal.qrData.paymentLink}`
                         )}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5"
+                        className="bg-emerald-600 hover:bg-emerald-500 text-white font-black py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/25 active:scale-95 cursor-pointer"
                       >
                         <MessageSquare className="w-3.5 h-3.5" />
-                        Send Bill on WhatsApp
+                        <span>Send on WhatsApp</span>
                       </a>
                       <a
                         href={completedJobModal.qrData.paymentLink}
                         target="_blank"
                         rel="noreferrer"
-                        className="bg-white/10 hover:bg-white/20 text-gray-300 font-semibold py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1"
+                        className="bg-white/10 hover:bg-white/15 text-slate-200 font-bold py-2.5 px-3 rounded-xl text-xs transition flex items-center justify-center gap-1 border border-white/15 active:scale-95 cursor-pointer"
                       >
-                        Open Link <ArrowRight className="w-3.5 h-3.5" />
+                        <span>Open Bill Link</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
                       </a>
                     </div>
                   </div>
                 ) : (
-                  <div className="flex items-center justify-center gap-2 py-4 text-[#0C6266] text-xs font-semibold">
+                  <div className="flex items-center justify-center gap-2 py-6 text-emerald-400 text-xs font-bold bg-black/40 rounded-xl border border-white/10">
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    Generating Dynamic Razorpay QR...
+                    <span>Connecting Real Razorpay UPI QR...</span>
                   </div>
                 )}
 
@@ -3042,7 +2933,7 @@ export default function PartnerPortalPage() {
       {/* BOTTOM NAVIGATION BAR                                         */}
       {/* ------------------------------------------------------------- */}
       <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#101624]/95 backdrop-blur-xl border-t border-white/10 pt-2 pb-[max(0.6rem,env(safe-area-inset-bottom))] shadow-2xl">
-        <div className="max-w-xl mx-auto grid grid-cols-3 text-center px-2">
+        <div className="max-w-md mx-auto grid grid-cols-3 text-center px-2">
           <button
             type="button"
             onClick={() => setActiveTab("jobs")}
