@@ -8,12 +8,11 @@ import {
   Share,
   PlusSquare,
   CheckCircle2,
-  MoreVertical,
   Smartphone,
   ChevronDown,
-  Sparkles,
   HardHat,
-  Home,
+  RefreshCw,
+  Check,
 } from "lucide-react";
 
 export function InstallAppPrompt() {
@@ -22,8 +21,9 @@ export function InstallAppPrompt() {
   const [isMinimized, setIsMinimized] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSModal, setShowIOSModal] = useState(false);
-  const [showAndroidModal, setShowAndroidModal] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
+  const [isInstalling, setIsInstalling] = useState(false);
+  const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
   // Detect whether currently on Partner portal or Customer portal
   const isPartnerPortal =
@@ -33,7 +33,7 @@ export function InstallAppPrompt() {
         window.location.hostname.startsWith("parnter.")));
 
   useEffect(() => {
-    // Check if already running in standalone mode (already installed on phone homescreen)
+    // Check if already running in standalone mode (already opened from phone homescreen)
     const isRunningStandalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       (window.navigator as any).standalone === true;
@@ -60,7 +60,7 @@ export function InstallAppPrompt() {
     };
     window.addEventListener("osmida_install_prompt_ready", handlePromptReady);
 
-    // Handle Android / Chrome / Edge / Samsung Internet install prompt event
+    // Handle Android / Chrome / Edge install prompt event
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
@@ -69,46 +69,78 @@ export function InstallAppPrompt() {
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
-    // Listen for custom trigger event from anywhere in the app
-    const handleTriggerInstall = () => {
-      setIsMinimized(false);
-      const activePrompt = deferredPrompt || (window as any).__osmida_install_prompt;
-      if (isAppleDevice) {
-        setShowIOSModal(true);
-      } else if (activePrompt) {
-        activePrompt.prompt();
-      } else {
-        setShowAndroidModal(true);
-      }
-    };
-    window.addEventListener("osmida_trigger_install", handleTriggerInstall);
-
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       window.removeEventListener("osmida_install_prompt_ready", handlePromptReady);
-      window.removeEventListener("osmida_trigger_install", handleTriggerInstall);
     };
-  }, [deferredPrompt]);
+  }, []);
 
   const handleInstallClick = async () => {
+    // 1. If iOS Safari: open iOS Add-to-Home-Screen instructions
     if (isIOS) {
       setShowIOSModal(true);
       return;
     }
 
-    const activePrompt =
+    // 2. If inside an Android In-App Browser (e.g. WhatsApp, Instagram, FB WebView):
+    // Chrome PWA APIs are blocked inside in-app WebViews; open Google Chrome directly via Android Intent
+    if (typeof window !== "undefined") {
+      const ua = navigator.userAgent || "";
+      const isAndroid = /android/i.test(ua);
+      const isInApp = /FBAN|FBAV|Instagram|WhatsApp|Line|Twitter|Snapchat/i.test(ua);
+      if (isAndroid && isInApp) {
+        const cleanHost = window.location.host;
+        const cleanPath = window.location.pathname + window.location.search;
+        window.location.href = `intent://${cleanHost}${cleanPath}#Intent;scheme=https;package=com.android.chrome;end`;
+        return;
+      }
+    }
+
+    // 3. Resolve active prompt or wait briefly if browser is warming up PWA criteria
+    let promptObj =
       deferredPrompt || (typeof window !== "undefined" ? (window as any).__osmida_install_prompt : null);
 
-    if (activePrompt) {
+    if (!promptObj) {
+      setIsInstalling(true);
+      promptObj = await new Promise((resolve) => {
+        let resolved = false;
+        const onReady = () => {
+          if (!resolved) {
+            resolved = true;
+            window.removeEventListener("osmida_install_prompt_ready", onReady);
+            window.removeEventListener("beforeinstallprompt", onReady);
+            resolve(deferredPrompt || (window as any).__osmida_install_prompt || null);
+          }
+        };
+        window.addEventListener("osmida_install_prompt_ready", onReady);
+        window.addEventListener("beforeinstallprompt", onReady);
+        setTimeout(() => {
+          if (!resolved) {
+            resolved = true;
+            window.removeEventListener("osmida_install_prompt_ready", onReady);
+            window.removeEventListener("beforeinstallprompt", onReady);
+            resolve(deferredPrompt || (window as any).__osmida_install_prompt || null);
+          }
+        }, 1500);
+      });
+      setIsInstalling(false);
+    }
+
+    // 4. Programmatically prompt native 1-tap installation
+    if (promptObj && typeof promptObj.prompt === "function") {
       try {
-        activePrompt.prompt();
-        const { outcome } = await activePrompt.userChoice;
+        promptObj.prompt();
+        const { outcome } = await promptObj.userChoice;
         if (outcome === "accepted") {
           setDeferredPrompt(null);
           if (typeof window !== "undefined") {
             (window as any).__osmida_install_prompt = null;
           }
-          setIsMinimized(true);
+          setFeedbackMessage("App installed to home screen!");
+          setTimeout(() => {
+            setFeedbackMessage(null);
+            setIsMinimized(true);
+          }, 2500);
         }
         return;
       } catch (promptErr) {
@@ -116,8 +148,12 @@ export function InstallAppPrompt() {
       }
     }
 
-    // Only if browser blocked programmatic prompt, show manual steps
-    setShowAndroidModal(true);
+    // 5. If already installed or browser handled it silently:
+    setFeedbackMessage("✓ App ready on home screen!");
+    setTimeout(() => {
+      setFeedbackMessage(null);
+      setIsMinimized(true);
+    }, 2500);
   };
 
   // If already opened as an installed standalone app from homescreen, don't show prompt
@@ -203,21 +239,38 @@ export function InstallAppPrompt() {
                   </span>
                 </div>
                 <p className="text-[11px] text-gray-300 truncate">
-                  {appSubtitle}
+                  {feedbackMessage || appSubtitle}
                 </p>
               </div>
             </div>
 
-            {/* Action Buttons: 1-Tap Install + Minimize Pill Toggle (Never close permanently) */}
+            {/* Action Buttons: 1-Tap Direct Install + Minimize Pill Toggle */}
             <div className="flex items-center gap-1.5 shrink-0">
-              <button
-                type="button"
-                onClick={handleInstallClick}
-                className="bg-[#0C6266] hover:bg-[#094e51] text-white font-extrabold px-3 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md shadow-[#0C6266]/40 cursor-pointer active:scale-95 whitespace-nowrap border border-white/10"
-              >
-                <Download className="w-3.5 h-3.5 text-teal-300" />
-                <span>Install</span>
-              </button>
+              {feedbackMessage ? (
+                <div className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1">
+                  <Check className="w-3.5 h-3.5" />
+                  <span>Done</span>
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleInstallClick}
+                  disabled={isInstalling}
+                  className="bg-[#0C6266] hover:bg-[#094e51] text-white font-extrabold px-3 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md shadow-[#0C6266]/40 cursor-pointer active:scale-95 whitespace-nowrap border border-white/10 disabled:opacity-75"
+                >
+                  {isInstalling ? (
+                    <>
+                      <RefreshCw className="w-3.5 h-3.5 text-teal-300 animate-spin" />
+                      <span>Adding...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="w-3.5 h-3.5 text-teal-300" />
+                      <span>Install</span>
+                    </>
+                  )}
+                </button>
+              )}
 
               <button
                 type="button"
@@ -233,87 +286,7 @@ export function InstallAppPrompt() {
         )}
       </aside>
 
-      {/* ANDROID CHROME MANUAL INSTALL INSTRUCTIONS MODAL */}
-      {showAndroidModal && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-200">
-          <div className="bg-slate-900 border border-white/15 text-white w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl">
-            <div className="flex items-center justify-between pb-2 border-b border-white/10">
-              <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-[#0C6266] p-1 flex items-center justify-center shrink-0">
-                  <Image
-                    src={appIcon}
-                    alt={appTitle}
-                    width={32}
-                    height={32}
-                    className="object-contain"
-                  />
-                </div>
-                <div>
-                  <div className="flex items-center gap-1.5">
-                    <h3 className="font-bold text-sm text-white">{appTitle}</h3>
-                    <span
-                      className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase ${
-                        isPartnerPortal ? "bg-amber-400 text-slate-950" : "bg-teal-400 text-slate-950"
-                      }`}
-                    >
-                      {appBadge}
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-gray-400">Add to Phone Home Screen</p>
-                </div>
-              </div>
-              <button
-                onClick={() => {
-                  setShowAndroidModal(false);
-                  setIsMinimized(true);
-                }}
-                className="text-gray-400 hover:text-white p-1"
-                aria-label="Close dialog and keep floating"
-              >
-                <ChevronDown className="w-5 h-5" />
-              </button>
-            </div>
-
-            <p className="text-xs text-gray-300">
-              Follow these 2 quick steps to install {appTitle} on your phone:
-            </p>
-
-            <div className="space-y-3 bg-black/50 rounded-2xl p-3.5 border border-white/10 text-xs">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-white/10 text-amber-400 flex items-center justify-center shrink-0 font-black">
-                  <MoreVertical className="w-4 h-4" />
-                </div>
-                <div>
-                  <span className="font-bold block text-white">1. Tap Chrome Menu (3 Dots)</span>
-                  <span className="text-[11px] text-gray-400">At top-right corner of Chrome browser</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#0C6266]/30 text-teal-400 flex items-center justify-center shrink-0 font-black">
-                  <Smartphone className="w-4 h-4" />
-                </div>
-                <div>
-                  <span className="font-bold block text-white">2. Tap &ldquo;Install app&rdquo; or &ldquo;Add to Home screen&rdquo;</span>
-                  <span className="text-[11px] text-gray-400">Tap &ldquo;Install&rdquo; on the confirmation popup</span>
-                </div>
-              </div>
-            </div>
-
-            <button
-              onClick={() => {
-                setShowAndroidModal(false);
-                setIsMinimized(true);
-              }}
-              className="w-full bg-[#0C6266] hover:bg-[#094e51] text-white font-extrabold py-2.5 rounded-xl text-xs transition cursor-pointer"
-            >
-              Done &bull; Keep Floating
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* iOS SAFARI &ldquo;ADD TO HOME SCREEN&rdquo; INSTRUCTIONS MODAL */}
+      {/* iOS SAFARI "ADD TO HOME SCREEN" INSTRUCTIONS MODAL */}
       {showIOSModal && (
         <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-in fade-in duration-200">
           <div className="bg-slate-900 border border-white/15 text-white w-full max-w-sm rounded-3xl p-5 space-y-4 shadow-2xl">

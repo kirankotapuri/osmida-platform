@@ -325,18 +325,6 @@ export default function PartnerPortalPage() {
         } catch {}
       }
 
-      // Ensure worker app has its own distinct manifest and icon on home screen
-      const existingManifest = document.querySelector("link[rel='manifest']") as HTMLLinkElement | null;
-      if (existingManifest) {
-        existingManifest.href = "/worker-manifest.json";
-        existingManifest.setAttribute("data-app", "partner-manifest");
-      } else {
-        const manifestLink = document.createElement("link");
-        manifestLink.rel = "manifest";
-        manifestLink.setAttribute("data-app", "partner-manifest");
-        manifestLink.href = "/worker-manifest.json";
-        document.head.appendChild(manifestLink);
-      }
       document.title = "Osmida Partner | Nellore Dispatch Portal";
 
       const saved = localStorage.getItem("osmida_partner_session");

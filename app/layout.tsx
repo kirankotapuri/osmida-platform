@@ -198,17 +198,18 @@ export default function RootLayout({
                 window.__osmida_install_prompt = e;
                 window.dispatchEvent(new CustomEvent('osmida_install_prompt_ready'));
               });
-              if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js').then(
-                    function(reg) {
-                      console.log('Osmida Service Worker active:', reg.scope);
-                    },
-                    function(err) {
-                      console.warn('Osmida Service Worker registration error:', err);
-                    }
-                  );
-                });
+              function initOsmidaSW() {
+                if ('serviceWorker' in navigator) {
+                  navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(function(err) {
+                    console.warn('Osmida SW note:', err);
+                  });
+                }
+              }
+              if (document.readyState === 'complete' || document.readyState === 'interactive') {
+                initOsmidaSW();
+              } else {
+                window.addEventListener('DOMContentLoaded', initOsmidaSW);
+                window.addEventListener('load', initOsmidaSW);
               }
             `,
           }}
