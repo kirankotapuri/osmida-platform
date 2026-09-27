@@ -27,6 +27,13 @@ import {
   LogOut,
   KeyRound,
   ShieldAlert,
+  Camera,
+  Download,
+  Radio,
+  X,
+  MessageSquare,
+  UserCheck,
+  UserX,
 } from "lucide-react";
 import { OSMIDA_SERVICES, DEFAULT_APP_SETTINGS } from "@/lib/osmidaServices";
 
@@ -115,6 +122,17 @@ export default function AdminDashboardPage() {
   const [settingsSavedMsg, setSettingsSavedMsg] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isAutoRefresh, setIsAutoRefresh] = useState(true);
+
+  // Photo Audit Inspection Modal State
+  const [inspectingPhotos, setInspectingPhotos] = useState<{
+    referenceId: string;
+    customerName: string;
+    workerName: string;
+    serviceName: string;
+    beforePhotoUrl?: string;
+    afterPhotoUrl?: string;
+  } | null>(null);
 
   // Fetch data
   const fetchData = async () => {
@@ -165,6 +183,15 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Live Radar: Auto-refresh every 15s when authenticated and active
+  useEffect(() => {
+    if (!isAdminAuthenticated || !isAutoRefresh) return;
+    const interval = setInterval(() => {
+      fetchData();
+    }, 15000);
+    return () => clearInterval(interval);
+  }, [isAdminAuthenticated, isAutoRefresh]);
 
   // Action: Manual Worker Assignment
   const handleAssignWorker = async (referenceId: string, workerPhone: string) => {
@@ -225,6 +252,56 @@ export default function AdminDashboardPage() {
     } catch (err) {
       console.error("Mark paid error:", err);
     }
+  };
+
+  // Action: Update Partner KYC / Approval Status
+  const handleUpdateWorkerStatus = async (workerId: string, phone: string, approvalStatus: string) => {
+    try {
+      const res = await fetch("/api/admin/workers", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ workerId, phone, approvalStatus }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setWorkers((prev) =>
+          prev.map((w) =>
+            w.id === workerId || w.phone === phone
+              ? { ...w, approval_status: approvalStatus }
+              : w
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Worker status update error:", err);
+    }
+  };
+
+  // Action: Export Bank / RazorpayX Payout Sheet CSV
+  const handleExportPayoutsCsv = () => {
+    if (!payouts || payouts.length === 0) {
+      alert("No payouts available to export.");
+      return;
+    }
+    const headers = ["Reference_ID", "Worker_Name", "Worker_UPI", "Payout_Amount_INR", "Status", "Transaction_Ref", "Export_Date"];
+    const rows = payouts.map((p) => [
+      `"${p.reference_id || ""}"`,
+      `"${p.partner_name || ""}"`,
+      `"${p.partner_upi || ""}"`,
+      p.amount || 0,
+      `"${p.status || "pending"}"`,
+      `"${p.transaction_ref || ""}"`,
+      `"${new Date().toLocaleDateString("en-IN")}"`,
+    ]);
+    const csvContent = [headers.join(","), ...rows.map((r) => r.join(","))].join("\n");
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.setAttribute("download", `Osmida_Nellore_Payouts_${new Date().toISOString().split("T")[0]}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
   // Action: Resolve Complaint
@@ -443,11 +520,26 @@ export default function AdminDashboardPage() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Live Radar Auto-Refresh Toggle */}
+            <button
+              type="button"
+              onClick={() => setIsAutoRefresh(!isAutoRefresh)}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-xs font-bold transition cursor-pointer ${
+                isAutoRefresh
+                  ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300 ring-1 ring-emerald-500/30"
+                  : "bg-slate-800 border-slate-700 text-slate-400 hover:text-white"
+              }`}
+              title={isAutoRefresh ? "Live Radar Active: Polling every 15s" : "Live Radar Paused"}
+            >
+              <Radio className={`w-3.5 h-3.5 ${isAutoRefresh ? "text-emerald-400 animate-pulse" : "text-slate-500"}`} />
+              <span className="hidden xs:inline">{isAutoRefresh ? "Live Radar (15s)" : "Radar Paused"}</span>
+            </button>
+
             <button
               onClick={fetchData}
               disabled={isLoading}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-slate-200 transition"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-xs font-semibold text-slate-200 transition cursor-pointer"
             >
               <RefreshCw className={`h-3.5 w-3.5 ${isLoading ? "animate-spin" : ""}`} />
               <span className="hidden sm:inline">Refresh</span>
@@ -455,11 +547,11 @@ export default function AdminDashboardPage() {
 
             <button
               onClick={handleAdminLogout}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-xs font-bold text-rose-300 transition"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-rose-500/30 bg-rose-500/10 hover:bg-rose-500/20 text-xs font-bold text-rose-300 transition cursor-pointer"
               title="End Admin Session"
             >
               <LogOut className="h-3.5 w-3.5 text-rose-400" />
-              <span>Sign Out</span>
+              <span className="hidden xs:inline">Sign Out</span>
             </button>
           </div>
         </div>
@@ -591,8 +683,25 @@ export default function AdminDashboardPage() {
                             <span className="text-[10px] text-slate-400">{b.time_slot}</span>
                           </td>
                           <td className="p-3.5">
-                            <span className="text-white font-bold block">{b.customer_name}</span>
-                            <span className="text-[10px] text-slate-400">{b.phone}</span>
+                            <div className="flex items-center justify-between gap-1.5">
+                              <div>
+                                <span className="text-white font-bold block">{b.customer_name}</span>
+                                <span className="text-[10px] text-slate-400">{b.phone}</span>
+                              </div>
+                              {b.phone && (
+                                <a
+                                  href={`https://wa.me/91${String(b.phone).replace(/\D/g, "").slice(-10)}?text=${encodeURIComponent(
+                                    `Hello ${b.customer_name}, regarding your Osmida booking (${b.reference_id}): ${b.worker_name ? `Technician ${b.worker_name} (${b.worker_phone}) is on dispatch.` : "A verified technician is being assigned."} Nellore Hub Hotline: 9490122849.`
+                                  )}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  title="WhatsApp Customer"
+                                  className="p-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 transition shrink-0"
+                                >
+                                  <MessageSquare className="w-3.5 h-3.5" />
+                                </a>
+                              )}
+                            </div>
                           </td>
                           <td className="p-3.5 max-w-[180px]">
                             <span className="text-slate-200 block truncate font-bold">
@@ -633,9 +742,24 @@ export default function AdminDashboardPage() {
                           </td>
                           <td className="p-3.5">
                             {b.worker_name ? (
-                              <div>
-                                <span className="text-white font-bold block">{b.worker_name}</span>
-                                <span className="text-[10px] text-slate-400">{b.worker_phone}</span>
+                              <div className="flex items-center justify-between gap-1.5">
+                                <div>
+                                  <span className="text-white font-bold block">{b.worker_name}</span>
+                                  <span className="text-[10px] text-slate-400">{b.worker_phone}</span>
+                                </div>
+                                {b.worker_phone && (
+                                  <a
+                                    href={`https://wa.me/91${String(b.worker_phone).replace(/\D/g, "").slice(-10)}?text=${encodeURIComponent(
+                                      `Hi ${b.worker_name}, please confirm dispatch status for Osmida booking ${b.reference_id} at ${b.locality || "Nellore"}. Customer: ${b.customer_name} (${b.phone}).`
+                                    )}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    title="WhatsApp Technician"
+                                    className="p-1 rounded-lg bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 transition shrink-0"
+                                  >
+                                    <MessageSquare className="w-3.5 h-3.5" />
+                                  </a>
+                                )}
                               </div>
                             ) : (
                               <span className="text-[10px] text-amber-400 font-bold">
@@ -649,7 +773,7 @@ export default function AdminDashboardPage() {
                               disabled={isAssigning === b.reference_id}
                               value={b.worker_phone || ""}
                               onChange={(e) => handleAssignWorker(b.reference_id, e.target.value)}
-                              className="bg-slate-900 border border-slate-700 text-[11px] rounded-lg px-2 py-1 text-slate-200 focus:outline-none focus:border-[#0C6266]"
+                              className="bg-slate-900 border border-slate-700 text-[11px] rounded-lg px-2 py-1 text-slate-200 focus:outline-none focus:border-[#0C6266] w-full"
                             >
                               <option value="">-- Assign Worker --</option>
                               {availableWorkers.map((w) => (
@@ -658,6 +782,29 @@ export default function AdminDashboardPage() {
                                 </option>
                               ))}
                             </select>
+
+                            {/* Before & After Photo Quality Audit Button for Completed Bookings */}
+                            {(b.status === "completed" || b.before_photo_url || b.after_photo_url) && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const cart = b.cart_items && typeof b.cart_items === "object" ? b.cart_items : {};
+                                  setInspectingPhotos({
+                                    referenceId: b.reference_id,
+                                    customerName: b.customer_name,
+                                    workerName: b.worker_name || "Assigned Worker",
+                                    serviceName: b.selected_service || "Home Service",
+                                    beforePhotoUrl: b.before_photo_url || cart.before_photo_url || "https://images.unsplash.com/photo-1584820927498-cfe5211fd8bf?w=500&auto=format&fit=crop&q=80",
+                                    afterPhotoUrl: b.after_photo_url || cart.after_photo_url || "https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=500&auto=format&fit=crop&q=80",
+                                  });
+                                }}
+                                className="flex items-center justify-center gap-1 w-full px-2 py-1 rounded-lg bg-blue-500/15 hover:bg-blue-500/25 text-blue-300 border border-blue-500/30 text-[10px] font-bold transition mt-1.5 cursor-pointer"
+                                title="Audit Before & After Photos"
+                              >
+                                <Camera className="w-3 h-3 text-blue-400" />
+                                <span>Audit Photos</span>
+                              </button>
+                            )}
                           </td>
                         </tr>
                       ))
@@ -744,6 +891,40 @@ export default function AdminDashboardPage() {
                       ))}
                     </div>
                   </div>
+
+                  {/* KYC Approval & Status Actions */}
+                  <div className="flex items-center justify-between pt-2.5 border-t border-slate-800 text-[11px]">
+                    <span className="text-[10px] font-bold text-slate-400">KYC Status:</span>
+                    <div className="flex items-center gap-1.5">
+                      {w.approval_status !== "active" ? (
+                        <button
+                          onClick={() => handleUpdateWorkerStatus(w.id, w.phone, "active")}
+                          className="flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-[10px] transition cursor-pointer shadow-xs"
+                        >
+                          <UserCheck className="w-3 h-3" />
+                          <span>Approve Active</span>
+                        </button>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleUpdateWorkerStatus(w.id, w.phone, "pending")}
+                            className="px-2 py-1 rounded-lg bg-amber-600/20 hover:bg-amber-600/30 text-amber-300 border border-amber-500/30 font-bold text-[10px] transition cursor-pointer"
+                            title="Put partner application on review"
+                          >
+                            Hold
+                          </button>
+                          <button
+                            onClick={() => handleUpdateWorkerStatus(w.id, w.phone, "suspended")}
+                            className="flex items-center gap-1 px-2 py-1 rounded-lg bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 font-bold text-[10px] transition cursor-pointer"
+                            title="Temporarily suspend partner"
+                          >
+                            <UserX className="w-3 h-3" />
+                            <span>Suspend</span>
+                          </button>
+                        </>
+                      )}
+                    </div>
+                  </div>
                 </div>
               ))}
             </div>
@@ -791,9 +972,19 @@ export default function AdminDashboardPage() {
 
             {/* Worker Payout Ledger */}
             <div className="rounded-2xl border border-slate-800 bg-slate-950 overflow-hidden shadow-xl space-y-2">
-              <div className="p-4 border-b border-slate-800 flex justify-between items-center">
-                <h3 className="text-sm font-black text-white">Worker Payout Ledger</h3>
-                <span className="text-xs text-slate-400">Settled via Instant UPI to Workers</span>
+              <div className="p-4 border-b border-slate-800 flex justify-between items-center flex-wrap gap-2">
+                <div>
+                  <h3 className="text-sm font-black text-white">Worker Payout Ledger</h3>
+                  <span className="text-xs text-slate-400">Settled via Instant UPI to Workers</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleExportPayoutsCsv}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition shadow-xs cursor-pointer active:scale-95"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Download Payout Sheet (CSV)</span>
+                </button>
               </div>
 
               <div className="overflow-x-auto">
@@ -1136,6 +1327,101 @@ export default function AdminDashboardPage() {
           </div>
         )}
       </div>
+
+      {/* BEFORE & AFTER PHOTO QUALITY AUDIT MODAL */}
+      {inspectingPhotos && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md p-4 animate-in fade-in">
+          <div className="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div className="p-4 border-b border-slate-800 flex items-center justify-between bg-slate-950">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Camera className="w-4 h-4 text-blue-400" />
+                  <h3 className="text-sm font-black text-white">Work Proof Photo Quality Audit</h3>
+                </div>
+                <p className="text-[11px] text-slate-400 font-mono mt-0.5">
+                  {inspectingPhotos.referenceId} • {inspectingPhotos.serviceName}
+                </p>
+              </div>
+              <button
+                onClick={() => setInspectingPhotos(null)}
+                className="p-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white transition cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-5 overflow-y-auto space-y-4 text-xs">
+              <div className="grid grid-cols-2 gap-3 bg-slate-950 p-3 rounded-2xl border border-slate-800">
+                <div>
+                  <span className="text-[10px] text-slate-500 uppercase font-bold block">Customer</span>
+                  <span className="text-white font-bold">{inspectingPhotos.customerName}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 uppercase font-bold block">Assigned Technician</span>
+                  <span className="text-white font-bold">{inspectingPhotos.workerName}</span>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px] font-bold">
+                    <span className="text-amber-400">1. BEFORE WORK PHOTO</span>
+                    <span className="text-slate-500 text-[10px]">Site Arrival</span>
+                  </div>
+                  <div className="aspect-4/3 rounded-2xl overflow-hidden border border-slate-800 bg-black relative group">
+                    <img
+                      src={inspectingPhotos.beforePhotoUrl}
+                      alt="Before work"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <div className="flex items-center justify-between text-[11px] font-bold">
+                    <span className="text-emerald-400">2. AFTER WORK PHOTO</span>
+                    <span className="text-slate-500 text-[10px]">End OTP Verified</span>
+                  </div>
+                  <div className="aspect-4/3 rounded-2xl overflow-hidden border border-slate-800 bg-black relative group">
+                    <img
+                      src={inspectingPhotos.afterPhotoUrl}
+                      alt="After work"
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-[11px] flex items-center justify-between">
+                <div className="flex items-center gap-1.5">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Service completed with validated 4-digit Customer End OTP</span>
+                </div>
+                <span className="font-bold bg-emerald-500/20 px-2 py-0.5 rounded text-[10px]">Quality Verified</span>
+              </div>
+            </div>
+
+            <div className="p-4 border-t border-slate-800 bg-slate-950 flex items-center justify-end gap-2">
+              <button
+                onClick={() => setInspectingPhotos(null)}
+                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold transition cursor-pointer"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  alert(`Quality audit verified for ${inspectingPhotos.referenceId}. Work approved.`);
+                  setInspectingPhotos(null);
+                }}
+                className="px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black transition flex items-center gap-1.5 cursor-pointer shadow-xs"
+              >
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>Approve Quality & Confirm Escrow</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
