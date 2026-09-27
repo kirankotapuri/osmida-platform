@@ -743,15 +743,42 @@ export default function PartnerPortalPage() {
           {/* Logo & Header */}
           <div className="relative text-center mb-6">
             <div className="flex justify-end mb-2">
-              <button
-                type="button"
-                onClick={toggleLanguage}
-                className="inline-flex items-center gap-1.5 px-3 py-1 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-bold transition border border-white/20 shadow-sm cursor-pointer"
-                title={lang === "en" ? "తెలుగులోకి మార్చండి (Switch to Telugu)" : "Switch to English"}
-              >
-                <Languages className="w-3.5 h-3.5 text-[#E68A00]" />
-                <span>{lang === "en" ? "తెలుగు" : "EN"}</span>
-              </button>
+              <div className="inline-flex items-center bg-black/50 p-0.5 rounded-full border border-white/20 shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLang("en");
+                    try {
+                      sessionStorage.setItem("osmida_partner_lang", "en");
+                      localStorage.setItem("osmida_partner_lang", "en");
+                    } catch {}
+                  }}
+                  className={`px-2.5 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                    lang === "en"
+                      ? "bg-[#0C6266] text-white shadow"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  English
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLang("te");
+                    try {
+                      sessionStorage.setItem("osmida_partner_lang", "te");
+                      localStorage.setItem("osmida_partner_lang", "te");
+                    } catch {}
+                  }}
+                  className={`px-2.5 py-1 rounded-full text-xs font-bold transition cursor-pointer ${
+                    lang === "te"
+                      ? "bg-[#E68A00] text-slate-950 font-black shadow"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  తెలుగు
+                </button>
+              </div>
             </div>
             <div className="relative h-11 w-44 mx-auto mb-3 flex items-center justify-center">
               <Image
@@ -1261,15 +1288,43 @@ export default function PartnerPortalPage() {
 
           {/* HEADER CONTROLS */}
           <div className="flex items-center gap-1.5 sm:gap-2">
-            {/* TELUGU / ENGLISH TOGGLE */}
-            <button
-              onClick={toggleLanguage}
-              className="flex items-center gap-1.5 px-3 py-1 bg-white/10 hover:bg-white/20 text-white rounded-full text-xs font-bold transition border border-white/20 shadow-sm cursor-pointer"
-              title={lang === "en" ? "తెలుగులోకి మార్చండి (Switch to Telugu)" : "Switch to English"}
-            >
-              <Languages className="w-3.5 h-3.5 text-[#E68A00]" />
-              <span>{lang === "en" ? "తెలుగు" : "EN"}</span>
-            </button>
+            {/* DUAL-LANGUAGE SEGMENTED SWITCH */}
+            <div className="flex items-center bg-black/50 p-0.5 rounded-full border border-white/20 shadow-sm">
+              <button
+                type="button"
+                onClick={() => {
+                  setLang("en");
+                  try {
+                    sessionStorage.setItem("osmida_partner_lang", "en");
+                    localStorage.setItem("osmida_partner_lang", "en");
+                  } catch {}
+                }}
+                className={`px-2 py-0.5 rounded-full text-xs font-bold transition cursor-pointer ${
+                  lang === "en"
+                    ? "bg-[#0C6266] text-white shadow"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                EN
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setLang("te");
+                  try {
+                    sessionStorage.setItem("osmida_partner_lang", "te");
+                    localStorage.setItem("osmida_partner_lang", "te");
+                  } catch {}
+                }}
+                className={`px-2 py-0.5 rounded-full text-xs font-bold transition cursor-pointer ${
+                  lang === "te"
+                    ? "bg-[#E68A00] text-slate-950 font-black shadow"
+                    : "text-gray-400 hover:text-white"
+                }`}
+              >
+                తెలుగు
+              </button>
+            </div>
 
             {/* NELLORE HUB HOTLINE */}
             <a
@@ -1283,9 +1338,9 @@ export default function PartnerPortalPage() {
             {/* ONLINE / OFFLINE TOGGLE */}
             <button
               onClick={handleToggleOnline}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition border ${
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition border cursor-pointer ${
                 isOnline
-                  ? "bg-[#0C6266]/25 border-[#0C6266] text-[#0C6266] shadow-sm shadow-[#E68A00]/25"
+                  ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400 shadow-sm shadow-emerald-500/20"
                   : "bg-gray-800 border-gray-600 text-gray-400"
               }`}
             >
