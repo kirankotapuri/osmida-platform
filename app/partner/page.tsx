@@ -348,98 +348,249 @@ export default function PartnerPortalPage() {
   const prevJobIdsRef = useRef<Set<string>>(new Set());
   const isInitialJobLoadRef = useRef<boolean>(true);
   const [buzzerPlaying, setBuzzerPlaying] = useState(false);
+  const isOnlineRef = useRef<boolean>(isOnline);
 
-  // Synthesize loud dispatch alert chime via Web Audio API + vibration
-  const playJobAlertBuzzer = useCallback(() => {
+  useEffect(() => {
+    isOnlineRef.current = isOnline;
+  }, [isOnline]);
+
+  // Pending voice announcement if the app was backgrounded when job arrived
+  const pendingVoiceAlertRef = useRef<{ textTe: string; textEn: string } | null>(null);
+
+  // Dedicated speech synthesis trigger with mobile recovery
+  const speakVoiceGuide = useCallback((customText?: string) => {
+    if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
     try {
-      setBuzzerPlaying(true);
-      setTimeout(() => setBuzzerPlaying(false), 1400);
-
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioContextClass) return;
-      const ctx = new AudioContextClass();
-
-      if (ctx.state === "suspended") {
-        ctx.resume();
+      window.speechSynthesis.cancel(); // Unstuck any hanging utterance
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
       }
 
-      // Urgent dual-tone siren sequence: 880Hz & 1200Hz bursts
-      const toneSequence = [
-        { f1: 880, f2: 1200, start: 0, dur: 0.16 },
-        { f1: 960, f2: 1320, start: 0.2, dur: 0.16 },
-        { f1: 880, f2: 1200, start: 0.42, dur: 0.2 },
-        { f1: 1040, f2: 1400, start: 0.7, dur: 0.35 },
-      ];
+      const alertSpeech =
+        customText ||
+        (lang === "te"
+          ? "కొత్త పని ఆర్డర్ వచ్చింది. దయచేసి చూడండి."
+          : "New Osmida job order received. Please check.");
 
-      toneSequence.forEach(({ f1, f2, start, dur }) => {
-        const startTime = ctx.currentTime + start;
-        const osc1 = ctx.createOscillator();
-        const osc2 = ctx.createOscillator();
-        const gain = ctx.createGain();
+      const utterance = new SpeechSynthesisUtterance(alertSpeech);
+      utterance.rate = 0.95;
+      utterance.pitch = 1.05;
+      utterance.volume = 1.0;
+      utterance.lang = lang === "te" ? "te-IN" : "en-IN";
 
-        osc1.type = "sawtooth";
-        osc1.frequency.setValueAtTime(f1, startTime);
+      // Try selecting localized voice if available in browser
+      const voices = window.speechSynthesis.getVoices();
+      if (voices && voices.length > 0) {
+        const match = voices.find((v) =>
+          lang === "te"
+            ? v.lang.toLowerCase().includes("te") || v.name.toLowerCase().includes("telugu")
+            : v.lang.toLowerCase().includes("en-in") || v.lang.toLowerCase().includes("en")
+        );
+        if (match) utterance.voice = match;
+      }
 
-        osc2.type = "square";
-        osc2.frequency.setValueAtTime(f2, startTime);
+      window.speechSynthesis.speak(utterance);
+    } catch (e) {
+      console.warn("Speech error:", e);
+    }
+  }, [lang]);
 
-        gain.gain.setValueAtTime(0.001, startTime);
-        gain.gain.linearRampToValueAtTime(0.35, startTime + 0.02);
-        gain.gain.exponentialRampToValueAtTime(0.001, startTime + dur);
+  // Synthesize loud dispatch alert chime via Web Audio API + vibration + voice guide
+  const playJobAlertBuzzer = useCallback((jobDetails?: { service_name?: string; payout_amount?: number; locality?: string }) => {
+    // If partner is offline, strictly suppress buzzer and voice
+    if (!isOnlineRef.current) return;
 
-        osc1.connect(gain);
-        osc2.connect(gain);
-        gain.connect(ctx.destination);
+    try {
+      setBuzzerPlaying(true);
+      setTimeout(() => setBuzzerPlaying(false), 1600);
 
-        osc1.start(startTime);
-        osc2.start(startTime);
-        osc1.stop(startTime + dur);
-        osc2.stop(startTime + dur);
-      });
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContextClass) {
+        const ctx = new AudioContextClass();
+        if (ctx.state === "suspended") {
+          ctx.resume();
+        }
+
+        // 1. Melodic 3-tone harmonic dispatch chime (C5-E5-G5: 523Hz, 659Hz, 784Hz)
+        const chimeSequence = [
+          { freq: 523.25, start: 0, dur: 0.18 },
+          { freq: 659.25, start: 0.16, dur: 0.18 },
+          { freq: 783.99, start: 0.32, dur: 0.28 },
+        ];
+        chimeSequence.forEach(({ freq, start, dur }) => {
+          const st = ctx.currentTime + start;
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(freq, st);
+          gain.gain.setValueAtTime(0.001, st);
+          gain.gain.linearRampToValueAtTime(0.3, st + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, st + dur);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(st);
+          osc.stop(st + dur);
+        });
+
+        // 2. Urgent dual-tone siren sequence: 880Hz & 1200Hz bursts
+        const toneSequence = [
+          { f1: 880, f2: 1200, start: 0.65, dur: 0.16 },
+          { f1: 960, f2: 1320, start: 0.85, dur: 0.16 },
+          { f1: 880, f2: 1200, start: 1.05, dur: 0.2 },
+          { f1: 1040, f2: 1400, start: 1.3, dur: 0.3 },
+        ];
+
+        toneSequence.forEach(({ f1, f2, start, dur }) => {
+          const startTime = ctx.currentTime + start;
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const gain = ctx.createGain();
+
+          osc1.type = "sawtooth";
+          osc1.frequency.setValueAtTime(f1, startTime);
+
+          osc2.type = "square";
+          osc2.frequency.setValueAtTime(f2, startTime);
+
+          gain.gain.setValueAtTime(0.001, startTime);
+          gain.gain.linearRampToValueAtTime(0.35, startTime + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, startTime + dur);
+
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(ctx.destination);
+
+          osc1.start(startTime);
+          osc2.start(startTime);
+          osc1.stop(startTime + dur);
+          osc2.stop(startTime + dur);
+        });
+      }
 
       if (typeof navigator !== "undefined" && "vibrate" in navigator) {
         navigator.vibrate([400, 150, 400, 150, 600]);
       }
 
-      // Voice prompt cue
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        try {
-          const alertSpeech =
-            lang === "te"
-              ? "కొత్త పని ఆర్డర్ వచ్చింది. దయచేసి చూడండి."
-              : "New Osmida job order received. Please check.";
-          const utterance = new SpeechSynthesisUtterance(alertSpeech);
-          utterance.rate = 1.0;
-          utterance.lang = lang === "te" ? "te-IN" : "en-IN";
-          window.speechSynthesis.speak(utterance);
-        } catch {}
+      // Voice guidance handling
+      const isHidden = typeof document !== "undefined" && document.visibilityState === "hidden";
+      if (isHidden) {
+        // App is minimized / on home screen: mobile browsers suspend speech in background.
+        // Queue the voice announcement so it plays immediately when the app is reopened!
+        pendingVoiceAlertRef.current = {
+          textTe: "కొత్త పని ఆర్డర్ వచ్చింది. దయచేసి చూడండి.",
+          textEn: "New Osmida job order received. Please check.",
+        };
+        // Also attempt speech in case mobile OS allows background speech
+        speakVoiceGuide();
+
+        // Send high-priority system notification to lock screen / status bar with voice cue
+        if (typeof window !== "undefined" && "Notification" in window && Notification.permission === "granted") {
+          try {
+            const notifTitle = lang === "te" ? "🚨 కొత్త పని ఆర్డర్ వచ్చింది!" : "🚨 New Job Order Received!";
+            const notifBody = jobDetails
+              ? `${jobDetails.service_name} • ₹${jobDetails.payout_amount} • ${jobDetails.locality || "Nellore"}`
+              : (lang === "te" ? "కొత్త ఆర్డర్ వచ్చింది. యాప్ తెరవండి." : "New order waiting. Tap to accept.");
+            new Notification(notifTitle, {
+              body: notifBody,
+              icon: "/icons/partner-icon-192x192.png",
+              badge: "/icons/partner-icon-192x192.png",
+              vibrate: [400, 150, 400, 150, 600],
+              tag: "osmida-dispatch-alert",
+              renotify: true,
+              requireInteraction: true,
+            } as any);
+          } catch (notifErr) {
+            console.warn("Background notification note:", notifErr);
+          }
+        }
+      } else {
+        // App is foregrounded: play voice guide immediately!
+        setTimeout(() => {
+          speakVoiceGuide();
+        }, 300);
       }
     } catch (err) {
       console.warn("Audio buzzer dispatch error:", err);
     }
-  }, [lang]);
+  }, [lang, speakVoiceGuide]);
+
+  // Listen for user returning to the partner app from mobile home / lock screen
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === "visible") {
+        // Partner came back to the app from home screen!
+        if (pendingVoiceAlertRef.current && isOnlineRef.current) {
+          const cue = lang === "te" ? pendingVoiceAlertRef.current.textTe : pendingVoiceAlertRef.current.textEn;
+          pendingVoiceAlertRef.current = null;
+          // Unstuck speech and speak loud and clear
+          setTimeout(() => {
+            speakVoiceGuide(cue);
+          }, 250);
+        } else if (isOnlineRef.current && offeredJobs.length > 0) {
+          setTimeout(() => {
+            if (window.speechSynthesis && window.speechSynthesis.paused) {
+              window.speechSynthesis.resume();
+            }
+          }, 200);
+        }
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityOrFocus);
+    window.addEventListener("focus", handleVisibilityOrFocus);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityOrFocus);
+      window.removeEventListener("focus", handleVisibilityOrFocus);
+    };
+  }, [lang, speakVoiceGuide, offeredJobs.length]);
 
   // Fetch jobs for partner
-  const fetchJobs = useCallback(async (partnerId: string) => {
+  const fetchJobs = useCallback(async (partnerId: string, forceCheckOnline?: boolean) => {
+    const currentlyOnline = forceCheckOnline !== undefined ? forceCheckOnline : isOnlineRef.current;
+
+    // If partner is offline, strictly clear offered jobs and do not sound alerts
+    if (!currentlyOnline) {
+      setOfferedJobs([]);
+      prevJobIdsRef.current.clear();
+      pendingVoiceAlertRef.current = null;
+    }
+
     setIsLoadingJobs(true);
     try {
-      const res = await fetch(`/api/partner/jobs?partnerId=${encodeURIComponent(partnerId)}`);
+      const res = await fetch(`/api/partner/jobs?partnerId=${encodeURIComponent(partnerId)}&isOnline=${currentlyOnline}`);
       const data = await res.json();
       if (data.success) {
+        if (!currentlyOnline) {
+          setOfferedJobs([]);
+          setActiveJob(data.activeJob || null);
+          setCompletedJobs(data.completedJobs || []);
+          return;
+        }
+
         const newOffered = data.offeredJobs || [];
         setOfferedJobs(newOffered);
         setActiveJob(data.activeJob || null);
         setCompletedJobs(data.completedJobs || []);
 
-        // Detect newly broadcast jobs for foreground alert buzzer
+        // Detect newly broadcast jobs for foreground alert buzzer and voice guide
         const currentIds = new Set<string>(newOffered.map((j: PartnerJob) => String(j.id)));
         if (!isInitialJobLoadRef.current) {
-          const hasNewJob = newOffered.some((j: PartnerJob) => !prevJobIdsRef.current.has(j.id));
-          if (hasNewJob) {
-            playJobAlertBuzzer();
+          const newlyAddedJobs = newOffered.filter((j: PartnerJob) => !prevJobIdsRef.current.has(j.id));
+          if (newlyAddedJobs.length > 0) {
+            const firstJob = newlyAddedJobs[0];
+            playJobAlertBuzzer({
+              service_name: firstJob.service_name,
+              payout_amount: firstJob.payout_amount,
+              locality: firstJob.locality,
+            });
             setStatusMessage({
               type: "success",
-              text: "🚨 NEW JOB ALERT! A customer booking just matched your hub. Accept below!",
+              text: lang === "te"
+                ? `🚨 కొత్త పని ఆర్డర్! ${firstJob.service_name} (₹${firstJob.payout_amount})`
+                : `🚨 NEW JOB ALERT! ${firstJob.service_name} (₹${firstJob.payout_amount})`,
             });
           }
         } else {
@@ -452,15 +603,20 @@ export default function PartnerPortalPage() {
     } finally {
       setIsLoadingJobs(false);
     }
-  }, [playJobAlertBuzzer]);
+  }, [lang, playJobAlertBuzzer]);
 
   useEffect(() => {
-    if (partner) {
-      fetchJobs(partner.id);
-      const interval = setInterval(() => fetchJobs(partner.id), 4000); // 4s live polling for instant dispatch
-      return () => clearInterval(interval);
-    }
-  }, [partner, fetchJobs]);
+    if (!partner) return;
+
+    fetchJobs(partner.id, isOnline);
+    // Poll every 4 seconds when ONLINE for instantaneous dispatch; slow poll (12s) when offline for active job sync
+    const pollInterval = isOnline ? 4000 : 12000;
+    const interval = setInterval(() => {
+      fetchJobs(partner.id, isOnlineRef.current);
+    }, pollInterval);
+
+    return () => clearInterval(interval);
+  }, [partner?.id, isOnline, fetchJobs]);
 
   // Login handler
   const handleLogin = async (e: React.FormEvent) => {
@@ -481,9 +637,11 @@ export default function PartnerPortalPage() {
       }
 
       setPartner(data.partner);
-      setIsOnline(data.partner.status !== "offline");
+      const isPartnerActive = data.partner.status !== "offline";
+      setIsOnline(isPartnerActive);
+      isOnlineRef.current = isPartnerActive;
       localStorage.setItem("osmida_partner_session", JSON.stringify(data.partner));
-      fetchJobs(data.partner.id);
+      fetchJobs(data.partner.id, isPartnerActive);
     } catch (err: any) {
       setAuthError(err.message || "Invalid credentials");
     } finally {
@@ -605,8 +763,9 @@ export default function PartnerPortalPage() {
 
       setPartner(data.partner);
       setIsOnline(true);
+      isOnlineRef.current = true;
       localStorage.setItem("osmida_partner_session", JSON.stringify(data.partner));
-      fetchJobs(data.partner.id);
+      fetchJobs(data.partner.id, true);
     } catch (err: any) {
       setAuthError(err.message || "Registration failed");
     } finally {
@@ -627,13 +786,48 @@ export default function PartnerPortalPage() {
     setPartner(null);
     setOfferedJobs([]);
     setActiveJob(null);
+    prevJobIdsRef.current.clear();
+    pendingVoiceAlertRef.current = null;
+    if (typeof window !== "undefined" && "speechSynthesis" in window) {
+      try {
+        window.speechSynthesis.cancel();
+      } catch {}
+    }
   };
 
   // Toggle Online/Offline
   const handleToggleOnline = async () => {
     if (!partner) return;
-    const target = isOnline ? "offline" : "online";
-    setIsOnline(!isOnline);
+    const nextOnline = !isOnline;
+    const target = nextOnline ? "online" : "offline";
+
+    setIsOnline(nextOnline);
+    isOnlineRef.current = nextOnline;
+
+    if (!nextOnline) {
+      // Immediately wipe offered jobs upon going offline
+      setOfferedJobs([]);
+      prevJobIdsRef.current.clear();
+      pendingVoiceAlertRef.current = null;
+      if (typeof window !== "undefined" && "speechSynthesis" in window) {
+        try {
+          window.speechSynthesis.cancel();
+        } catch {}
+      }
+      setStatusMessage({
+        type: "error",
+        text: lang === "te"
+          ? "మీరు ప్రస్తుతం ఆఫ్‌లైన్‌లో ఉన్నారు. కొత్త ఆర్డర్‌లు రావు."
+          : "You are currently OFFLINE. New job alerts paused.",
+      });
+    } else {
+      setStatusMessage({
+        type: "success",
+        text: lang === "te"
+          ? "మీరు ఆన్‌లైన్‌లోకి వచ్చారు. కొత్త ఆర్డర్‌ల కోసం వేచి చూస్తోంది..."
+          : "You are now ONLINE. Scanning for customer orders in Nellore...",
+      });
+    }
 
     try {
       await fetch("/api/partner/auth", {
@@ -644,6 +838,10 @@ export default function PartnerPortalPage() {
       const updated = { ...partner, status: target };
       setPartner(updated as ServicePartner);
       localStorage.setItem("osmida_partner_session", JSON.stringify(updated));
+
+      if (nextOnline) {
+        fetchJobs(partner.id, true);
+      }
     } catch (err) {
       console.error("Status toggle error:", err);
     }
@@ -1531,13 +1729,20 @@ export default function PartnerPortalPage() {
               <Volume2 className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-xs font-bold text-white">Dispatch Alert Buzzer</p>
-              <p className="text-[10px] text-gray-400">Plays loud dual-tone alarm when job broadcasts</p>
+              <p className="text-xs font-bold text-white">{lang === "te" ? "డిస్పాచ్ అలర్ట్ & వాయిస్ గైడ్" : "Dispatch Buzzer & Voice Guide"}</p>
+              <p className="text-[10px] text-gray-400">
+                {lang === "te" ? "అలర్ట్ సైరన్ మరియు తెలుగు వాయిస్ మార్గదర్శకత్వం" : "Loud chime + siren + spoken audio guidance"}
+              </p>
             </div>
           </div>
           <button
             type="button"
-            onClick={playJobAlertBuzzer}
+            onClick={() => {
+              playJobAlertBuzzer();
+              setTimeout(() => {
+                speakVoiceGuide(lang === "te" ? "కొత్త పని ఆర్డర్ వచ్చింది. దయచేసి చూడండి." : "New Osmida job order received. Please check.");
+              }, 1200);
+            }}
             disabled={buzzerPlaying}
             className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 ${
               buzzerPlaying
@@ -1546,7 +1751,7 @@ export default function PartnerPortalPage() {
             }`}
           >
             <Bell className={`w-3.5 h-3.5 ${buzzerPlaying ? "animate-spin" : ""}`} />
-            {buzzerPlaying ? "Sounding..." : "Test Buzzer"}
+            {buzzerPlaying ? (lang === "te" ? "మోగుతోంది..." : "Sounding...") : (lang === "te" ? "టెస్ట్ సౌండ్ & వాయిస్" : "Test Sound & Voice")}
           </button>
         </div>
 
@@ -2397,28 +2602,56 @@ export default function PartnerPortalPage() {
 
             {/* If no jobs at all */}
             {offeredJobs.length === 0 && !activeJob && (
-              <div className="text-center py-12 px-4 bg-white/5 border border-white/10 rounded-2xl">
-                <div className="w-12 h-12 rounded-full bg-[#0C6266]/25 text-[#0C6266] flex items-center justify-center mx-auto mb-3">
-                  <ShieldCheck className="w-6 h-6" />
+              <div className="text-center py-10 px-4 bg-white/5 border border-white/10 rounded-2xl space-y-3">
+                <div className={`w-14 h-14 rounded-full flex items-center justify-center mx-auto ${
+                  isOnline ? "bg-[#0C6266]/25 text-[#0C6266]" : "bg-gray-800 text-gray-400"
+                }`}>
+                  {isOnline ? (
+                    <ShieldCheck className="w-7 h-7" />
+                  ) : (
+                    <Power className="w-7 h-7 text-gray-400" />
+                  )}
                 </div>
-                <h4 className="text-sm font-bold text-white mb-1">No Active Jobs Right Now</h4>
-                <p className="text-xs text-gray-400 max-w-xs mx-auto mb-4">
-                  Keep your status ONLINE. As soon as a customer books in {partner.assigned_hub} Nellore, you will receive an alert.
-                </p>
-                <div className="flex items-center justify-center gap-2">
-                  <button
-                    onClick={() => fetchJobs(partner.id)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-xs font-semibold text-gray-300 transition"
-                  >
-                    <RefreshCw className="w-3.5 h-3.5" /> Refresh Dispatch Feed
-                  </button>
-                  <button
-                    onClick={handleResetJobs}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-xs font-semibold text-amber-400 border border-amber-500/20 transition"
-                  >
-                    <RotateCcw className="w-3.5 h-3.5" /> Reset Test Data
-                  </button>
+                <div>
+                  <h4 className="text-sm font-bold text-white mb-1">
+                    {isOnline
+                      ? (lang === "te" ? "ప్రస్తుతం కొత్త పనులు లేవు" : "No Active Jobs Right Now")
+                      : (lang === "te" ? "మీరు ఆఫ్‌లైన్‌లో ఉన్నారు" : "You Are Currently Offline")}
+                  </h4>
+                  <p className="text-xs text-gray-400 max-w-xs mx-auto">
+                    {isOnline
+                      ? (lang === "te"
+                          ? `మీరు ఆన్‌లైన్‌లో ఉన్నారు. ${partner.assigned_hub} నెల్లూరులో కస్టమర్ బుక్ చేయగానే అలర్ట్ వస్తుంది.`
+                          : `Keep your status ONLINE. As soon as a customer books in ${partner.assigned_hub} Nellore, you will receive an alert.`)
+                      : (lang === "te"
+                          ? "కొత్త ఆర్డర్‌లను స్వీకరించడానికి పైన ఉన్న బటన్ ద్వారా లేదా ఇక్కడ ఆన్‌లైన్‌కు మారండి."
+                          : "New job alerts are paused while offline. Toggle to ONLINE whenever you are ready to receive bookings.")}
+                  </p>
                 </div>
+                {!isOnline ? (
+                  <button
+                    type="button"
+                    onClick={handleToggleOnline}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-xs font-bold text-white shadow-lg shadow-emerald-900/30 transition cursor-pointer"
+                  >
+                    <Power className="w-3.5 h-3.5" /> {lang === "te" ? "ఆన్‌లైన్‌కు మారండి" : "Go Online Now"}
+                  </button>
+                ) : (
+                  <div className="flex items-center justify-center gap-2 pt-1">
+                    <button
+                      onClick={() => fetchJobs(partner.id, true)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-xs font-semibold text-gray-300 transition"
+                    >
+                      <RefreshCw className="w-3.5 h-3.5" /> Refresh Dispatch Feed
+                    </button>
+                    <button
+                      onClick={handleResetJobs}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 text-xs font-semibold text-amber-400 border border-amber-500/20 transition"
+                    >
+                      <RotateCcw className="w-3.5 h-3.5" /> Reset Test Data
+                    </button>
+                  </div>
+                )}
               </div>
             )}
           </div>

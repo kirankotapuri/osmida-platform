@@ -41,9 +41,28 @@ export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const partnerId = searchParams.get("partnerId") || "default-partner-pogathota";
+    const isOnlineParam = searchParams.get("isOnline");
 
     const supabase = getSupabaseClient();
     let jobs: PartnerJob[] = [];
+    let isOffline = isOnlineParam === "false";
+
+    // If isOnline param not explicitly passed, inspect partner status from Supabase
+    if (supabase && isOnlineParam === null) {
+      try {
+        const { data: partnerRow } = await supabase
+          .from("service_partners")
+          .select("status")
+          .eq("id", partnerId)
+          .maybeSingle();
+
+        if (partnerRow && partnerRow.status === "offline") {
+          isOffline = true;
+        }
+      } catch (checkErr) {
+        console.warn("DB partner status check note:", checkErr);
+      }
+    }
 
     if (supabase) {
       try {
@@ -72,24 +91,26 @@ export async function GET(req: Request) {
       }
     }
 
-    // Only seed sample job if explicitly requested with ?seed=true (prevent unwanted zombie jobs)
+    // Only seed sample job if explicitly requested with ?seed=true and partner is NOT offline
     const shouldSeed = searchParams.get("seed") === "true";
-    if (jobs.length === 0 && shouldSeed) {
+    if (jobs.length === 0 && shouldSeed && !isOffline) {
       const sample = seedSampleJob(partnerId);
       globalActiveJobs.set(sample.id, sample);
       jobs.push(sample);
     }
 
-    const offeredJobs = jobs.filter((j) => j.status === "offered");
+    // Offline partners must NEVER receive offered jobs
+    const offeredJobs = isOffline ? [] : jobs.filter((j) => j.status === "offered");
     const activeJob = jobs.find((j) => ["accepted", "dispatched", "in_progress"].includes(j.status)) || null;
     const completedJobs = jobs.filter((j) => j.status === "completed");
 
     return NextResponse.json({
       success: true,
-      jobs,
+      jobs: isOffline ? jobs.filter((j) => j.status !== "offered") : jobs,
       offeredJobs,
       activeJob,
       completedJobs,
+      isOnline: !isOffline,
     });
   } catch (error) {
     console.error("Partner jobs fetch error:", error);
