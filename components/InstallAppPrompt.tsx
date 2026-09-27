@@ -2,19 +2,38 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { Download, X, Share, PlusSquare, Sparkles, CheckCircle2, MoreVertical, Smartphone } from "lucide-react";
+import { usePathname } from "next/navigation";
+import {
+  Download,
+  Share,
+  PlusSquare,
+  CheckCircle2,
+  MoreVertical,
+  Smartphone,
+  ChevronDown,
+  Sparkles,
+  HardHat,
+  Home,
+} from "lucide-react";
 
 export function InstallAppPrompt() {
+  const pathname = usePathname();
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
-  const [showBanner, setShowBanner] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [isIOS, setIsIOS] = useState(false);
   const [showIOSModal, setShowIOSModal] = useState(false);
   const [showAndroidModal, setShowAndroidModal] = useState(false);
   const [isStandalone, setIsStandalone] = useState(false);
-  const [isPartnerPortal, setIsPartnerPortal] = useState(false);
+
+  // Detect whether currently on Partner portal or Customer portal
+  const isPartnerPortal =
+    Boolean(pathname?.startsWith("/partner")) ||
+    (typeof window !== "undefined" &&
+      (window.location.hostname.startsWith("partner.") ||
+        window.location.hostname.startsWith("parnter.")));
 
   useEffect(() => {
-    // Check if already running in standalone mode (already installed on homescreen)
+    // Check if already running in standalone mode (already installed on phone homescreen)
     const isRunningStandalone =
       window.matchMedia("(display-mode: standalone)").matches ||
       (window.navigator as any).standalone === true;
@@ -24,34 +43,22 @@ export function InstallAppPrompt() {
       return;
     }
 
-    // Detect if this is the partner portal
-    const isPartner =
-      window.location.pathname.startsWith("/partner") ||
-      window.location.hostname.startsWith("partner.") ||
-      window.location.hostname.startsWith("parnter.");
-    setIsPartnerPortal(isPartner);
-
     // Detect iOS (Safari)
     const userAgent = window.navigator.userAgent.toLowerCase();
     const isAppleDevice = /iphone|ipad|ipod/.test(userAgent);
     setIsIOS(isAppleDevice);
 
-    // Check if previously dismissed in this session
-    const isDismissed = sessionStorage.getItem("osmida_a2hs_dismissed") === "true";
-
-    // Handle Android / Chrome / Desktop beforeinstallprompt
+    // Handle Android / Chrome / Edge / Samsung Internet install prompt event
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
-      if (!isDismissed) {
-        setTimeout(() => setShowBanner(true), 2000);
-      }
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
 
+    // Listen for custom trigger event from anywhere in the app
     const handleTriggerInstall = () => {
-      setShowBanner(true);
+      setIsMinimized(false);
       if (isAppleDevice) {
         setShowIOSModal(true);
       } else if (!deferredPrompt) {
@@ -60,21 +67,11 @@ export function InstallAppPrompt() {
     };
     window.addEventListener("osmida_trigger_install", handleTriggerInstall);
 
-    // If not dismissed, show install banner after 3 seconds
-    if (!isDismissed) {
-      const timer = setTimeout(() => setShowBanner(true), 2500);
-      return () => {
-        clearTimeout(timer);
-        window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
-        window.removeEventListener("osmida_trigger_install", handleTriggerInstall);
-      };
-    }
-
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       window.removeEventListener("osmida_trigger_install", handleTriggerInstall);
     };
-  }, []);
+  }, [deferredPrompt]);
 
   const handleInstallClick = async () => {
     if (isIOS) {
@@ -87,8 +84,8 @@ export function InstallAppPrompt() {
         deferredPrompt.prompt();
         const { outcome } = await deferredPrompt.userChoice;
         if (outcome === "accepted") {
-          setShowBanner(false);
           setDeferredPrompt(null);
+          setIsMinimized(true);
         }
       } catch {
         setShowAndroidModal(true);
@@ -98,73 +95,117 @@ export function InstallAppPrompt() {
     }
   };
 
-  const handleDismiss = () => {
-    setShowBanner(false);
-    try {
-      sessionStorage.setItem("osmida_a2hs_dismissed", "true");
-    } catch {}
-  };
+  // If already opened as an installed standalone app from homescreen, don't show prompt
+  if (isStandalone) return null;
 
-  if (isStandalone || !showBanner) return null;
-
-  const appTitle = isPartnerPortal ? "Osmida Partner App" : "Install Osmida App";
+  const appTitle = isPartnerPortal ? "Osmida Partner App" : "Osmida Customer App";
+  const appBadge = isPartnerPortal ? "Partner App" : "Customer App";
   const appSubtitle = isPartnerPortal
-    ? "Add to home screen for 1-tap Nellore worker dispatch"
-    : "Add to home screen for 1-tap bookings";
+    ? "Add to home screen for 1-tap worker jobs & payouts"
+    : "Add to home screen for fast 1-tap Nellore bookings";
   const appIcon = isPartnerPortal ? "/icons/partner-icon-192x192.png" : "/icons/icon-192x192.png";
 
   return (
     <>
-      {/* FLOATING INSTALL BANNER */}
+      {/* PERMANENT FLOATING INSTALL WIDGET (NEVER CLOSES - ALWAYS VISIBLE) */}
       <aside
-        aria-label="Install Osmida Application"
-        className="fixed bottom-20 lg:bottom-6 left-3 right-3 sm:left-auto sm:right-6 sm:max-w-md z-50 animate-in slide-in-from-bottom-5 duration-300"
+        aria-label={`Install ${appTitle} on Home Screen`}
+        className="fixed bottom-20 sm:bottom-20 lg:bottom-6 right-3 sm:right-6 z-50 animate-in slide-in-from-bottom-5 duration-300 pointer-events-auto"
       >
-        <div className="bg-slate-950 text-white rounded-2xl p-3.5 sm:p-4 shadow-2xl border border-white/20 flex items-center justify-between gap-3 backdrop-blur-xl">
-          {/* App Icon + Info */}
-          <div className="flex items-center gap-3 min-w-0">
-            <div className="relative w-11 h-11 rounded-xl overflow-hidden shadow-md shrink-0 bg-[#0C6266] border border-white/20 p-1 flex items-center justify-center">
+        {isMinimized ? (
+          /* Sleek Collapsed Floating Pill (Always Visible on Screen) */
+          <button
+            type="button"
+            onClick={() => setIsMinimized(false)}
+            className="flex items-center gap-2.5 bg-slate-950/95 text-white hover:bg-slate-900 border border-white/25 rounded-full px-3.5 py-2.5 shadow-2xl backdrop-blur-xl transition active:scale-95 cursor-pointer group ring-1 ring-white/10"
+            title={`Open ${appTitle} installation`}
+          >
+            <div className="relative w-6 h-6 rounded-lg overflow-hidden bg-[#0C6266] p-0.5 flex items-center justify-center shrink-0 border border-white/20">
               <Image
                 src={appIcon}
                 alt={appTitle}
-                width={40}
-                height={40}
+                width={24}
+                height={24}
                 className="w-full h-full object-contain"
               />
+              <span className="absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full bg-amber-400 animate-ping" />
             </div>
-            <div className="min-w-0">
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-sm text-white tracking-tight truncate">
-                  {appTitle}
-                </span>
-                <span className="bg-[#E68A00] text-slate-950 text-[9px] font-black px-1.5 py-0.2 rounded uppercase">
-                  App
-                </span>
-              </div>
-              <p className="text-[11px] text-gray-300 truncate">
-                {appSubtitle}
-              </p>
-            </div>
-          </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <button
-              onClick={handleInstallClick}
-              className="bg-[#0C6266] hover:bg-[#094e51] text-white font-extrabold px-3 py-1.5 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md shadow-[#0C6266]/30 cursor-pointer active:scale-95"
-            >
-              <Download className="w-3.5 h-3.5" />
-              <span>Install</span>
-            </button>
-            <button
-              onClick={handleDismiss}
-              className="p-1.5 text-gray-400 hover:text-white transition rounded-lg cursor-pointer"
-              aria-label="Dismiss banner"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-1.5">
+              {isPartnerPortal ? (
+                <HardHat className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+              ) : (
+                <Smartphone className="w-3.5 h-3.5 text-teal-400 shrink-0" />
+              )}
+              <span className="text-xs font-black tracking-tight text-white group-hover:text-teal-300 transition">
+                {isPartnerPortal ? "Partner App" : "Customer App"}
+              </span>
+            </div>
+
+            <span className="bg-[#E68A00] text-slate-950 text-[10px] font-black px-2 py-0.5 rounded-full uppercase flex items-center gap-1">
+              <Download className="w-2.5 h-2.5" />
+              Install
+            </span>
+          </button>
+        ) : (
+          /* Expanded Floating Action Card */
+          <div className="bg-slate-950/95 text-white rounded-2xl p-3.5 sm:p-4 shadow-2xl border border-white/25 flex items-center justify-between gap-3 backdrop-blur-xl max-w-[340px] sm:max-w-md ring-1 ring-white/10">
+            {/* App Icon + Clear Customer/Partner Indicator */}
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="relative w-11 h-11 rounded-xl overflow-hidden shadow-md shrink-0 bg-[#0C6266] border border-white/20 p-1 flex items-center justify-center">
+                <Image
+                  src={appIcon}
+                  alt={appTitle}
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-contain"
+                />
+              </div>
+
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-extrabold text-xs sm:text-sm text-white tracking-tight truncate">
+                    {appTitle}
+                  </span>
+                  <span
+                    className={`text-[9px] font-black px-1.5 py-0.5 rounded uppercase tracking-wider ${
+                      isPartnerPortal
+                        ? "bg-amber-400 text-slate-950"
+                        : "bg-teal-400 text-slate-950"
+                    }`}
+                  >
+                    {appBadge}
+                  </span>
+                </div>
+                <p className="text-[11px] text-gray-300 truncate">
+                  {appSubtitle}
+                </p>
+              </div>
+            </div>
+
+            {/* Action Buttons: 1-Tap Install + Minimize Pill Toggle (Never close permanently) */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              <button
+                type="button"
+                onClick={handleInstallClick}
+                className="bg-[#0C6266] hover:bg-[#094e51] text-white font-extrabold px-3 py-2 rounded-xl text-xs transition flex items-center gap-1.5 shadow-md shadow-[#0C6266]/40 cursor-pointer active:scale-95 whitespace-nowrap border border-white/10"
+              >
+                <Download className="w-3.5 h-3.5 text-teal-300" />
+                <span>Install</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setIsMinimized(true)}
+                title="Minimize to floating pill"
+                className="p-1.5 text-gray-400 hover:text-white transition rounded-lg cursor-pointer bg-white/5 hover:bg-white/10"
+                aria-label="Minimize install prompt"
+              >
+                <ChevronDown className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </aside>
 
       {/* ANDROID CHROME MANUAL INSTALL INSTRUCTIONS MODAL */}
@@ -183,20 +224,33 @@ export function InstallAppPrompt() {
                   />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-white">{appTitle}</h3>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="font-bold text-sm text-white">{appTitle}</h3>
+                    <span
+                      className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase ${
+                        isPartnerPortal ? "bg-amber-400 text-slate-950" : "bg-teal-400 text-slate-950"
+                      }`}
+                    >
+                      {appBadge}
+                    </span>
+                  </div>
                   <p className="text-[10px] text-gray-400">Add to Phone Home Screen</p>
                 </div>
               </div>
               <button
-                onClick={() => setShowAndroidModal(false)}
+                onClick={() => {
+                  setShowAndroidModal(false);
+                  setIsMinimized(true);
+                }}
                 className="text-gray-400 hover:text-white p-1"
+                aria-label="Close dialog and keep floating"
               >
-                <X className="w-5 h-5" />
+                <ChevronDown className="w-5 h-5" />
               </button>
             </div>
 
             <p className="text-xs text-gray-300">
-              Follow these 2 quick steps to install {appTitle} on your mobile:
+              Follow these 2 quick steps to install {appTitle} on your phone:
             </p>
 
             <div className="space-y-3 bg-black/50 rounded-2xl p-3.5 border border-white/10 text-xs">
@@ -206,12 +260,12 @@ export function InstallAppPrompt() {
                 </div>
                 <div>
                   <span className="font-bold block text-white">1. Tap Chrome Menu (3 Dots)</span>
-                  <span className="text-[11px] text-gray-400">At the top-right corner of your browser</span>
+                  <span className="text-[11px] text-gray-400">At top-right corner of Chrome browser</span>
                 </div>
               </div>
 
               <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-[#0C6266]/30 text-[#38B2AC] flex items-center justify-center shrink-0 font-black">
+                <div className="w-8 h-8 rounded-full bg-[#0C6266]/30 text-teal-400 flex items-center justify-center shrink-0 font-black">
                   <Smartphone className="w-4 h-4" />
                 </div>
                 <div>
@@ -224,11 +278,11 @@ export function InstallAppPrompt() {
             <button
               onClick={() => {
                 setShowAndroidModal(false);
-                setShowBanner(false);
+                setIsMinimized(true);
               }}
               className="w-full bg-[#0C6266] hover:bg-[#094e51] text-white font-extrabold py-2.5 rounded-xl text-xs transition cursor-pointer"
             >
-              Done &bull; I Added It
+              Done &bull; Keep Floating
             </button>
           </div>
         </div>
@@ -250,15 +304,28 @@ export function InstallAppPrompt() {
                   />
                 </div>
                 <div>
-                  <h3 className="font-bold text-sm text-white">Install on iPhone</h3>
+                  <div className="flex items-center gap-1.5">
+                    <h3 className="font-bold text-sm text-white">Install on iPhone</h3>
+                    <span
+                      className={`text-[8px] font-black px-1.5 py-0.5 rounded uppercase ${
+                        isPartnerPortal ? "bg-amber-400 text-slate-950" : "bg-teal-400 text-slate-950"
+                      }`}
+                    >
+                      {appBadge}
+                    </span>
+                  </div>
                   <p className="text-[10px] text-gray-400">{appTitle}</p>
                 </div>
               </div>
               <button
-                onClick={() => setShowIOSModal(false)}
+                onClick={() => {
+                  setShowIOSModal(false);
+                  setIsMinimized(true);
+                }}
                 className="text-gray-400 hover:text-white p-1"
+                aria-label="Close dialog and keep floating"
               >
-                <X className="w-5 h-5" />
+                <ChevronDown className="w-5 h-5" />
               </button>
             </div>
 
@@ -290,11 +357,11 @@ export function InstallAppPrompt() {
             <button
               onClick={() => {
                 setShowIOSModal(false);
-                setShowBanner(false);
+                setIsMinimized(true);
               }}
               className="w-full bg-[#0C6266] hover:bg-[#094e51] text-white font-extrabold py-2.5 rounded-xl text-xs transition cursor-pointer"
             >
-              Got it!
+              Got it &bull; Keep Floating
             </button>
           </div>
         </div>
