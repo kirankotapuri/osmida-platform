@@ -132,14 +132,6 @@ export function OsmidaFooter() {
                   <span>support@osmida.com</span>
                 </a>
               </li>
-              <li className="pt-1 border-t border-[#0C4144]">
-                <Link
-                  href="/partner"
-                  className="hover:text-white transition-colors block text-slate-400 text-[11px]"
-                >
-                  Partner Dispatch Portal
-                </Link>
-              </li>
             </ul>
           </div>
 
@@ -190,14 +182,6 @@ export function OsmidaFooter() {
                   className="hover:text-white transition-colors block text-slate-400 hover:text-slate-200"
                 >
                   About Osmida Nellore
-                </Link>
-              </li>
-              <li className="pt-1 border-t border-[#0C4144]/60">
-                <Link
-                  href="/admin"
-                  className="text-[10px] text-slate-400 hover:text-slate-200 flex items-center gap-1"
-                >
-                  <span>🔐 Admin Operations Portal</span>
                 </Link>
               </li>
             </ul>
