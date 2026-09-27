@@ -47,6 +47,64 @@ function formatDuration(seconds: number): string {
   return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
 }
 
+// 45-Second Dispatch Urgency Countdown Bar for incoming job offers
+function JobOfferCountdown({
+  initialSeconds = 45,
+  onExpire,
+  lang,
+}: {
+  initialSeconds?: number;
+  onExpire?: () => void;
+  lang: string;
+}) {
+  const [secondsLeft, setSecondsLeft] = useState(initialSeconds);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setSecondsLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          if (onExpire) onExpire();
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [onExpire]);
+
+  const percentage = (secondsLeft / initialSeconds) * 100;
+  const isUrgent = secondsLeft <= 15;
+
+  return (
+    <div className="space-y-1 mb-3">
+      <div className="flex items-center justify-between text-[11px] font-bold">
+        <span className={`flex items-center gap-1.5 ${isUrgent ? "text-rose-400 animate-pulse" : "text-amber-300"}`}>
+          <Clock className="w-3.5 h-3.5" />
+          <span>{lang === "te" ? "స్పందించడానికి మిగిలిన సమయం:" : "Acceptance Window:"}</span>
+        </span>
+        <span
+          className={`font-mono text-xs px-2 py-0.5 rounded-md ${
+            isUrgent
+              ? "bg-rose-500/25 text-rose-300 font-black animate-pulse border border-rose-500/40"
+              : "bg-amber-500/20 text-amber-300 font-bold border border-amber-500/30"
+          }`}
+        >
+          {secondsLeft}s
+        </span>
+      </div>
+      <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+        <div
+          className={`h-full transition-all duration-1000 rounded-full ${
+            isUrgent ? "bg-rose-500" : secondsLeft <= 25 ? "bg-amber-500" : "bg-emerald-500"
+          }`}
+          style={{ width: `${percentage}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
 // Client-side instant camera image compressor + watermark
 async function compressAndWatermarkImage(file: File): Promise<string> {
   return new Promise((resolve) => {
@@ -179,6 +237,75 @@ export default function PartnerPortalPage() {
   // Push Notification state
   const [pushNotificationStatus, setPushNotificationStatus] = useState<"default" | "granted" | "denied" | "unsupported">("default");
   const [isEnablingPush, setIsEnablingPush] = useState(false);
+
+  // Field Device & Dispatch Performance States
+  const [batteryLevel, setBatteryLevel] = useState<number | null>(null);
+  const [isWakeLockActive, setIsWakeLockActive] = useState(false);
+  const wakeLockRef = useRef<any>(null);
+
+  // Haptic feedback trigger for tactile confirmation while riding/working
+  const triggerHaptic = useCallback((pattern: number | number[] = 40) => {
+    try {
+      if (typeof window !== "undefined" && "vibrate" in navigator) {
+        navigator.vibrate(pattern);
+      }
+    } catch {}
+  }, []);
+
+  // Screen Wake Lock controller: Keeps screen awake while on duty / active job
+  const requestWakeLock = useCallback(async () => {
+    try {
+      if (typeof navigator !== "undefined" && "wakeLock" in navigator) {
+        if (!wakeLockRef.current) {
+          wakeLockRef.current = await (navigator as any).wakeLock.request("screen");
+          setIsWakeLockActive(true);
+          wakeLockRef.current.addEventListener("release", () => {
+            wakeLockRef.current = null;
+            setIsWakeLockActive(false);
+          });
+        }
+      }
+    } catch (e) {
+      console.warn("Screen wake lock request note:", e);
+    }
+  }, []);
+
+  const releaseWakeLock = useCallback(async () => {
+    try {
+      if (wakeLockRef.current) {
+        await wakeLockRef.current.release();
+        wakeLockRef.current = null;
+        setIsWakeLockActive(false);
+      }
+    } catch {}
+  }, []);
+
+  // Sync wake lock with online status and active work
+  useEffect(() => {
+    if (isOnline || activeJob) {
+      requestWakeLock();
+    } else {
+      releaseWakeLock();
+    }
+    return () => {
+      releaseWakeLock();
+    };
+  }, [isOnline, activeJob, requestWakeLock, releaseWakeLock]);
+
+  // Battery monitoring for field technicians
+  useEffect(() => {
+    if (typeof navigator !== "undefined" && "getBattery" in (navigator as any)) {
+      (navigator as any)
+        .getBattery()
+        .then((battery: any) => {
+          setBatteryLevel(Math.round(battery.level * 100));
+          const onLevelChange = () => setBatteryLevel(Math.round(battery.level * 100));
+          battery.addEventListener("levelchange", onLevelChange);
+          return () => battery.removeEventListener("levelchange", onLevelChange);
+        })
+        .catch(() => {});
+    }
+  }, []);
 
   // Hidden native camera file inputs
   const beforeCameraInputRef = useRef<HTMLInputElement>(null);
@@ -520,6 +647,11 @@ export default function PartnerPortalPage() {
 
     const handleVisibilityOrFocus = () => {
       if (document.visibilityState === "visible") {
+        // Re-acquire screen wake lock if online or active
+        if (isOnlineRef.current || activeJob) {
+          requestWakeLock();
+        }
+
         // Partner came back to the app from home screen!
         if (pendingVoiceAlertRef.current && isOnlineRef.current) {
           const cue = lang === "te" ? pendingVoiceAlertRef.current.textTe : pendingVoiceAlertRef.current.textEn;
@@ -798,6 +930,7 @@ export default function PartnerPortalPage() {
   // Toggle Online/Offline
   const handleToggleOnline = async () => {
     if (!partner) return;
+    triggerHaptic(40);
     const nextOnline = !isOnline;
     const target = nextOnline ? "online" : "offline";
 
@@ -904,6 +1037,12 @@ export default function PartnerPortalPage() {
       if (!res.ok) {
         throw new Error(data.error || "Action failed");
       }
+
+      // Tactile haptic feedback for field technician
+      if (action === "accept") triggerHaptic([60, 40, 60]);
+      else if (action === "reach_gate") triggerHaptic(50);
+      else if (action === "start") triggerHaptic([40, 30, 40]);
+      else if (action === "complete") triggerHaptic([80, 50, 100]);
 
       const finishedJob = activeJob;
       setStatusMessage({ type: "success", text: data.message });
@@ -1647,10 +1786,27 @@ export default function PartnerPortalPage() {
 
           {/* ROW 2: QUICK ACTION UTILITY SUB-BAR */}
           <div className="flex items-center justify-between pt-1 border-t border-white/5 text-xs">
-            {/* Left: Locality Badge */}
-            <div className="flex items-center gap-1 text-[11px] text-gray-400 truncate">
-              <MapPin className="w-3 h-3 text-[#38B2AC] shrink-0" />
-              <span className="truncate">{partner.coverage_localities?.[0] || "Nellore Central"}</span>
+            {/* Left: Locality Badge, Battery & Dispatch Live Indicator */}
+            <div className="flex items-center gap-2 text-[11px] text-gray-400">
+              <div className="flex items-center gap-1 truncate">
+                <MapPin className="w-3 h-3 text-[#38B2AC] shrink-0" />
+                <span className="truncate">{partner.coverage_localities?.[0] || "Nellore Central"}</span>
+              </div>
+              <div className="flex items-center gap-1.5 shrink-0 pl-1.5 border-l border-white/10">
+                <span className="flex h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                <span className="text-[10px] text-emerald-400 font-bold">GPS Live</span>
+              </div>
+              {batteryLevel !== null && (
+                <div className="hidden sm:flex items-center gap-1 text-[10px] text-gray-400 shrink-0">
+                  <span>⚡</span>
+                  <span>{batteryLevel}%</span>
+                </div>
+              )}
+              {isWakeLockActive && (
+                <div className="hidden xs:flex items-center gap-1 text-[9px] text-emerald-400/80 bg-emerald-500/10 px-1.5 py-0.2 rounded shrink-0">
+                  <span>Screen Awake</span>
+                </div>
+              )}
             </div>
 
             {/* Right: Hotline, SOS, Reset, Logout */}
@@ -1954,22 +2110,35 @@ export default function PartnerPortalPage() {
                       </div>
                     </div>
 
+                    {/* 45-SECOND DISPATCH URGENCY COUNTDOWN */}
+                    <JobOfferCountdown
+                      initialSeconds={45}
+                      lang={lang}
+                      onExpire={() => handleJobAction("decline", job.id)}
+                    />
+
                     {/* ACCEPT / DECLINE BUTTONS */}
                     <div className="grid grid-cols-2 gap-2">
                       <button
-                        onClick={() => handleJobAction("decline", job.id)}
+                        onClick={() => {
+                          triggerHaptic(40);
+                          handleJobAction("decline", job.id);
+                        }}
                         disabled={isActionLoading}
-                        className="w-full bg-white/10 hover:bg-white/15 text-gray-300 font-semibold py-2.5 rounded-xl text-xs transition"
+                        className="w-full bg-white/10 hover:bg-white/15 text-gray-300 font-semibold py-2.5 rounded-xl text-xs transition active:scale-95"
                       >
-                        Decline
+                        {lang === "te" ? "తిరస్కరించండి" : "Decline"}
                       </button>
                       <button
-                        onClick={() => handleJobAction("accept", job.id)}
+                        onClick={() => {
+                          triggerHaptic([60, 40, 60]);
+                          handleJobAction("accept", job.id);
+                        }}
                         disabled={isActionLoading}
-                        className="w-full bg-[#E68A00] hover:bg-[#CC7A00] text-white font-extrabold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-lg shadow-[#E68A00]/25"
+                        className="w-full bg-[#E68A00] hover:bg-[#CC7A00] text-slate-950 font-black py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-lg shadow-[#E68A00]/25 active:scale-95"
                       >
-                        <CheckCircle2 className="w-4 h-4" />
-                        ACCEPT JOB
+                        <CheckCircle2 className="w-4 h-4 text-slate-950" />
+                        {lang === "te" ? "పనిని అంగీకరించండి" : "ACCEPT JOB"}
                       </button>
                     </div>
                   </div>
@@ -2744,7 +2913,7 @@ export default function PartnerPortalPage() {
                   className="w-full bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-extrabold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow cursor-pointer mt-2"
                 >
                   <Share2 className="w-4 h-4 text-emerald-400" />
-                  <span>{t.shareEodSlip}</span>
+                  <span>{lang === "te" ? "నేటి సంపాదనను వాట్సాప్‌లో పంపండి" : "Share Today's Ledger on WhatsApp"}</span>
                 </a>
               </div>
 
