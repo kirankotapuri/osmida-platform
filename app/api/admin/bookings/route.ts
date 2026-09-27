@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
 import { prontoBookingsStore } from "../../bookings/route";
 import { prontoWorkersStore } from "../../partner/register/route";
+import { globalActiveJobs } from "../../partner/jobs/route";
 
 export const runtime = "nodejs";
 
@@ -106,6 +107,19 @@ export async function PATCH(req: Request) {
             updated_at: new Date().toISOString(),
           })
           .eq("reference_id", referenceId);
+
+        // Synchronize with partner_job_assignments table for worker portal
+        await supabase
+          .from("partner_job_assignments")
+          .upsert(
+            {
+              reference_id: referenceId,
+              partner_id: workerId,
+              status: "offered",
+              assigned_at: new Date().toISOString(),
+            },
+            { onConflict: "reference_id" }
+          );
       } catch (err) {
         console.warn("DB admin assign note:", err);
       }
@@ -119,6 +133,34 @@ export async function PATCH(req: Request) {
       booking.status = "assigned";
       booking.updated_at = new Date().toISOString();
       prontoBookingsStore.set(referenceId, booking);
+    }
+
+    // Synchronize in-memory job feed for immediate partner app pickup
+    const jobKey = `job-${referenceId}`;
+    const existingJob = globalActiveJobs.get(jobKey);
+    if (existingJob) {
+      existingJob.partner_id = workerId;
+      existingJob.status = "offered";
+      globalActiveJobs.set(jobKey, existingJob);
+    } else if (booking) {
+      globalActiveJobs.set(jobKey, {
+        id: jobKey,
+        reference_id: referenceId,
+        partner_id: workerId,
+        status: "offered",
+        service_name: booking.selected_service || "Residential Help",
+        customer_name: booking.customer_name || "Customer",
+        customer_phone: booking.phone || "",
+        customer_address: booking.site_address || booking.locality || "Nellore",
+        locality: booking.locality || "Nellore",
+        date: booking.inspection_date || new Date().toISOString().split("T")[0],
+        time_slot: booking.time_slot || "Today",
+        total_amount: booking.total_amount || 199,
+        payout_amount: Math.round((booking.total_amount || 199) * 0.7),
+        start_otp: booking.otp_start || "1234",
+        end_otp: booking.otp_end || "5678",
+        offered_at: new Date().toISOString(),
+      } as any);
     }
 
     return NextResponse.json({
