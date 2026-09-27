@@ -59,10 +59,19 @@ export function CustomerLoginModal({
   const [showPassword, setShowPassword] = useState(false);
   const [emailFlow, setEmailFlow] = useState<"otp_request" | "otp_verify" | "password_login" | "forgot_password">("otp_request");
 
-  // Phone states
+  // Phone states (WhatsApp OTP)
   const [phone, setPhone] = useState("");
   const [phoneOtp, setPhoneOtp] = useState("");
   const [phoneStep, setPhoneStep] = useState<"phone" | "otp">("phone");
+  const [customerName, setCustomerName] = useState("");
+  const [resendCountdown, setResendCountdown] = useState(0);
+
+  useEffect(() => {
+    if (resendCountdown > 0) {
+      const timer = setTimeout(() => setResendCountdown((c) => c - 1), 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendCountdown]);
 
   // UI state
   const [isLoading, setIsLoading] = useState(false);
@@ -334,40 +343,42 @@ export function CustomerLoginModal({
   };
 
   // ----------------------------------------------------------------
-  // WHATSAPP MOBILE OTP DISPATCH
+  // WHATSAPP MOBILE OTP DISPATCH (REAL-TIME VIA WHATSAPP CLOUD API)
   // ----------------------------------------------------------------
-  const handleSendPhoneOtp = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSendPhoneOtp = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     setErrorMsg("");
     setInfoMsg("");
     setSuggestedCode(null);
 
     const cleanPhone = phone.replace(/\D/g, "").slice(-10);
     if (!cleanPhone || cleanPhone.length !== 10) {
-      setErrorMsg("Please enter a valid 10-digit mobile number.");
+      setErrorMsg("Please enter a valid 10-digit Indian mobile number.");
       return;
     }
 
     setIsLoading(true);
     try {
-      const res = await fetch("/api/customer/bookings", {
+      const res = await fetch("/api/customer/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: cleanPhone, action: "send_otp" }),
+        body: JSON.stringify({
+          action: "send_whatsapp_otp",
+          phone: cleanPhone,
+          name: customerName.trim() || undefined,
+        }),
       });
       const data = await res.json();
       if (data.success) {
         setPhoneStep("otp");
+        setResendCountdown(30);
         if (data.demoCode) {
           setSuggestedCode(data.demoCode);
           setPhoneOtp(data.demoCode);
-        } else {
-          setSuggestedCode("1234");
-          setPhoneOtp("1234");
         }
-        setInfoMsg(data.message || "OTP sent! Enter 1234 to log in.");
+        setInfoMsg(data.message || `Verification code sent to WhatsApp +91 ${cleanPhone}`);
       } else {
-        setErrorMsg(data.error || "Failed to send verification code.");
+        setErrorMsg(data.error || "Failed to send WhatsApp verification code. Please check the number.");
       }
     } catch {
       setErrorMsg("Network connection error. Please try again.");
@@ -377,14 +388,15 @@ export function CustomerLoginModal({
   };
 
   // ----------------------------------------------------------------
-  // WHATSAPP MOBILE OTP VERIFY
+  // WHATSAPP MOBILE OTP VERIFY & SIGN IN / SIGN UP
   // ----------------------------------------------------------------
   const handleVerifyPhoneOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
 
-    if (!phoneOtp.trim()) {
-      setErrorMsg("Please enter the 4-digit code.");
+    const cleanOtp = phoneOtp.trim();
+    if (!cleanOtp) {
+      setErrorMsg("Please enter the verification code received on WhatsApp.");
       return;
     }
 
@@ -392,10 +404,15 @@ export function CustomerLoginModal({
     setIsLoading(true);
 
     try {
-      const res = await fetch("/api/customer/bookings", {
+      const res = await fetch("/api/customer/auth", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ phone: cleanPhone, otp: phoneOtp.trim() }),
+        body: JSON.stringify({
+          action: "verify_whatsapp_otp",
+          phone: cleanPhone,
+          otp: cleanOtp,
+          name: customerName.trim() || undefined,
+        }),
       });
       const data = await res.json();
 
@@ -407,16 +424,19 @@ export function CustomerLoginModal({
             if (data.profile.name) {
               localStorage.setItem("osmida_customer_name", data.profile.name);
             }
+            if (data.profile.email) {
+              localStorage.setItem("osmida_customer_email", data.profile.email);
+            }
           }
           window.dispatchEvent(new CustomEvent("osmida_auth_change", { detail: data.profile || { phone: cleanPhone } }));
         }
         onLoginSuccess(data.profile || { phone: cleanPhone });
         onClose();
       } else {
-        setErrorMsg(data.error || "Invalid OTP code. Please try again.");
+        setErrorMsg(data.error || "Invalid OTP code. Please check your WhatsApp messages.");
       }
     } catch {
-      setErrorMsg("Failed to connect to Osmida server.");
+      setErrorMsg("Failed to connect to Osmida server. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -828,7 +848,7 @@ export function CustomerLoginModal({
         )}
 
         {/* ------------------------------------------------------------- */}
-        {/* WHATSAPP PHONE AUTH FORMS */}
+        {/* WHATSAPP PHONE AUTH FORMS (LOGIN & SIGNUP VIA WHATSAPP CODE) */}
         {/* ------------------------------------------------------------- */}
         {authMethod === "phone" && (
           <div className="space-y-3">
@@ -836,7 +856,25 @@ export function CustomerLoginModal({
               <form onSubmit={handleSendPhoneOtp} className="space-y-3">
                 <div>
                   <label className="block text-[11px] font-bold text-slate-700 mb-1">
-                    WhatsApp Phone Number
+                    Your Name <span className="text-[10px] font-normal text-slate-400">(Optional for new signup)</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+                      <User className="h-4 w-4" />
+                    </span>
+                    <input
+                      type="text"
+                      placeholder="e.g. Ramesh Reddy"
+                      value={customerName}
+                      onChange={(e) => setCustomerName(e.target.value)}
+                      className="w-full rounded-xl border border-slate-300 pl-10 pr-3.5 py-2.5 text-xs font-medium text-slate-900 focus:border-[#0C6266] focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold text-slate-700 mb-1">
+                    WhatsApp Mobile Number
                   </label>
                   <div className="relative">
                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500">
@@ -850,23 +888,25 @@ export function CustomerLoginModal({
                       onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))}
                       className="w-full rounded-xl border border-slate-300 pl-11 pr-3.5 py-2.5 text-xs font-bold text-slate-900 focus:border-[#0C6266] focus:outline-none"
                       required
+                      autoFocus
                     />
                   </div>
-                  <p className="text-[10px] text-slate-400 mt-1">
-                    We will send a 4-digit verification code to your WhatsApp.
+                  <p className="text-[10px] text-emerald-700 font-medium mt-1 flex items-center gap-1">
+                    <CheckCircle2 className="h-3 w-3 text-emerald-600 shrink-0" />
+                    <span>Instant 6-digit code delivered to your WhatsApp • No SMS delays</span>
                   </p>
                 </div>
 
                 <button
                   type="submit"
                   disabled={isLoading || phone.length < 10}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 py-2.5 text-xs font-black transition-all disabled:opacity-50 shadow-sm cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 py-2.5 text-xs font-black transition-all disabled:opacity-50 shadow-sm cursor-pointer active:scale-98"
                 >
                   {isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin text-slate-900" />
                   ) : (
                     <>
-                      <span>Send WhatsApp Verification Code</span>
+                      <span>Get WhatsApp Verification Code</span>
                       <ArrowRight className="h-4 w-4" />
                     </>
                   )}
@@ -874,7 +914,7 @@ export function CustomerLoginModal({
 
                 <div className="pt-1 text-center">
                   <a
-                    href="https://wa.me/917676358162?text=Hello%20Osmida,%20please%20verify%20my%20login."
+                    href="https://wa.me/917676358162?text=Hello%20Osmida,%20I%20am%20signing%20in%20to%20the%20Resident%20Portal."
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 text-[11px] font-bold text-emerald-800 hover:text-emerald-950"
@@ -886,46 +926,56 @@ export function CustomerLoginModal({
             ) : (
               <form onSubmit={handleVerifyPhoneOtp} className="space-y-3">
                 <div className="text-center space-y-1">
-                  <h4 className="text-xs font-bold text-slate-800">Enter 4-Digit WhatsApp Code</h4>
+                  <h4 className="text-xs font-bold text-slate-800">Enter 6-Digit WhatsApp Code</h4>
                   <p className="text-[11px] text-slate-500">Sent to WhatsApp +91 {phone}</p>
                 </div>
 
                 <div>
                   <input
                     type="text"
-                    maxLength={4}
-                    placeholder="••••"
+                    maxLength={6}
+                    placeholder="••••••"
                     value={phoneOtp}
                     onChange={(e) => setPhoneOtp(e.target.value.replace(/\D/g, ""))}
-                    className="w-full text-center tracking-widest text-xl font-mono font-black rounded-xl border border-slate-300 py-2.5 text-slate-900 focus:border-[#0C6266] focus:outline-none"
+                    className="w-full text-center tracking-widest text-2xl font-mono font-black rounded-xl border border-slate-300 py-2.5 text-slate-900 focus:border-[#0C6266] focus:outline-none"
                     autoFocus
                     required
                   />
                 </div>
 
-                <div className="flex items-center gap-2">
+                <div className="flex items-center justify-between text-xs px-1">
                   <button
                     type="button"
                     onClick={() => setPhoneStep("phone")}
-                    className="w-1/3 rounded-xl border border-slate-300 py-2 text-xs font-bold text-slate-700 hover:bg-slate-50"
+                    className="text-[11px] font-bold text-slate-500 hover:text-slate-800"
                   >
-                    Change
+                    ← Change Number
                   </button>
+
                   <button
-                    type="submit"
-                    disabled={isLoading || phoneOtp.length !== 4}
-                    className="w-2/3 flex items-center justify-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 py-2 text-xs font-black transition-all disabled:opacity-50 shadow-sm cursor-pointer"
+                    type="button"
+                    disabled={resendCountdown > 0 || isLoading}
+                    onClick={() => handleSendPhoneOtp()}
+                    className="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 disabled:text-slate-400 cursor-pointer"
                   >
-                    {isLoading ? (
-                      <Loader2 className="h-4 w-4 animate-spin text-slate-900" />
-                    ) : (
-                      <>
-                        <span>Verify &amp; Log In</span>
-                        <CheckCircle2 className="h-4 w-4" />
-                      </>
-                    )}
+                    {resendCountdown > 0 ? `Resend code in ${resendCountdown}s` : "Resend WhatsApp Code"}
                   </button>
                 </div>
+
+                <button
+                  type="submit"
+                  disabled={isLoading || phoneOtp.length < 4}
+                  className="w-full flex items-center justify-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#20bd5a] text-slate-950 py-2.5 text-xs font-black transition-all disabled:opacity-50 shadow-sm cursor-pointer active:scale-98"
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin text-slate-900" />
+                  ) : (
+                    <>
+                      <span>Verify &amp; Continue</span>
+                      <CheckCircle2 className="h-4 w-4" />
+                    </>
+                  )}
+                </button>
               </form>
             )}
           </div>

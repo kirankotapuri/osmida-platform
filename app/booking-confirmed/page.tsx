@@ -3,7 +3,7 @@
 import React, { Suspense, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { Header } from "@/components/Header";
+import { OsmidaHeader } from "@/components/OsmidaHeader";
 import { FloatingContactBar } from "@/components/FloatingContactBar";
 import { Language } from "@/lib/translations";
 import { Phone, ArrowLeft } from "lucide-react";
@@ -68,7 +68,7 @@ function ConfirmationInner() {
   return (
     <main className="min-h-screen bg-[#F7F8FA] text-[#111111] pt-16 lg:pt-20 pb-20 lg:pb-16 flex flex-col justify-between">
       {/* 1. FIXED HEADER */}
-      <Header lang={lang} onLanguageChange={setLang} />
+      <OsmidaHeader />
 
       {/* 2. CONFIRMATION CONTAINER */}
       <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 py-8 sm:py-10 lg:py-12">
