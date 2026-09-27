@@ -132,13 +132,17 @@ export function OsmidaFooter() {
                   <span>support@osmida.com</span>
                 </a>
               </li>
-              <li className="pt-1">
+              <li className="pt-2 border-t border-[#0C4144]">
                 <Link
                   href="/partner"
-                  className="inline-flex items-center gap-1 text-[11px] font-bold text-[#38B2AC] hover:underline"
+                  className="inline-flex items-center gap-1.5 text-xs font-bold text-[#E68A00] hover:text-amber-300 transition-colors"
+                  title="Osmida Partner Portal - Join as Helper or Cleaner in Nellore"
                 >
-                  <span>👷 Partner / Worker Login ↗</span>
+                  <span>👷 Osmida Partner Portal &amp; Jobs (ఉద్యోగాలు) ↗</span>
                 </Link>
+                <p className="text-[10px] text-slate-400 mt-0.5">
+                  Earn daily with 70% share &bull; Nellore Dispatch
+                </p>
               </li>
             </ul>
           </div>

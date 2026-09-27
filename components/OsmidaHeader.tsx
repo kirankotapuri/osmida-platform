@@ -311,6 +311,15 @@ export function OsmidaHeader() {
           >
             FAQs
           </button>
+          <Link
+            href="/partner"
+            className="hover:text-[#0C6266] transition-colors whitespace-nowrap py-1 flex items-center gap-1.5 text-[#0C6266] font-extrabold"
+          >
+            <span>Partner Portal</span>
+            <span className="text-[9px] font-black uppercase bg-[#E68A00] text-slate-950 px-1.5 py-0.2 rounded-full">
+              Jobs
+            </span>
+          </Link>
         </nav>
 
         {/* Right: Actions */}
@@ -585,6 +594,31 @@ export function OsmidaHeader() {
                 </div>
               </div>
               <ArrowRight className="h-4 w-4 text-[#475559] group-hover:text-[#0C6266] transition shrink-0" />
+            </Link>
+
+            {/* Join as Osmida Partner / Jobs */}
+            <Link
+              href="/partner"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center justify-between p-3 rounded-2xl bg-[#0C6266]/10 border border-[#0C6266]/30 hover:border-[#0C6266] transition group"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-[#0C6266] text-white flex items-center justify-center font-bold shrink-0 shadow-xs">
+                  <ShieldCheck className="w-4 h-4 text-emerald-300" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-xs font-bold text-[#0F171A] group-hover:text-[#0C6266] transition">
+                      Osmida Partner Portal &amp; Jobs
+                    </p>
+                    <span className="text-[9px] font-black uppercase bg-[#E68A00] text-slate-950 px-1.5 py-0.2 rounded-full">
+                      Jobs
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-[#475559]">Earn daily • 70% share • Nellore Dispatch</p>
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-[#0C6266] group-hover:translate-x-0.5 transition shrink-0" />
             </Link>
 
             {/* Install Osmida App Trigger */}
