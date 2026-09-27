@@ -176,6 +176,10 @@ export default function PartnerPortalPage() {
   const [elapsedSeconds, setElapsedSeconds] = useState<number>(0);
   const [isAtGateReported, setIsAtGateReported] = useState<boolean>(false);
 
+  // Push Notification state
+  const [pushNotificationStatus, setPushNotificationStatus] = useState<"default" | "granted" | "denied" | "unsupported">("default");
+  const [isEnablingPush, setIsEnablingPush] = useState(false);
+
   // Hidden native camera file inputs
   const beforeCameraInputRef = useRef<HTMLInputElement>(null);
   const afterCameraInputRef = useRef<HTMLInputElement>(null);
@@ -340,6 +344,13 @@ export default function PartnerPortalPage() {
         const parsed = JSON.parse(saved);
         setPartner(parsed);
         setIsOnline(parsed.status !== "offline");
+      }
+      if (typeof window !== "undefined") {
+        if (!("Notification" in window)) {
+          setPushNotificationStatus("unsupported");
+        } else {
+          setPushNotificationStatus(Notification.permission as any);
+        }
       }
     } catch {} finally {
       setTimeout(() => setIsAppLoading(false), 250);
@@ -1552,50 +1563,122 @@ export default function PartnerPortalPage() {
         </div>
 
         {/* WEB PUSH / FCM SUBSCRIPTION CONTROLS */}
-        <div className="bg-[#121826] border border-white/10 rounded-2xl p-3 flex items-center justify-between gap-3">
+        <div className="bg-[#121826] border border-white/10 rounded-2xl p-3 flex items-center justify-between gap-3 shadow-sm">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-purple-500/20 text-purple-400 flex items-center justify-center">
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+              pushNotificationStatus === "granted"
+                ? "bg-emerald-500/20 text-emerald-400"
+                : pushNotificationStatus === "denied"
+                ? "bg-rose-500/20 text-rose-400"
+                : "bg-purple-500/20 text-purple-400"
+            }`}>
               <Bell className="w-4 h-4" />
             </div>
             <div>
-              <p className="text-xs font-bold text-white">Background Push (FCM / Web Push)</p>
-              <p className="text-[10px] text-gray-400">Receive alerts even when screen is locked</p>
+              <div className="flex items-center gap-1.5">
+                <p className="text-xs font-bold text-white">Background Push Notifications</p>
+                {pushNotificationStatus === "granted" && (
+                  <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full text-[9px] font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                    <Check className="w-2.5 h-2.5" /> Active
+                  </span>
+                )}
+              </div>
+              <p className="text-[10px] text-gray-400">
+                {pushNotificationStatus === "granted"
+                  ? "Alerts sound even when device screen is locked"
+                  : pushNotificationStatus === "denied"
+                  ? "Blocked in browser permissions. Tap to fix."
+                  : "Tap to enable instant job notifications"}
+              </p>
             </div>
           </div>
-          <button
-            type="button"
-            onClick={async () => {
-              if (typeof window === "undefined" || !("Notification" in window)) {
-                alert("Push notifications are not supported on this browser.");
-                return;
-              }
-              try {
-                const perm = await Notification.requestPermission();
-                if (perm === "granted" && "serviceWorker" in navigator && partner) {
-                  const reg = await navigator.serviceWorker.ready;
-                  let sub = await reg.pushManager.getSubscription();
-                  if (!sub) {
-                    try {
-                      sub = await reg.pushManager.subscribe({ userVisibleOnly: true });
-                    } catch {}
-                  }
-                  await fetch("/api/partner/push-token", {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({ partnerId: partner.id, subscription: sub }),
+          {pushNotificationStatus === "granted" ? (
+            <button
+              type="button"
+              onClick={() => {
+                try {
+                  new Notification("Osmida Dispatch Test", {
+                    body: "Alerts are active! You will receive instant notifications for new bookings in Nellore.",
+                    icon: "/icons/partner-icon-192x192.png",
                   });
-                  setStatusMessage({ type: "success", text: "Background job notifications enabled successfully!" });
-                } else {
-                  alert("Notification permission was not granted.");
+                  playJobAlertBuzzer();
+                  setStatusMessage({ type: "success", text: "Test notification sent successfully!" });
+                } catch {
+                  playJobAlertBuzzer();
                 }
-              } catch (err: any) {
-                console.warn("Push error:", err);
-              }
-            }}
-            className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#0C6266] hover:bg-[#094e51] text-white transition flex items-center gap-1.5 shadow"
-          >
-            Enable Push
-          </button>
+              }}
+              className="px-2.5 py-1.5 rounded-xl text-[11px] font-bold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 transition shrink-0"
+            >
+              Test Alert
+            </button>
+          ) : (
+            <button
+              type="button"
+              disabled={isEnablingPush}
+              onClick={async () => {
+                if (typeof window === "undefined" || !("Notification" in window)) {
+                  alert("Push notifications are not supported in this browser window. On iPhone Safari, tap Share > 'Add to Home Screen' to unlock push notifications.");
+                  return;
+                }
+                if (Notification.permission === "denied") {
+                  alert("Notifications are currently blocked.\n\nTo enable:\n1. Tap the lock/tune icon next to the URL.\n2. Tap 'Permissions' or 'Site Settings'.\n3. Set 'Notifications' to 'Allow'.\n4. Reload this page.");
+                  return;
+                }
+                setIsEnablingPush(true);
+                try {
+                  const perm = await Notification.requestPermission();
+                  setPushNotificationStatus(perm as any);
+                  if (perm === "granted") {
+                    playJobAlertBuzzer();
+                    let sub: PushSubscription | null = null;
+                    if ("serviceWorker" in navigator) {
+                      try {
+                        const reg = await Promise.race([
+                          navigator.serviceWorker.ready,
+                          new Promise<null>((_, reject) => setTimeout(() => reject(new Error("timeout")), 3000)),
+                        ]).catch(() => null) as ServiceWorkerRegistration | null;
+                        if (reg && reg.pushManager) {
+                          sub = await reg.pushManager.getSubscription();
+                          if (!sub) {
+                            sub = await reg.pushManager.subscribe({ userVisibleOnly: true }).catch(() => null);
+                          }
+                        }
+                      } catch (swErr) {
+                        console.warn("SW Push note:", swErr);
+                      }
+                    }
+                    if (partner) {
+                      await fetch("/api/partner/push-token", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ partnerId: partner.id, subscription: sub }),
+                      }).catch(() => null);
+                    }
+                    try {
+                      new Notification("Osmida Partner Dispatch Active", {
+                        body: "Nellore job dispatch alerts are now active on your device.",
+                        icon: "/icons/partner-icon-192x192.png",
+                      });
+                    } catch {}
+                    setStatusMessage({ type: "success", text: "Background notifications enabled successfully!" });
+                  } else {
+                    setStatusMessage({ type: "error", text: "Notification permission was not granted." });
+                  }
+                } catch (err: any) {
+                  console.warn("Push error:", err);
+                } finally {
+                  setIsEnablingPush(false);
+                }
+              }}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 shadow shrink-0 ${
+                pushNotificationStatus === "denied"
+                  ? "bg-rose-600/80 hover:bg-rose-600 text-white"
+                  : "bg-[#0C6266] hover:bg-[#094e51] text-white"
+              }`}
+            >
+              {isEnablingPush ? "Enabling..." : pushNotificationStatus === "denied" ? "Fix Settings" : "Enable Push"}
+            </button>
+          )}
         </div>
 
         {/* PLATFORM NOTICE & IOS FALLBACK GUIDANCE */}

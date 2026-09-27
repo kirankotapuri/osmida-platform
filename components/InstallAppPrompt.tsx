@@ -48,10 +48,23 @@ export function InstallAppPrompt() {
     const isAppleDevice = /iphone|ipad|ipod/.test(userAgent);
     setIsIOS(isAppleDevice);
 
+    // Pick up early captured prompt if available
+    if (typeof window !== "undefined" && (window as any).__osmida_install_prompt) {
+      setDeferredPrompt((window as any).__osmida_install_prompt);
+    }
+
+    const handlePromptReady = () => {
+      if (typeof window !== "undefined" && (window as any).__osmida_install_prompt) {
+        setDeferredPrompt((window as any).__osmida_install_prompt);
+      }
+    };
+    window.addEventListener("osmida_install_prompt_ready", handlePromptReady);
+
     // Handle Android / Chrome / Edge / Samsung Internet install prompt event
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
+      (window as any).__osmida_install_prompt = e;
     };
 
     window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
@@ -59,9 +72,12 @@ export function InstallAppPrompt() {
     // Listen for custom trigger event from anywhere in the app
     const handleTriggerInstall = () => {
       setIsMinimized(false);
+      const activePrompt = deferredPrompt || (window as any).__osmida_install_prompt;
       if (isAppleDevice) {
         setShowIOSModal(true);
-      } else if (!deferredPrompt) {
+      } else if (activePrompt) {
+        activePrompt.prompt();
+      } else {
         setShowAndroidModal(true);
       }
     };
@@ -69,6 +85,7 @@ export function InstallAppPrompt() {
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.removeEventListener("osmida_install_prompt_ready", handlePromptReady);
       window.removeEventListener("osmida_trigger_install", handleTriggerInstall);
     };
   }, [deferredPrompt]);
@@ -79,20 +96,28 @@ export function InstallAppPrompt() {
       return;
     }
 
-    if (deferredPrompt) {
+    const activePrompt =
+      deferredPrompt || (typeof window !== "undefined" ? (window as any).__osmida_install_prompt : null);
+
+    if (activePrompt) {
       try {
-        deferredPrompt.prompt();
-        const { outcome } = await deferredPrompt.userChoice;
+        activePrompt.prompt();
+        const { outcome } = await activePrompt.userChoice;
         if (outcome === "accepted") {
           setDeferredPrompt(null);
+          if (typeof window !== "undefined") {
+            (window as any).__osmida_install_prompt = null;
+          }
           setIsMinimized(true);
         }
-      } catch {
-        setShowAndroidModal(true);
+        return;
+      } catch (promptErr) {
+        console.warn("Direct install prompt exception:", promptErr);
       }
-    } else {
-      setShowAndroidModal(true);
     }
+
+    // Only if browser blocked programmatic prompt, show manual steps
+    setShowAndroidModal(true);
   };
 
   // If already opened as an installed standalone app from homescreen, don't show prompt
@@ -103,7 +128,7 @@ export function InstallAppPrompt() {
   const appSubtitle = isPartnerPortal
     ? "Add to home screen for 1-tap worker jobs & payouts"
     : "Add to home screen for fast 1-tap Nellore bookings";
-  const appIcon = "/icons/icon-192x192.png";
+  const appIcon = isPartnerPortal ? "/icons/partner-icon-192x192.png" : "/icons/icon-192x192.png";
 
   return (
     <>

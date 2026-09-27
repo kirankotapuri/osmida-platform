@@ -19,6 +19,18 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://osmida.com/partner",
   },
+  manifest: "/worker-manifest.json",
+  icons: {
+    icon: [
+      { url: "/icons/partner-icon-32x32.png", sizes: "32x32", type: "image/png" },
+      { url: "/icons/partner-icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/partner-icon-512x512.png", sizes: "512x512", type: "image/png" },
+      { url: "/icons/partner-icon.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/icons/partner-apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
+  },
   openGraph: {
     title: "Osmida Partner Portal | Join as Service Partner in Nellore",
     description:
@@ -33,6 +45,14 @@ export const metadata: Metadata = {
     title: "Osmida Partner Portal | Nellore Worker Dispatch",
     description: "Earn daily with Osmida Nellore. 70% payout share, daily 9 PM UPI settlements.",
   },
+};
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+  viewportFit: "cover" as const,
+  themeColor: "#0E131F",
 };
 
 export default function PartnerLayout({

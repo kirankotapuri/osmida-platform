@@ -1,0 +1,8 @@
+<svg width="512" height="512" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
+  <!-- Night Slate (#0E131F) Background -->
+  <rect width="512" height="512" rx="112.64" fill="#0E131F" />
+  <!-- Identical White Ring 'O' -->
+  <circle cx="256" cy="271.36" r="133.12" fill="none" stroke="#FFFFFF" stroke-width="40.96" />
+  <!-- Identical Amber/Orange Roof Triangle -->
+  <polygon points="256,56.32000000000001 122.88,168.96 389.12,168.96" fill="#E68A00" />
+</svg>
