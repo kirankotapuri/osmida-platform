@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import {
   SERVICES_DATA,
   NELLORE_AREAS,
@@ -74,6 +75,27 @@ export function NelloreBookingFlow({
   const [errorMessage, setErrorMessage] = useState("");
   const [referenceId, setReferenceId] = useState("");
 
+  // Auto-fill customer details from past session or WhatsApp login
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const savedPhone = localStorage.getItem("osmida_customer_phone");
+      const savedName = localStorage.getItem("osmida_customer_name");
+      const savedLoc = localStorage.getItem("osmida_selected_locality");
+      const profStr = localStorage.getItem("osmida_customer_profile");
+      if (savedPhone) setPhone(savedPhone);
+      if (savedName) setName(savedName);
+      if (savedLoc) setLocality(savedLoc);
+      if (profStr) {
+        try {
+          const prof = JSON.parse(profStr);
+          if (prof.name && !savedName) setName(prof.name);
+          if (prof.phone && !savedPhone) setPhone(prof.phone);
+          if (prof.locality && !savedLoc) setLocality(prof.locality);
+          if (prof.address && !notes) setNotes(`Address: ${prof.address}`);
+        } catch {}
+      }
+    }
+  }, []);
 
   const handleSelectService = (service: ServiceDefinition) => {
     setSelectedService(service);
@@ -148,10 +170,26 @@ export function NelloreBookingFlow({
       }
 
       setReferenceId(generatedRef);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("osmida_customer_phone", cleanPhone);
+        localStorage.setItem("osmida_customer_name", name.trim());
+        localStorage.setItem("osmida_selected_locality", locality);
+        localStorage.setItem("osmida_last_booking_ref", generatedRef);
+        localStorage.setItem("osmida_active_bookings_count", "1");
+        window.dispatchEvent(new Event("osmida_booking_change"));
+      }
       setCurrentStep(4); // Confirmation
     } catch (err: any) {
       console.error("Booking submission handled:", err);
       setReferenceId(generatedRef);
+      if (typeof window !== "undefined") {
+        localStorage.setItem("osmida_customer_phone", cleanPhone);
+        localStorage.setItem("osmida_customer_name", name.trim());
+        localStorage.setItem("osmida_selected_locality", locality);
+        localStorage.setItem("osmida_last_booking_ref", generatedRef);
+        localStorage.setItem("osmida_active_bookings_count", "1");
+        window.dispatchEvent(new Event("osmida_booking_change"));
+      }
       setCurrentStep(4);
     } finally {
       setIsSubmitting(false);
@@ -707,6 +745,13 @@ export function NelloreBookingFlow({
 
             {/* Action Buttons */}
             <div className="space-y-2.5">
+              <Link
+                href="/my-bookings"
+                className="w-full flex items-center justify-center gap-2 rounded-2xl bg-[#0C6266] hover:bg-[#094E51] py-3.5 text-xs font-black text-white transition-all shadow-md active:scale-[0.97]"
+              >
+                <Clock className="h-4 w-4 animate-pulse" />
+                <span>{lang === "te" ? "లైవ్ పార్టనర్ స్టేటస్ & OTP చూడండి" : "Track Partner Live & View Start OTP"}</span>
+              </Link>
               <button
                 type="button"
                 onClick={openWhatsAppConfirmation}

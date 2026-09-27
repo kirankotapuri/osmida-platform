@@ -6,7 +6,7 @@ import { useSearchParams } from "next/navigation";
 import { OsmidaHeader } from "@/components/OsmidaHeader";
 import { FloatingContactBar } from "@/components/FloatingContactBar";
 import { Language } from "@/lib/translations";
-import { Phone, ArrowLeft } from "lucide-react";
+import { Phone, ArrowLeft, Clock, Share2 } from "lucide-react";
 
 function ConfirmationInner() {
   const searchParams = useSearchParams();
@@ -64,6 +64,18 @@ function ConfirmationInner() {
       : `Namaskaram Osmida! My booking reference: ${refId}\n• Service: ${displayService}\n• Locality: ${locality}\n• Preferred Time: ${displayDateTime}\n\nPlease call me to confirm my appointment.`
   );
   const whatsappUrl = `https://wa.me/917676358162?text=${whatsappText}`;
+
+  // WhatsApp share URL to forward booking details to family members at home
+  const shareFamilyText = encodeURIComponent(
+    `*Osmida Service Booking Confirmed (Nellore)*\n\n` +
+      `📋 *Booking Ref:* ${refId}\n` +
+      `🛠️ *Service:* ${displayService}\n` +
+      `📍 *Location:* ${locality}, Nellore\n` +
+      `🕒 *Time Slot:* ${displayDateTime}\n` +
+      `💰 *Payment:* Pay after service inspection via UPI / Cash\n\n` +
+      `Track technician live: https://osmida.com/my-bookings`
+  );
+  const shareFamilyUrl = `https://wa.me/?text=${shareFamilyText}`;
 
   return (
     <main className="min-h-screen bg-[#F7F8FA] text-[#111111] pt-16 lg:pt-20 pb-20 lg:pb-16 flex flex-col justify-between">
@@ -152,33 +164,39 @@ function ConfirmationInner() {
             </div>
           </div>
 
-          {/* 8. ACTION BUTTONS (CALL / WHATSAPP) */}
+          {/* PRIMARY QUICK-COMMERCE TRACKING BUTTON */}
+          <div className="mb-4">
+            <Link
+              href="/my-bookings"
+              className="w-full h-[52px] sm:h-[56px] px-6 rounded-xl bg-[#0C6266] hover:bg-[#094E51] text-white font-bold text-[15px] sm:text-[16px] flex items-center justify-center gap-2.5 transition-all duration-150 active:scale-[0.98] shadow-md shadow-[#0C6266]/20"
+            >
+              <Clock className="h-5 w-5 text-white animate-pulse" />
+              <span>{lang === "te" ? "లైవ్ పార్టనర్ స్టేటస్ & OTP చూడండి" : "Track Service Partner Live"}</span>
+            </Link>
+          </div>
+
+          {/* 8. ACTION BUTTONS (SHARE WITH FAMILY / HELPLINE CALL) */}
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-5">
-            {/* Button 1 – Call Now */}
+            {/* Button 1 – Share with Family */}
+            <a
+              href={shareFamilyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Share Booking on WhatsApp"
+              className="flex-1 h-[48px] sm:h-[52px] px-4 rounded-xl bg-[#25D366] hover:bg-[#1FA851] text-white font-semibold text-[14px] sm:text-[15px] flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] shadow-sm"
+            >
+              <Share2 className="h-4 w-4 text-white" />
+              <span>{lang === "te" ? "కుటుంబానికి షేర్ చేయండి" : "Share on WhatsApp"}</span>
+            </a>
+
+            {/* Button 2 – Helpline Call */}
             <a
               href="tel:+917676358162"
               aria-label="Call Now button"
-              className="flex-1 h-[52px] sm:h-[56px] px-6 rounded-xl bg-[#0B0B0F] hover:bg-[#15151A] text-white font-semibold text-[15px] sm:text-[16px] flex items-center justify-center gap-2.5 transition-all duration-150 active:scale-[0.98] shadow-sm"
+              className="flex-1 h-[48px] sm:h-[52px] px-4 rounded-xl bg-[#0B0B0F] hover:bg-[#15151A] text-white font-semibold text-[14px] sm:text-[15px] flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] shadow-sm"
             >
-              <Phone className="h-5 w-5 text-white" />
-              <span>{lang === "te" ? "ఇప్పుడు కాల్ చేయండి" : "Call Now"}</span>
-            </a>
-
-            {/* Button 2 – WhatsApp Us */}
-            <a
-              href={whatsappUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label="WhatsApp Us button"
-              className="flex-1 h-[52px] sm:h-[56px] px-6 rounded-xl bg-[#25D366] hover:bg-[#1FA851] text-white font-semibold text-[15px] sm:text-[16px] flex items-center justify-center gap-2.5 transition-all duration-150 active:scale-[0.98] shadow-sm"
-            >
-              <svg
-                className="h-5 w-5 fill-current text-white"
-                viewBox="0 0 24 24"
-              >
-                <path d="M12.031 2C6.502 2 2.012 6.49 2.012 12.019c0 1.91.536 3.693 1.464 5.225L2 22l4.908-1.428a10.007 10.007 0 0 0 5.123 1.447h.005c5.529 0 10.019-4.49 10.019-10.019 0-2.677-1.042-5.194-2.936-7.088A9.957 9.957 0 0 0 12.031 2zm5.836 14.285c-.244.686-1.424 1.31-1.956 1.393-.497.078-1.127.112-3.32-.795-2.684-1.11-4.408-3.83-4.542-4.009-.133-.18-1.084-1.441-1.084-2.748 0-1.306.685-1.948.928-2.214.244-.265.532-.332.709-.332.177 0 .354.002.509.01.164.009.387-.062.604.46.222.531.753 1.838.819 1.972.067.133.111.288.022.466-.089.177-.133.288-.266.443-.133.155-.28.347-.399.466-.133.133-.272.277-.117.543.155.266.69 1.137 1.482 1.841 1.018.907 1.877 1.189 2.143 1.321.266.133.421.111.576-.066.155-.178.665-.776.842-1.042.177-.266.354-.222.598-.133.244.089 1.549.731 1.815.864.266.133.443.2.51.31.066.111.066.643-.178 1.329z" />
-              </svg>
-              <span>{lang === "te" ? "వాట్సాప్ చేయండి" : "WhatsApp Us"}</span>
+              <Phone className="h-4 w-4 text-white" />
+              <span>{lang === "te" ? "హెల్ప్‌లైన్ కాల్" : "Call Helpline"}</span>
             </a>
           </div>
 

@@ -1,13 +1,13 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Language } from "@/lib/translations";
 import {
   Home,
   LayoutGrid,
-  PlayCircle,
+  ClipboardList,
   CalendarCheck,
 } from "lucide-react";
 
@@ -22,17 +22,37 @@ export function MobileBottomNav({
 }: MobileBottomNavProps) {
   const pathname = usePathname();
   const isHomePage = pathname === "/";
+  const [hasActiveBooking, setHasActiveBooking] = useState(false);
+  const [activeBookingCount, setActiveBookingCount] = useState(0);
 
-  const handleVideoScroll = () => {
-    if (isHomePage) {
-      const el = document.getElementById("how-to-book-video");
-      if (el) {
-        el.scrollIntoView({ behavior: "smooth" });
-        return;
+  useEffect(() => {
+    const checkBookings = () => {
+      if (typeof window !== "undefined") {
+        const countStr = localStorage.getItem("osmida_active_bookings_count");
+        const count = countStr ? parseInt(countStr, 10) : 0;
+        const lastRef = localStorage.getItem("osmida_last_booking_ref");
+
+        if (count > 0 || lastRef) {
+          setHasActiveBooking(true);
+          setActiveBookingCount(count || 1);
+        } else {
+          setHasActiveBooking(false);
+          setActiveBookingCount(0);
+        }
       }
-    }
-    window.location.href = "/#how-to-book-video";
-  };
+    };
+
+    checkBookings();
+    window.addEventListener("storage", checkBookings);
+    window.addEventListener("osmida_booking_change", checkBookings);
+    window.addEventListener("osmida_auth_change", checkBookings);
+
+    return () => {
+      window.removeEventListener("storage", checkBookings);
+      window.removeEventListener("osmida_booking_change", checkBookings);
+      window.removeEventListener("osmida_auth_change", checkBookings);
+    };
+  }, []);
 
   const handleHomeScroll = () => {
     if (isHomePage) {
@@ -92,20 +112,41 @@ export function MobileBottomNav({
           </span>
         </button>
 
-        {/* 3. Telugu Video Guide Tab */}
-        <button
-          type="button"
-          onClick={handleVideoScroll}
-          className="flex flex-col items-center justify-center gap-1 py-1 text-slate-600 hover:text-slate-950 focus:outline-none transition-transform active:scale-95"
-          aria-label="Telugu Video Guide"
+        {/* 3. Bookings Tab (Live Quick-Commerce Tracker) */}
+        <Link
+          href="/my-bookings"
+          className={`flex flex-col items-center justify-center gap-1 py-1 focus:outline-none transition-transform active:scale-95 ${
+            pathname === "/my-bookings" ? "text-[#0C6266]" : "text-slate-600 hover:text-slate-950"
+          }`}
+          aria-label="My Bookings"
         >
           <div className="relative flex items-center justify-center h-6 w-6">
-            <PlayCircle className="h-5 w-5 stroke-[2] text-slate-800" />
+            <ClipboardList
+              className={`h-5 w-5 ${
+                pathname === "/my-bookings"
+                  ? "stroke-[2.4] text-[#0C6266]"
+                  : "stroke-[2] text-slate-800"
+              }`}
+            />
+            {hasActiveBooking && (
+              <span className="absolute -top-1 -right-1.5 flex h-3 w-3">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-3 w-3 bg-emerald-500 border border-white items-center justify-center text-[7px] text-white font-black">
+                  {activeBookingCount > 1 ? activeBookingCount : ""}
+                </span>
+              </span>
+            )}
           </div>
-          <span className="text-[10px] font-semibold text-slate-800 tracking-tight">
-            {lang === "te" ? "వీడియో" : "Video"}
+          <span
+            className={`text-[10px] tracking-tight ${
+              pathname === "/my-bookings"
+                ? "font-bold text-[#0C6266]"
+                : "font-semibold text-slate-800"
+            }`}
+          >
+            {lang === "te" ? "ఆర్డర్లు" : "Bookings"}
           </span>
-        </button>
+        </Link>
 
         {/* 4. WhatsApp Support Tab */}
         <a

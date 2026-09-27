@@ -92,6 +92,32 @@ export default function HomePage() {
   const [selectedModalService, setSelectedModalService] = useState<OsmidaService | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [hasActiveBooking, setHasActiveBooking] = useState(false);
+  const [lastBookingRef, setLastBookingRef] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    const checkActive = () => {
+      if (typeof window !== "undefined") {
+        const countStr = localStorage.getItem("osmida_active_bookings_count");
+        const count = countStr ? parseInt(countStr, 10) : 0;
+        const ref = localStorage.getItem("osmida_last_booking_ref");
+        if (count > 0 || ref) {
+          setHasActiveBooking(true);
+          setLastBookingRef(ref);
+        } else {
+          setHasActiveBooking(false);
+          setLastBookingRef(null);
+        }
+      }
+    };
+    checkActive();
+    window.addEventListener("storage", checkActive);
+    window.addEventListener("osmida_booking_change", checkActive);
+    return () => {
+      window.removeEventListener("storage", checkActive);
+      window.removeEventListener("osmida_booking_change", checkActive);
+    };
+  }, []);
 
   const handleOpenModal = (service: OsmidaService) => {
     setSelectedModalService(service);
@@ -106,6 +132,33 @@ export default function HomePage() {
     <main className="min-h-screen bg-[#F4F8F8] text-[#0F171A] font-sans selection:bg-[#0C6266]/20 selection:text-[#0C6266]">
       {/* 1. OSMIDA HEADER */}
       <OsmidaHeader />
+
+      {/* QUICK-COMMERCE FLOATING ACTIVE ORDER TRACKER */}
+      {hasActiveBooking && (
+        <div className="sticky top-16 sm:top-20 z-30 px-4 py-2.5 bg-gradient-to-r from-[#0C6266] to-[#0E131F] text-white shadow-md border-b border-white/10 animate-in slide-in-from-top-2 duration-300">
+          <div className="max-w-7xl mx-auto flex items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-2 truncate">
+              <span className="relative flex h-2.5 w-2.5 shrink-0">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+              </span>
+              <span className="font-bold text-emerald-300 uppercase tracking-wider text-[10px] bg-emerald-950/60 px-2 py-0.5 rounded-full border border-emerald-500/30 shrink-0">
+                Active Order
+              </span>
+              <span className="font-medium text-white truncate">
+                {lastBookingRef ? `Booking Ref: ${lastBookingRef}` : "Technician dispatched to your Nellore locality"}
+              </span>
+            </div>
+            <Link
+              href="/my-bookings"
+              className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white text-[#0C6266] hover:bg-emerald-50 text-[11px] font-black transition shrink-0 shadow-sm"
+            >
+              <span>Track Live Status & OTP</span>
+              <ArrowRight className="w-3 h-3 stroke-[3]" />
+            </Link>
+          </div>
+        </div>
+      )}
 
       {/* 2. HERO SECTION (Deep Heritage Teal & Warm Saffron Amber) */}
       <section className="relative overflow-hidden bg-linear-to-b from-[#EBF4F5] via-[#F4F8F8] to-white pt-8 pb-12 sm:pt-14 sm:pb-20 border-b border-[#DFE8E8]">

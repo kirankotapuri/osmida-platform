@@ -60,6 +60,7 @@ export default function MyBookingsPage() {
   const [profileSaveSuccess, setProfileSaveSuccess] = useState("");
   const [profileSaveError, setProfileSaveError] = useState("");
   const [isMapsModalOpen, setIsMapsModalOpen] = useState(false);
+  const prevStatusesRef = React.useRef<Record<string, string>>({});
 
   const applyProfileData = (prof: any) => {
     if (!prof) return;
@@ -247,6 +248,64 @@ export default function MyBookingsPage() {
     const cleanPhone = phone.replace(/\D/g, "").slice(-10);
     fetchBookings(cleanPhone, profileEmail, otp.trim());
   };
+
+  // Play subtle arrival/status update chime when partner advances progress
+  const playStatusUpdateChime = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(1174.66, ctx.currentTime + 0.15);
+      gain.gain.setValueAtTime(0.2, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.35);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start();
+      osc.stop(ctx.currentTime + 0.35);
+    } catch {}
+  };
+
+  // Real-time live polling for active customer bookings
+  useEffect(() => {
+    if (step !== "dashboard") return;
+    const phoneToUse = savedPhone || phone;
+    const emailToUse = profileEmail;
+    if (!phoneToUse && !emailToUse) return;
+
+    // Detect if booking status changed and play arrival alert
+    bookings.forEach((b: any) => {
+      const prev = prevStatusesRef.current[b.id];
+      if (prev && prev !== b.status) {
+        playStatusUpdateChime();
+      }
+      if (b.id) {
+        prevStatusesRef.current[b.id] = b.status;
+      }
+    });
+
+    // Check if any booking is actively moving
+    const activeBookings = bookings.filter((b: any) =>
+      ["pending", "offered", "assigned", "dispatched", "at_gate", "in_progress"].includes(b.status?.toLowerCase())
+    );
+
+    // Sync active count to localStorage for MobileBottomNav badge
+    if (typeof window !== "undefined") {
+      localStorage.setItem("osmida_active_bookings_count", activeBookings.length.toString());
+      window.dispatchEvent(new Event("osmida_booking_change"));
+    }
+
+    // 5s fast polling when partner is moving/assigned; 20s steady polling
+    const pollInterval = activeBookings.length > 0 ? 5000 : 20000;
+    const timer = setInterval(() => {
+      fetchBookings(phoneToUse, emailToUse, "1234", true);
+    }, pollInterval);
+
+    return () => clearInterval(timer);
+  }, [step, savedPhone, phone, profileEmail, bookings]);
 
   const handleLoginModalSuccess = (profile: any) => {
     applyProfileData(profile);

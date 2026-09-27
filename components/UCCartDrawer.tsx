@@ -20,12 +20,28 @@ export function UCCartDrawer({ lang }: { lang: Language }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Sync selected locality from localStorage when drawer is opened
+  // Sync selected locality and customer profile from localStorage when drawer is opened
   React.useEffect(() => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== "undefined" && isCartDrawerOpen) {
       const savedLoc = localStorage.getItem("osmida_selected_locality");
-      if (savedLoc) {
-        setLocality(savedLoc);
+      const savedName = localStorage.getItem("osmida_customer_name");
+      const savedPhone = localStorage.getItem("osmida_customer_phone");
+      const savedAddress = localStorage.getItem("osmida_customer_address");
+      const profStr = localStorage.getItem("osmida_customer_profile");
+
+      if (savedLoc) setLocality(savedLoc);
+      if (savedName && !contactName) setContactName(savedName);
+      if (savedPhone && !phone) setPhone(savedPhone);
+      if (savedAddress && !address) setAddress(savedAddress);
+
+      if (profStr) {
+        try {
+          const prof = JSON.parse(profStr);
+          if (prof.name && !contactName && !savedName) setContactName(prof.name);
+          if (prof.phone && !phone && !savedPhone) setPhone(prof.phone);
+          if (prof.locality && !savedLoc) setLocality(prof.locality);
+          if (prof.address && !address && !savedAddress) setAddress(prof.address);
+        } catch {}
       }
     }
   }, [isCartDrawerOpen]);
@@ -110,12 +126,25 @@ export function UCCartDrawer({ lang }: { lang: Language }) {
           `Please confirm arrival in 30 minutes.`
       );
 
+      if (typeof window !== "undefined") {
+        localStorage.setItem("osmida_customer_phone", cleanPhone);
+        localStorage.setItem("osmida_customer_name", contactName.trim());
+        localStorage.setItem("osmida_customer_address", address.trim());
+        localStorage.setItem("osmida_selected_locality", locality);
+        localStorage.setItem("osmida_last_booking_ref", payload.referenceId);
+        localStorage.setItem("osmida_active_bookings_count", "1");
+        window.dispatchEvent(new Event("osmida_booking_change"));
+      }
+
       clearCart();
       setIsCartDrawerOpen(false);
 
       // Open WhatsApp confirmation coordinator in background and route to confirmation
       window.open(`https://wa.me/917676358162?text=${waText}`, "_blank");
-      router.push("/booking-confirmed");
+      const serviceParam = encodeURIComponent(items[0]?.titleEn || "Home Service");
+      const localityParam = encodeURIComponent(locality);
+      const slotParam = encodeURIComponent(`${selectedDate}, ${selectedSlot}`);
+      router.push(`/booking-confirmed?ref=${encodeURIComponent(payload.referenceId)}&service=${serviceParam}&locality=${localityParam}&slot=${slotParam}`);
     } catch {
       setIsSubmitting(false);
       setErrorMsg("Network error. Please try again or book via direct call.");
