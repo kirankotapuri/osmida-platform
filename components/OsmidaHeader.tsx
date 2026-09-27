@@ -18,6 +18,7 @@ import {
   Check,
   User,
   LogOut,
+  Download,
 } from "lucide-react";
 import { CustomerLoginModal } from "./CustomerLoginModal";
 import { createClient } from "@supabase/supabase-js";
@@ -585,6 +586,36 @@ export function OsmidaHeader() {
               </div>
               <ArrowRight className="h-4 w-4 text-[#475559] group-hover:text-[#0C6266] transition shrink-0" />
             </Link>
+
+            {/* Install Osmida App Trigger */}
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (typeof window !== "undefined") {
+                  window.dispatchEvent(new CustomEvent("osmida_trigger_install"));
+                }
+              }}
+              className="flex items-center justify-between p-3 rounded-2xl bg-gradient-to-r from-[#0C6266]/10 to-[#E68A00]/10 border border-[#0C6266]/30 hover:border-[#0C6266] transition group text-left cursor-pointer w-full"
+            >
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-[#0C6266] text-white flex items-center justify-center font-bold shrink-0 shadow-xs">
+                  <Download className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-1.5">
+                    <p className="text-xs font-bold text-[#0F171A] group-hover:text-[#0C6266] transition">
+                      Install Osmida App
+                    </p>
+                    <span className="text-[9px] font-black uppercase bg-[#E68A00] text-slate-950 px-1.5 py-0.2 rounded">
+                      App
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-[#475559]">Add to home screen for 1-tap bookings</p>
+                </div>
+              </div>
+              <ArrowRight className="h-4 w-4 text-[#475559] group-hover:text-[#0C6266] transition shrink-0" />
+            </button>
 
             {/* Direct WhatsApp Callout */}
             <a
