@@ -17,7 +17,7 @@ export const metadata: Metadata = {
     "osmida partner app",
   ],
   alternates: {
-    canonical: "https://osmida.com/partner",
+    canonical: "https://partner.osmida.com",
   },
   manifest: "/worker-manifest.json",
   icons: {
@@ -35,7 +35,7 @@ export const metadata: Metadata = {
     title: "Osmida Partner Portal | Join as Service Partner in Nellore",
     description:
       "Verified technician & helper dispatch portal. 70% earnings, daily UPI settlements, and guaranteed apartment jobs in Nellore.",
-    url: "https://osmida.com/partner",
+    url: "https://partner.osmida.com",
     siteName: "Osmida Partner",
     locale: "en_IN",
     type: "website",

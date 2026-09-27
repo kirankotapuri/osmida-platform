@@ -22,6 +22,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 0.9,
     },
     {
+      url: 'https://partner.osmida.com',
+      lastModified: lastMod,
+      changeFrequency: 'daily',
+      priority: 0.9,
+    },
+    {
       url: 'https://osmida.com/about',
       lastModified: lastMod,
       changeFrequency: 'monthly',
