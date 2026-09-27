@@ -54,9 +54,9 @@ const LAUNCH_GUARANTEES = [
   },
   {
     icon: "🛡️",
-    title: "Aadhaar & Background Verified",
+    title: "Aadhaar & In-Person Verified",
     subtitle: "Safe for Nellore Apartment Families",
-    description: "Every partner undergoes government identity verification, background checks, and apartment etiquette training.",
+    description: "Every partner undergoes Aadhaar identity verification, in-person onboarding, and apartment etiquette training.",
     badge: "Safety First",
   },
 ];
@@ -72,7 +72,7 @@ const FAQS = [
   },
   {
     q: "Are the house helpers verified and safe?",
-    a: "Yes. 100% of our service partners undergo police background verification, Aadhaar identity authentication, and standardized hygiene and skill training before entering any customer home.",
+    a: "Yes. 100% of our service partners undergo Aadhaar identity authentication, in-person onboarding vetting, and standardized hygiene and skill training before entering any customer home.",
   },
   {
     q: "What if I am not satisfied with the cleaning quality?",
@@ -327,7 +327,7 @@ export default function HomePage() {
                 <span>100%</span>
               </div>
               <p className="text-xs font-bold text-[#0F171A] uppercase tracking-wide">
-                Police & Aadhaar Vetted
+                Aadhaar Verified Partners
               </p>
               <p className="text-[11px] text-[#475559]">Verified helpers trained for Nellore apartments</p>
             </div>
@@ -589,7 +589,7 @@ export default function HomePage() {
                       <p className="text-xs font-bold text-white truncate">Lakshmi K.</p>
                       <ShieldCheck className="w-3.5 h-3.5 text-[#16A34A] shrink-0" />
                     </div>
-                    <p className="text-[10px] text-slate-400">Police &amp; Aadhaar Verified</p>
+                    <p className="text-[10px] text-slate-400">Aadhaar Verified Partner</p>
                   </div>
                 </div>
 
