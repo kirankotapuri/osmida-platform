@@ -1,35 +1,35 @@
 {
-  "name": "Osmida Partner - Nellore Dispatch",
-  "short_name": "Osmida Partner",
-  "id": "/partner",
-  "description": "Technician and Helper Dispatch Portal for Osmida Nellore Residential Services",
-  "start_url": "/partner",
+  "name": "Osmida - Doorstep Home Services Nellore",
+  "short_name": "Osmida",
+  "id": "/",
+  "description": "Nellore residential home help, bathroom cleaning, kitchen cleaning & dishwashing at flat ₹199/hr.",
+  "start_url": "/",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
-  "background_color": "#0E131F",
+  "background_color": "#F4F8F8",
   "theme_color": "#0C6266",
   "icons": [
     {
-      "src": "/icons/partner-icon-192x192.png",
+      "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/partner-icon-192x192.png",
+      "src": "/icons/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/icons/partner-icon-512x512.png",
+      "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icons/partner-icon-512x512.png",
+      "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

@@ -322,9 +322,12 @@ export default function PartnerPortalPage() {
       }
 
       // Ensure worker app has its own distinct manifest and icon on home screen
-      let manifestLink = document.querySelector("link[data-app='partner-manifest']") as HTMLLinkElement | null;
-      if (!manifestLink) {
-        manifestLink = document.createElement("link");
+      const existingManifest = document.querySelector("link[rel='manifest']") as HTMLLinkElement | null;
+      if (existingManifest) {
+        existingManifest.href = "/worker-manifest.json";
+        existingManifest.setAttribute("data-app", "partner-manifest");
+      } else {
+        const manifestLink = document.createElement("link");
         manifestLink.rel = "manifest";
         manifestLink.setAttribute("data-app", "partner-manifest");
         manifestLink.href = "/worker-manifest.json";

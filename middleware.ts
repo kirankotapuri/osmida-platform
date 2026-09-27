@@ -16,9 +16,18 @@ import type { NextRequest } from "next/server";
 export function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
   
-  // Extract real hostname (supporting x-forwarded-host behind Vercel / Cloudflare edge proxies)
-  const rawHost = req.headers.get("x-forwarded-host") || req.headers.get("host") || "";
-  const hostname = rawHost.toLowerCase().split(":")[0];
+  // Extract real hostname (supporting comma-separated x-forwarded-host behind Vercel / Cloudflare edge proxies)
+  const forwardedHost = (req.headers.get("x-forwarded-host") || "").split(",")[0].trim().toLowerCase().split(":")[0];
+  const headerHost = (req.headers.get("host") || "").split(",")[0].trim().toLowerCase().split(":")[0];
+  const urlHost = req.nextUrl.hostname.toLowerCase();
+  const hostname = forwardedHost || headerHost || urlHost;
+
+  // Auto-upgrade plain HTTP to HTTPS on production mobile connections
+  const proto = req.headers.get("x-forwarded-proto");
+  if (proto === "http" && !hostname.includes("localhost") && !hostname.includes("127.0.0.1")) {
+    url.protocol = "https:";
+    return NextResponse.redirect(url, 301);
+  }
 
   // Exclude static assets, Next.js internal files, images, icons, and API routes from rewrite
   if (
@@ -44,13 +53,21 @@ export function middleware(req: NextRequest) {
   const isPartnerDomain =
     hostname.startsWith("partner.") ||
     hostname.startsWith("parnter.") ||
+    urlHost.startsWith("partner.") ||
+    urlHost.startsWith("parnter.") ||
     hostname === "partner.osmida.com" ||
     hostname === "parnter.osmida.com";
 
   if (isPartnerDomain) {
-    // Route everything on partner domain to the partner SPA portal
-    url.pathname = "/partner";
-    return NextResponse.rewrite(url);
+    if (url.pathname === "/" || url.pathname === "") {
+      url.pathname = "/partner";
+      return NextResponse.rewrite(url);
+    }
+    if (!url.pathname.startsWith("/partner")) {
+      url.pathname = `/partner${url.pathname}`;
+      return NextResponse.rewrite(url);
+    }
+    return NextResponse.next();
   }
 
   // 2. ADMIN OPS PORTAL: admin.osmida.com or admin.localhost

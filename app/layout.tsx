@@ -15,6 +15,7 @@ export const metadata: Metadata = {
     default: 'Osmida - Trusted House Help & Apartment Cleaning in Nellore (₹199/hr)',
   },
   description: "Osmida provides verified, on-demand house help for Nellore apartments. Book bathroom cleaning, kitchen cleaning, dishwashing, and general house help at a flat ₹199/hr rate. ₹0 advance, pay after service with Before/After photo proof.",
+  manifest: "/manifest.webmanifest",
   icons: {
     icon: [
       { url: "/favicon.ico", sizes: "any" },
@@ -168,6 +169,7 @@ export default function RootLayout({
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="Osmida" />
+        <link rel="manifest" href="/manifest.webmanifest" />
         <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <script src="https://checkout.razorpay.com/v1/checkout.js" async></script>
         <script
