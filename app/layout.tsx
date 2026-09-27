@@ -139,11 +139,6 @@ const jsonLd = {
             name: "General House Help & Mopping",
             description: "Floor sweeping & disinfectant mopping, dusting, dry waste disposal, and domestic chores at flat ₹199/hr.",
           },
-          {
-            "@type": "OfferCatalog",
-            name: "Osmida Partner Portal & Jobs",
-            description: "Work as an Osmida verified helper in Nellore. Earn daily payouts with 70% share and instant 9:00 PM UPI settlements.",
-          },
         ],
       },
     },
