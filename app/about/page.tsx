@@ -89,10 +89,10 @@ export default function AboutPage() {
                 descTe: "ఎలాంటి ముందస్తు చెల్లింపు లేదు. పనిని స్వయంగా చూసి సంతృప్తి చెందిన తర్వాత మాత్రమే UPI లేదా నగదు చెల్లించండి.",
               },
               {
-                titleEn: "30-Day Warranty Protection",
-                titleTe: "ఉచిత రీవర్క్ & వారంటీ రక్షణ",
-                descEn: "24-hr rework window for home help, 30 days for pest control, and 15 days for AC servicing.",
-                descTe: "గృహ సహాయ సేవలకు 24 గంటల సమీక్ష, పురుగుల నివారణకు 30 రోజుల రీవర్క్ వారంటీ మరియు ఏసీ సర్వీస్‌కు 15 రోజుల కూలింగ్ వారంటీ.",
+                titleEn: "Photo Proof & Free Touch-up Guarantee",
+                titleTe: "ఫోటో ప్రూఫ్ & ఉచిత రీవర్క్ రక్షణ",
+                descEn: "Before & After photo proof with every visit. 24-hr review window for apartment cleaning and house help to ensure 100% satisfaction.",
+                descTe: "ప్రతి సేవకు బిఫోర్ & ఆఫ్టర్ ఫోటో ప్రూఫ్. పూర్తి సంతృప్తి కోసం 24 గంటల ఉచిత రీవర్క్ విండో రక్షణ.",
               },
               {
                 titleEn: "Apartment & Community First",

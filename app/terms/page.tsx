@@ -80,8 +80,8 @@ export default function TermsPage() {
               </h2>
               <p>
                 {lang === "te"
-                  ? "ఆస్మిడా (ఫింక్‌ఫోల్డ్ ఆధ్వర్యంలో) నెల్లూరు నగరంలో అపార్ట్‌మెంట్-కేంద్రీకృత గృహ సహాయ సేవలను (గిన్నెల క్లీనింగ్, ఇల్లు తుడవడం, దుమ్ము దులపడం, బట్టలు ఉతకడం, వంట సహాయం) ఫ్లాట్ ₹199/గంట రేటుతో అందిస్తుంది. అలాగే ప్రొఫెషనల్ డీప్ క్లీనింగ్, ఏసీ జెట్ సర్వీస్ మరియు హెర్బల్ పెస్ట్ కంట్రోల్ సేవలను అందిస్తుంది."
-                  : "Osmida Facility Services (operated by Finkfold) provides apartment-first residential support across Nellore. Services include on-demand hourly house help (dishwashing, floor mopping, dusting, clothes washing, kitchen assistance) at transparent hourly rates (flat ₹199/hr), full-home deep cleaning, AC jet foam servicing, and herbal pest control."}
+                  ? "ఆస్మిడా (ఫింక్‌ఫోల్డ్ ఆధ్వర్యంలో) నెల్లూరు నగరంలో అపార్ట్‌మెంట్-కేంద్రీకృత గృహ సహాయ సేవలను (బాత్‌రూమ్ క్లీనింగ్, కిచెన్ డీగ్రీసింగ్, గిన్నెల వాషింగ్, ఫ్లోర్ మాపింగ్ మరియు సాధారణ గృహ సహాయం) ఫ్లాట్ ₹199/గంట రేటుతో అందిస్తుంది. ఎలాంటి ముందస్తు చెల్లింపు లేకుండా, ఫోటో ప్రూఫ్ ఆధారంగా సేవలు నిర్వహించబడతాయి."
+                  : "Osmida Facility Services (operated by Finkfold) provides apartment-first residential support across Nellore. Services include on-demand hourly house help (bathroom deep cleaning, kitchen degreasing, dishwashing, floor mopping & dusting) at transparent hourly rates (flat ₹199/hr) with ₹0 advance and verified Before/After photo proof."}
               </p>
             </section>
 
@@ -106,8 +106,8 @@ export default function TermsPage() {
               </h2>
               <p>
                 {lang === "te"
-                  ? "మీరు పొందిన సేవలో ఏదైనా లోపం ఉంటే, సేవ పూర్తయిన 24 గంటల లోపు మాకు తెలియజేయండి. ఉచిత రీ-విజిట్ లేదా సరిచేత వెంటనే కల్పించబడుతుంది. పెస్ట్ కంట్రోల్ సేవలకు 30 రోజుల రీవర్క్ వారంటీ మరియు ఏసీ ఫోమ్ వాష్‌కు 15 రోజుల కూలింగ్ వారంటీ వర్తిస్తుంది."
-                  : "We stand behind the quality of our helpers and technicians. Customers have a 24-hour review window for hourly house help to report any oversight for a free touch-up visit. General pest control includes a 30-day rework warranty covering treated zones. AC servicing carries a 15-day cooling and leakage warranty."}
+                  ? "మీరు పొందిన సేవలో ఏదైనా లోపం ఉంటే, సేవ పూర్తయిన 24 గంటల లోపు మాకు తెలియజేయండి. ఉచిత రీ-విజిట్ లేదా సరిచేత వెంటనే కల్పించబడుతుంది. ప్రతి సేవకు బిఫోర్ & ఆఫ్టర్ ఫోటో ప్రూఫ్ తప్పనిసరిగా అందించబడుతుంది."
+                  : "We stand behind the quality of our verified helpers. Customers have a 24-hour review window for hourly house help to report any oversight for a free touch-up visit. Every completed service includes mandatory Before/After photo proof."}
               </p>
             </section>
 

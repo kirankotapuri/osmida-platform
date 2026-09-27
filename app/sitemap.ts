@@ -1,66 +1,66 @@
 import { MetadataRoute } from 'next';
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const now = new Date();
+  const lastMod = new Date('2026-09-27');
   return [
     {
       url: 'https://osmida.com',
-      lastModified: now,
+      lastModified: lastMod,
       changeFrequency: 'daily',
       priority: 1.0,
     },
     {
       url: 'https://osmida.com/book',
-      lastModified: now,
+      lastModified: lastMod,
       changeFrequency: 'weekly',
       priority: 0.9,
     },
     {
       url: 'https://osmida.com/partner',
-      lastModified: now,
+      lastModified: lastMod,
       changeFrequency: 'daily',
       priority: 0.9,
     },
     {
       url: 'https://osmida.com/about',
-      lastModified: now,
+      lastModified: lastMod,
       changeFrequency: 'monthly',
       priority: 0.8,
     },
     {
       url: 'https://osmida.com/service-area',
-      lastModified: now,
+      lastModified: lastMod,
       changeFrequency: 'monthly',
       priority: 0.7,
     },
 
     {
       url: 'https://osmida.com/privacy',
-      lastModified: now,
+      lastModified: lastMod,
       changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
       url: 'https://osmida.com/privacy-policy',
-      lastModified: now,
+      lastModified: lastMod,
       changeFrequency: 'monthly',
       priority: 0.5,
     },
     {
       url: 'https://osmida.com/terms',
-      lastModified: now,
+      lastModified: lastMod,
       changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
       url: 'https://osmida.com/cancellation',
-      lastModified: now,
+      lastModified: lastMod,
       changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
       url: 'https://osmida.com/my-bookings',
-      lastModified: now,
+      lastModified: lastMod,
       changeFrequency: 'weekly',
       priority: 0.7,
     },
