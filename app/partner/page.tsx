@@ -34,6 +34,9 @@ import {
   Check,
   Building2,
   Plus,
+  Siren,
+  Share2,
+  AlertTriangle,
 } from "lucide-react";
 import { ServicePartner, PartnerJob, DEFAULT_PARTNERS } from "@/lib/partnerMatching";
 import { PARTNER_STRINGS, PartnerLanguage } from "@/lib/partnerTranslations";
@@ -197,6 +200,93 @@ export default function PartnerPortalPage() {
       });
     } catch (err) {
       console.warn("Camera capture note:", err);
+    }
+  };
+
+  // Device network state for offline resilience
+  const [isDeviceOnline, setIsDeviceOnline] = useState<boolean>(true);
+
+  // Customer rating state for job completion
+  const [customerRating, setCustomerRating] = useState<number>(5);
+  const [customerTags, setCustomerTags] = useState<string[]>([]);
+  const [isSendingSos, setIsSendingSos] = useState<boolean>(false);
+
+  // Network online/offline listener
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    setIsDeviceOnline(navigator.onLine);
+    const handleOnline = () => {
+      setIsDeviceOnline(true);
+      setStatusMessage({
+        type: "success",
+        text: lang === "te" ? "ఇంటర్నెట్ తిరిగి కనెక్ట్ అయ్యింది. డేటా సింక్ అయ్యింది." : "Internet connection restored. Synchronized successfully.",
+      });
+    };
+    const handleOffline = () => {
+      setIsDeviceOnline(false);
+    };
+
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, [lang]);
+
+  // Emergency SOS Alert Handler
+  const handleEmergencySos = async () => {
+    if (!partner) return;
+    const confirmed = confirm(
+      lang === "te"
+        ? "మీరు అత్యవసర పరిస్థితిలో ఉన్నారా? ఇది మీ లైవ్ GPS లొకేషన్‌ను నెల్లూరు హబ్‌కు పంపుతుంది మరియు అత్యవసర విభాగానికి కాల్ చేస్తుంది."
+        : "Are you in an emergency? This will transmit your live GPS coordinates to the Nellore Central Hub and dial Emergency Support."
+    );
+    if (!confirmed) return;
+
+    setIsSendingSos(true);
+    let lat: number | null = null;
+    let lng: number | null = null;
+
+    if (typeof navigator !== "undefined" && "geolocation" in navigator) {
+      try {
+        const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 4000 });
+        });
+        lat = pos.coords.latitude;
+        lng = pos.coords.longitude;
+      } catch (geoErr) {
+        console.warn("GPS lookup note:", geoErr);
+      }
+    }
+
+    try {
+      await fetch("/api/partner/sos", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          partnerId: partner.id,
+          partnerName: partner.name,
+          partnerPhone: partner.phone,
+          jobId: activeJob?.id || null,
+          lat,
+          lng,
+          customerAddress: activeJob?.customer_address || null,
+          locality: activeJob?.locality || partner.assigned_hub,
+        }),
+      });
+
+      setStatusMessage({
+        type: "success",
+        text: t.sosAlertSent,
+      });
+
+      window.location.href = "tel:9490122849";
+    } catch (sosErr) {
+      console.warn("SOS error:", sosErr);
+      window.location.href = "tel:9490122849";
+    } finally {
+      setIsSendingSos(false);
     }
   };
 
@@ -1327,6 +1417,7 @@ export default function PartnerPortalPage() {
             </div>
 
             {/* NELLORE HUB HOTLINE */}
+            {/* NELLORE HUB HOTLINE */}
             <a
               href="tel:9490122849"
               title="Call Nellore Hub Support (9490122849)"
@@ -1334,6 +1425,18 @@ export default function PartnerPortalPage() {
             >
               <Headphones className="w-3.5 h-3.5" />
             </a>
+
+            {/* EMERGENCY SOS BUTTON */}
+            <button
+              type="button"
+              onClick={handleEmergencySos}
+              disabled={isSendingSos}
+              className="flex items-center gap-1 px-2.5 py-1 bg-red-600/25 hover:bg-red-600/40 text-red-400 border border-red-500/40 rounded-full text-xs font-black transition shadow-sm shadow-red-500/20 cursor-pointer animate-pulse"
+              title={t.emergencySos}
+            >
+              <Siren className="w-3.5 h-3.5 text-red-400" />
+              <span>SOS</span>
+            </button>
 
             {/* ONLINE / OFFLINE TOGGLE */}
             <button
@@ -1364,6 +1467,14 @@ export default function PartnerPortalPage() {
           </div>
         </div>
       </header>
+
+      {/* OFFLINE RESILIENCE WARNING BANNER */}
+      {!isDeviceOnline && (
+        <div className="bg-amber-600/25 text-amber-200 border-b border-amber-500/40 px-4 py-2 text-center text-xs font-bold flex items-center justify-center gap-2 animate-pulse">
+          <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />
+          <span>{t.offlineBanner}</span>
+        </div>
+      )}
 
       {/* ONLINE STATUS BANNER */}
       <div className={`px-4 py-2 text-center text-xs font-medium ${isOnline ? "bg-[#0C6266]/15 text-[#0C6266] border-b border-[#0C6266]/20" : "bg-gray-800 text-gray-400 border-b border-gray-700"}`}>
@@ -1668,8 +1779,64 @@ export default function PartnerPortalPage() {
                   </button>
                 </div>
 
+                {/* PARTNER RATES CUSTOMER */}
+                <div className="bg-black/40 rounded-xl p-3 border border-white/10 space-y-2">
+                  <span className="text-xs font-bold text-gray-200 block text-center">
+                    {t.rateCustomer}
+                  </span>
+                  <div className="flex items-center justify-center gap-2">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                      <button
+                        key={star}
+                        type="button"
+                        onClick={() => setCustomerRating(star)}
+                        className="p-1 cursor-pointer transition transform hover:scale-110"
+                      >
+                        <Star
+                          className={`w-6 h-6 ${
+                            star <= customerRating
+                              ? "fill-amber-400 text-amber-400"
+                              : "text-gray-600"
+                          }`}
+                        />
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Feedback Chips */}
+                  <div className="flex flex-wrap justify-center gap-1.5 pt-1">
+                    {[t.customerPolite, t.easyEntry, t.timelyPayment].map((tag) => {
+                      const selected = customerTags.includes(tag);
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => {
+                            setCustomerTags(
+                              selected
+                                ? customerTags.filter((tg) => tg !== tag)
+                                : [...customerTags, tag]
+                            );
+                          }}
+                          className={`px-2.5 py-1 rounded-full text-[10px] font-semibold transition border cursor-pointer ${
+                            selected
+                              ? "bg-[#0C6266]/30 border-[#0C6266] text-[#38B2AC]"
+                              : "bg-white/5 border-white/10 text-gray-400 hover:text-white"
+                          }`}
+                        >
+                          {selected ? "✓ " : "+ "}{tag}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
                 <button
-                  onClick={() => setCompletedJobModal(null)}
+                  onClick={() => {
+                    setCompletedJobModal(null);
+                    setCustomerRating(5);
+                    setCustomerTags([]);
+                  }}
                   className="w-full bg-[#0C6266] hover:bg-[#094e51] text-white font-extrabold py-3 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow-lg shadow-[#0C6266]/30 cursor-pointer"
                 >
                   <CheckCircle2 className="w-4 h-4" />
@@ -1717,7 +1884,9 @@ export default function PartnerPortalPage() {
                     </a>
                     <a
                       href={`https://wa.me/91${activeJob.customer_phone}?text=${encodeURIComponent(
-                        `Namaste ${activeJob.customer_name}, I am your Osmida partner ${partner.name}. I have accepted your ${activeJob.service_name} booking (Ref: ${activeJob.reference_id}) and will be arriving shortly.`
+                        lang === "te"
+                          ? `నమస్కారం ${activeJob.customer_name} గారు, నేను మీ ఒస్మిడా పార్టనర్ ${partner.name}. మీ సర్వీస్ (${activeJob.service_name}, Ref: ${activeJob.reference_id}) కోసం బయలుదేరాను. త్వరలోనే మీ ఇంటికి చేరుకుంటాను.`
+                          : `Namaste ${activeJob.customer_name}, I am your Osmida partner ${partner.name}. I have accepted your ${activeJob.service_name} booking (Ref: ${activeJob.reference_id}) and will be arriving shortly.`
                       )}`}
                       target="_blank"
                       rel="noreferrer"
@@ -2222,6 +2391,21 @@ export default function PartnerPortalPage() {
                   <IndianRupee className="w-4 h-4" />
                   {t.instantTransferBtn}
                 </button>
+
+                {/* 1-TAP SHARE EOD SLIP ON WHATSAPP */}
+                <a
+                  href={`https://wa.me/91${partner.phone}?text=${encodeURIComponent(
+                    lang === "te"
+                      ? `*ఒస్మిడా నెల్లూరు - రోజువారీ పార్టనర్ పేస్లిప్*\n📅 తేదీ: ${new Date().toLocaleDateString("en-IN")}\n👤 పార్టనర్: ${partner.name} (${partner.phone})\n✅ పూర్తి చేసిన పనులు: ${completedJobs.length}\n💰 మొత్తం సంపాదన (70%): ₹${totalEarningsToday}\n💵 చేతికి అందిన నగదు: ₹${cashCollectedToday}\n🏦 రాత్రి 9:00 UPI బదిలీ: ₹${netUpiPayable}\n💳 జమ అయ్యే UPI: ${partner.upi_id || partner.phone + "@upi"}\n📞 నెల్లూరు హబ్ హెల్ప్‌లైన్: 9490122849`
+                      : `*OSMIDA NELLORE - DAILY PARTNER PAYSLIP*\n📅 Date: ${new Date().toLocaleDateString("en-IN")}\n👤 Partner: ${partner.name} (${partner.phone})\n✅ Completed Jobs: ${completedJobs.length}\n💰 Total Service Earnings (70%): ₹${totalEarningsToday}\n💵 Cash In Hand: ₹${cashCollectedToday}\n🏦 Net 9:00 PM UPI Settlement: ₹${netUpiPayable}\n💳 Target UPI ID: ${partner.upi_id || partner.phone + "@upi"}\n📞 Nellore Hub Support: 9490122849`
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full bg-emerald-600/20 hover:bg-emerald-600/30 border border-emerald-500/40 text-emerald-300 font-extrabold py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-1.5 shadow cursor-pointer mt-2"
+                >
+                  <Share2 className="w-4 h-4 text-emerald-400" />
+                  <span>{t.shareEodSlip}</span>
+                </a>
               </div>
 
               {/* Quick Metrics */}

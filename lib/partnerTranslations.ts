@@ -88,6 +88,14 @@ export interface PartnerTranslationStrings {
   navJobs: string;
   navEarnings: string;
   navProfile: string;
+  emergencySos: string;
+  sosAlertSent: string;
+  rateCustomer: string;
+  customerPolite: string;
+  easyEntry: string;
+  timelyPayment: string;
+  offlineBanner: string;
+  shareEodSlip: string;
 }
 
 export const PARTNER_STRINGS: Record<PartnerLanguage, PartnerTranslationStrings> = {
@@ -179,6 +187,14 @@ export const PARTNER_STRINGS: Record<PartnerLanguage, PartnerTranslationStrings>
     navJobs: "Live Jobs",
     navEarnings: "Earnings",
     navProfile: "Profile",
+    emergencySos: "SOS Emergency",
+    sosAlertSent: "🚨 Emergency SOS sent to Nellore Hub! Live GPS coordinates dispatched.",
+    rateCustomer: "Rate Customer Experience",
+    customerPolite: "Polite & Respectful",
+    easyEntry: "Smooth Gate Entry",
+    timelyPayment: "Immediate Payment",
+    offlineBanner: "Offline Mode: Connection lost. OTP and photos will sync once network is restored.",
+    shareEodSlip: "Share EOD Slip on WhatsApp",
   },
   te: {
     portalTitle: "పార్టనర్ పోర్టల్",
@@ -268,5 +284,13 @@ export const PARTNER_STRINGS: Record<PartnerLanguage, PartnerTranslationStrings>
     navJobs: "లైవ్ పనులు",
     navEarnings: "సంపాదన",
     navProfile: "ప్రొఫైల్",
+    emergencySos: "SOS అత్యవసరం",
+    sosAlertSent: "🚨 అత్యవసర SOS నెల్లూరు హబ్‌కు పంపబడింది! లైవ్ GPS లొకేషన్ చేరింది.",
+    rateCustomer: "కస్టమర్ అనుభవాన్ని రేట్ చేయండి",
+    customerPolite: "మర్యాదపూర్వకంగా ఉన్నారు",
+    easyEntry: "సులభమైన గేట్ ఎంట్రీ",
+    timelyPayment: "వెంటనే చెల్లించారు",
+    offlineBanner: "ఆఫ్‌లైన్ మోడ్: ఇంటర్నెట్ లేదు. సిగ్నల్ రాగానే ఆటోమేటిక్‌గా అప్‌డేట్ అవుతుంది.",
+    shareEodSlip: "నేటి పేస్లిప్‌ను WhatsApp లో పంపండి",
   },
 };
