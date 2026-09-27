@@ -87,24 +87,20 @@ export function Header({ lang, onLanguageChange }: HeaderProps) {
               className="group flex items-center gap-2 focus:outline-none rounded-xl"
               aria-label="Osmida Home Page"
             >
-              <div className="relative h-8 w-8 sm:h-9 sm:w-9 rounded-xl overflow-hidden border border-white/20 bg-black transition-transform group-hover:scale-105 shrink-0 shadow-xs">
+              <div className="relative h-7 sm:h-8 w-28 sm:w-32 shrink-0 group-hover:opacity-90 transition-opacity">
                 <Image
-                  src="/icon.svg"
-                  alt="Osmida Logo"
-                  fill
-                  className="object-contain"
+                  src="/assets/branding/osmida-wordmark-white.png"
+                  alt="Osmida"
+                  width={124}
+                  height={32}
+                  className="h-full w-auto object-contain object-left"
                   priority
-                  sizes="36px"
                 />
               </div>
-              <div className="hidden sm:flex flex-col">
-                <span className="text-sm sm:text-base font-black tracking-wider text-white">
-                  OSMIDA
-                </span>
-                <span className="text-[9px] font-bold uppercase tracking-wider text-slate-300 -mt-0.5">
-                  {lang === "te" ? "నెల్లూరు" : "Nellore"}
-                </span>
-              </div>
+              <span className="inline-flex items-center gap-1 text-[10px] font-extrabold text-teal-300 bg-teal-950/60 border border-teal-500/30 px-2 py-0.5 rounded-full uppercase tracking-wider shrink-0">
+                <span className="h-1.5 w-1.5 rounded-full bg-[#16A34A] animate-pulse" />
+                {lang === "te" ? "నెల్లూరు" : "Nellore"}
+              </span>
             </Link>
 
             {/* Urban Company-Style Exact Location Selector (Screenshot 1 & 2) */}

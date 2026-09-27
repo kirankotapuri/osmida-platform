@@ -103,7 +103,7 @@ export function InstallAppPrompt() {
   const appSubtitle = isPartnerPortal
     ? "Add to home screen for 1-tap worker jobs & payouts"
     : "Add to home screen for fast 1-tap Nellore bookings";
-  const appIcon = isPartnerPortal ? "/icons/partner-icon-192x192.png" : "/icons/icon-192x192.png";
+  const appIcon = "/icons/icon-192x192.png";
 
   return (
     <>

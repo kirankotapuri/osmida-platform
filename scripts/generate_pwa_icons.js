@@ -27,22 +27,9 @@ function getCustomerSvg(size) {
 </svg>`;
 }
 
-// 2. Partner Icon SVG (Dark dispatch gradient with Teal shield & star)
+// 2. Partner Icon SVG - Must be 100% identical to the official Osmida Brand Icon
 function getPartnerSvg(size) {
-  const r = size * 0.22;
-  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
-  <defs>
-    <linearGradient id="darkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#141B2D" />
-      <stop offset="100%" stop-color="#0E131F" />
-    </linearGradient>
-  </defs>
-  <rect width="${size}" height="${size}" rx="${r}" fill="url(#darkGrad)" />
-  <!-- Shield badge with Teal accent and amber star -->
-  <path d="M ${size * 0.5} ${size * 0.18} L ${size * 0.78} ${size * 0.28} L ${size * 0.78} ${size * 0.56} C ${size * 0.78} ${size * 0.76} ${size * 0.5} ${size * 0.88} ${size * 0.5} ${size * 0.88} C ${size * 0.5} ${size * 0.88} ${size * 0.22} ${size * 0.76} ${size * 0.22} ${size * 0.56} L ${size * 0.22} ${size * 0.28} Z" fill="#0C6266" stroke="#E68A00" stroke-width="${size * 0.03}" />
-  <!-- Pro star -->
-  <polygon points="${size * 0.5},${size * 0.36} ${size * 0.54},${size * 0.48} ${size * 0.66},${size * 0.48} ${size * 0.56},${size * 0.55} ${size * 0.6},${size * 0.67} ${size * 0.5},${size * 0.6} ${size * 0.4},${size * 0.67} ${size * 0.44},${size * 0.55} ${size * 0.34},${size * 0.48} ${size * 0.46},${size * 0.48}" fill="#E68A00" />
-</svg>`;
+  return getCustomerSvg(size);
 }
 
 // Helper to create a valid .ico file containing a PNG
