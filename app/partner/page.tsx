@@ -2533,6 +2533,28 @@ export default function PartnerPortalPage() {
               </div>
             </div>
 
+            {/* Refer / Share Partner Portal */}
+            <div className="bg-[#0C6266]/15 border border-[#0C6266]/30 rounded-2xl p-4 text-xs space-y-2">
+              <div className="flex items-center gap-2">
+                <Share2 className="w-4 h-4 text-[#38B2AC]" />
+                <span className="font-bold text-white">Invite Another Helper to Osmida</span>
+              </div>
+              <p className="text-[11px] text-gray-300">
+                Know someone looking for house cleaning, kitchen cleaning, or domestic help work in Nellore? Share the partner registration portal.
+              </p>
+              <a
+                href={`https://wa.me/?text=${encodeURIComponent(
+                  "Namaste! Join Osmida as a verified house cleaning, kitchen cleaning, or domestic help partner in Nellore. Earn daily payouts with 70% share and instant 9:00 PM settlements: https://osmida.com/partner"
+                )}`}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold py-2.5 rounded-xl flex items-center justify-center gap-1.5 transition text-xs shadow-md shadow-emerald-950/40"
+              >
+                <MessageSquare className="w-3.5 h-3.5" />
+                <span>Share Partner Link on WhatsApp</span>
+              </a>
+            </div>
+
             <button
               onClick={handleLogout}
               className="w-full bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 text-red-400 font-bold py-2.5 rounded-xl text-xs transition"
