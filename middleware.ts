@@ -5,9 +5,9 @@ import type { NextRequest } from "next/server";
  * Multi-Subdomain Routing Middleware for Osmida
  * 
  * Supports:
- * - partner.osmida.com -> Rewrites directly to /partner (Worker Dispatch Portal)
- * - admin.osmida.com   -> Rewrites directly to /admin (Operations Control Console)
- * - osmida.com / www   -> Customer Booking Portal
+ * - partner.osmida.com / parnter.osmida.com -> Rewrites to /partner (Worker Dispatch Portal)
+ * - admin.osmida.com                       -> Rewrites to /admin (Operations Control Console)
+ * - osmida.com / www.osmida.com            -> Customer Booking Portal
  * 
  * Also supports local development:
  * - partner.localhost:3000 -> /partner
@@ -15,42 +15,50 @@ import type { NextRequest } from "next/server";
  */
 export function middleware(req: NextRequest) {
   const url = req.nextUrl.clone();
-  const host = req.headers.get("host") || "";
+  
+  // Extract real hostname (supporting x-forwarded-host behind Vercel / Cloudflare edge proxies)
+  const rawHost = req.headers.get("x-forwarded-host") || req.headers.get("host") || "";
+  const hostname = rawHost.toLowerCase().split(":")[0];
 
-  // Extract hostname without port
-  const hostname = host.toLowerCase().split(":")[0];
-
-  // Exclude static assets, Next.js internal files, and API routes from rewrite
+  // Exclude static assets, Next.js internal files, images, icons, and API routes from rewrite
   if (
     url.pathname.startsWith("/_next") ||
     url.pathname.startsWith("/api") ||
+    url.pathname.startsWith("/assets") ||
     url.pathname.startsWith("/icons") ||
     url.pathname.startsWith("/images") ||
+    url.pathname.startsWith("/logos") ||
     url.pathname === "/sw.js" ||
     url.pathname === "/manifest.webmanifest" ||
     url.pathname === "/worker-manifest.json" ||
+    url.pathname === "/manifest.json" ||
     url.pathname === "/favicon.ico" ||
     url.pathname === "/robots.txt" ||
-    url.pathname === "/sitemap.xml"
+    url.pathname === "/sitemap.xml" ||
+    url.pathname.includes(".")
   ) {
     return NextResponse.next();
   }
 
-  // 1. WORKER / PARTNER PORTAL: partner.osmida.com or partner.localhost
-  if (hostname.startsWith("partner.")) {
-    if (url.pathname === "/" || url.pathname === "") {
-      url.pathname = "/partner";
-      return NextResponse.rewrite(url);
-    }
-    if (!url.pathname.startsWith("/partner")) {
-      url.pathname = `/partner${url.pathname}`;
-      return NextResponse.rewrite(url);
-    }
-    return NextResponse.next();
+  // 1. WORKER / PARTNER PORTAL: partner.osmida.com or parnter.osmida.com (handling common typo) or partner.localhost
+  const isPartnerDomain =
+    hostname.startsWith("partner.") ||
+    hostname.startsWith("parnter.") ||
+    hostname === "partner.osmida.com" ||
+    hostname === "parnter.osmida.com";
+
+  if (isPartnerDomain) {
+    // Route everything on partner domain to the partner SPA portal
+    url.pathname = "/partner";
+    return NextResponse.rewrite(url);
   }
 
   // 2. ADMIN OPS PORTAL: admin.osmida.com or admin.localhost
-  if (hostname.startsWith("admin.")) {
+  const isAdminDomain =
+    hostname.startsWith("admin.") ||
+    hostname === "admin.osmida.com";
+
+  if (isAdminDomain) {
     if (url.pathname === "/" || url.pathname === "") {
       url.pathname = "/admin";
       return NextResponse.rewrite(url);

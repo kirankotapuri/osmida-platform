@@ -1357,113 +1357,146 @@ export default function PartnerPortalPage() {
   return (
     <main className="min-h-screen bg-[#0A0E17] text-white pb-24">
       {/* 1. TOP STATUS BAR & HEADER */}
-      <header className="sticky top-0 z-40 bg-[#121826]/95 backdrop-blur-md border-b border-white/10 px-4 py-3">
-        <div className="max-w-xl mx-auto flex items-center justify-between">
-          <div className="flex items-center gap-2.5">
-            <div className="relative h-9 w-9 rounded-xl overflow-hidden border border-white/20 shadow-sm flex items-center justify-center shrink-0">
-              <Image src="/icons/icon-192x192.png" alt="Osmida" width={36} height={36} className="object-contain" />
-            </div>
-            <div>
-              <div className="flex items-center gap-1.5">
-                <h2 className="text-sm font-bold text-white leading-tight">{partner.name}</h2>
-                <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold bg-amber-500/20 text-amber-300 px-1.5 py-0.2 rounded">
-                  <Star className="w-2.5 h-2.5 fill-amber-300" /> {partner.rating}
-                </span>
+      <header className="sticky top-0 z-40 bg-[#101624]/98 backdrop-blur-lg border-b border-white/10 px-3.5 sm:px-4 py-2.5 shadow-lg">
+        <div className="max-w-xl mx-auto space-y-2">
+          {/* ROW 1: PARTNER PROFILE & PRIMARY DISPATCH STATUS */}
+          <div className="flex items-center justify-between gap-2">
+            {/* Left: Partner Identity with Live Status Indicator */}
+            <div className="flex items-center gap-2.5 min-w-0">
+              <div className="relative shrink-0">
+                <div className="h-9 w-9 rounded-xl overflow-hidden border border-white/20 shadow-md bg-[#0A0E17] flex items-center justify-center">
+                  <Image src="/icons/icon-192x192.png" alt="Osmida" width={34} height={34} className="object-contain" />
+                </div>
+                {/* Live Online Dot */}
+                <span
+                  className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#101624] ${
+                    isOnline ? "bg-emerald-400" : "bg-gray-500"
+                  }`}
+                />
               </div>
-              <p className="text-[11px] text-gray-400">
-                Osmida Partner • {partner.assigned_hub} Hub
-              </p>
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <h2 className="text-sm font-bold text-white leading-tight truncate max-w-[120px] sm:max-w-[180px]">
+                    {partner.name}
+                  </h2>
+                  <span className="inline-flex items-center gap-0.5 text-[10px] font-bold bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full border border-amber-500/30">
+                    <Star className="w-2.5 h-2.5 fill-amber-300 text-amber-300" /> {partner.rating}
+                  </span>
+                </div>
+                <p className="text-[11px] text-gray-400 truncate">
+                  {partner.assigned_hub} Hub
+                </p>
+              </div>
+            </div>
+
+            {/* Right: Language Pill & Main Online/Offline Switch */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {/* Dual-Language Segmented Pill */}
+              <div className="flex items-center bg-black/60 p-0.5 rounded-full border border-white/15 shadow-inner">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLang("en");
+                    try {
+                      sessionStorage.setItem("osmida_partner_lang", "en");
+                      localStorage.setItem("osmida_partner_lang", "en");
+                    } catch {}
+                  }}
+                  className={`px-2 py-0.5 rounded-full text-[11px] font-bold transition cursor-pointer ${
+                    lang === "en"
+                      ? "bg-[#0C6266] text-white shadow-sm"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  EN
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setLang("te");
+                    try {
+                      sessionStorage.setItem("osmida_partner_lang", "te");
+                      localStorage.setItem("osmida_partner_lang", "te");
+                    } catch {}
+                  }}
+                  className={`px-2 py-0.5 rounded-full text-[11px] font-bold transition cursor-pointer ${
+                    lang === "te"
+                      ? "bg-[#E68A00] text-slate-950 font-black shadow-sm"
+                      : "text-gray-400 hover:text-white"
+                  }`}
+                >
+                  తెలుగు
+                </button>
+              </div>
+
+              {/* High-Contrast ONLINE/OFFLINE Toggle */}
+              <button
+                type="button"
+                onClick={handleToggleOnline}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-black tracking-wide transition border cursor-pointer ${
+                  isOnline
+                    ? "bg-emerald-500/20 border-emerald-500/50 text-emerald-300 shadow-sm shadow-emerald-500/30 ring-1 ring-emerald-500/30"
+                    : "bg-gray-800/90 border-gray-600/60 text-gray-300 hover:bg-gray-700/90"
+                }`}
+              >
+                <Power className={`w-3.5 h-3.5 ${isOnline ? "text-emerald-400 animate-pulse" : "text-gray-400"}`} />
+                <span>{isOnline ? (lang === "te" ? "ఆన్‌లైన్" : "ONLINE") : (lang === "te" ? "ఆఫ్‌లైన్" : "OFFLINE")}</span>
+              </button>
             </div>
           </div>
 
-          {/* HEADER CONTROLS */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            {/* DUAL-LANGUAGE SEGMENTED SWITCH */}
-            <div className="flex items-center bg-black/50 p-0.5 rounded-full border border-white/20 shadow-sm">
-              <button
-                type="button"
-                onClick={() => {
-                  setLang("en");
-                  try {
-                    sessionStorage.setItem("osmida_partner_lang", "en");
-                    localStorage.setItem("osmida_partner_lang", "en");
-                  } catch {}
-                }}
-                className={`px-2 py-0.5 rounded-full text-xs font-bold transition cursor-pointer ${
-                  lang === "en"
-                    ? "bg-[#0C6266] text-white shadow"
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                EN
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setLang("te");
-                  try {
-                    sessionStorage.setItem("osmida_partner_lang", "te");
-                    localStorage.setItem("osmida_partner_lang", "te");
-                  } catch {}
-                }}
-                className={`px-2 py-0.5 rounded-full text-xs font-bold transition cursor-pointer ${
-                  lang === "te"
-                    ? "bg-[#E68A00] text-slate-950 font-black shadow"
-                    : "text-gray-400 hover:text-white"
-                }`}
-              >
-                తెలుగు
-              </button>
+          {/* ROW 2: QUICK ACTION UTILITY SUB-BAR */}
+          <div className="flex items-center justify-between pt-1 border-t border-white/5 text-xs">
+            {/* Left: Locality Badge */}
+            <div className="flex items-center gap-1 text-[11px] text-gray-400 truncate">
+              <MapPin className="w-3 h-3 text-[#38B2AC] shrink-0" />
+              <span className="truncate">{partner.coverage_localities?.[0] || "Nellore Central"}</span>
             </div>
 
-            {/* NELLORE HUB HOTLINE */}
-            {/* NELLORE HUB HOTLINE */}
-            <a
-              href="tel:9490122849"
-              title="Call Nellore Hub Support (9490122849)"
-              className="p-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-400 border border-emerald-500/30 rounded-full transition flex items-center justify-center cursor-pointer"
-            >
-              <Headphones className="w-3.5 h-3.5" />
-            </a>
+            {/* Right: Hotline, SOS, Reset, Logout */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {/* Nellore Hub Hotline */}
+              <a
+                href="tel:9490122849"
+                title="Call Nellore Hub Support (9490122849)"
+                className="flex items-center gap-1 px-2 py-1 bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-300 border border-emerald-500/30 rounded-lg text-[10px] font-bold transition cursor-pointer"
+              >
+                <Headphones className="w-3 h-3 text-emerald-400" />
+                <span>Hub</span>
+              </a>
 
-            {/* EMERGENCY SOS BUTTON */}
-            <button
-              type="button"
-              onClick={handleEmergencySos}
-              disabled={isSendingSos}
-              className="flex items-center gap-1 px-2.5 py-1 bg-red-600/25 hover:bg-red-600/40 text-red-400 border border-red-500/40 rounded-full text-xs font-black transition shadow-sm shadow-red-500/20 cursor-pointer animate-pulse"
-              title={t.emergencySos}
-            >
-              <Siren className="w-3.5 h-3.5 text-red-400" />
-              <span>SOS</span>
-            </button>
+              {/* Emergency SOS Button */}
+              <button
+                type="button"
+                onClick={handleEmergencySos}
+                disabled={isSendingSos}
+                className="flex items-center gap-1 px-2.5 py-1 bg-red-600/25 hover:bg-red-600/40 text-red-300 border border-red-500/50 rounded-lg text-[10px] font-black transition shadow-sm shadow-red-500/20 cursor-pointer animate-pulse"
+                title={t.emergencySos}
+              >
+                <Siren className="w-3 h-3 text-red-400" />
+                <span>SOS</span>
+              </button>
 
-            {/* ONLINE / OFFLINE TOGGLE */}
-            <button
-              onClick={handleToggleOnline}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition border cursor-pointer ${
-                isOnline
-                  ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-400 shadow-sm shadow-emerald-500/20"
-                  : "bg-gray-800 border-gray-600 text-gray-400"
-              }`}
-            >
-              <Power className={`w-3.5 h-3.5 ${isOnline ? "animate-pulse" : ""}`} />
-              {isOnline ? (lang === "te" ? "ఆన్‌లైన్" : "ONLINE") : (lang === "te" ? "ఆఫ్‌లైన్" : "OFFLINE")}
-            </button>
-            <button
-              onClick={handleResetJobs}
-              title="Reset test data (clear all active jobs to start clean)"
-              className="px-2 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-[10px] font-bold transition flex items-center gap-1"
-            >
-              <RotateCcw className="w-3 h-3" />
-            </button>
-            <button
-              onClick={handleLogout}
-              title="Logout"
-              className="p-1.5 text-gray-400 hover:text-red-400 transition"
-            >
-              <LogOut className="w-4 h-4" />
-            </button>
+              {/* Reset Test Jobs */}
+              <button
+                type="button"
+                onClick={handleResetJobs}
+                title="Reset test data (clear all active jobs to start clean)"
+                className="p-1.5 bg-white/5 hover:bg-white/10 text-gray-400 hover:text-amber-300 border border-white/10 rounded-lg text-[10px] font-bold transition flex items-center justify-center cursor-pointer"
+              >
+                <RotateCcw className="w-3 h-3" />
+              </button>
+
+              {/* Sign Out */}
+              <button
+                type="button"
+                onClick={handleLogout}
+                title="Logout"
+                className="p-1.5 bg-white/5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 border border-white/10 rounded-lg transition flex items-center justify-center cursor-pointer"
+              >
+                <LogOut className="w-3 h-3" />
+              </button>
+            </div>
           </div>
         </div>
       </header>
@@ -2510,43 +2543,52 @@ export default function PartnerPortalPage() {
       {/* ------------------------------------------------------------- */}
       {/* BOTTOM NAVIGATION BAR                                         */}
       {/* ------------------------------------------------------------- */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#121826]/95 backdrop-blur-md border-t border-white/10 py-2">
-        <div className="max-w-xl mx-auto grid grid-cols-3 text-center">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#101624]/95 backdrop-blur-xl border-t border-white/10 pt-2 pb-[max(0.6rem,env(safe-area-inset-bottom))] shadow-2xl">
+        <div className="max-w-xl mx-auto grid grid-cols-3 text-center px-2">
           <button
+            type="button"
             onClick={() => setActiveTab("jobs")}
-            className={`flex flex-col items-center gap-1 py-1 text-[11px] font-bold transition ${
-              activeTab === "jobs" ? "text-[#0C6266]" : "text-gray-400 hover:text-gray-200"
+            className={`flex flex-col items-center gap-1 py-1.5 rounded-xl transition cursor-pointer active:scale-95 ${
+              activeTab === "jobs"
+                ? "text-[#38B2AC] font-black"
+                : "text-gray-400 hover:text-gray-200 font-semibold"
             }`}
           >
             <div className="relative">
               <Clock className="w-5 h-5" />
               {offeredJobs.length > 0 && (
-                <span className="absolute -top-1 -right-1.5 w-3.5 h-3.5 rounded-full bg-[#0C6266] text-black text-[9px] font-black flex items-center justify-center">
+                <span className="absolute -top-1.5 -right-2 min-w-4 h-4 px-1 rounded-full bg-[#E68A00] text-slate-950 text-[10px] font-black flex items-center justify-center animate-bounce">
                   {offeredJobs.length}
                 </span>
               )}
             </div>
-            <span>{t.navJobs}</span>
+            <span className="text-[11px] tracking-wide">{t.navJobs}</span>
           </button>
 
           <button
+            type="button"
             onClick={() => setActiveTab("earnings")}
-            className={`flex flex-col items-center gap-1 py-1 text-[11px] font-bold transition ${
-              activeTab === "earnings" ? "text-[#0C6266]" : "text-gray-400 hover:text-gray-200"
+            className={`flex flex-col items-center gap-1 py-1.5 rounded-xl transition cursor-pointer active:scale-95 ${
+              activeTab === "earnings"
+                ? "text-[#38B2AC] font-black"
+                : "text-gray-400 hover:text-gray-200 font-semibold"
             }`}
           >
             <Wallet className="w-5 h-5" />
-            <span>{t.navEarnings}</span>
+            <span className="text-[11px] tracking-wide">{t.navEarnings}</span>
           </button>
 
           <button
+            type="button"
             onClick={() => setActiveTab("profile")}
-            className={`flex flex-col items-center gap-1 py-1 text-[11px] font-bold transition ${
-              activeTab === "profile" ? "text-[#0C6266]" : "text-gray-400 hover:text-gray-200"
+            className={`flex flex-col items-center gap-1 py-1.5 rounded-xl transition cursor-pointer active:scale-95 ${
+              activeTab === "profile"
+                ? "text-[#38B2AC] font-black"
+                : "text-gray-400 hover:text-gray-200 font-semibold"
             }`}
           >
             <User className="w-5 h-5" />
-            <span>{t.navProfile}</span>
+            <span className="text-[11px] tracking-wide">{t.navProfile}</span>
           </button>
         </div>
       </nav>
