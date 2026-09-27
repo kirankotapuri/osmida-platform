@@ -25,12 +25,16 @@ export function InstallAppPrompt() {
   const [isInstalling, setIsInstalling] = useState(false);
   const [feedbackMessage, setFeedbackMessage] = useState<string | null>(null);
 
-  // Detect whether currently on Partner portal or Customer portal
+  // Detect whether currently on Partner portal, Admin portal, or Customer portal
   const isPartnerPortal =
     Boolean(pathname?.startsWith("/partner")) ||
     (typeof window !== "undefined" &&
       (window.location.hostname.startsWith("partner.") ||
         window.location.hostname.startsWith("parnter.")));
+
+  const isAdminPortal =
+    Boolean(pathname?.startsWith("/admin")) ||
+    (typeof window !== "undefined" && window.location.hostname.startsWith("admin."));
 
   useEffect(() => {
     // Check if already running in standalone mode (already opened from phone homescreen)
@@ -156,8 +160,8 @@ export function InstallAppPrompt() {
     }, 2500);
   };
 
-  // If already opened as an installed standalone app from homescreen, don't show prompt
-  if (isStandalone) return null;
+  // If in admin portal or already opened as an installed standalone app from homescreen, don't show prompt
+  if (isAdminPortal || isStandalone) return null;
 
   const appTitle = isPartnerPortal ? "Osmida Partner App" : "Osmida Customer App";
   const appBadge = isPartnerPortal ? "Partner App" : "Customer App";
