@@ -394,15 +394,33 @@ export default function AdminDashboardPage() {
     setZones((prev) => prev.filter((z) => z !== zone));
   };
 
+  // Normalize status across dispatch lifecycle
+  const normalizeStatus = (status: string | undefined): string => {
+    const s = String(status || "").toLowerCase().trim();
+    if (s === "in-progress" || s === "in_progress" || s === "started") return "in_progress";
+    if (s === "assigned" || s === "accepted" || s === "dispatched" || s === "reach_gate" || s === "at_gate") return "assigned";
+    if (s === "pending" || s === "offered" || s === "confirmed") return "pending";
+    if (s === "completed" || s === "done") return "completed";
+    if (s === "disputed" || s === "complaint") return "disputed";
+    return s || "pending";
+  };
+
+  const getStatusCount = (filterKey: string): number => {
+    if (filterKey === "all") return bookings.length;
+    return bookings.filter((b) => normalizeStatus(b.status) === filterKey).length;
+  };
+
   const filteredBookings = bookings.filter((b) => {
-    if (bookingFilter !== "all" && b.status !== bookingFilter) return false;
+    const norm = normalizeStatus(b.status);
+    if (bookingFilter !== "all" && norm !== bookingFilter) return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       return (
         b.reference_id?.toLowerCase().includes(q) ||
         b.customer_name?.toLowerCase().includes(q) ||
         b.phone?.includes(q) ||
-        b.locality?.toLowerCase().includes(q)
+        b.locality?.toLowerCase().includes(q) ||
+        b.worker_name?.toLowerCase().includes(q)
       );
     }
     return true;
@@ -629,19 +647,31 @@ export default function AdminDashboardPage() {
             {/* Filter Pills & Search */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-1.5 bg-slate-950 p-1 rounded-xl border border-slate-800 text-xs overflow-x-auto w-full sm:w-auto">
-                {["all", "pending", "assigned", "in_progress", "completed", "disputed"].map((st) => (
-                  <button
-                    key={st}
-                    onClick={() => setBookingFilter(st)}
-                    className={`px-3 py-1.5 rounded-lg capitalize transition font-bold ${
-                      bookingFilter === st
-                        ? "bg-slate-800 text-white"
-                        : "text-slate-400 hover:text-white"
-                    }`}
-                  >
-                    {st.replace(/_/g, " ")}
-                  </button>
-                ))}
+                {["all", "pending", "assigned", "in_progress", "completed", "disputed"].map((st) => {
+                  const count = getStatusCount(st);
+                  return (
+                    <button
+                      key={st}
+                      onClick={() => setBookingFilter(st)}
+                      className={`px-3 py-1.5 rounded-lg capitalize transition font-bold flex items-center gap-1.5 shrink-0 cursor-pointer ${
+                        bookingFilter === st
+                          ? "bg-slate-800 text-white shadow-xs"
+                          : "text-slate-400 hover:text-white"
+                      }`}
+                    >
+                      <span>{st.replace(/_/g, " ")}</span>
+                      <span
+                        className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono font-bold ${
+                          bookingFilter === st
+                            ? "bg-[#0C6266] text-white"
+                            : "bg-slate-900 text-slate-400 border border-slate-800"
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    </button>
+                  );
+                })}
               </div>
 
               <div className="relative w-full sm:w-64">
@@ -726,19 +756,29 @@ export default function AdminDashboardPage() {
                             </span>
                           </td>
                           <td className="p-3.5">
-                            <span
-                              className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide inline-block ${
-                                b.status === "completed"
-                                  ? "bg-[#0C6266]/30 text-[#E68A00] border border-[#0C6266]/50"
-                                  : b.status === "in_progress"
-                                  ? "bg-amber-500/20 text-amber-400 border border-amber-500/30 animate-pulse"
-                                  : b.status === "disputed"
-                                  ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
-                                  : "bg-blue-500/20 text-blue-400 border border-blue-500/30"
-                              }`}
-                            >
-                              {b.status}
-                            </span>
+                            {(() => {
+                              const norm = normalizeStatus(b.status);
+                              const isDispatched = b.status === "dispatched" || b.status === "at_gate" || b.status === "reach_gate";
+                              return (
+                                <span
+                                  className={`px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wide inline-block ${
+                                    norm === "completed"
+                                      ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40"
+                                      : norm === "in_progress"
+                                      ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 animate-pulse"
+                                      : norm === "disputed"
+                                      ? "bg-rose-500/20 text-rose-400 border border-rose-500/30"
+                                      : isDispatched
+                                      ? "bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 font-bold"
+                                      : norm === "assigned"
+                                      ? "bg-blue-500/20 text-blue-300 border border-blue-500/30 font-bold"
+                                      : "bg-purple-500/20 text-purple-300 border border-purple-500/30"
+                                  }`}
+                                >
+                                  {isDispatched ? (b.status === "at_gate" || b.status === "reach_gate" ? "AT GATE" : "ON THE WAY") : norm.replace(/_/g, " ")}
+                                </span>
+                              );
+                            })()}
                           </td>
                           <td className="p-3.5">
                             {b.worker_name ? (

@@ -75,6 +75,29 @@ export async function GET(
       return NextResponse.json({ error: "Booking not found" }, { status: 404 });
     }
 
+    // Overlay real-time operational status from globalActiveJobs if available
+    try {
+      const { globalActiveJobs } = await import("../../partner/jobs/route");
+      let liveJob = globalActiveJobs.get(`job-${referenceId}`);
+      if (!liveJob) {
+        for (const [_, j] of globalActiveJobs.entries()) {
+          if (j.reference_id === referenceId) {
+            liveJob = j;
+            break;
+          }
+        }
+      }
+      if (liveJob) {
+        if (liveJob.status) {
+          booking.status = (liveJob.status as string) === "in_progress" ? "in-progress" : liveJob.status;
+        }
+        if (liveJob.matched_partner_name) booking.worker_name = liveJob.matched_partner_name;
+        if ((liveJob as any).partner_phone) booking.worker_phone = (liveJob as any).partner_phone;
+        if (liveJob.before_photo_url) booking.before_photo_url = liveJob.before_photo_url;
+        if (liveJob.after_photo_url) booking.after_photo_url = liveJob.after_photo_url;
+      }
+    } catch {}
+
     // Ensure math tally fields are always resolved numbers
     const resolvedDuration = Number(booking.duration_hours) || 1.0;
     const resolvedRate = Number(booking.hourly_rate) || 199;

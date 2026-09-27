@@ -344,7 +344,7 @@ export async function POST(req: Request) {
         const { prontoBookingsStore } = await import("../../bookings/route");
         const stored = prontoBookingsStore.get(refId);
         if (stored) {
-          stored.status = "in-progress";
+          stored.status = "in_progress";
           prontoBookingsStore.set(refId, stored);
         }
       } catch {}
@@ -357,7 +357,7 @@ export async function POST(req: Request) {
             .eq("id", job.id);
           await supabase
             .from("bookings")
-            .update({ status: "in-progress", updated_at: new Date().toISOString() })
+            .update({ status: "in_progress", updated_at: new Date().toISOString() })
             .eq("reference_id", refId);
         } catch (dbErr) {
           console.warn("DB start note:", dbErr);

@@ -45,13 +45,54 @@ export async function GET(req: Request) {
       }
     }
 
-    // Merge with in-memory store
+    // Merge & Overlay with in-memory prontoBookingsStore
     for (const [_, b] of prontoBookingsStore.entries()) {
-      if (!bookings.some((existing) => existing.reference_id === b.reference_id)) {
-        if (!status || status === "all" || b.status === status) {
-          bookings.unshift(b);
-        }
+      const idx = bookings.findIndex((existing) => existing.reference_id === b.reference_id);
+      if (idx >= 0) {
+        bookings[idx] = {
+          ...bookings[idx],
+          status: b.status || bookings[idx].status,
+          worker_id: b.worker_id || bookings[idx].worker_id,
+          worker_name: b.worker_name || bookings[idx].worker_name,
+          worker_phone: b.worker_phone || bookings[idx].worker_phone,
+          before_photo_url: b.before_photo_url || bookings[idx].before_photo_url,
+          after_photo_url: b.after_photo_url || bookings[idx].after_photo_url,
+        };
+      } else {
+        bookings.unshift(b);
       }
+    }
+
+    // Overlay real-time operational status from globalActiveJobs
+    for (const [_, job] of globalActiveJobs.entries()) {
+      if (!job.reference_id) continue;
+      const idx = bookings.findIndex((existing) => existing.reference_id === job.reference_id);
+      if (idx >= 0) {
+        const rawStatus = String(job.status || bookings[idx].status || "").toLowerCase().trim();
+        let liveStatus = rawStatus;
+        if (rawStatus === "accepted" || rawStatus === "dispatched" || rawStatus === "at_gate" || rawStatus === "reach_gate") {
+          liveStatus = "assigned";
+        } else if (rawStatus === "in-progress" || rawStatus === "in_progress") {
+          liveStatus = "in_progress";
+        }
+        bookings[idx].status = liveStatus;
+        if (job.partner_id) bookings[idx].worker_id = job.partner_id;
+        if (job.matched_partner_name) bookings[idx].worker_name = job.matched_partner_name;
+        if (job.before_photo_url) bookings[idx].before_photo_url = job.before_photo_url;
+        if (job.after_photo_url) bookings[idx].after_photo_url = job.after_photo_url;
+      }
+    }
+
+    // Normalize all booking statuses
+    bookings = bookings.map((b) => {
+      let st = String(b.status || "").toLowerCase().trim();
+      if (st === "in-progress" || st === "in_progress") st = "in_progress";
+      else if (st === "accepted" || st === "dispatched" || st === "at_gate" || st === "reach_gate") st = "assigned";
+      return { ...b, status: st };
+    });
+
+    if (status && status !== "all") {
+      bookings = bookings.filter((b) => b.status === status);
     }
 
     // Also get active workers roster for the manual assignment dropdown
