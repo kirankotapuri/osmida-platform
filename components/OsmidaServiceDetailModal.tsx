@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { X, Check, ArrowRight, ShieldCheck } from "lucide-react";
 import { OsmidaService } from "@/lib/osmidaServices";
+import { useServiceLocations } from "@/lib/serviceLocations";
 
 interface OsmidaServiceDetailModalProps {
   service: OsmidaService | null;
@@ -19,22 +20,13 @@ const SERVICE_IMAGES: Record<string, string> = {
   general_house_help: "/images/isometric_livingroom_mini.jpg",
 };
 
-const NELLORE_AREAS = [
-  "Haranathapuram",
-  "Magunta Layout",
-  "Vedayapalem",
-  "Pogathota",
-  "Dargamitta",
-  "Balaji Nagar",
-  "Nawabpet",
-  "Children's Park Road",
-];
 
 export function OsmidaServiceDetailModal({
   service,
   isOpen,
   onClose,
 }: OsmidaServiceDetailModalProps) {
+  const { locations: serviceLocations } = useServiceLocations();
   if (!isOpen || !service) return null;
 
   const imageSrc = SERVICE_IMAGES[service.id] || "/images/isometric_bathroom_mini.jpg";
@@ -147,7 +139,7 @@ export function OsmidaServiceDetailModal({
             Available across Nellore Apartments
           </h4>
           <div className="flex flex-wrap gap-1.5">
-            {NELLORE_AREAS.map((area, idx) => (
+            {serviceLocations.map((area, idx) => (
               <span
                 key={idx}
                 className="text-[11px] font-semibold text-[#475559] bg-[#F4F8F8] px-3 py-1 rounded-full border border-[#DFE8E8]"

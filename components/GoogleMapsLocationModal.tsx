@@ -15,6 +15,8 @@ import {
   Compass,
 } from "lucide-react";
 
+import { useServiceLocations, DEFAULT_NELLORE_LOCALITIES } from "@/lib/serviceLocations";
+
 interface GoogleMapsLocationModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -29,15 +31,7 @@ interface GoogleMapsLocationModalProps {
   currentLocality?: string;
 }
 
-const NELLORE_AREAS = [
-  "Pogathota",
-  "Haranathapuram",
-  "Magunta Layout",
-  "Vedayapalem",
-  "Dargamitta",
-  "Balaji Nagar",
-  "Nellore Central",
-];
+const NELLORE_AREAS = DEFAULT_NELLORE_LOCALITIES;
 
 const POPULAR_NELLORE_LANDMARKS = [
   { name: "Balaji Towers", locality: "Magunta Layout", address: "Main Road, Magunta Layout" },
@@ -54,6 +48,9 @@ export function GoogleMapsLocationModal({
   onSelectLocation,
   currentLocality = "Pogathota",
 }: GoogleMapsLocationModalProps) {
+  const { locations: dynamicLocations } = useServiceLocations();
+  const availableLocalities = dynamicLocations && dynamicLocations.length > 0 ? dynamicLocations : NELLORE_AREAS;
+
   const [mounted, setMounted] = useState(false);
   const [selectedLocality, setSelectedLocality] = useState(currentLocality);
   const [searchQuery, setSearchQuery] = useState("");
@@ -71,10 +68,10 @@ export function GoogleMapsLocationModal({
 
   // Sync with current locality on open
   useEffect(() => {
-    if (currentLocality && NELLORE_AREAS.includes(currentLocality)) {
+    if (currentLocality && availableLocalities.includes(currentLocality)) {
       setSelectedLocality(currentLocality);
     }
-  }, [currentLocality, isOpen]);
+  }, [currentLocality, isOpen, availableLocalities]);
 
   if (!isOpen || !mounted) return null;
 
@@ -113,7 +110,7 @@ export function GoogleMapsLocationModal({
             setDetectedAddress(fullStr);
 
             // Match closest Nellore locality
-            const matchedArea = NELLORE_AREAS.find((a) =>
+            const matchedArea = availableLocalities.find((a) =>
               fullStr.toLowerCase().includes(a.toLowerCase())
             );
             if (matchedArea) {
@@ -272,13 +269,13 @@ export function GoogleMapsLocationModal({
             <label className="block text-[11px] font-black uppercase tracking-wider text-slate-700">
               1. Nellore Locality / Zone
             </label>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5">
-              {NELLORE_AREAS.map((area) => (
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-1.5 max-h-40 overflow-y-auto pr-1">
+              {availableLocalities.map((area) => (
                 <button
                   key={area}
                   type="button"
                   onClick={() => setSelectedLocality(area)}
-                  className={`px-2.5 py-1.5 rounded-xl text-xs font-bold border transition text-center ${
+                  className={`px-2.5 py-1.5 rounded-xl text-xs font-bold border transition text-center truncate ${
                     selectedLocality === area
                       ? "bg-[#0C6266] text-white border-[#0C6266] shadow-xs"
                       : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"

@@ -8,6 +8,7 @@ import {
   OsmidaService,
 } from "@/lib/osmidaServices";
 import { Language } from "@/lib/translations";
+import { useServiceLocations } from "@/lib/serviceLocations";
 import {
   Bath,
   ChefHat,
@@ -32,6 +33,7 @@ interface OsmidaServiceCatalogProps {
 
 export function OsmidaServiceCatalog({ lang }: OsmidaServiceCatalogProps) {
   const router = useRouter();
+  const { locations: dynamicLocations } = useServiceLocations();
   const [hourlyRate, setHourlyRate] = useState<number>(DEFAULT_APP_SETTINGS.hourly_rate);
   const [selectedDuration, setSelectedDuration] = useState<number>(1.5);
   const [selectedServices, setSelectedServices] = useState<string[]>([
@@ -307,8 +309,8 @@ export function OsmidaServiceCatalog({ lang }: OsmidaServiceCatalogProps) {
                   : "Serving Gated Communities & Apartments Across Nellore"}
               </h4>
               <p className="text-xs text-slate-300 font-medium">
-                {lang === "te"
-                  ? "హరినాథపురం, పొగతోట, మగుంట లేఅవుట్, వేదాయపాలెం మరియు పరిసర ప్రాంతాలు."
+                {dynamicLocations && dynamicLocations.length > 0
+                  ? dynamicLocations.slice(0, 5).join(", ") + (dynamicLocations.length > 5 ? " & nearby." : ".")
                   : "Haranathapuram, Pogathota, Magunta Layout, Vedayapalem, Ramamurthy Nagar & nearby."}
               </p>
             </div>

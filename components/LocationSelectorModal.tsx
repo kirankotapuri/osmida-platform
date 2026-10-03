@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { Language } from "@/lib/translations";
 import { NELLORE_LOCALITIES } from "@/lib/constants";
+import { useServiceLocations } from "@/lib/serviceLocations";
 
 // Non-Nellore major cities to detect out-of-service queries
 const OUT_OF_SERVICE_CITIES = [
@@ -171,12 +172,19 @@ export function LocationSelectorModal({
     );
   };
 
+  const { locations: dynamicLocalities } = useServiceLocations();
+  const effectiveLocalities = useMemo(() => {
+    return dynamicLocalities && dynamicLocalities.length > 0
+      ? dynamicLocalities
+      : NELLORE_LOCALITIES;
+  }, [dynamicLocalities]);
+
   // Filtered Localities and Landmarks
   const filteredItems = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) {
       return {
-        localities: [...NELLORE_LOCALITIES],
+        localities: [...effectiveLocalities],
         landmarks: NELLORE_LANDMARKS.slice(0, 6),
       };
     }
@@ -184,12 +192,12 @@ export function LocationSelectorModal({
     // Check if query is a Google Maps link
     if (q.includes("google.com/maps") || q.includes("goo.gl") || q.includes("maps.app")) {
       return {
-        localities: ["Kailasapuram", "Pogathota", "Magunta Layout"],
-        landmarks: [{ name: "Google Maps Linked Location (Nellore)", locality: "Kailasapuram", type: "Map Link" }],
+        localities: effectiveLocalities.slice(0, 3),
+        landmarks: [{ name: "Google Maps Linked Location (Nellore)", locality: effectiveLocalities[0] || "Pogathota", type: "Map Link" }],
       };
     }
 
-    const matchedLocalities = NELLORE_LOCALITIES.filter((loc) =>
+    const matchedLocalities = effectiveLocalities.filter((loc) =>
       loc.toLowerCase().includes(q)
     );
 
@@ -203,7 +211,7 @@ export function LocationSelectorModal({
       localities: matchedLocalities,
       landmarks: matchedLandmarks,
     };
-  }, [query]);
+  }, [query, effectiveLocalities]);
 
   const handleSelect = (loc: string, details?: string) => {
     onSelectLocality(loc, details);

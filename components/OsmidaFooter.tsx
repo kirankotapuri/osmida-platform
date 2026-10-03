@@ -16,9 +16,11 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { OSMIDA_SERVICES } from "@/lib/osmidaServices";
+import { useServiceLocations } from "@/lib/serviceLocations";
 
 export function OsmidaFooter() {
   const currentYear = new Date().getFullYear();
+  const { locations: serviceLocations } = useServiceLocations();
 
   return (
     <footer className="bg-[#062426] text-white pt-14 pb-10 border-t border-[#0C4144]">
@@ -192,18 +194,7 @@ export function OsmidaFooter() {
         <div className="pt-6 border-t border-[#0C4144]/80 flex flex-col md:flex-row md:items-center justify-between gap-3 text-[11px] text-slate-400 font-medium">
           <span className="font-bold text-slate-300 shrink-0">Serving All Nellore Localities:</span>
           <div className="flex flex-wrap gap-2 text-slate-300">
-            {[
-              "Haranathapuram",
-              "Magunta Layout",
-              "Vedayapalem",
-              "Pogathota",
-              "Balaji Nagar",
-              "Dargamitta",
-              "Children's Park Road",
-              "Kisan Nagar",
-              "Chinthareddypalem",
-              "Nellore Central",
-            ].map((loc) => (
+            {serviceLocations.map((loc) => (
               <span
                 key={loc}
                 className="bg-[#093538] px-2 py-0.5 rounded-md border border-[#0C4A4E] text-[10px]"

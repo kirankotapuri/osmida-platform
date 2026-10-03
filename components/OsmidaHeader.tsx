@@ -22,18 +22,10 @@ import {
 } from "lucide-react";
 import { CustomerLoginModal } from "./CustomerLoginModal";
 import { createClient } from "@supabase/supabase-js";
-
-const NELLORE_LOCALITIES = [
-  "Haranathapuram",
-  "Magunta Layout",
-  "Vedayapalem",
-  "Pogathota",
-  "Dargamitta",
-  "Balaji Nagar",
-  "Nellore Central",
-];
+import { useServiceLocations } from "@/lib/serviceLocations";
 
 export function OsmidaHeader() {
+  const { locations: serviceLocations } = useServiceLocations();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [selectedLocality, setSelectedLocality] = useState("Haranathapuram");
   const [locationDropdownOpen, setLocationDropdownOpen] = useState(false);
@@ -43,6 +35,18 @@ export function OsmidaHeader() {
   const [customerName, setCustomerName] = useState("");
   const [customerEmail, setCustomerEmail] = useState("");
   const [customerAvatar, setCustomerAvatar] = useState("");
+
+  // Sync initial locality from storage
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const saved = localStorage.getItem("osmida_selected_locality");
+      if (saved) {
+        setSelectedLocality(saved);
+      } else if (serviceLocations.length > 0) {
+        setSelectedLocality(serviceLocations[0]);
+      }
+    }
+  }, [serviceLocations]);
 
   const syncAuth = () => {
     if (typeof window !== "undefined") {
@@ -253,13 +257,16 @@ export function OsmidaHeader() {
                   <div className="px-2.5 py-1 text-[10px] font-extrabold uppercase tracking-wider text-[#475559] border-b border-[#F4F8F8] mb-1">
                     Select Nellore Locality
                   </div>
-                  <div className="space-y-0.5">
-                    {NELLORE_LOCALITIES.map((loc) => (
+                  <div className="space-y-0.5 max-h-72 overflow-y-auto pr-1">
+                    {serviceLocations.map((loc) => (
                       <button
                         key={loc}
                         type="button"
                         onClick={() => {
                           setSelectedLocality(loc);
+                          if (typeof window !== "undefined") {
+                            localStorage.setItem("osmida_selected_locality", loc);
+                          }
                           setLocationDropdownOpen(false);
                         }}
                         className={`w-full text-left px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between transition-colors cursor-pointer ${

@@ -3,6 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 import { DEFAULT_APP_SETTINGS, OSMIDA_SERVICES } from "@/lib/osmidaServices";
 
 export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+export const fetchCache = "force-no-store";
 
 function getSupabaseClient() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -10,6 +13,12 @@ function getSupabaseClient() {
   if (!supabaseUrl || !supabaseKey) return null;
   return createClient(supabaseUrl, supabaseKey);
 }
+
+const NO_CACHE_HEADERS = {
+  "Cache-Control": "no-store, no-cache, must-revalidate, proxy-revalidate",
+  "Pragma": "no-cache",
+  "Expires": "0",
+};
 
 // In-memory fallback if Supabase table is pending migration
 let cachedSettings = {
@@ -37,7 +46,17 @@ export async function GET() {
             cachedSettings.worker_payout_rate = Number(settingsMap.worker_payout_rate);
           }
           if (settingsMap.service_area) {
-            cachedSettings.service_zones = settingsMap.service_area;
+            let parsed = settingsMap.service_area;
+            while (typeof parsed === "string") {
+              try {
+                parsed = JSON.parse(parsed);
+              } catch {
+                break;
+              }
+            }
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              cachedSettings.service_zones = parsed.filter((z): z is string => typeof z === "string" && z.trim().length > 0);
+            }
           }
         }
       } catch (err) {
@@ -45,16 +64,19 @@ export async function GET() {
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      settings: cachedSettings,
-      services: OSMIDA_SERVICES,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        settings: cachedSettings,
+        services: OSMIDA_SERVICES,
+      },
+      { headers: NO_CACHE_HEADERS }
+    );
   } catch (error) {
     console.error("Settings GET error:", error);
     return NextResponse.json(
       { success: true, settings: cachedSettings, services: OSMIDA_SERVICES },
-      { status: 200 }
+      { status: 200, headers: NO_CACHE_HEADERS }
     );
   }
 }
@@ -103,13 +125,16 @@ export async function POST(req: Request) {
       }
     }
 
-    return NextResponse.json({
-      success: true,
-      settings: cachedSettings,
-      message: "Admin settings updated successfully",
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        settings: cachedSettings,
+        message: "Admin settings updated successfully",
+      },
+      { headers: NO_CACHE_HEADERS }
+    );
   } catch (error) {
     console.error("Settings POST error:", error);
-    return NextResponse.json({ error: "Failed to update settings" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to update settings" }, { status: 500, headers: NO_CACHE_HEADERS });
   }
 }

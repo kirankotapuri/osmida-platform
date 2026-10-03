@@ -34,8 +34,11 @@ import {
   MessageSquare,
   UserCheck,
   UserX,
+  Edit3,
+  RotateCcw,
 } from "lucide-react";
 import { OSMIDA_SERVICES, DEFAULT_APP_SETTINGS } from "@/lib/osmidaServices";
+import { broadcastLocationsUpdated, DEFAULT_NELLORE_LOCALITIES } from "@/lib/serviceLocations";
 
 export default function AdminDashboardPage() {
   // Admin Auth Gate State
@@ -119,6 +122,9 @@ export default function AdminDashboardPage() {
   const [workerPayoutInput, setWorkerPayoutInput] = useState<number>(140);
   const [zones, setZones] = useState<string[]>(DEFAULT_APP_SETTINGS.service_zones);
   const [newZoneInput, setNewZoneInput] = useState("");
+  const [editingZone, setEditingZone] = useState<{ original: string; current: string } | null>(null);
+  const [zoneSearchQuery, setZoneSearchQuery] = useState("");
+  const [zoneActionMsg, setZoneActionMsg] = useState("");
   const [settingsSavedMsg, setSettingsSavedMsg] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
@@ -163,15 +169,21 @@ export default function AdminDashboardPage() {
         setComplaints(cData.complaints || []);
       }
 
-      // 4. Fetch settings
-      const sRes = await fetch("/api/settings");
+      // 4. Fetch settings & live locations with cache-busting
+      const [sRes, lRes] = await Promise.all([
+        fetch(`/api/settings?t=${Date.now()}`, { cache: "no-store" }),
+        fetch(`/api/locations?t=${Date.now()}`, { cache: "no-store" }),
+      ]);
       const sData = await sRes.json();
+      const lData = await lRes.json();
       if (sData.success && sData.settings) {
         setHourlyRateInput(Number(sData.settings.hourly_rate) || 199);
         setWorkerPayoutInput(Number(sData.settings.worker_payout_rate) || 140);
-        if (Array.isArray(sData.settings.service_zones)) {
-          setZones(sData.settings.service_zones);
-        }
+      }
+      if (lData.success && Array.isArray(lData.locations) && lData.locations.length > 0) {
+        setZones(lData.locations);
+      } else if (sData.success && Array.isArray(sData.settings?.service_zones)) {
+        setZones(sData.settings.service_zones);
       }
     } catch (err) {
       console.error("Admin dashboard fetch error:", err);
@@ -364,19 +376,37 @@ export default function AdminDashboardPage() {
   const handleSaveSettings = async (e: React.FormEvent) => {
     e.preventDefault();
     setSettingsSavedMsg("");
+
+    let finalZones = [...zones];
+    const pendingInput = newZoneInput.trim();
+    if (pendingInput && !finalZones.some((z) => z.toLowerCase() === pendingInput.toLowerCase())) {
+      finalZones.push(pendingInput);
+      setZones(finalZones);
+      setNewZoneInput("");
+    }
+
     try {
-      const res = await fetch("/api/settings", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          hourly_rate: Number(hourlyRateInput),
-          worker_payout_rate: Number(workerPayoutInput),
-          service_zones: zones,
+      const [resSettings] = await Promise.all([
+        fetch("/api/settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            hourly_rate: Number(hourlyRateInput),
+            worker_payout_rate: Number(workerPayoutInput),
+            service_zones: finalZones,
+          }),
         }),
-      });
-      const data = await res.json();
+        fetch("/api/locations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ locations: finalZones }),
+        }),
+      ]);
+
+      const data = await resSettings.json();
       if (data.success) {
-        setSettingsSavedMsg("Settings updated successfully! Customers and workers now see updated pricing.");
+        broadcastLocationsUpdated(finalZones);
+        setSettingsSavedMsg("Settings & Service Locations updated successfully! Synced live across webapp.");
         setTimeout(() => setSettingsSavedMsg(""), 4000);
       }
     } catch (err) {
@@ -384,14 +414,160 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleAddZone = () => {
-    if (!newZoneInput.trim() || zones.includes(newZoneInput.trim())) return;
-    setZones((prev) => [...prev, newZoneInput.trim()]);
+  const handleAddZone = async (locationToAdd?: string) => {
+    const clean = (typeof locationToAdd === "string" ? locationToAdd : newZoneInput).trim();
+    if (!clean) return;
+    if (zones.some((z) => z.toLowerCase() === clean.toLowerCase())) {
+      setZoneActionMsg(`"${clean}" already exists in active locations!`);
+      setTimeout(() => setZoneActionMsg(""), 3000);
+      return;
+    }
+    const nextZones = [...zones, clean];
+    setZones(nextZones);
     setNewZoneInput("");
+    broadcastLocationsUpdated(nextZones);
+
+    try {
+      const [resLoc] = await Promise.all([
+        fetch("/api/locations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ location: clean }),
+        }),
+        fetch("/api/settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            hourly_rate: Number(hourlyRateInput),
+            worker_payout_rate: Number(workerPayoutInput),
+            service_zones: nextZones,
+          }),
+        }),
+      ]);
+
+      const data = await resLoc.json();
+      if (data.success && Array.isArray(data.locations)) {
+        setZones(data.locations);
+        broadcastLocationsUpdated(data.locations);
+      }
+      setZoneActionMsg(`Added "${clean}"! Synced live across entire webapp.`);
+      setTimeout(() => setZoneActionMsg(""), 3500);
+    } catch {
+      broadcastLocationsUpdated(nextZones);
+    }
   };
 
-  const handleRemoveZone = (zone: string) => {
-    setZones((prev) => prev.filter((z) => z !== zone));
+  const handleStartEditZone = (zone: string) => {
+    setEditingZone({ original: zone, current: zone });
+  };
+
+  const handleSaveEditZone = async () => {
+    if (!editingZone) return;
+    const oldName = editingZone.original.trim();
+    const newName = editingZone.current.trim();
+    if (!newName || oldName === newName) {
+      setEditingZone(null);
+      return;
+    }
+    const nextZones = zones.map((z) => (z === oldName ? newName : z));
+    setZones(nextZones);
+    setEditingZone(null);
+    broadcastLocationsUpdated(nextZones);
+
+    try {
+      const [resLoc] = await Promise.all([
+        fetch("/api/locations", {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ oldLocation: oldName, newLocation: newName }),
+        }),
+        fetch("/api/settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            hourly_rate: Number(hourlyRateInput),
+            worker_payout_rate: Number(workerPayoutInput),
+            service_zones: nextZones,
+          }),
+        }),
+      ]);
+
+      const data = await resLoc.json();
+      if (data.success && Array.isArray(data.locations)) {
+        setZones(data.locations);
+        broadcastLocationsUpdated(data.locations);
+      }
+      setZoneActionMsg(`Updated "${oldName}" to "${newName}" live across webapp.`);
+      setTimeout(() => setZoneActionMsg(""), 3500);
+    } catch {
+      broadcastLocationsUpdated(nextZones);
+    }
+  };
+
+  const handleRemoveZone = async (zone: string) => {
+    if (zones.length <= 1) {
+      alert("At least one service location must remain.");
+      return;
+    }
+    if (!confirm(`Are you sure you want to remove "${zone}" from active service locations?`)) {
+      return;
+    }
+    const nextZones = zones.filter((z) => z !== zone);
+    setZones(nextZones);
+    broadcastLocationsUpdated(nextZones);
+
+    try {
+      const [resLoc] = await Promise.all([
+        fetch(`/api/locations?location=${encodeURIComponent(zone)}`, {
+          method: "DELETE",
+        }),
+        fetch("/api/settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            hourly_rate: Number(hourlyRateInput),
+            worker_payout_rate: Number(workerPayoutInput),
+            service_zones: nextZones,
+          }),
+        }),
+      ]);
+
+      const data = await resLoc.json();
+      if (data.success && Array.isArray(data.locations)) {
+        setZones(data.locations);
+        broadcastLocationsUpdated(data.locations);
+      }
+      setZoneActionMsg(`Removed "${zone}". Updated everywhere.`);
+      setTimeout(() => setZoneActionMsg(""), 3500);
+    } catch {
+      broadcastLocationsUpdated(nextZones);
+    }
+  };
+
+  const handleResetZones = async () => {
+    if (!confirm("Reset service locations back to standard Nellore hubs?")) return;
+    try {
+      await Promise.all([
+        fetch("/api/locations", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ locations: DEFAULT_NELLORE_LOCALITIES }),
+        }),
+        fetch("/api/settings", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            hourly_rate: Number(hourlyRateInput),
+            worker_payout_rate: Number(workerPayoutInput),
+            service_zones: DEFAULT_NELLORE_LOCALITIES,
+          }),
+        }),
+      ]);
+      setZones(DEFAULT_NELLORE_LOCALITIES);
+      broadcastLocationsUpdated(DEFAULT_NELLORE_LOCALITIES);
+      setZoneActionMsg("Restored standard Nellore coverage hubs.");
+      setTimeout(() => setZoneActionMsg(""), 3500);
+    } catch {}
   };
 
   // Normalize status across dispatch lifecycle
@@ -1318,42 +1494,204 @@ export default function AdminDashboardPage() {
                 </div>
               </div>
 
-              {/* Service Areas */}
-              <div className="rounded-2xl border border-slate-800 bg-slate-950 p-5 space-y-3">
-                <h4 className="text-xs font-black uppercase text-slate-400">Nellore Service Zones</h4>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Add Nellore colony / community..."
-                    value={newZoneInput}
-                    onChange={(e) => setNewZoneInput(e.target.value)}
-                    className="flex-1 rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs text-white focus:outline-none focus:border-[#0C6266]"
-                  />
+              {/* Service Areas & Coverage Management */}
+              <div className="rounded-2xl border border-slate-800 bg-slate-950 p-5 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <MapPin className="h-4 w-4 text-[#38B2AC]" />
+                      <h4 className="text-xs font-black uppercase text-slate-200">
+                        Nellore Service Locations &amp; Coverage Zones
+                      </h4>
+                      <span className="rounded-full bg-[#0C6266]/40 border border-[#0C6266] px-2 py-0.5 text-[10px] font-bold text-[#E68A00]">
+                        {zones.length} Active Localities
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-slate-400 mt-1">
+                      Add, rename, or remove service coverage colonies. Updates reflect instantaneously across the customer header, booking flow, Google Maps selector, and worker dispatch.
+                    </p>
+                  </div>
+
                   <button
                     type="button"
-                    onClick={handleAddZone}
-                    className="bg-[#E68A00] hover:bg-[#CC7A00] text-white font-bold px-4 py-2 rounded-xl text-xs"
+                    onClick={handleResetZones}
+                    title="Restore standard 14 Nellore coverage hubs"
+                    className="self-start sm:self-auto flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-900 px-3 py-1.5 text-[11px] font-bold text-slate-300 hover:text-white hover:border-slate-500 transition cursor-pointer"
                   >
-                    + Add
+                    <RotateCcw className="h-3 w-3" />
+                    <span>Reset Defaults</span>
                   </button>
                 </div>
 
-                <div className="flex flex-wrap gap-1.5 pt-2">
-                  {zones.map((z) => (
-                    <span
-                      key={z}
-                      className="flex items-center gap-1.5 rounded-lg bg-slate-900 border border-slate-700 px-2.5 py-1 text-xs text-slate-200"
-                    >
-                      <span>{z}</span>
-                      <button
-                        type="button"
-                        onClick={() => handleRemoveZone(z)}
-                        className="text-slate-500 hover:text-rose-400"
-                      >
-                        ✕
-                      </button>
-                    </span>
-                  ))}
+                {zoneActionMsg && (
+                  <div className="rounded-xl bg-emerald-950/60 border border-emerald-500/40 p-2.5 text-xs font-bold text-emerald-300 flex items-center gap-2 animate-in fade-in">
+                    <CheckCircle2 className="h-3.5 w-3.5 shrink-0" />
+                    <span>{zoneActionMsg}</span>
+                  </div>
+                )}
+
+                {/* Add New Location Input */}
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <div className="relative flex-1">
+                    <MapPin className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-500" />
+                    <input
+                      type="text"
+                      placeholder="Add Nellore colony, apartment or area (e.g. Kavali Road)..."
+                      value={newZoneInput}
+                      onChange={(e) => setNewZoneInput(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleAddZone();
+                        }
+                      }}
+                      className="w-full rounded-xl bg-slate-900 border border-slate-700 pl-9 pr-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-[#0C6266]"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => handleAddZone()}
+                    className="bg-[#E68A00] hover:bg-[#CC7A00] text-white font-bold px-4 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition cursor-pointer shrink-0 shadow-sm"
+                  >
+                    <Plus className="h-3.5 w-3.5" />
+                    <span>Add Location</span>
+                  </button>
+                </div>
+
+                {/* Quick-add suggested Nellore colonies */}
+                {(() => {
+                  const suggestions = [
+                    "Muthukur Road",
+                    "Kavali Road",
+                    "Nawabpet",
+                    "Current Office Area",
+                    "Gandhi Nagar",
+                    "Kothur",
+                    "AC Nagar",
+                    "Padmavathi Nagar",
+                    "Santhapet",
+                    "Mulapet",
+                  ].filter((s) => !zones.some((z) => z.toLowerCase() === s.toLowerCase()));
+
+                  if (suggestions.length === 0) return null;
+
+                  return (
+                    <div className="pt-1">
+                      <span className="text-[10px] font-bold text-slate-400 block mb-1">
+                        Quick Add Popular Nellore Colonies:
+                      </span>
+                      <div className="flex flex-wrap gap-1.5">
+                        {suggestions.slice(0, 6).map((suggested) => (
+                          <button
+                            key={suggested}
+                            type="button"
+                            onClick={() => handleAddZone(suggested)}
+                            className="inline-flex items-center gap-1 rounded-lg bg-slate-900 hover:bg-slate-800 border border-slate-700/80 px-2 py-0.5 text-[10px] font-semibold text-slate-300 hover:text-white transition cursor-pointer"
+                          >
+                            <Plus className="h-2.5 w-2.5 text-[#38B2AC]" />
+                            <span>{suggested}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })()}
+
+                {/* Search Bar for Locations */}
+                <div className="relative pt-1">
+                  <Search className="absolute left-3 top-3.5 h-3.5 w-3.5 text-slate-500" />
+                  <input
+                    type="text"
+                    placeholder={`Filter or search ${zones.length} active service locations...`}
+                    value={zoneSearchQuery}
+                    onChange={(e) => setZoneSearchQuery(e.target.value)}
+                    className="w-full rounded-xl bg-slate-900/80 border border-slate-800 pl-9 pr-3 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-slate-700"
+                  />
+                </div>
+
+                {/* Locations Grid with Inline Edit and Delete */}
+                <div className="flex flex-wrap gap-2 pt-1 max-h-72 overflow-y-auto pr-1">
+                  {zones
+                    .filter((z) =>
+                      zoneSearchQuery
+                        ? z.toLowerCase().includes(zoneSearchQuery.toLowerCase())
+                        : true
+                    )
+                    .map((z) => {
+                      const isEditing = editingZone?.original === z;
+
+                      if (isEditing) {
+                        return (
+                          <div
+                            key={z}
+                            className="flex items-center gap-1.5 rounded-xl bg-slate-800 border border-[#0C6266] p-1 shadow-lg"
+                          >
+                            <input
+                              type="text"
+                              autoFocus
+                              value={editingZone.current}
+                              onChange={(e) =>
+                                setEditingZone({ ...editingZone, current: e.target.value })
+                              }
+                              onKeyDown={(e) => {
+                                if (e.key === "Enter") {
+                                  e.preventDefault();
+                                  handleSaveEditZone();
+                                } else if (e.key === "Escape") {
+                                  setEditingZone(null);
+                                }
+                              }}
+                              className="rounded-lg bg-slate-900 border border-slate-700 px-2 py-1 text-xs text-white focus:outline-none focus:border-[#38B2AC] min-w-[140px]"
+                            />
+                            <button
+                              type="button"
+                              onClick={handleSaveEditZone}
+                              title="Save Changes"
+                              className="rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white p-1 text-xs transition cursor-pointer"
+                            >
+                              <Check className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingZone(null)}
+                              title="Cancel"
+                              className="rounded-lg bg-slate-700 hover:bg-slate-600 text-slate-300 p-1 text-xs transition cursor-pointer"
+                            >
+                              <X className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <div
+                          key={z}
+                          className="group flex items-center gap-1.5 rounded-xl bg-slate-900 border border-slate-700/80 px-2.5 py-1.5 text-xs text-slate-200 hover:border-slate-600 transition"
+                        >
+                          <MapPin className="h-3 w-3 text-[#38B2AC] shrink-0" />
+                          <span className="font-semibold">{z}</span>
+
+                          <div className="flex items-center gap-1 pl-1 border-l border-slate-700/60 ml-0.5">
+                            <button
+                              type="button"
+                              onClick={() => handleStartEditZone(z)}
+                              title={`Edit / Rename "${z}"`}
+                              className="text-slate-400 hover:text-[#38B2AC] p-0.5 rounded transition cursor-pointer"
+                            >
+                              <Edit3 className="h-3 w-3" />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveZone(z)}
+                              title={`Remove "${z}" from active service areas`}
+                              className="text-slate-400 hover:text-rose-400 p-0.5 rounded transition cursor-pointer"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
                 </div>
               </div>
 

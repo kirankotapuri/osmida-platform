@@ -19,16 +19,7 @@ import { OsmidaHeader } from "@/components/OsmidaHeader";
 import { OsmidaFooter } from "@/components/OsmidaFooter";
 import { OsmidaServiceDetailModal } from "@/components/OsmidaServiceDetailModal";
 import { OSMIDA_SERVICES, OsmidaService } from "@/lib/osmidaServices";
-
-const SERVICE_LOCALITIES = [
-  "Haranathapuram",
-  "Magunta Layout",
-  "Vedayapalem",
-  "Pogathota",
-  "Dargamitta",
-  "Balaji Nagar",
-  "Children's Park Road",
-];
+import { useServiceLocations } from "@/lib/serviceLocations";
 
 const LAUNCH_GUARANTEES = [
   {
@@ -89,6 +80,7 @@ const FAQS = [
 ];
 
 export default function HomePage() {
+  const { locations: serviceLocations } = useServiceLocations();
   const [selectedModalService, setSelectedModalService] = useState<OsmidaService | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
@@ -271,7 +263,7 @@ export default function HomePage() {
             <span>Now Expanding Across Nellore Apartment Communities</span>
           </div>
           <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-3 text-xs sm:text-sm font-semibold text-[#475559]">
-            {SERVICE_LOCALITIES.map((locality, idx) => (
+            {serviceLocations.map((locality, idx) => (
               <span
                 key={idx}
                 className="inline-flex items-center gap-1.5 bg-[#F4F8F8] hover:bg-[#EBF4F5] px-3.5 py-1.5 rounded-full border border-[#DFE8E8] transition-colors"
